@@ -1,0 +1,198 @@
+import { DB_NAME, DB_VERSION, STORE_NAME } from './config.js';
+import { buildBatchLoadingManager, loadModelFile } from './ModelLoader.js';
+import { loadImagePlane, loadImageElement } from './MediaLoader.js';
+import { inflateFromCanvas } from './BalloonInflator.js';
+import { loadLibraryModel, loadTreeModel, loadBillboardImage } from './StartupAssets.js';
+import { createLightOrb } from './LightOrb.js';
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function runTx(db, mode, fn) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, mode);
+    const store = tx.objectStore(STORE_NAME);
+    const result = fn(store);
+    tx.oncomplete = () => resolve(result?.result);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function applyTransform(object3D, transform) {
+  object3D.position.fromArray(transform.position);
+  object3D.rotation.set(transform.rotation[0], transform.rotation[1], transform.rotation[2]);
+  object3D.scale.fromArray(transform.scale);
+}
+
+export class WorldStore {
+  constructor({ scene, registry, menu, programManager, playIconManager, webBrowserManager }) {
+    this.scene = scene;
+    this.registry = registry;
+    this.menu = menu;
+    this.programManager = programManager;
+    this.playIconManager = playIconManager;
+    this.webBrowserManager = webBrowserManager;
+    this.dbPromise = openDB();
+
+    // Best-effort: reduces the odds the browser evicts this data under storage pressure.
+    navigator.storage?.persist?.().catch(() => {});
+  }
+
+  // Every rehydration path funnels through here so a saved program resumes
+  // automatically whether it came from IndexedDB or a loaded world file.
+  addAndRun(record, object3D, extra = {}) {
+    this.registry.add(record.id, object3D, { ...extra, record });
+    if (record.program?.length) {
+      this.programManager?.start(record.id, record.program, object3D);
+    }
+    this.playIconManager?.refresh(record.id, record, object3D);
+  }
+
+  async saveObject(record) {
+    try {
+      const db = await this.dbPromise;
+      await runTx(db, 'readwrite', (store) => store.put(record));
+    } catch (err) {
+      const message =
+        err?.name === 'QuotaExceededError'
+          ? 'Storage is full — this was placed but may not be here next time.'
+          : 'Could not save this for next time.';
+      this.menu?.toast(message, { tone: 'error' });
+    }
+  }
+
+  async clearAll() {
+    const db = await this.dbPromise;
+    await runTx(db, 'readwrite', (store) => store.clear());
+  }
+
+  // Replaces the entire live world with a set of records loaded from a saved world
+  // file: wipes the current scene + IndexedDB, then rehydrates and re-persists each
+  // given record so it becomes the new "live" state going forward.
+  async loadFromRecords(records) {
+    this.registry.clear();
+    this.playIconManager?.clear();
+    this.webBrowserManager?.clear();
+    await this.clearAll();
+    for (const record of records) {
+      try {
+        await this.rehydrateOne(record);
+        await this.saveObject(record);
+      } catch (err) {
+        console.error('Failed to load a record from the world file:', record?.kind, err);
+      }
+    }
+  }
+
+  async rehydrateAll() {
+    let records;
+    try {
+      const db = await this.dbPromise;
+      records = await runTx(db, 'readonly', (store) => store.getAll());
+    } catch {
+      return;
+    }
+
+    for (const record of records || []) {
+      try {
+        await this.rehydrateOne(record);
+      } catch (err) {
+        console.error('Failed to restore a placed object:', record?.primaryFileName || record?.kind, err);
+      }
+    }
+  }
+
+  async rehydrateOne(record) {
+    if (record.kind === 'startup-library' || record.kind === 'startup-tree' || record.kind === 'startup-billboard') {
+      const loader =
+        record.kind === 'startup-library' ? loadLibraryModel : record.kind === 'startup-tree' ? loadTreeModel : loadBillboardImage;
+      const result = await loader();
+      const object3D = result?.mesh || result;
+      const tick = result?.tick;
+      applyTransform(object3D, record.transform);
+      this.scene.add(object3D);
+      this.addAndRun(record, object3D, { tick });
+      return;
+    }
+
+    if (record.kind === 'light-orb') {
+      const group = createLightOrb(record.color);
+      applyTransform(group, record.transform);
+      this.scene.add(group);
+      this.addAndRun(record, group);
+      return;
+    }
+
+    if (record.kind === 'web-browser') {
+      const bezelMesh = this.webBrowserManager.createPanel(record, this);
+      applyTransform(bezelMesh, record.transform);
+      this.scene.add(bezelMesh);
+      this.addAndRun(record, bezelMesh);
+      return;
+    }
+
+    if (record.kind === 'balloon') {
+      const fr = record.files[0];
+      const url = URL.createObjectURL(fr.data);
+      let img;
+      try {
+        img = await loadImageElement(url);
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+
+      const mesh = inflateFromCanvas(canvas);
+      if (!mesh) return;
+      applyTransform(mesh, record.transform);
+      this.scene.add(mesh);
+      this.addAndRun(record, mesh);
+      return;
+    }
+
+    if (record.kind === 'image' || record.kind === 'gif') {
+      const fr = record.files[0];
+      const file = new File([fr.data], fr.name, { type: fr.type });
+      const { mesh, tick } = await loadImagePlane(file, { isGif: record.kind === 'gif' });
+      applyTransform(mesh, record.transform);
+      this.scene.add(mesh);
+      this.addAndRun(record, mesh, { tick });
+      return;
+    }
+
+    // gltf / obj
+    const files = record.files.map((f) => new File([f.data], f.name, { type: f.type }));
+    const { manager, urlMap } = buildBatchLoadingManager(files);
+    try {
+      const primary = files.find((f) => f.name === record.primaryFileName) || files[0];
+      const mtlFile = files.find((f) => /\.mtl$/i.test(f.name));
+      const ext = record.kind === 'obj' ? 'obj' : /\.glb$/i.test(primary.name) ? 'glb' : 'gltf';
+      const object3D = await loadModelFile({ file: primary, ext, manager, mtlFile });
+      object3D.traverse((node) => {
+        if (node.isMesh) {
+          node.castShadow = true;
+          node.receiveShadow = true;
+        }
+      });
+      applyTransform(object3D, record.transform);
+      this.scene.add(object3D);
+      this.addAndRun(record, object3D);
+    } finally {
+      for (const url of urlMap.values()) URL.revokeObjectURL(url);
+    }
+  }
+}
