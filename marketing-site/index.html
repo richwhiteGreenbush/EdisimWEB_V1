@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Edusim: Web Edition — Build Your Own 3D World!</title>
+<meta name="description" content="Edusim: Web Edition is a free, browser-based 3D world where kids walk, draw, build, and code their own creations — no downloads, no accounts, no ads." />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <span class="brand-mark">🌎</span>
+      <span>Edusim
+        <small>Web Edition</small>
+      </span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">What You Can Do</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#parents">For Parents &amp; Teachers</a></li>
+    </ul>
+    <a class="btn btn-primary nav-cta" href="#play">Play Now</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow hero-eyebrow">✨ A 3D World You Build Yourself</span>
+    <h1>Walk in. Draw <span class="pop-orange">balloons</span>. Build <span class="pop-red">anything</span>. It's YOUR world!</h1>
+    <p class="hero-sub">
+      Edusim: Web Edition is a giant, rolling 3D playground that lives right in your
+      web browser. Bring in your own 3D models, paint a squiggle and watch it puff up
+      into a balloon, drop glowing light orbs, and even teach your creations to move
+      all by themselves — with drag-and-drop blocks, just like a game designer.
+    </p>
+    <div class="hero-cta-row">
+      <a class="btn btn-primary" href="#features">See What You Can Build ↓</a>
+      <a class="btn btn-ghost" href="#parents">I'm a Parent or Teacher</a>
+    </div>
+
+    <div class="browser-frame reveal">
+      <div class="chrome">
+        <span class="browser-dot r"></span>
+        <span class="browser-dot y"></span>
+        <span class="browser-dot g"></span>
+        <span class="addr">🌎 your-world.local</span>
+      </div>
+      <img src="assets/screenshots/01_hero_world.png" alt="A rolling green 3D world with a maple tree, a glass library building, and a floating Edusim sign, viewed in the Edusim: Web Edition browser app." loading="eager" />
+    </div>
+
+    <div class="hero-stats">
+      <span class="hero-stat">🧱 No downloads</span>
+      <span class="hero-stat">🔑 No sign-ups</span>
+      <span class="hero-stat">💾 Saves itself, automatically</span>
+      <span class="hero-stat">🚫 No ads, ever</span>
+    </div>
+  </div>
+</header>
+
+<main id="features">
+
+  <!-- Feature: Import -->
+  <section class="section tint-cream">
+    <div class="wrap">
+      <div class="feature reveal">
+        <div class="feature-media">
+          <div class="browser-frame">
+            <div class="chrome">
+              <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
+              <span class="addr">☰ Menu</span>
+            </div>
+            <img src="assets/screenshots/02_menu_open.png" alt="The Edusim menu open, showing Import, Draw, Light Orb, Web Browser, Save World, and Load World buttons." />
+          </div>
+          <span class="feature-tag">🧰 One tap away</span>
+        </div>
+        <div class="feature-text">
+          <span class="eyebrow" style="background: var(--orange); color: #402200;">Bring In Anything</span>
+          <h3>Import your own 3D models &amp; pictures</h3>
+          <p>
+            Tap <strong>Import</strong> and drag in a 3D model, a photo, or even a
+            silly animated GIF — Edusim automatically resizes it to fit perfectly
+            in your world. Grab free models and textures from the built-in
+            "Get free 3D models" link and start decorating right away.
+          </p>
+          <ul class="feature-list">
+            <li><span class="check" style="background: var(--orange);">✓</span> Works with .glb, .gltf, .obj, .png, .jpg, and animated .gif files</li>
+            <li><span class="check" style="background: var(--orange);">✓</span> Everything is auto-scaled so nothing looks too big or too tiny</li>
+            <li><span class="check" style="background: var(--orange);">✓</span> Just drag a file straight onto the window</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature: Draw + Balloon -->
+  <section class="section tint-blue">
+    <div class="wrap">
+      <div class="feature reverse reveal">
+        <div class="feature-media duo">
+          <div class="browser-frame">
+            <div class="chrome">
+              <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
+              <span class="addr">🎨 Draw</span>
+            </div>
+            <img src="assets/screenshots/04_draw_tool.png" alt="The paint tool with a friendly orange smiley face being painted in six bright colors." />
+          </div>
+          <div class="browser-frame">
+            <div class="chrome">
+              <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
+              <span class="addr">🎈 Balloon!</span>
+            </div>
+            <img src="assets/screenshots/05_balloon_result.png" alt="The painted smiley shape has inflated into a puffy 3D balloon sitting in the grass." />
+          </div>
+        </div>
+        <div class="feature-text">
+          <span class="eyebrow" style="background: var(--blue); color: #fff;">Pure Imagination</span>
+          <h3>Paint it, then... POOF! It's 3D!</h3>
+          <p>
+            Pick a color and a brush size and paint absolutely anything — a face, a
+            star, a blob monster, whatever you dream up. Hit
+            <strong>Done — Inflate</strong> and your flat painting puffs up into a
+            round, puffy 3D balloon, textured in your very own colors.
+          </p>
+          <ul class="feature-list">
+            <li><span class="check" style="background: var(--blue);">✓</span> Paint with as many colors and strokes as you like</li>
+            <li><span class="check" style="background: var(--blue);">✓</span> Every balloon is one-of-a-kind, just like your drawing</li>
+            <li><span class="check" style="background: var(--blue);">✓</span> Drops right into your world, ready to resize and place</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature: Light Orbs -->
+  <section class="section tint-green">
+    <div class="wrap">
+      <div class="feature reveal">
+        <div class="feature-media">
+          <div class="browser-frame">
+            <div class="chrome">
+              <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
+              <span class="addr">💡 Light Orb</span>
+            </div>
+            <img src="assets/screenshots/03_light_orbs.png" alt="Six glowing colorful light orbs floating in a row above the grass — blue, purple, white, red, orange, and green." />
+          </div>
+          <span class="feature-tag">✨ Real glowing light</span>
+        </div>
+        <div class="feature-text">
+          <span class="eyebrow" style="background: var(--green); color: #fff;">Light Up the Night</span>
+          <h3>Drop glowing light orbs anywhere</h3>
+          <p>
+            One tap of <strong>Light Orb</strong> drops a glowing sphere of light
+            that actually lights up the ground around it — not just a picture of
+            glowing, real light! Every click cycles to a new color, and you can
+            fine-tune the exact glow from the orb's own Color menu.
+          </p>
+          <ul class="feature-list">
+            <li><span class="check" style="background: var(--green);">✓</span> Casts real light onto the hills and grass nearby</li>
+            <li><span class="check" style="background: var(--green);">✓</span> Cycles through a rainbow of colors as you place more</li>
+            <li><span class="check" style="background: var(--green);">✓</span> Great for lighting up a nighttime scene or a secret hideout</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature: Program editor -->
+  <section class="section tint-purple">
+    <div class="wrap">
+      <div class="feature reverse reveal">
+        <div class="feature-media">
+          <div class="browser-frame">
+            <div class="chrome">
+              <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
+              <span class="addr">🧩 Program this object</span>
+            </div>
+            <img src="assets/screenshots/07_program_editor.png" alt="A Scratch-style drag-and-drop block editor with a repeat block containing a rotate block and a change-color block." />
+          </div>
+          <span class="feature-tag">🧠 No coding experience needed</span>
+        </div>
+        <div class="feature-text">
+          <span class="eyebrow" style="background: var(--purple); color: #fff;">Coding, Made Playful</span>
+          <h3>Teach your creations new tricks</h3>
+          <p>
+            Click anything and tap <strong>Program</strong> to open a friendly,
+            drag-and-drop block editor — just like Scratch. Snap together blocks
+            like "repeat 10 times," "rotate 15 degrees," and "change color to..."
+            to build spinning sculptures, bouncing balloons, or slow-glowing orbs.
+          </p>
+          <ul class="feature-list">
+            <li><span class="check" style="background: var(--purple);">✓</span> Drag colorful blocks together — no typing required</li>
+            <li><span class="check" style="background: var(--purple);">✓</span> A green ▶ play icon floats above anything you've programmed</li>
+            <li><span class="check" style="background: var(--purple);">✓</span> Great first taste of real programming logic and loops</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature: Web browser panel -->
+  <section class="section tint-cream">
+    <div class="wrap">
+      <div class="feature reveal">
+        <div class="feature-media">
+          <div class="browser-frame">
+            <div class="chrome">
+              <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
+              <span class="addr">🌐 Web Browser</span>
+            </div>
+            <img src="assets/screenshots/08_web_browser.png" alt="A real, live web browser panel showing a Wikipedia article, floating in the 3D world next to a tree and a building." />
+          </div>
+          <span class="feature-tag">📖 Real, live web pages</span>
+        </div>
+        <div class="feature-text">
+          <span class="eyebrow" style="background: var(--orange); color: #402200;">Even More Magic</span>
+          <h3>Bring a real web page into your world</h3>
+          <p>
+            Place a real, clickable web browser panel right in your 3D world —
+            complete with its own address bar. It opens on Wikipedia by default,
+            so you can build a little reading nook, a research corner, or just
+            park a fun page next to your treehouse.
+          </p>
+          <ul class="feature-list">
+            <li><span class="check" style="background: var(--orange);">✓</span> Type any address into the panel's own toolbar</li>
+            <li><span class="check" style="background: var(--orange);">✓</span> Click, scroll, and type on the page just like normal</li>
+            <li><span class="check" style="background: var(--orange);">✓</span> Tap the little ✎ icon above it to resize or move the panel</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature: tap to edit -->
+  <section class="section tint-blue">
+    <div class="wrap">
+      <div class="feature reverse reveal">
+        <div class="feature-media">
+          <div class="browser-frame">
+            <div class="chrome">
+              <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
+              <span class="addr">👆 Object menu</span>
+            </div>
+            <img src="assets/screenshots/06_object_menu.png" alt="Clicking a building opens a small floating menu with Size, Move, Program, and Close buttons." />
+          </div>
+        </div>
+        <div class="feature-text">
+          <span class="eyebrow" style="background: var(--blue); color: #fff;">Everything Is Yours to Change</span>
+          <h3>Tap anything to make it yours</h3>
+          <p>
+            Nothing in your world is stuck the way it started. Click any object to
+            pop open its menu — resize it bigger or smaller, nudge it around, or
+            jump straight into programming it. Changes save automatically, so
+            everything is exactly how you left it next time you visit.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature: play anywhere -->
+  <section class="section tint-green" id="how-it-works">
+    <div class="wrap">
+      <div class="feature reveal">
+        <div class="feature-media">
+          <div class="browser-frame" style="max-width: 340px;">
+            <div class="chrome">
+              <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
+              <span class="addr">📱 Tablet-friendly</span>
+            </div>
+            <img src="assets/screenshots/09_tablet_dpad.png" alt="A tall, tablet-shaped view of the 3D world with a large on-screen directional pad in the corner for walking and turning with a finger." />
+          </div>
+          <span class="feature-tag">👉 Finger-friendly controls</span>
+        </div>
+        <div class="feature-text">
+          <span class="eyebrow" style="background: var(--green); color: #fff;">Play Anywhere</span>
+          <h3>Works on a laptop, or a tablet on the couch</h3>
+          <p>
+            On a computer, walk with the arrow keys and click-drag to look around.
+            On a tablet or touchscreen, a big friendly on-screen D-pad appears in
+            the corner — press and hold to walk and turn, with room for more than
+            one finger at once.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<section class="parents" id="parents">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow" style="background: rgba(255,255,255,0.12); color: #fff;">For Parents &amp; Teachers</span>
+      <h2>Built for imagination, not for data collection</h2>
+      <p>Edusim: Web Edition runs entirely in the browser — there's no server watching, no account to create, and no one else to run into.</p>
+    </div>
+    <div class="parent-grid">
+      <div class="parent-card reveal">
+        <span class="icon">🔒</span>
+        <h4>No accounts, no strangers</h4>
+        <p>This is a single-player sandbox. There's no chat, no multiplayer, and no login — just your child and their world.</p>
+      </div>
+      <div class="parent-card reveal">
+        <span class="icon">💾</span>
+        <h4>Saves itself, right on the device</h4>
+        <p>Everything is stored locally in the browser automatically. "Save World" and "Load World" let you back up or share a creation as a file.</p>
+      </div>
+      <div class="parent-card reveal">
+        <span class="icon">🚫</span>
+        <h4>No ads, no purchases</h4>
+        <p>There's nothing to buy and nothing to click by accident. It's just a creative space to build in.</p>
+      </div>
+      <div class="parent-card reveal">
+        <span class="icon">🧠</span>
+        <h4>Real skills, playfully taught</h4>
+        <p>Spatial reasoning, color and design, and an honest first taste of programming logic through drag-and-drop blocks.</p>
+      </div>
+      <div class="parent-card reveal">
+        <span class="icon">🖥️</span>
+        <h4>Runs on what you already have</h4>
+        <p>It's a web app — no installs, no app store, no special hardware. Just open it in a modern browser.</p>
+      </div>
+      <div class="parent-card reveal">
+        <span class="icon">🌐</span>
+        <h4>Heads up on web panels</h4>
+        <p>The optional Web Browser panel can show real pages like Wikipedia — worth a quick look together the first time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta" id="play">
+  <div class="wrap">
+    <h2>Ready to build your first world?</h2>
+    <p>Grab a grown-up, open Edusim: Web Edition in your browser, and start walking, drawing, and building. Your world is waiting.</p>
+    <div class="hero-cta-row">
+      <a class="btn btn-primary" href="#top">Back to the Top ↑</a>
+    </div>
+    <p class="final-note">Ask a parent or teacher to launch Edusim: Web Edition on this computer to get started.</p>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-row">
+      <div class="footer-brand">
+        <span class="brand-mark" style="width:32px;height:32px;font-size:1rem;">🌎</span>
+        Edusim: Web Edition
+      </div>
+      <ul class="footer-links">
+        <li><a href="#features">What You Can Do</a></li>
+        <li><a href="#parents">For Parents</a></li>
+        <li><a href="#top">Back to Top</a></li>
+      </ul>
+    </div>
+    <p class="footer-fine">A browser-based 3D sandbox for building, drawing, and imagining. No accounts. No ads. Just your world.</p>
+  </div>
+</footer>
+
+</body>
+</html>
