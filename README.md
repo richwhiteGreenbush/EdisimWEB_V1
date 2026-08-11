@@ -1,4 +1,4 @@
-# 3DCoder
+# Edusim - Web Edition
 
 A single-user, browser-based 3D sandbox in the spirit of Second Life. Walk around an
 open, gently rolling landscape with the arrow keys, drag your own glTF/OBJ models or
