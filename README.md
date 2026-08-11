@@ -1,6 +1,6 @@
 # Edusim - Web Edition
 
-A single-user, browser-based 3D sandbox in the spirit of Second Life. Walk around an
+A single-user, browser-based 3D sandbox in the spirit of Edusim3D. Walk around an
 open, gently rolling landscape with the arrow keys, drag your own glTF/OBJ models or
 images onto the ground, freehand-draw a shape that inflates into a 3D balloon figure,
 drop a glowing light orb, or place a live, interactive web browser. Everything you
