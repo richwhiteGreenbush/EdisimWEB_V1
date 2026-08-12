@@ -10,6 +10,7 @@ export class Menu {
     onSaveWorldClick,
     onLoadWorldClick,
     onLoadPresetClick,
+    onVRClick,
   }) {
     this.root = document.createElement('div');
     this.root.id = 'menu';
@@ -106,6 +107,13 @@ export class Menu {
     this.clearBtn = this._button('Clear World', 'Remove everything you have placed');
     this.clearBtn.addEventListener('click', () => onClearClick?.());
 
+    this.vrBtn = this._button(
+      'VR Headset View',
+      'Split the screen into a left-eye and right-eye image for a VR headset — uses a connected headset if it finds one'
+    );
+    this.vrBtn.classList.add('menu-btn-vr');
+    this.vrBtn.addEventListener('click', () => onVRClick?.());
+
     const hint = document.createElement('div');
     hint.className = 'menu-hint';
     hint.textContent = 'Arrow keys to walk & turn · drag to look';
@@ -116,6 +124,7 @@ export class Menu {
       loadWorld.toggle,
       loadWorld.panel,
       this.clearBtn,
+      this.vrBtn,
       hint
     );
     this.root.append(this.toggleBtn, this.panel);
@@ -185,6 +194,13 @@ export class Menu {
 
   setImportEnabled(enabled) {
     this.importBtn.disabled = !enabled;
+  }
+
+  // The VR button doubles as the way back out, so its label has to track the state --
+  // including when the headset itself ends the session, which never touches this menu.
+  setVRActive(active) {
+    this.vrBtn.textContent = active ? 'Exit VR Headset View' : 'VR Headset View';
+    this.vrBtn.classList.toggle('menu-btn-open', active);
   }
 
   toast(message, { tone = 'info', duration = 4000 } = {}) {

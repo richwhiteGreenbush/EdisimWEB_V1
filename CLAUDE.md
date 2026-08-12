@@ -647,6 +647,65 @@ now *never* pickable through the generic path, full stop, regardless of what the
 layer does or doesn't intercept — Size/Move/Program for a panel is reachable only
 through its edit icon, by construction, not by convention.
 
+### VR: WebXR when there's a headset, fullscreen side-by-side when there isn't
+
+Menu ▸ **VR Headset View** (`VRView.js`) has two paths behind one button, picked at
+click time by `navigator.xr.isSessionSupported('immersive-vr')`:
+
+- **`'xr'`** — a real immersive session. The headset does its own per-eye projection,
+  lens distortion and 6DoF tracking. This is the path a Quest browsing to the page takes.
+- **`'stereo'`** — `StereoEffect` side-by-side in fullscreen, plus hand-rolled
+  `deviceorientation` head-look. This is what a phone in a Cardboard-style holder needs,
+  and it's the only way a student on a plain laptop sees what the stereo view is at all.
+
+**ArrayCamera was considered and is deliberately not used directly**: `WebXRManager`
+already builds and drives one internally for the XR path, so hand-rolling it would mean
+reimplementing the pose plumbing that `renderer.xr` gives for free — and it would do
+nothing for the phone case.
+
+**Neither path touches `PlayerController` or the app camera.** Both drive a *separate*
+camera that reads the player's state each frame:
+
+- XR uses a `dolly` Group with its own `xrCamera` child. `WebXRManager` overwrites the
+  transform of whatever camera it's handed (`updateUserCamera`), so handing it the real
+  camera would fight `PlayerController` for control every frame. Instead the dolly is
+  positioned from `camera.position` and `player.yaw`, and the headset pose is applied
+  on top — walking with the arrow keys and leaning in the room both work, and neither
+  knows about the other. The dolly sits at the player's **feet** (`y - EYE_HEIGHT`)
+  because `local-floor` measures head height from the floor.
+- Stereo uses a proxy `viewCamera`, for the same reason: `PlayerController` owns
+  `camera.rotation` and overwrites anything written there on its next `update()`.
+
+**The units trap, and it is a big one.** One world unit here is a **foot**; WebXR
+reference spaces and `THREE.StereoCamera` both work in **metres**. So:
+
+- `dolly.scale` is `3.280839895`. `WebXRManager` computes the eye transform as
+  `dolly.matrixWorld × pose`, so scaling the dolly is what converts the pose's metres to
+  feet. Without it a 1.7m-tall person is 1.7ft tall and the world renders 3.28×
+  oversized around them.
+- `setEyeSeparation` is `0.064 × 3.28 = 0.21`, not `StereoCamera`'s default `0.064`,
+  which in feet is two thirds of an *inch* between the eyes. Measured against the real
+  projection matrices, the correction takes the near-to-infinity parallax range from
+  ~11px to ~36px per eye — the difference between a flat picture and actual depth.
+
+Three smaller things worth keeping:
+
+- **`main.js` uses `renderer.setAnimationLoop(animate)`, not `requestAnimationFrame`.**
+  Inside an XR session frames have to come from the device's loop with that frame's pose
+  attached; `setAnimationLoop` swaps the two over and is plain rAF otherwise.
+- **`StereoEffect.render()` leaves the viewport and scissor set to the right-eye half
+  and never restores them.** `VRView.exit()` resets both explicitly — without it the flat
+  view comes back squeezed into the right-hand side of the canvas.
+- **`body.vr-active` hides every DOM overlay** (`#css3d-layer`, `#menu`, `#touch-nav`,
+  `#object-menu`). The web browser panels matter most: CSS3D draws real DOM over the
+  canvas as ONE flat image, so in a split view it would straddle both eyes at once.
+  Toasts stay, moved to the top — they're how "press Esc to come back" is delivered.
+
+Exit is reachable three ways and they all converge on the same cleanup: the menu button
+(now labelled *Exit VR Headset View*), `Esc`, and the headset's own menu button, which
+fires the session's `end` event without going through the menu at all — hence
+`onNotice({type:'exited'})` calling back into `menu.setVRActive(false)`.
+
 ### Touch input is fully decoupled from PlayerController
 
 `TouchNav.js` never touches `PlayerController` directly — it dispatches synthetic
@@ -712,8 +771,8 @@ a frame later just adds a visible jump when opening near a screen edge.
   omitting this produces a "multiple instances of three.js" runtime warning, because
   Vite's dev-time pre-bundling otherwise treats the deep-imported files as a separate
   module graph from the bare `three` import. `CSS3DRenderer.js` was added here when the
-  web browser panel was built, and `BufferGeometryUtils.js` when the preset worlds
-  started merging geometry.
+  web browser panel was built, `BufferGeometryUtils.js` when the preset worlds started
+  merging geometry, and `effects/StereoEffect.js` for the VR view.
 - Vite only serves `public/` verbatim over HTTP. Anything that needs to be
   `fetch()`-able at runtime by a fixed URL (the startup assets) must live under
   `public/`, not the project root.

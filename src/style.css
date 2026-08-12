@@ -625,6 +625,36 @@ html, body {
   overflow: hidden;
 }
 
+/* While the VR view is running, every DOM overlay has to go.
+   The web browser panels especially: the CSS3D layer draws real DOM on top of the
+   canvas in ONE flat image, so in a split left/right view it would sit across both
+   eyes at once -- unreadable, and it breaks the stereo illusion completely. The menu
+   and D-pad are hidden for the same reason, and because inside a headset there is no
+   cursor to press them with anyway. */
+body.vr-active #css3d-layer,
+body.vr-active #menu,
+body.vr-active #touch-nav,
+body.vr-active #object-menu {
+  display: none !important;
+}
+
+/* Toasts stay visible: they are how the "press Esc to come back" instruction is
+   delivered, and the student needs to be able to read it before putting the headset on. */
+body.vr-active #toast-host {
+  bottom: auto;
+  top: 16px;
+}
+
+.menu-btn-vr {
+  margin-top: 2px;
+  border-color: rgba(167, 139, 250, 0.4);
+  background: rgba(167, 139, 250, 0.12);
+}
+
+.menu-btn-vr:hover {
+  background: rgba(167, 139, 250, 0.24);
+}
+
 .wb-panel {
   display: flex;
   flex-direction: column;

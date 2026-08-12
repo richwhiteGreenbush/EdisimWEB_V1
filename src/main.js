@@ -15,6 +15,7 @@ import { PlayIconManager } from './PlayIcon.js';
 import { placeLightOrb } from './LightOrb.js';
 import { WebBrowserManager, placeWebBrowser } from './WebBrowserPanel.js';
 import { buildPresetWorldRecords } from './WorldPresets.js';
+import { VRView } from './VRView.js';
 import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD } from './config.js';
 
 const canvas = document.getElementById('scene');
@@ -101,6 +102,18 @@ const menu = new Menu({
     }
   },
   onLoadWorldClick: () => loadWorldInput.click(),
+  onVRClick: async () => {
+    // Collapse first: the menu is hidden while VR is on, and leaving it open means it
+    // reappears mid-panel the moment the student comes back out.
+    menu.setCollapsed(true);
+    try {
+      await vrView.toggle();
+    } catch (err) {
+      console.error('VR view failed:', err);
+      menu.toast('Could not start the VR view on this device.', { tone: 'error' });
+    }
+    menu.setVRActive(vrView.active);
+  },
   onLoadPresetClick: (name) => {
     menu.setCollapsed(true);
     menu.toast('Building the world…');
@@ -172,10 +185,30 @@ worldStore
   })
   .catch((err) => console.error('World initialization failed:', err));
 
+// Constructed after `menu` because its notices toast through it, and before the resize
+// handler and animate loop, both of which hand it every frame/size change.
+const vrView = new VRView({
+  renderer,
+  scene,
+  camera,
+  player,
+  onNotice: ({ type, message }) => {
+    if (type === 'exited') {
+      // The headset's own menu button and the Esc key both leave without going through
+      // the menu, so the button label has to be corrected from here.
+      menu.setVRActive(false);
+      menu.toast('Back to the normal view.');
+      return;
+    }
+    if (message) menu.toast(message, { tone: 'success', duration: 6000 });
+  },
+});
+
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  vrView.resize(window.innerWidth, window.innerHeight);
 });
 
 const timer = new THREE.Timer();
@@ -185,12 +218,15 @@ if (import.meta.env.DEV) {
   window.__debug = {
     camera, player, renderer, scene, THREE, menu, registry, importManager, drawTool,
     worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager,
-    webBrowserManager,
+    webBrowserManager, vrView,
   };
 }
 
+// renderer.setAnimationLoop rather than a bare requestAnimationFrame: inside a WebXR
+// session the frames have to come from the XR device's own loop (at its refresh rate,
+// with the pose for that frame attached), and this is what swaps the two over. Outside
+// a session it is plain requestAnimationFrame, so nothing else changes.
 function animate(timestamp) {
-  requestAnimationFrame(animate);
   timer.update(timestamp);
   const dt = Math.min(timer.getDelta(), 0.1);
   player.update(dt);
@@ -198,6 +234,7 @@ function animate(timestamp) {
   programManager.tick();
   playIconManager.tick();
   webBrowserManager.tick();
-  renderer.render(scene, camera);
+  // vrView draws the frame itself when a headset or stereo view is running.
+  if (!vrView.render()) renderer.render(scene, camera);
 }
-animate();
+renderer.setAnimationLoop(animate);
