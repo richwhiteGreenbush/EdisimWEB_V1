@@ -1044,3 +1044,109 @@ a {
     animation: none;
   }
 }
+
+/* --- The menu mock's newer rows ------------------------------------------ */
+
+/* Save World / Load World File sit inside Load World but are a different KIND of
+   action from the ready-made worlds above them, so they are toned down rather than
+   sharing the worlds' blue. Mirrors .menu-subitem-alt in the app itself. */
+.menu-mock .mm-alt {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #dfe6ec;
+}
+
+.menu-mock .mm-vr {
+  background: rgba(167, 139, 250, 0.18);
+  border-color: rgba(167, 139, 250, 0.42);
+  color: #ede9fe;
+}
+
+/* --- View in VR ---------------------------------------------------------- */
+
+.vr-section {
+  background: linear-gradient(170deg, #10192a, #1c1533);
+  color: #eef2f8;
+}
+
+.vr-section .section-head h2 {
+  color: #fff;
+}
+
+.vr-section .section-head p {
+  color: rgba(238, 242, 248, 0.82);
+}
+
+.vr-shot {
+  margin: 0 0 40px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(167, 139, 250, 0.34);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.42);
+  background: #0b1120;
+}
+
+.vr-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.vr-shot figcaption {
+  padding: 14px 18px;
+  font-size: 0.92rem;
+  color: rgba(238, 242, 248, 0.72);
+  text-align: center;
+}
+
+.vr-ways {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 760px) {
+  .vr-ways {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.vr-way {
+  padding: 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.vr-way .icon {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.vr-way h4 {
+  margin: 0 0 8px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 1.12rem;
+  color: #fff;
+}
+
+.vr-way p {
+  margin: 0;
+  font-size: 0.96rem;
+  line-height: 1.6;
+  color: rgba(238, 242, 248, 0.78);
+}
+
+.vr-note {
+  margin: 28px auto 0;
+  max-width: 760px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: rgba(167, 139, 250, 0.12);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  font-size: 0.96rem;
+  line-height: 1.6;
+  color: rgba(238, 242, 248, 0.86);
+  text-align: center;
+}

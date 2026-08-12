@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Edusim: Web Edition — Build Your Own 3D World!</title>
-<meta name="description" content="Edusim: Web Edition is a free, browser-based 3D world with ready-made places to explore — a city park, an art museum, a public library, the Moon, a Mars base, and more on the way — where kids walk, draw, build, and code their own creations. No downloads, no accounts, no ads." />
+<meta name="description" content="Edusim: Web Edition is a free, browser-based 3D world with ready-made places to explore — a city park, an art museum, a public library, the Moon, a Mars base, a Cretaceous island and a walk-through tour of the human body, with more on the way — where kids walk, draw, build, code their own creations, and step inside it all in VR. No downloads, no accounts, no ads." />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -23,7 +23,8 @@
     </a>
     <ul class="nav-links">
       <li><a href="#worlds">Explore The Worlds</a></li>
-      <li><a href="#features">What You Can Do</a></li>
+      <li><a href="#vr">View in VR</a></li>
+        <li><a href="#features">What You Can Do</a></li>
       <li><a href="#parents">For Parents &amp; Teachers</a></li>
     </ul>
     <a class="btn btn-primary nav-cta" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">Play Now</a>
@@ -37,10 +38,11 @@
     <p class="hero-sub">
       Edusim: Web Edition is a giant 3D playground that lives right in your web
       browser. Start in a huge city park, then travel to an art museum, a public
-      library, the surface of the Moon, or a base on Mars — and make every one of
-      them your own. Import 3D models, paint a squiggle and watch it puff into a
-      balloon, drop glowing light orbs, and teach your creations to move with
-      drag-and-drop blocks.
+      library, the surface of the Moon, a base on Mars, an island of full-size
+      dinosaurs, or the inside of the human body — and make every one of them your
+      own. Import 3D models, paint a squiggle and watch it puff into a balloon, drop
+      glowing light orbs, teach your creations to move with drag-and-drop blocks, and
+      step into any of it with a VR headset.
     </p>
     <div class="hero-cta-row">
       <a class="btn btn-primary" href="#worlds">Explore The Worlds ↓</a>
@@ -77,8 +79,9 @@
         <h2>Explore the Worlds - Change the Worlds</h2>
         <p>
           You don't start on an empty field. Open <strong>Menu → Load World</strong>
-          and step straight into a park, a museum, a library, the Moon, or a base on
-          Mars <em>(and more are being added)</em>. Little signs all over each one
+          and step straight into a park, a museum, a library, the Moon, a base on
+          Mars, an island of full-size dinosaurs, or a walk-through tour of the human
+          body <em>(and more are being added)</em>. Little signs all over each one
           tell you what you're looking at, and you can move, resize, or program
           absolutely anything you find.
         </p>
@@ -187,7 +190,7 @@
             <span class="world-pin">🔴</span>
           </div>
           <div class="world-body">
-            <span class="world-kicker">Newest world</span>
+            <span class="world-kicker">Life on another planet</span>
             <h3>On Mars</h3>
             <p>
               Walk in through the airlock and stand inside a 20-foot Habitation Dome —
@@ -204,24 +207,73 @@
           </div>
         </article>
 
+        <article class="world-card reveal" style="--accent: var(--green);">
+          <div class="world-shot">
+            <img src="assets/screenshots/world_dinosaur.jpg" width="1600" height="1000" loading="lazy"
+                 alt="A Tyrannosaurus rex at full size standing among conifers and tree ferns on Dinosaur Island, with a nest of eggs and a hatchling in the foreground, information signs on stands, a boardwalk, and a volcano on the horizon." />
+            <span class="world-pin">🦖</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">The late Cretaceous</span>
+            <h3>Dinosaur Island</h3>
+            <p>
+              Stand next to a T. rex built to its real size — its hip alone is taller
+              than a grown-up. Follow the boardwalk past a Triceratops and an armoured
+              Ankylosaurus, find a nest with a hatchling in it, and watch a
+              Quetzalcoatlus glide over on a 33-foot wingspan.
+            </p>
+            <ul class="world-chips">
+              <li>🦖 Six dinosaurs, life size</li>
+              <li>🥚 A nest with a hatchling</li>
+              <li>🦴 A working fossil dig</li>
+              <li>🌋 Jungle, ferns &amp; a volcano</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="world-card reveal" style="--accent: var(--red);">
+          <div class="world-shot">
+            <img src="assets/screenshots/world_voyage.jpg" width="1600" height="1000" loading="lazy"
+                 alt="A hall of giant human organ models on lit black plinths — a red and blue heart labelled HEART in the middle, a liver to the left, kidneys and a bladder to the right, a DNA helix and coiled intestines beyond — with large labelled anatomy charts standing across the back." />
+            <span class="world-pin">🫀</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">Newest world</span>
+            <h3>Fantastic Voyage</h3>
+            <p>
+              You've been shrunk. Walk in through an artery, duck under a rib cage, and
+              come out in a hall of organs blown up big enough to walk around — lungs,
+              stomach, liver and kidneys, with the heart in the middle joining them all
+              together. Every sign tells you the real size.
+            </p>
+            <ul class="world-chips">
+              <li>🫁 Organs you walk around</li>
+              <li>🩸 An artery you walk through</li>
+              <li>🧬 DNA, cells &amp; a nerve cell</li>
+              <li>📊 A chart for every body system</li>
+            </ul>
+          </div>
+        </article>
+
       </div>
 
       <div class="world-switch reveal">
         <div class="menu-mock" aria-hidden="true">
           <div class="menu-mock-toggle">✕ Close</div>
           <div class="menu-mock-panel">
-            <span class="mm-item">Import</span>
-            <span class="mm-item">Draw</span>
-            <span class="mm-item">Light Orb</span>
-            <span class="mm-item">Web Browser</span>
-            <span class="mm-item">Save World</span>
+            <span class="mm-item">Load Object ▸</span>
             <span class="mm-item mm-open">Load World ▾</span>
             <span class="mm-sub">The Park</span>
             <span class="mm-sub">The Museum</span>
             <span class="mm-sub">The Library</span>
             <span class="mm-sub">The Moon</span>
             <span class="mm-sub">On Mars</span>
+            <span class="mm-sub">Dinosaur Island</span>
+            <span class="mm-sub">Fantastic Voyage</span>
+            <span class="mm-sub mm-alt">Save World</span>
+            <span class="mm-sub mm-alt">Load World File</span>
             <span class="mm-item">Clear World</span>
+            <span class="mm-item mm-vr">VR Headset View</span>
           </div>
         </div>
         <div class="world-switch-text">
@@ -229,7 +281,9 @@
           <p>
             Tap <strong>☰ Menu</strong>, then <strong>Load World</strong>, and pick
             one. The whole world swaps around you — new ground, new sky, new
-            everything — and you're set down right at its front gate.
+            everything — and you're set down right at its front gate. Everything you
+            can <em>add</em> to a world lives under <strong>Load Object</strong>, so
+            the menu stays short however much goes into it.
           </p>
           <p class="world-switch-note">
             💾 Your changes save themselves as you go, so a world is exactly how you
@@ -238,6 +292,66 @@
           </p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- View in VR. Sits straight after the worlds, because it is a way of experiencing
+       those worlds rather than a separate thing you make. -->
+  <section class="section vr-section" id="vr">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow" style="background: var(--purple); color: #fff;">🥽 View in VR</span>
+        <h2>Step inside any world with a VR headset</h2>
+        <p>
+          Open <strong>Menu → VR Headset View</strong> and the world splits into two
+          pictures, one for each eye. Put a headset on and you're standing in it —
+          look around by turning your head, and walk with the controllers. The menu
+          comes with you as a panel floating right there beside you, so you can hop to
+          another world without ever taking the headset off.
+        </p>
+      </div>
+
+      <figure class="vr-shot reveal">
+        <img src="assets/screenshots/vr_stereo_menu.jpg" width="1600" height="700" loading="lazy"
+             alt="The park shown as a side-by-side VR image — the same view of the Franklin Park gate and cherry trees twice, once per eye — with a dark menu panel floating in the world listing The Park, The Museum, The Library, The Moon, On Mars, Dinosaur Island, Fantastic Voyage, Save World, Load World File, Clear World and Exit VR View." />
+        <figcaption>One picture per eye — and the menu travels with you, right inside the world.</figcaption>
+      </figure>
+
+      <div class="vr-ways">
+        <div class="vr-way reveal">
+          <span class="icon">🥽</span>
+          <h4>With a real headset</h4>
+          <p>
+            Browse to Edusim on the headset itself and pick VR Headset View. Head
+            tracking, walking on the thumbsticks, and point-and-click on the in-world
+            menu with a controller.
+          </p>
+        </div>
+        <div class="vr-way reveal">
+          <span class="icon">📱</span>
+          <h4>With a phone</h4>
+          <p>
+            No headset needed. Slide a phone into a cardboard-style viewer and it uses
+            the phone's own motion sensors to look around. Choose things by resting
+            your gaze on them for a second.
+          </p>
+        </div>
+        <div class="vr-way reveal">
+          <span class="icon">💻</span>
+          <h4>On a plain laptop</h4>
+          <p>
+            It still works — you get the two-eye view full screen, which is a neat way
+            to see how VR actually works. Press <strong>Esc</strong> whenever you want
+            to come back.
+          </p>
+        </div>
+      </div>
+
+      <p class="vr-note reveal">
+        🛟 A few things — importing files, the drawing pad, and web panels — need a
+        normal screen, so picking those drops you back out of VR first. Everything
+        else, including all the worlds, works without leaving the headset.
+      </p>
     </div>
   </section>
 
@@ -251,7 +365,7 @@
               <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
               <span class="addr">☰ Menu</span>
             </div>
-            <img src="assets/screenshots/02_menu_open.png" alt="The Edusim menu open, showing Import, Draw, Light Orb, Web Browser, Save World, and Load World buttons." />
+            <img src="assets/screenshots/02_menu_open.png" alt="The Edusim menu open over the 3D world, with Load Object expanded to show Import, Draw, Light Orb and Web Browser." />
           </div>
           <span class="feature-tag">🧰 One tap away</span>
         </div>
@@ -500,7 +614,7 @@
       <div class="parent-card reveal">
         <span class="icon">🪧</span>
         <h4>Worlds that quietly teach</h4>
-        <p>Every ready-made world is dotted with short, readable signs — park design and geology, art movements, the Dewey Decimal System, the Apollo landings, what it would actually take to live on Mars. Written for ages 12–15, and easy to ignore if a child just wants to build.</p>
+        <p>Every ready-made world is dotted with short, readable signs — park design and geology, art movements, the Dewey Decimal System, the Apollo landings, what it would take to live on Mars, life in the late Cretaceous, and how your own organs fit together. Written for ages 12–15, and easy to ignore if a child just wants to build.</p>
       </div>
       <div class="parent-card reveal">
         <span class="icon">🖥️</span>
@@ -519,7 +633,7 @@
 <section class="final-cta" id="play">
   <div class="wrap">
     <h2>Ready to explore your first world?</h2>
-    <p>Open Edusim: Web Edition right in your browser — you'll land in the park. From there it's a whole menu of worlds, with more being added, and anything you can imagine on top.</p>
+    <p>Open Edusim: Web Edition right in your browser — you'll land in the park. From there it's a whole menu of worlds, with more being added, a VR view for stepping inside one, and anything you can imagine on top.</p>
     <div class="hero-cta-row">
       <a class="btn btn-primary" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">▶ Launch Edusim: Web Edition</a>
     </div>
@@ -595,6 +709,7 @@ npm run dev   <span class="c"># then open the printed URL</span></code></pre>
       </div>
       <ul class="footer-links">
         <li><a href="#worlds">Explore The Worlds</a></li>
+        <li><a href="#vr">View in VR</a></li>
         <li><a href="#features">What You Can Do</a></li>
         <li><a href="#parents">For Parents</a></li>
         <li><a href="#developers">For Developers</a></li>
