@@ -8,8 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 rolling-terrain world with the arrow keys / on-screen D-pad, import glTF/OBJ models
 and images, freehand-draw shapes that inflate into 3D balloons, drop glowing light
 orbs, place live interactive web browser panels, and save/load the world. New visitors
-land in a prebuilt Park; The Museum, The Library, The Moon, On Mars and Dinosaur
-Island are loadable from the menu. Pure client-side Three.js app — no backend, ships as a static `dist/` bundle.
+land in a prebuilt Park; The Museum, The Library, The Moon, On Mars, Dinosaur Island
+and Fantastic Voyage (human anatomy) are loadable from the menu. Pure client-side Three.js app — no backend, ships as a static `dist/` bundle.
 
 ## Commands
 
@@ -76,7 +76,7 @@ follow whatever height the mesh's real geometry has — flat or hilly.
 relief (`amplitude`/`flatRadius`/`blendRadius`/`pockAmplitude`), ground color ramp,
 hemisphere + sun color/intensity/direction, and whether the starfield is visible —
 lives in `config.js`'s `WORLD_THEMES`
-(`default`/`park`/`museum`/`library`/`moon`/`mars`/`dinosaur`).
+(`default`/`park`/`museum`/`library`/`moon`/`mars`/`dinosaur`/`voyage`).
 `applyWorldTheme(name)` rewrites the ground's **existing** position/color attributes
 **in place** on the **same** `BufferGeometry` and the same `Mesh` — deliberately, since
 `PlayerController` and every placement path hold a reference to that mesh; swapping the
@@ -133,7 +133,7 @@ storing it.
 rehydrating anything, so a world file with no theme of its own resets a leftover moon
 sky back to daylight instead of inheriting it.
 
-### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island
+### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage
 
 The menu's top level is just two expanding groups plus **Clear World**: **Load Object**
 (Import / Draw / Light Orb / Web Browser — the things you put *into* a world) and
@@ -173,8 +173,8 @@ replaced.
 
 **Everything is generated in code** — `PropKit.js` (shared helpers) plus `src/props/`
 (`CommonProps` / `ParkProps` / `MuseumProps` / `LibraryProps` / `MoonProps` /
-`MarsProps` / `DinoProps` / `Earth`), with `props/index.js`'s `PROP_BUILDERS` as the
-name→builder table. **Those keys are
+`MarsProps` / `DinoProps` / `BodyProps` / `Earth`), with `props/index.js`'s
+`PROP_BUILDERS` as the name→builder table. **Those keys are
 persisted**, so renaming one silently breaks every already-saved world using it; add a
 new key instead. `buildProp()` throws on an unknown name rather than silently dropping
 the object, so a typo in a layout surfaces immediately instead of leaving a hole.
@@ -323,6 +323,66 @@ Three things this world got wrong first and are easy to reintroduce:
 - **Bones have to clear the trench floor they lie on.** `fossilDig()`'s excavation floor
   is a slab with its top face at y≈0.27; with the spine at 0.55 the ribs swept down into
   it and disappeared, leaving a row of neural spines that read as a picket fence.
+
+**Fantastic Voyage** is the human body, and it is the one world built around a
+**deliberate split between geometry and images**: the four organs the brief named —
+lungs, stomach, liver, kidneys — are walk-around 3D models, while whole *systems* are
+`anatomyChart()` diagrams. That is not a shortcut. A system is a set of relationships
+(what drains into what, what feeds what), and a labelled drawing carries relationships
+that no amount of walking around a 3D organ can. The charts are canvas-drawn onto a
+768×1024 portrait panel; `bodyOutline()` + `withBody()` give every chart the same
+silhouette coordinate space, so an organ drawn at (-40, 430) lands in the same place on
+every chart it appears on, and `withBody()` hands back a mapper so a label's leader line
+can anchor to a body-space point from canvas space.
+
+Everything is enlarged roughly fifteen to twenty times — a real liver is football-sized
+and cannot be walked around — and **each placard states the real size**, so the
+enlargement teaches instead of misleading.
+
+Traps this world hit, several of them re-runs of earlier ones:
+
+- **The environment is coloured AGAINST the exhibits.** Every organ here is warm, so the
+  `voyage` theme is cool: teal plasma sky over a mauve-grey membrane floor. A warm
+  "inside the body" sky was tried first and swallowed every model into one red mush —
+  the same failure mode as the Mars props that came out as black silhouettes.
+- **Translucency is a balance with two wrong ends.** The lungs' lobes are `opacity: 0.68`
+  with `castShadow = false`: opaque hides the bronchial tree that is the whole reason for
+  the model, and much below that the lobes stop reading as tissue and become glass bulbs
+  with sticks in them. A see-through surface also loses most of its apparent colour, so
+  the lobe pink is deliberately more saturated than a real lung.
+- **A ring wrapped on a swept tube must take the INTERPOLATED radius at its own point on
+  the curve** — the same lerp `taperedTube()` does internally, not the nearest control
+  point's value. Sized from the nearest control point, the stomach's rugae down in the
+  narrowing antrum hung outside the wall like loose bangles. `ringOnCurve()` exists for
+  this, and bakes its orientation into the geometry with a matrix because `mergeColored()`
+  only carries axis-aligned Euler rotations.
+- **A helix whose rise per turn is smaller than its own tube diameter is not a coil, it
+  is a stack.** The small intestine's turns merged into flat parallel sausages until the
+  radius, height and depth were each given a different wobble frequency — which is also
+  closer to what a real gut looks like than a clean spring is.
+- **A lobed mass on a vertical stem is a tree, not a brain,** and thinning the stem does
+  not fix it. The brain sits in a cut-away bone cradle that is deliberately *narrower*
+  than the brain: sized to actually contain it, the bowl's rim rose above a 5ft student's
+  eye line and hid the entire exhibit inside itself.
+- **A dendrite that tapers to a point is a spike.** They end in a fork with a non-zero
+  tip radius — the same lesson as Dinosaur Island's fronds.
+- **An organelle's own half-length adds to its centre distance**, so placement radii that
+  look safe on paper put the outermost mitochondria through the cell membrane.
+- **A big flat panel viewed from behind is a black slab.** `anatomyChart()` puts a solid
+  dark backing board behind its face for exactly this reason, and the micro-sub's name
+  decals are emissive and mounted on both flanks, since one flank always faces away.
+- **The walk-through artery's axis sits BELOW its own radius** (`radius * 0.45`), so the
+  ground plane cuts the tube well below its centre line and leaves a wide opening at foot
+  level with the vessel arching overhead. `PlayerController` walks on the terrain and
+  never on props, so a tube centred at head height would put its floor underground and
+  its walls in the student's face.
+
+`cardTexture()` in `PropKit.js` now **fits the body text to whatever room the title left**
+rather than drawing at a fixed 25px and letting it run off the card. How many lines a
+title wraps to is not something a caller can predict from the outside, and a placard
+whose last sentence is clipped is worse than one set a point smaller. `wrapLines()` was
+split out of `wrapText()` to make that measurable. This is shared, so it silently
+improves any over-long placard in the older worlds too.
 
 The museum's paintings are generated **in the style of** a movement (De Stijl, Colour
 Field, Post-Impressionist, Ukiyo-e, Pointillist, Geometric Abstraction) rather than

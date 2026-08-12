@@ -1381,6 +1381,368 @@ function dinosaurLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// Fantastic Voyage -- the human body
+// ---------------------------------------------------------------------------
+
+// A walk-through anatomy exhibition, laid out as a journey rather than a grid: you
+// arrive beside the micro-sub, walk INTO the body through a length of artery, pass under
+// a rib cage, and come out in a hall of organs with the systems gallery at the far end.
+//
+// The four organs the world is built around -- lungs, stomach, liver, kidneys -- take
+// the four corners of the hall, each on its own lit plinth with its own placard, and the
+// heart sits at the centre of them because it is what physically connects all four.
+//
+// Whole SYSTEMS are taught by the chart gallery at the north end rather than by more
+// geometry. A system is a set of relationships -- what drains into what, what feeds what
+// -- and a labelled drawing shows that far better than a model you can only walk around.
+function voyageLayout() {
+  const items = [];
+
+  // Every organ model is authored to stand on a plinth of this height, so the two travel
+  // together: the plinth at ground level, the model lifted onto its top face.
+  const PLINTH = 3;
+
+  // A lit plinth + its organ, as one call. `label` is on the plinth's own name plates,
+  // which is what makes an exhibit readable from across the hall before you can read the
+  // placard beside it.
+  const exhibit = (name, x, z, { label, sublabel, radius = 4.4, height = PLINTH, rotY = 0, accent, options } = {}) => {
+    items.push(prop('organ-plinth', x, z, { options: { label, sublabel, radius, height, accent } }));
+    items.push(prop(name, x, z, { y: height, rotY, options: options || {} }));
+  };
+
+  const placard = (x, z, rotY, eyebrow, title, body) => {
+    items.push(prop('info-placard', x, z, { rotY, options: { eyebrow, title, body, accent: '#2f8ba0', width: 2.6 } }));
+  };
+
+  // --- Arrival: the premise ------------------------------------------------
+  items.push(
+    prop('standing-sign', 0, 68, {
+      options: {
+        lines: ['FANTASTIC VOYAGE'],
+        subtitle: 'YOU HAVE BEEN MINIATURISED',
+        width: 15,
+        height: 3.4,
+        postHeight: 8,
+        face: '#12323d',
+        accent: '#5fc9dd',
+      },
+    })
+  );
+
+  items.push(prop('micro-sub', 18, 60, { rotY: -0.6 }));
+  placard(
+    13,
+    54,
+    -0.5,
+    'Your ride',
+    'Shrunk down and injected',
+    'A 1966 film imagined a submarine and its crew miniaturised and injected into a patient. That part is still fiction — but swallowable pill-sized cameras have been photographing the inside of real intestines since 2001.'
+  );
+
+  // The project's own banner image, reused as the entrance sign. Held to 3ft tall: this
+  // is a very wide image, so 3ft of height is about 12ft of width.
+  items.push(asset('startup-billboard', -18, 60, { rotY: 0.7, height: 3 }));
+
+  placard(
+    -10,
+    58,
+    0.35,
+    'Scale',
+    'Everything here is enlarged',
+    'A real liver is the size of a football, and a kidney is the size of your fist. At life size you could not walk round any of it, so every model here is roughly fifteen to twenty times too big. Each sign tells you the real size.'
+  );
+
+  // --- Into the body through an artery ------------------------------------
+  items.push(prop('artery-tunnel', 0, 42, { options: { length: 28, radius: 6.5 } }));
+  // Spread wide and lifted clear of eye level: at a tighter radius the cells packed the
+  // middle of the tunnel and the view straight down it was a wall of red discs.
+  items.push(prop('blood-cells', 0, 50, { options: { count: 10, radius: 5, height: 9, seed: 5 } }));
+  items.push(prop('blood-cells', 0, 34, { options: { count: 8, radius: 5, height: 9, seed: 19 } }));
+  // Inside a tunnel the sun reaches nothing, so the light has to come from in there. Hung
+  // at 5ft, not at the crown: an orb's PointLight is nearly spent by ~12ft.
+  for (const z of [53, 44, 35]) items.push(orb(0, z, 5, ORB_ROSE));
+
+  placard(
+    9,
+    26,
+    -0.35,
+    'Where you are',
+    'Inside an artery',
+    'Laid end to end, one person’s blood vessels would run about 60,000 miles — enough to wrap around the Earth twice. The biggest, the aorta, is about as wide as a garden hose. The smallest are narrower than one red blood cell.'
+  );
+
+  // --- Under the rib cage --------------------------------------------------
+  items.push(prop('rib-cage-arch', 0, 14, { options: { span: 15, height: 13, pairs: 7 } }));
+  items.push(orb(0, 14, 10, ORB_WHITE));
+  placard(
+    11,
+    17,
+    -0.8,
+    'The rib cage',
+    'A cage that has to breathe',
+    'Twelve pairs of ribs, and they are not a fixed box — every rib swings up and out when you breathe in. Behind you they join the spine; in front, the top seven pairs join the breastbone through flexible cartilage.'
+  );
+
+  // --- The organ hall: the four primary organs -----------------------------
+  exhibit('lungs-model', -22, -6, {
+    label: 'Lungs',
+    sublabel: 'RESPIRATORY SYSTEM',
+    radius: 5.4,
+    rotY: 0.35,
+  });
+  placard(
+    -13,
+    -0.5,
+    0.65,
+    'Lungs',
+    'A folded-up tennis court',
+    'Real lungs are about 10 inches tall. Inside are 300–500 million alveoli — tiny air sacs — and unfolded they would cover about 70 square metres, roughly a classroom floor. That is the surface oxygen crosses to reach your blood.'
+  );
+  placard(
+    -30,
+    -13,
+    2.5,
+    'Left and right',
+    'They are not a matching pair',
+    'The right lung has three lobes, the left only two — the heart takes the space where the third would be. That is also why an inhaled peanut nearly always ends up in the right lung: its bronchus is wider and steeper.'
+  );
+  items.push(orb(-28, 0, 8, ORB_WHITE));
+  items.push(orb(-16, -13, 8, ORB_WHITE));
+
+  items.push(prop('alveoli-cluster', -36, 4, { rotY: 0.5 }));
+  placard(
+    -32,
+    9,
+    0.5,
+    'Zoom in',
+    'Where the swap happens',
+    'This is one alveolus and its blood vessels, blown up enormously. The wall between air and blood is about one five-hundredth of a millimetre thick — thin enough for oxygen to cross by simply drifting.'
+  );
+  items.push(orb(-36, 6, 7, ORB_BLUE));
+
+  exhibit('stomach-model', 22, -6, {
+    label: 'Stomach',
+    sublabel: 'DIGESTIVE SYSTEM',
+    radius: 4.6,
+    rotY: -0.35,
+  });
+  placard(
+    13,
+    -0.5,
+    -0.65,
+    'Stomach',
+    'A bag of acid that does not digest itself',
+    'Stomach acid sits around pH 1.5–3.5 — strong enough to strip rust off steel. The reason it does not eat through you is a layer of mucus that the stomach lining replaces every few days.'
+  );
+  placard(
+    30,
+    -13,
+    -2.5,
+    'How much fits',
+    'Empty, it is fist-sized',
+    'An empty stomach holds well under a cup. Full, it stretches to about four times that. Those folds you can see inside — the rugae — are what unfold to let it. Food stays here two to four hours, then leaves a teaspoon at a time.'
+  );
+  items.push(orb(28, 0, 8, ORB_WARM));
+  items.push(orb(16, -13, 8, ORB_WHITE));
+
+  items.push(prop('villi-patch', 34, 4, { options: { count: 46, radius: 6, seed: 11 } }));
+  placard(
+    30,
+    10,
+    -0.5,
+    'Small intestine',
+    'Lined with millions of fingers',
+    'Almost all of your food is actually absorbed here, not in the stomach. The lining is covered in villi like these — magnified hugely — and they turn a 22-foot tube into about 30 square metres of absorbing surface.'
+  );
+
+  exhibit('intestine-coil', 36, -18, {
+    label: 'Intestines',
+    sublabel: 'ABOUT 27 FEET OF TUBE',
+    radius: 5.0,
+    rotY: -0.7,
+  });
+  // Off to the side rather than overhead: directly above the plinth an orb sat down
+  // inside the top loops of the colon and read as a light bulb baked into the model.
+  items.push(orb(30, -22, 8, ORB_WARM));
+
+  // The heart at the centre, because it is the thing all four primary organs are
+  // plumbed into.
+  exhibit('heart-model', 0, -20, {
+    label: 'Heart',
+    sublabel: 'THE HUB OF ALL OF IT',
+    radius: 4.2,
+    height: 3.5,
+    accent: '#ff7a6e',
+  });
+  placard(
+    -7,
+    -14,
+    0.4,
+    'Heart',
+    'Your own fist, beating',
+    'A heart is about the size of the owner’s clenched fist. It beats around 100,000 times a day and pushes roughly 7,500 litres of blood — enough to fill a small swimming pool every week, without ever taking a break.'
+  );
+  placard(
+    7,
+    -14,
+    -0.4,
+    'Two pumps in one',
+    'Blue side, red side',
+    'The right half pumps blood to the lungs to collect oxygen; the left half pumps it to everywhere else. That is why anatomy models colour them differently — the blue side is not cold, it is just carrying blood that has not been to the lungs yet.'
+  );
+  items.push(orb(-6, -25, 9, ORB_ROSE));
+  items.push(orb(6, -25, 9, ORB_ROSE));
+  items.push(prop('bench', -9, -30, { rotY: 0.3 }));
+  items.push(prop('bench', 9, -30, { rotY: -0.3 }));
+
+  exhibit('liver-model', -22, -36, {
+    label: 'Liver',
+    sublabel: 'THE CHEMICAL PLANT',
+    radius: 4.8,
+    rotY: 0.4,
+  });
+  placard(
+    -13,
+    -31,
+    0.8,
+    'Liver',
+    'Five hundred jobs at once',
+    'The largest organ inside you, about 3 pounds and roughly football-sized. It cleans the blood arriving from your gut, stores energy, makes bile for digesting fat, and breaks down medicines — several hundred jobs in one lump of tissue.'
+  );
+  placard(
+    -30,
+    -43,
+    2.7,
+    'Unique',
+    'It can grow back',
+    'The liver is the only human organ that regrows. Remove up to two thirds of it and the rest will grow back to full size in a matter of weeks — which is what makes it possible for a living person to donate part of theirs.'
+  );
+  items.push(orb(-28, -30, 8, ORB_WARM));
+  items.push(orb(-16, -43, 8, ORB_WHITE));
+
+  exhibit('kidney-model', 22, -36, {
+    label: 'Kidneys',
+    sublabel: 'URINARY SYSTEM',
+    radius: 4.6,
+    rotY: -0.4,
+  });
+  placard(
+    13,
+    -31,
+    -0.8,
+    'Kidneys',
+    'Filtering the whole lot, 40 times a day',
+    'Each kidney is fist-sized and holds about a million microscopic filters. Together they pull around 180 litres of fluid out of your blood every day — then put about 99% of it straight back. What is left is roughly 1.5 litres of urine.'
+  );
+  placard(
+    30,
+    -43,
+    -2.7,
+    'Why two?',
+    'You only need one',
+    'The right kidney sits lower than the left, pushed down by the liver above it. You are born with two, but a single healthy kidney does the whole job — which is why a living person can donate one.'
+  );
+  items.push(orb(28, -30, 8, ORB_BLUE));
+  items.push(orb(16, -43, 8, ORB_WHITE));
+
+  items.push(prop('anatomy-chart', 34, -46, { rotY: -1.0, options: { chart: 'kidney-section', width: 8 } }));
+
+  // --- The far wings: brain, nerve, DNA, cell ------------------------------
+  exhibit('brain-model', -42, -24, {
+    label: 'Brain',
+    sublabel: 'NERVOUS SYSTEM',
+    radius: 3.8,
+    rotY: 1.2,
+  });
+  placard(
+    -37,
+    -18,
+    1.0,
+    'Brain',
+    'Two per cent of you, twenty per cent of the fuel',
+    'About 86 billion nerve cells, folded up so that three times as much surface fits inside your skull. It is only about 2% of your body weight but burns around 20% of the oxygen you breathe — even while you sleep.'
+  );
+  items.push(orb(-42, -29, 8, ORB_BLUE));
+
+  items.push(prop('neuron-model', -48, -8, { rotY: 1.35, options: { length: 24 } }));
+  placard(
+    -40,
+    -6,
+    0.9,
+    'One nerve cell',
+    'Signals at 270 miles an hour',
+    'Signals arrive on the branching end, travel down the long fibre, and are handed to the next cell at the tips. The pale sleeves are insulation — the gaps between them let the signal leap ahead instead of crawling, up to 120 metres per second.'
+  );
+  items.push(orb(-46, -12, 7, ORB_WHITE));
+
+  items.push(prop('dna-helix', 46, -30, { options: { height: 22, turns: 3.2 } }));
+  placard(
+    41,
+    -26,
+    -1.1,
+    'DNA',
+    'Two metres, in every cell',
+    'The rungs are the four letters the whole instruction book is written in. About three billion of them are packed into nearly every one of your cells — roughly two metres of DNA, coiled into a space you need a microscope to see.'
+  );
+  items.push(orb(46, -34, 8, ORB_ROSE));
+
+  items.push(prop('cell-model', -46, -46, { rotY: 0.6 }));
+  items.push(prop('anatomy-chart', -38, -52, { rotY: 0.5, options: { chart: 'cell', width: 8 } }));
+  placard(
+    -42,
+    -40,
+    0.5,
+    'One cell',
+    'Thirty-seven trillion of these',
+    'Every organ in this hall is built from cells like this one. The purple ball is the nucleus, holding the DNA; the orange capsules are mitochondria, which release the energy from your food. This model is about a million times life size.'
+  );
+  items.push(orb(-46, -42, 8, ORB_BLUE));
+
+  // --- The systems gallery -------------------------------------------------
+  // The sign stands well FORWARD of the charts. Parked at the mouth of the gallery it
+  // sat squarely across the master chart's caption, which is the one block of text on
+  // it that has to be readable from standing height.
+  items.push(
+    prop('standing-sign', 0, -42, {
+      options: {
+        lines: ['THE SYSTEMS GALLERY'],
+        subtitle: 'HOW THE PIECES JOIN UP',
+        width: 13,
+        height: 3,
+        postHeight: 7.5,
+        face: '#12323d',
+        accent: '#5fc9dd',
+      },
+    })
+  );
+
+  // The master map is wider than the rest and dead on the axis: it is the chart that
+  // answers "where was the thing I just walked around, and what is it next to?"
+  items.push(prop('anatomy-chart', 0, -64, { options: { chart: 'body-systems', width: 12 } }));
+
+  for (const [chart, x, z, rotY] of [
+    ['respiratory', -30, -60, 0.34],
+    ['circulatory', -15, -62, 0.16],
+    ['digestive', 15, -62, -0.16],
+    ['urinary', 30, -60, -0.34],
+    ['nervous', -45, -54, 0.6],
+    ['skeletal', 45, -54, -0.6],
+  ]) {
+    items.push(prop('anatomy-chart', x, z, { rotY, options: { chart, width: 9 } }));
+  }
+
+  // The gallery is a wall of cream paper at the dark end of the hall, so it gets its own
+  // lighting rather than relying on the exhibits' orbs 30ft away.
+  for (const [x, z] of [[-30, -55], [-8, -57], [8, -57], [30, -55]]) {
+    items.push(orb(x, z, 9, ORB_WHITE));
+  }
+  items.push(prop('bench', -12, -48, { rotY: Math.PI - 0.2 }));
+  items.push(prop('bench', 12, -48, { rotY: Math.PI + 0.2 }));
+
+  return { theme: 'voyage', spawn: { x: 0, z: 82, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + materialization
 // ---------------------------------------------------------------------------
 
@@ -1394,6 +1756,11 @@ export const PRESET_WORLDS = {
     label: 'Dinosaur Island',
     hint: 'The end of the Cretaceous — a dig, a lagoon, and a T. rex at full size',
     build: dinosaurLayout,
+  },
+  voyage: {
+    label: 'Fantastic Voyage',
+    hint: 'Miniaturised inside the human body — walk around the lungs, stomach, liver and kidneys',
+    build: voyageLayout,
   },
 };
 

@@ -155,6 +155,37 @@ export const WORLD_THEMES = {
     // daytime sky, and stars are washed out of it just as they are on Earth.
     stars: false,
   },
+  voyage: {
+    // "Fantastic Voyage" -- the visitor has been miniaturised, so the environment is
+    // meant to read as fluid rather than as landscape: a deep plasma teal overhead and a
+    // close fog wall, which is what makes a 400ft ground plane feel like the inside of
+    // something instead of an open field.
+    //
+    // The colours here are chosen AGAINST the exhibits, not for themselves. Every organ
+    // model in this world is warm -- pink lung, red heart, brown liver -- and a warm
+    // environment would have swallowed all of them into one red mush, which is the same
+    // class of mistake as the Mars props that came out as black silhouettes. Cool teal
+    // sky over a muted mauve-grey membrane floor makes the tissue colours pop, and the
+    // charts (cream paper) read from right across the hall.
+    sky: 0x24485c,
+    fogNear: 80,
+    fogFar: 250,
+    groundLow: 0x3c3849,
+    groundHigh: 0x7d7490,
+    // Nearly flat, and flat over a very wide radius: this is an exhibition hall floor
+    // with plinths, chart posts and a 30ft tunnel on it, and every one of those is a
+    // rigid object that straddles a slope badly.
+    amplitude: 2.2,
+    flatRadius: 88,
+    blendRadius: 155,
+    hemiSky: 0xbfe4f2,
+    hemiGround: 0x4c4557,
+    hemiIntensity: 1.55,
+    sunColor: 0xfff2e4,
+    sunIntensity: 2.2,
+    sunPosition: [60, 115, 50],
+    stars: false,
+  },
   dinosaur: {
     // Late Cretaceous: hot, humid and far more carbon dioxide than today, with no ice
     // at either pole. The short fog distance is the point -- a coastal floodplain in

@@ -114,23 +114,31 @@ export function canvasTexture(width, height, draw) {
   return texture;
 }
 
-// Word-wraps `text` to `maxWidth` and draws it from (x, y) downward, returning the y
-// baseline just past the last line so callers can stack blocks of text.
-export function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+// Word-wraps `text` to `maxWidth` under the context's CURRENT font, returning the lines.
+// Split out from wrapText so a caller can find out how tall a block will be before
+// committing to drawing it -- which is what lets cardTexture below size its own type.
+export function wrapLines(ctx, text, maxWidth) {
   const words = String(text).split(/\s+/);
+  const lines = [];
   let line = '';
-  let cursorY = y;
   for (const word of words) {
     const candidate = line ? `${line} ${word}` : word;
     if (ctx.measureText(candidate).width > maxWidth && line) {
-      ctx.fillText(line, x, cursorY);
-      cursorY += lineHeight;
+      lines.push(line);
       line = word;
     } else {
       line = candidate;
     }
   }
-  if (line) {
+  if (line) lines.push(line);
+  return lines;
+}
+
+// Word-wraps `text` to `maxWidth` and draws it from (x, y) downward, returning the y
+// baseline just past the last line so callers can stack blocks of text.
+export function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  let cursorY = y;
+  for (const line of wrapLines(ctx, text, maxWidth)) {
     ctx.fillText(line, x, cursorY);
     cursorY += lineHeight;
   }
@@ -177,10 +185,21 @@ export function cardTexture({
     ctx.lineTo(46 + 120, y + 6);
     ctx.stroke();
 
+    // The body is fitted to whatever room the title left, rather than drawn at a fixed
+    // size and allowed to run off the bottom of the card. A placard whose last sentence
+    // is clipped is worse than one set a point or two smaller, and how many lines a
+    // title wraps to is not something the caller can predict from the outside.
     if (body) {
       ctx.fillStyle = ink;
-      ctx.font = '25px Georgia, "Times New Roman", serif';
-      wrapText(ctx, body, 46, y + 52, w - 92, 33);
+      const top = y + 52;
+      const available = h - 34 - top;
+      let lineHeight = 33;
+      for (const size of [25, 23, 21, 19, 17]) {
+        lineHeight = Math.round(size * 1.32);
+        ctx.font = `${size}px Georgia, "Times New Roman", serif`;
+        if (wrapLines(ctx, body, w - 92).length * lineHeight <= available) break;
+      }
+      wrapText(ctx, body, 46, top, w - 92, lineHeight);
     }
   });
 }

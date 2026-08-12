@@ -5,6 +5,7 @@ import * as Moon from './MoonProps.js';
 import * as Mars from './MarsProps.js';
 import * as Dino from './DinoProps.js';
 import * as Park from './ParkProps.js';
+import * as Body from './BodyProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -101,6 +102,26 @@ export const PROP_BUILDERS = {
   'dino-tracks': Dino.dinoTracks,
   'jungle-rocks': Dino.jungleRocks,
   'volcanic-smoke': Dino.volcanicSmoke,
+
+  // Fantastic Voyage (human body)
+  'organ-plinth': Body.organPlinth,
+  'lungs-model': Body.lungsModel,
+  'stomach-model': Body.stomachModel,
+  'liver-model': Body.liverModel,
+  'kidney-model': Body.kidneyModel,
+  'heart-model': Body.heartModel,
+  'brain-model': Body.brainModel,
+  'intestine-coil': Body.intestineCoil,
+  'alveoli-cluster': Body.alveoliCluster,
+  'villi-patch': Body.villiPatch,
+  'blood-cells': Body.bloodCells,
+  'cell-model': Body.cellModel,
+  'dna-helix': Body.dnaHelix,
+  'neuron-model': Body.neuronModel,
+  'rib-cage-arch': Body.ribCageArch,
+  'artery-tunnel': Body.arteryTunnel,
+  'micro-sub': Body.microSub,
+  'anatomy-chart': Body.anatomyChart,
 
   // Park
   'park-gate': Park.parkGate,
