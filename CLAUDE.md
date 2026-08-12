@@ -8,8 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 rolling-terrain world with the arrow keys / on-screen D-pad, import glTF/OBJ models
 and images, freehand-draw shapes that inflate into 3D balloons, drop glowing light
 orbs, place live interactive web browser panels, and save/load the world. New visitors
-land in a prebuilt Park; The Museum, The Library, The Moon and On Mars are loadable
-from the menu. Pure client-side Three.js app — no backend, ships as a static `dist/` bundle.
+land in a prebuilt Park; The Museum, The Library, The Moon, On Mars and Dinosaur
+Island are loadable from the menu. Pure client-side Three.js app — no backend, ships as a static `dist/` bundle.
 
 ## Commands
 
@@ -76,7 +76,7 @@ follow whatever height the mesh's real geometry has — flat or hilly.
 relief (`amplitude`/`flatRadius`/`blendRadius`/`pockAmplitude`), ground color ramp,
 hemisphere + sun color/intensity/direction, and whether the starfield is visible —
 lives in `config.js`'s `WORLD_THEMES`
-(`default`/`park`/`museum`/`library`/`moon`/`mars`).
+(`default`/`park`/`museum`/`library`/`moon`/`mars`/`dinosaur`).
 `applyWorldTheme(name)` rewrites the ground's **existing** position/color attributes
 **in place** on the **same** `BufferGeometry` and the same `Mesh` — deliberately, since
 `PlayerController` and every placement path hold a reference to that mesh; swapping the
@@ -133,7 +133,7 @@ storing it.
 rehydrating anything, so a world file with no theme of its own resets a leftover moon
 sky back to daylight instead of inheriting it.
 
-### Prebuilt worlds: The Park / The Museum / The Library / The Moon / On Mars
+### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island
 
 The menu's top level is just two expanding groups plus **Clear World**: **Load Object**
 (Import / Draw / Light Orb / Web Browser — the things you put *into* a world) and
@@ -173,8 +173,8 @@ replaced.
 
 **Everything is generated in code** — `PropKit.js` (shared helpers) plus `src/props/`
 (`CommonProps` / `ParkProps` / `MuseumProps` / `LibraryProps` / `MoonProps` /
-`MarsProps` / `Earth`), with `props/index.js`'s `PROP_BUILDERS` as the name→builder
-table. **Those keys are
+`MarsProps` / `DinoProps` / `Earth`), with `props/index.js`'s `PROP_BUILDERS` as the
+name→builder table. **Those keys are
 persisted**, so renaming one silently breaks every already-saved world using it; add a
 new key instead. `buildProp()` throws on an unknown name rather than silently dropping
 the object, so a typo in a layout surfaces immediately instead of leaving a hole.
@@ -290,7 +290,39 @@ Two more shape/texture traps from the same world:
 `moonCrater()` and `moonRocks()` take `rimColor`/`floorColor` and `colors` options
 because the Mars world reuses them: an impact is the same physics on both worlds and
 only the mineral colour differs. The defaults are the original lunar greys, so every
-already-saved moon world is untouched.
+already-saved moon world is untouched. `dustDevil()` gained `color`/`tint` for the same
+reason — Dinosaur Island uses it as a volcanic smoke plume, and `moonRocks()` again as
+mossy jungle boulders.
+
+**Animals are swept tubes, not boxes.** `PropKit.taperedTube(points, radii)` sweeps a
+Catmull-Rom curve with a per-control-point radius; three.js's own `TubeGeometry` is
+constant-radius, which is useless here because the taper *is* the shape of a neck, a
+tail or a limb. It returns an indexed geometry with real normals, so a whole animal is
+a dozen tubes plus some cones going through `mergeColored()` into **one** mesh — which
+is why Dinosaur Island holds 124 records at ~320 draw calls, fewer than any other
+world. Two things to know when editing `DinoProps.js`:
+
+- `scaleAbout(geometry, centre, scale)` exists because a plain `geometry.scale()` also
+  multiplies position. Deepening a skull 14ft up an animal with a bare `.scale(1,1.28,1)`
+  quietly relocates it to 18ft.
+- The `scale` option on each animal multiplies **coordinates**, never `Object3D.scale`.
+  `WorldStore.applyTransform()` replaces an object's scale from its record, so a builder
+  that scaled its own Group would have that silently discarded on the next reload —
+  the same trap the `startup-*` assets' `targetHeight` field exists to work around.
+
+Three things this world got wrong first and are easy to reintroduce:
+
+- **A closed canopy needs a much lighter `hemiGround` than an open world.** The hemi
+  light is all that fills a hide standing in tree shade, and at the moon-ish `0x2c3418`
+  first used here a Triceratops under a conifer read as a featureless black silhouette.
+  It is now `0x57633c` at 1.45 intensity, and the animal hides were lightened too.
+- **A frond that tapers to almost nothing reads as a black needle, not a leaf.** The
+  shared `frond()` helper narrows to a third of its base width, never to a point, and
+  builds at 6×4 segments because it gets flattened to 30% thickness and placed by the
+  hundred in the ground-fern patches.
+- **Bones have to clear the trench floor they lie on.** `fossilDig()`'s excavation floor
+  is a slab with its top face at y≈0.27; with the spine at 0.55 the ribs swept down into
+  it and disappeared, leaving a row of neural spines that read as a picket fence.
 
 The museum's paintings are generated **in the style of** a movement (De Stijl, Colour
 Field, Post-Impressionist, Ukiyo-e, Pointillist, Geometric Abstraction) rather than

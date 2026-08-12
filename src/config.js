@@ -155,6 +155,34 @@ export const WORLD_THEMES = {
     // daytime sky, and stars are washed out of it just as they are on Earth.
     stars: false,
   },
+  dinosaur: {
+    // Late Cretaceous: hot, humid and far more carbon dioxide than today, with no ice
+    // at either pole. The short fog distance is the point -- a coastal floodplain in
+    // that climate is hazy, and the haze is what makes the island feel enclosed and
+    // makes a 40ft animal loom out of it rather than being visible from the far side.
+    sky: 0xa9c8cc,
+    fogNear: 70,
+    fogFar: 265,
+    groundLow: 0x2e5326,
+    groundHigh: 0x77a244,
+    // The flat zone has to hold the field camp, the boardwalk junctions AND the dig
+    // trench, whose floor is a flat slab -- on a slope one end of it buries itself and
+    // the other floats.
+    amplitude: 6,
+    flatRadius: 46,
+    blendRadius: 112,
+    hemiSky: 0xd8ece2,
+    // Deliberately much lighter than the other worlds' ground bounce. This is the only
+    // preset with a closed canopy AND large animals standing under it, and the hemi
+    // light is all that fills a shadowed hide -- at 0x2c3418 a Triceratops parked in
+    // tree shade read as a black silhouette with no readable shape at all.
+    hemiGround: 0x57633c,
+    hemiIntensity: 1.45,
+    sunColor: 0xfff1cd,
+    sunIntensity: 2.3,
+    sunPosition: [65, 100, 55],
+    stars: false,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger

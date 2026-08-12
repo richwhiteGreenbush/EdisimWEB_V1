@@ -1092,6 +1092,295 @@ function marsLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// Dinosaur Island
+// ---------------------------------------------------------------------------
+
+// The very end of the Cretaceous, about 66 million years ago, on the sort of hot
+// coastal floodplain the Hell Creek fossil beds record. Every animal placed here really
+// did share that time and place with Tyrannosaurus -- which is itself the lesson, since
+// the famous dinosaurs of the toy box mostly never met one another.
+//
+// The walk is staged on purpose. A field camp and a dig come FIRST, so a student learns
+// how anybody knows any of this before meeting the animals; then the plant-eaters
+// around the lagoon; and the boardwalk dead-ends at the T. rex, whose head is waiting
+// at about the height the path stops.
+function dinosaurLayout() {
+  const items = [];
+
+  // --- The field station ---------------------------------------------------
+  items.push(
+    prop('standing-sign', -19, 33, {
+      rotY: 0.42,
+      options: {
+        lines: ['DINOSAUR ISLAND'],
+        subtitle: 'HELL CREEK FIELD STATION · 66 MILLION YEARS AGO',
+        width: 13,
+        height: 3.2,
+        postHeight: 7.5,
+        face: '#1f3324',
+        accent: '#e0b452',
+      },
+    })
+  );
+
+  items.push(prop('field-camp', 0, 26));
+  items.push(prop('bench', -6, 30, { rotY: Math.PI }));
+  items.push(prop('bench', 6, 30, { rotY: Math.PI }));
+  items.push(orb(-6, 24, 6, ORB_WARM));
+  items.push(orb(6, 24, 6, ORB_WARM));
+  items.push(orb(0, 30, 6, ORB_WARM));
+
+  // --- Boardwalks ----------------------------------------------------------
+  // The spine runs south from camp; two branches go east to the dig and west to the
+  // lagoon. Same job the Park's single axis does: whichever way a student wanders,
+  // getting back on the timber and turning always leads somewhere.
+  for (const z of [14, 0, -14, -28]) items.push(prop('boardwalk', 0, z, { options: { seed: 23 + z } }));
+  for (const x of [13, 26]) items.push(prop('boardwalk', x, 6, { rotY: Math.PI / 2, options: { seed: 41 + x } }));
+  for (const x of [-13, -26]) items.push(prop('boardwalk', x, -14, { rotY: Math.PI / 2, options: { seed: 59 - x } }));
+
+  items.push(
+    prop('trail-sign', 5, 8, {
+      options: {
+        arms: [
+          { label: 'THE DIG', angle: Math.PI / 2 },
+          { label: 'LAGOON', angle: -Math.PI / 2 },
+          { label: 'PREDATOR — KEEP BACK', angle: Math.PI },
+        ],
+      },
+    })
+  );
+
+  // --- The dig -------------------------------------------------------------
+  items.push(prop('fossil-dig', 34, 6, { rotY: 0.35 }));
+  items.push(orb(30, 2, 6, ORB_WHITE));
+  items.push(orb(39, 10, 6, ORB_WHITE));
+
+  // --- The lagoon ----------------------------------------------------------
+  items.push(prop('park-pond', -48, -18, { options: { radius: 17, seed: 29 } }));
+  items.push(prop('horsetail-patch', -33, -12, { options: { count: 30, radius: 6, height: 8, seed: 11 } }));
+  items.push(prop('horsetail-patch', -40, -34, { options: { count: 26, radius: 5, height: 7, seed: 13 } }));
+  items.push(prop('horsetail-patch', -62, -8, { options: { count: 22, radius: 5, height: 6, seed: 17 } }));
+
+  // --- The animals ---------------------------------------------------------
+  // The predator closes the main axis, angled across the end of the boardwalk so its
+  // head comes round to meet whoever is walking down it.
+  items.push(prop('tyrannosaurus', 6, -50, { rotY: -1.1 }));
+  items.push(prop('dino-tracks', 11, -26, { rotY: -1.1, options: { count: 8, stride: 6, seed: 5 } }));
+
+  items.push(prop('triceratops', -32, -4, { rotY: -0.75 }));
+  items.push(prop('edmontosaurus', -50, -38, { rotY: 1.15 }));
+  items.push(prop('ankylosaurus', -24, -32, { rotY: 2.4 }));
+  items.push(prop('pachycephalosaurus', 16, -21, { rotY: -1.25 }));
+  items.push(prop('dino-nest', -13, -45, { rotY: 0.6 }));
+
+  // A pterosaur overhead. Held at about 46ft: high enough to read as flying, low enough
+  // that its shadow still crosses the ground where students are walking.
+  items.push(prop('quetzalcoatlus', 26, -56, { y: 46, rotY: -0.5, rotX: 0.12 }));
+
+  // --- Landscape -----------------------------------------------------------
+  // A smoking volcano on the horizon. The smoke is placed 40ft ABOVE the terrain at the
+  // same spot, which lands it in the caldera -- the mountain is grounded the same way,
+  // so the two stay together whatever the ground is doing out there.
+  items.push(prop('distant-mountain', -135, -150, { options: { height: 46, baseRadius: 115, color: 0x4a4a3c } }));
+  items.push(prop('volcanic-smoke', -135, -150, { y: 40, options: { height: 74, radius: 12, seed: 7 } }));
+  items.push(prop('distant-mountain', 150, -125, { options: { height: 34, baseRadius: 92, caldera: false, color: 0x40563a } }));
+  items.push(prop('distant-mountain', -55, 176, { options: { height: 28, baseRadius: 80, caldera: false, color: 0x3f5233 } }));
+
+  for (const [x, z, count, spread, scale, seed] of [
+    [22, -8, 9, 8, 1.2, 31],
+    [-18, 12, 7, 6, 0.9, 37],
+    [40, -40, 11, 10, 1.4, 41],
+    [-60, 20, 8, 7, 1.1, 43],
+    [12, -66, 9, 9, 1.3, 47],
+  ]) {
+    items.push(prop('jungle-rocks', x, z, { options: { count, spread, scale, seed } }));
+  }
+
+  // --- Planting ------------------------------------------------------------
+  // Araucaria for the canopy, tree ferns and cycads for the understory. Nothing tall
+  // within ~20ft of the spawn point or the T. rex: a 40ft conifer dropped next to
+  // either one fills the screen and hides the thing the student came to see.
+  const canopy = [
+    [-30, 22, 42, 3], [34, 26, 38, 9], [-56, 6, 44, 14], [52, -6, 40, 21],
+    [-42, -50, 46, 26], [46, -60, 39, 33], [-20, -70, 43, 38], [26, 40, 37, 45],
+    [-70, -40, 41, 52], [70, -34, 44, 57], [-8, -84, 40, 61], [36, -80, 38, 67],
+  ];
+  for (const [x, z, height, seed] of canopy) {
+    items.push(prop('araucaria-tree', x, z, { options: { height, seed } }));
+  }
+
+  const understory = [
+    ['tree-fern', -16, 18, 15, 3], ['tree-fern', 15, 16, 13, 6], ['tree-fern', -22, -2, 16, 10],
+    ['tree-fern', 20, -4, 14, 15], ['tree-fern', -14, -26, 15, 19], ['tree-fern', 22, -36, 17, 24],
+    ['tree-fern', -36, -22, 14, 28], ['tree-fern', 30, -18, 16, 34], ['tree-fern', -6, -62, 15, 39],
+    ['cycad', -14, 31, 7, 5], ['cycad', 14, 31, 6, 8], ['cycad', -26, -18, 7, 12],
+    ['cycad', 26, -12, 6, 16], ['cycad', -18, -38, 8, 22], ['cycad', 18, -46, 7, 27],
+    ['ginkgo-tree', -26, 10, 28, 7], ['ginkgo-tree', 18, 20, 25, 18], ['ginkgo-tree', -44, -8, 30, 25],
+    ['ginkgo-tree', 42, -26, 27, 31], ['ginkgo-tree', -30, -58, 26, 36],
+    ['magnolia-shrub', -12, 8, 9, 17], ['magnolia-shrub', 13, -30, 8, 23],
+    ['magnolia-shrub', -36, -40, 10, 29], ['magnolia-shrub', 23, -6, 9, 35],
+  ];
+  for (const [kind, x, z, height, seed] of understory) {
+    items.push(prop(kind, x, z, { options: { height, seed } }));
+  }
+
+  for (const [x, z, count, radius, seed] of [
+    [-8, 6, 16, 6, 13], [9, -8, 14, 5, 21], [-20, -6, 18, 7, 27],
+    [18, -30, 15, 6, 33], [-30, -46, 17, 7, 39], [8, -40, 16, 6, 45],
+    [-46, 4, 14, 6, 51], [40, -14, 15, 6, 57],
+  ]) {
+    items.push(prop('fern-patch', x, z, { options: { count, radius, seed } }));
+  }
+
+  // Perimeter forest. Without it the island reads as an island of detail on an endless
+  // green plain; a ring of 40ft conifers closes every view off, and each tree is one
+  // merged draw call so it is cheap enough to be worth sixteen of them.
+  for (let i = 0; i < 16; i++) {
+    const angle = (i / 16) * Math.PI * 2 + 0.3;
+    const radius = 96 + ((i * 7) % 5) * 8;
+    items.push(
+      prop('araucaria-tree', Math.cos(angle) * radius, -18 + Math.sin(angle) * radius, {
+        options: { height: 36 + ((i * 5) % 4) * 4, seed: 100 + i * 13 },
+      })
+    );
+  }
+
+  // --- Placards ------------------------------------------------------------
+  const facts = [
+    {
+      x: -8, z: 34, rotY: 0.3,
+      eyebrow: 'Where you are',
+      title: 'The last day of the dinosaurs',
+      body: 'Everything here lived about 66 million years ago, right at the end of the Cretaceous. Every animal on this island really did share that time and place — most famous dinosaurs never met each other.',
+    },
+    {
+      x: 8, z: 34, rotY: -0.3,
+      eyebrow: 'Deep time',
+      title: 'Stegosaurus was already ancient',
+      body: 'More time separates Stegosaurus from T. rex than separates T. rex from you. The Age of Dinosaurs lasted so long that its own history had ancient history.',
+    },
+    {
+      x: -7, z: 20, rotY: 0.4,
+      eyebrow: 'Underfoot',
+      title: 'No grass anywhere',
+      body: 'Grass had barely appeared. The green here is ferns, horsetails and moss — which is why almost every plant-eater on this island is built to browse low shrubs, not to graze a lawn.',
+    },
+    {
+      x: 7, z: 20, rotY: -0.4,
+      eyebrow: 'Something new',
+      title: 'The first flowers',
+      body: 'Flowering plants were a recent invention in the Cretaceous. The magnolias here are among the oldest kinds still alive — T. rex lived alongside the very first blossom.',
+    },
+    {
+      x: 24, z: 10, rotY: -0.5,
+      eyebrow: 'The dig',
+      title: 'How anyone knows any of this',
+      body: 'The string grid is not decoration. Every bone is drawn and measured inside its own square before it is lifted, because where a bone sat tells you as much as the bone does.',
+    },
+    {
+      x: 34, z: 17, rotY: -2.6,
+      eyebrow: 'The dig',
+      title: 'How a fossil forms',
+      body: 'An animal has to be buried fast — under river mud or sand — before it rots or is eaten. Minerals then seep in over millions of years. Almost nothing that dies ever becomes a fossil.',
+    },
+    {
+      x: 25, z: -2, rotY: -1.5,
+      eyebrow: 'The dig',
+      title: 'Plaster jackets',
+      body: 'Those white bundles are bones wrapped in plaster and burlap, exactly like a cast on a broken arm. It is the only way to move something that has been shattered for 66 million years.',
+    },
+    {
+      x: -24, z: -2, rotY: 1.4,
+      eyebrow: 'Triceratops',
+      title: 'Three horns and a shield',
+      body: 'The frill is bone, and the brow horns are over three feet long. They were probably used against rivals as much as against predators — plenty of frills carry healed wounds from other Triceratops.',
+    },
+    {
+      x: -20, z: -28, rotY: 2.2,
+      eyebrow: 'Ankylosaurus',
+      title: 'A living tank',
+      body: 'Armour plates set into the skin, spikes along both flanks, and a solid bone club on the tail heavy enough to break a leg. Even its eyelids were armoured.',
+    },
+    {
+      x: -42, z: -34, rotY: 1.1,
+      eyebrow: 'Edmontosaurus',
+      title: 'What T. rex ate',
+      body: 'Some Edmontosaurus fossils carry T. rex bite marks that HEALED. That is the strongest evidence we have that T. rex attacked living prey — and that sometimes the prey got away.',
+    },
+    {
+      x: 12, z: -18, rotY: -1.2,
+      eyebrow: 'Pachycephalosaurus',
+      title: 'Ten inches of solid skull',
+      body: 'Stand next to this one — it is about your height. The dome on its head is bone up to ten inches thick, probably for shoving contests with rivals rather than head-on charges.',
+    },
+    {
+      x: 14, z: -34, rotY: -1.0,
+      eyebrow: 'Footprints',
+      title: 'What tracks tell you',
+      body: 'A skeleton tells you how an animal was built. A trackway tells you what it did — how fast it walked, whether it travelled alone, and how it placed its feet.',
+    },
+    {
+      x: -8, z: -38, rotY: 0.5,
+      eyebrow: 'The nest',
+      title: 'Dinosaur parents',
+      body: 'Dinosaurs built nests, sat on their eggs and looked after what hatched. That behaviour is one of the strongest links between them and the birds outside your window.',
+    },
+    {
+      x: 16, z: -60, rotY: -2.3,
+      eyebrow: 'Tyrannosaurus rex',
+      title: 'Thirteen feet at the hip',
+      body: 'Nearly three times your height at the hip, and forty feet nose to tail. The biggest teeth found are about the size of a banana — and built like railway spikes, for crushing bone rather than slicing.',
+    },
+    {
+      x: -6, z: -58, rotY: 1.1,
+      eyebrow: 'Tyrannosaurus rex',
+      title: 'Those arms are not a joke',
+      body: 'They are shorter than yours, but each one could curl around 400 pounds. Nobody is certain what they were for — holding struggling prey and pushing up off the ground are the best guesses.',
+    },
+    {
+      x: 30, z: -46, rotY: -1.9,
+      eyebrow: 'Look up',
+      title: 'That is not a dinosaur',
+      body: 'Quetzalcoatlus is a pterosaur — a flying cousin, not a dinosaur. Its wings are skin stretched on one enormous finger. Standing on the ground it was as tall as a giraffe.',
+    },
+    {
+      x: -30, z: 14, rotY: 0.9,
+      eyebrow: 'Living fossil',
+      title: 'You can go and touch one',
+      body: 'The ginkgo here is near-identical to the ginkgo growing in car parks today. Whatever wiped out the dinosaurs, this tree walked straight through it unchanged.',
+    },
+    {
+      x: -20, z: 6, rotY: 0.7,
+      eyebrow: 'They are still here',
+      title: 'Birds are dinosaurs',
+      body: 'Not "descended from" — they ARE dinosaurs, the one branch that survived. Every sparrow is a closer relative of T. rex than T. rex was of Triceratops.',
+    },
+    {
+      x: -34, z: 30, rotY: 0.8,
+      eyebrow: 'What happens next',
+      title: 'The worst day on Earth',
+      body: 'An asteroid about six miles across strikes near what is now Mexico. Within hours the sky is on fire; within years the cold and dark end three quarters of all species. Everything you can see from here goes — except the birds.',
+    },
+  ];
+  for (const fact of facts) {
+    items.push(prop('info-placard', fact.x, fact.z, { rotY: fact.rotY, options: fact }));
+  }
+
+  // Light orbs where the canopy genuinely closes over: the fern hollow, the nest, and
+  // either side of the predator at the end of the walk, which is otherwise the darkest
+  // and most important thing in the world.
+  items.push(orb(-13, -45, 6, ORB_WARM));
+  items.push(orb(10, -40, 8, ORB_WARM));
+  items.push(orb(-2, -52, 8, ORB_WARM));
+  items.push(orb(-30, -10, 7, ORB_WHITE));
+
+  // Set down ~20ft short of the camp's eaves, matching the approach the other worlds
+  // give you. Spawning at z=40 put the student's head under the thatch looking at the
+  // back wall, with no idea what the building they were inside even was.
+  return { theme: 'dinosaur', spawn: { x: 0, z: 56, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + materialization
 // ---------------------------------------------------------------------------
 
@@ -1101,6 +1390,11 @@ export const PRESET_WORLDS = {
   library: { label: 'The Library', hint: 'A public reading room: stacks, Dewey signs, card catalog, globe', build: libraryLayout },
   moon: { label: 'The Moon', hint: 'An Apollo landing site — lander, rover, flag and craters', build: moonLayout },
   mars: { label: 'On Mars', hint: 'A crewed outpost — walk into the Habitation Dome, then explore the base', build: marsLayout },
+  dinosaur: {
+    label: 'Dinosaur Island',
+    hint: 'The end of the Cretaceous — a dig, a lagoon, and a T. rex at full size',
+    build: dinosaurLayout,
+  },
 };
 
 function toRecord(item, groundHeightAt) {

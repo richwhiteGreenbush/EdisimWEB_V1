@@ -3,6 +3,7 @@ import * as Museum from './MuseumProps.js';
 import * as Library from './LibraryProps.js';
 import * as Moon from './MoonProps.js';
 import * as Mars from './MarsProps.js';
+import * as Dino from './DinoProps.js';
 import * as Park from './ParkProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
@@ -78,6 +79,28 @@ export const PROP_BUILDERS = {
   'distant-mountain': Mars.distantMountain,
   'mars-crater': Mars.marsCrater,
   'mars-rocks': Mars.marsRocks,
+
+  // Dinosaur Island
+  tyrannosaurus: Dino.tyrannosaurus,
+  triceratops: Dino.triceratops,
+  ankylosaurus: Dino.ankylosaurus,
+  edmontosaurus: Dino.edmontosaurus,
+  pachycephalosaurus: Dino.pachycephalosaurus,
+  quetzalcoatlus: Dino.quetzalcoatlus,
+  'dino-nest': Dino.dinoNest,
+  'tree-fern': Dino.treeFern,
+  cycad: Dino.cycad,
+  'ginkgo-tree': Dino.ginkgoTree,
+  'araucaria-tree': Dino.araucariaTree,
+  'horsetail-patch': Dino.horsetailPatch,
+  'fern-patch': Dino.fernPatch,
+  'magnolia-shrub': Dino.magnoliaShrub,
+  'field-camp': Dino.fieldCamp,
+  'fossil-dig': Dino.fossilDig,
+  boardwalk: Dino.boardwalk,
+  'dino-tracks': Dino.dinoTracks,
+  'jungle-rocks': Dino.jungleRocks,
+  'volcanic-smoke': Dino.volcanicSmoke,
 
   // Park
   'park-gate': Park.parkGate,

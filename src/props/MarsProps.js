@@ -1174,7 +1174,10 @@ export function roverTracks({ count = 12, seed = 5, gauge = 4.6 } = {}) {
 // A dust devil: a column of lifted dust that really does wander across Martian plains,
 // and which has more than once cleaned a rover's solar panels for free. Click it and
 // give it a "rotate forever" block -- that is the intended lesson here.
-export function dustDevil({ height = 40, radius = 6, seed = 3 } = {}) {
+// `color` and `tint` are options because the Dinosaur Island world reuses this builder
+// as a volcanic smoke plume -- a lifted column of particles is the same soft shape
+// whichever planet it is on, and only the palette changes.
+export function dustDevil({ height = 40, radius = 6, seed = 3, color = 0xd6a074, tint = '214,150,104' } = {}) {
   const rng = seededRandom(seed);
   const g = group();
 
@@ -1191,9 +1194,9 @@ export function dustDevil({ height = 40, radius = 6, seed = 3 } = {}) {
       const width = 8 + rng() * 30;
       const alpha = 0.06 + rng() * 0.2 * (1 - y / h);
       const grad = ctx.createLinearGradient(0, y, 0, y + length);
-      grad.addColorStop(0, 'rgba(214,150,104,0)');
-      grad.addColorStop(0.5, `rgba(214,150,104,${alpha.toFixed(3)})`);
-      grad.addColorStop(1, 'rgba(214,150,104,0)');
+      grad.addColorStop(0, `rgba(${tint},0)`);
+      grad.addColorStop(0.5, `rgba(${tint},${alpha.toFixed(3)})`);
+      grad.addColorStop(1, `rgba(${tint},0)`);
       ctx.fillStyle = grad;
       ctx.beginPath();
       ctx.ellipse(x, y + length / 2, width / 2, length / 2, 0, 0, Math.PI * 2);
@@ -1214,7 +1217,7 @@ export function dustDevil({ height = 40, radius = 6, seed = 3 } = {}) {
   const dust = () =>
     standard({
       map: texture,
-      color: 0xd6a074,
+      color,
       transparent: true,
       opacity: 0.45,
       side: THREE.DoubleSide,
@@ -1233,7 +1236,7 @@ export function dustDevil({ height = 40, radius = 6, seed = 3 } = {}) {
   column.receiveShadow = false;
   g.add(column);
 
-  const skirt = mesh(new THREE.ConeGeometry(radius * 1.1, 4.5, 24, 1, true), dust(), 0, 2.25, 0);
+  const skirt = mesh(new THREE.ConeGeometry(radius * 1.1, radius * 0.75, 24, 1, true), dust(), 0, radius * 0.38, 0);
   skirt.material.opacity = 0.28;
   skirt.castShadow = false;
   skirt.receiveShadow = false;

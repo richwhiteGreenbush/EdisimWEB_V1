@@ -224,6 +224,68 @@ export function pediment(width, height, depth, material) {
   return mesh(geometry, material);
 }
 
+// A tube of VARYING radius swept along a Catmull-Rom curve through `points`.
+//
+// three.js's own TubeGeometry is constant-radius, which is no use for the thing this
+// exists for: a neck, a tail, a limb or a torso is *defined* by its taper. `radii` is
+// one radius per control point, resampled smoothly along the curve, and a radius of 0
+// closes the end to a point (a tail tip) so no cap is needed.
+//
+// Returns an INDEXED geometry with correct normals, so it drops straight into
+// mergeColored() alongside boxes and cylinders -- which is the point, since an animal
+// built this way is a dozen tubes that must end up as one draw call.
+export function taperedTube(points, radii, { tubularSegments = 26, radialSegments = 8 } = {}) {
+  const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(p[0], p[1], p[2])));
+  const frames = curve.computeFrenetFrames(tubularSegments, false);
+
+  const positions = [];
+  const normals = [];
+  const uvs = [];
+  const indices = [];
+  const center = new THREE.Vector3();
+
+  for (let i = 0; i <= tubularSegments; i++) {
+    const t = i / tubularSegments;
+    curve.getPointAt(t, center);
+    const normal = frames.normals[i];
+    const binormal = frames.binormals[i];
+
+    // Resample the per-control-point radii onto the curve's arc parameter.
+    const span = (radii.length - 1) * t;
+    const index = Math.min(Math.floor(span), radii.length - 2);
+    const radius = THREE.MathUtils.lerp(radii[index], radii[index + 1], span - index);
+
+    for (let j = 0; j <= radialSegments; j++) {
+      const angle = (j / radialSegments) * Math.PI * 2;
+      const sin = Math.sin(angle);
+      const cos = -Math.cos(angle);
+      const nx = cos * normal.x + sin * binormal.x;
+      const ny = cos * normal.y + sin * binormal.y;
+      const nz = cos * normal.z + sin * binormal.z;
+      positions.push(center.x + radius * nx, center.y + radius * ny, center.z + radius * nz);
+      normals.push(nx, ny, nz);
+      uvs.push(t, j / radialSegments);
+    }
+  }
+
+  for (let i = 1; i <= tubularSegments; i++) {
+    for (let j = 1; j <= radialSegments; j++) {
+      const a = (radialSegments + 1) * (i - 1) + (j - 1);
+      const b = (radialSegments + 1) * i + (j - 1);
+      const c = (radialSegments + 1) * i + j;
+      const d = (radialSegments + 1) * (i - 1) + j;
+      indices.push(a, b, d, b, c, d);
+    }
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setIndex(indices);
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  return geometry;
+}
+
 export function randomIn(rng, min, max) {
   return min + rng() * (max - min);
 }
