@@ -766,6 +766,45 @@ Exit is reachable three ways and they all converge on the same cleanup: the menu
 fires the session's `end` event without going through the menu at all — hence
 `onNotice({type:'exited'})` calling back into `menu.setVRActive(false)`.
 
+**Controllers: trigger-drag to turn, thumbstick to walk.** Both controllers are parented
+to the **dolly**, not to the scene — `WebXRManager` writes the raw pose into each one's
+local matrix, so a controller under the dolly is carried along as the player walks and
+turns for free, and its local transform stays in metres for the dolly's scale to
+convert (the ray line each one carries is therefore authored 1 unit long, ≈3.3ft in the
+world). Neither input touches the camera: the trigger drag writes `player.yaw` and the
+thumbstick calls `player.setAnalogMove(forward, strafe)`, so terrain following and the
+world-bound clamp keep applying, and the arrow keys keep working at the same time.
+
+- **Read the controller's yaw in the DOLLY's frame, never in world space.** `player.yaw`
+  rotates the dolly, and the controller is a child of it — so a world-space yaw contains
+  the player's own yaw, and feeding its delta back into `player.yaw` is a positive
+  feedback loop that spins the world up like a flywheel the moment the trigger is held.
+  `controller.quaternion` is local, which is exactly the measurement that can't do this.
+- **Only yaw is applied.** Pitching the rig from a controller tilts the horizon under
+  someone wearing a headset, which is a well-known way to make them ill — and looking up
+  and down is what the headset's own tracking already does. This is deliberate, not an
+  omission: `render()`'s dolly only ever takes `rotation.y`.
+- **The yaw delta has to be wrapped to ±π.** Swinging across the ±180° seam otherwise
+  reads as a 350° flick the other way.
+- **`three` decomposes the pose into `targetRay.rotation` (an Euler), not the
+  quaternion** — that works only because `Euler` also has `setFromRotationMatrix` and
+  its `onChange` syncs `Object3D.quaternion`. Reading `.quaternion` is safe; assuming
+  the Euler's *order* is not, so `controllerYaw()` extracts through a `'YXZ'` Euler of
+  its own.
+- **Sticks are read from `session.inputSources` every frame, not cached on connect.** A
+  controller can wake, sleep or change hands mid-session.
+- **xr-standard puts the touchpad on axes 0/1 and the thumbstick on axes 2/3**, and a
+  controller may report either or both — whichever pair is actually deflected wins, so
+  older touchpad-only hardware still walks.
+- **A deadzone is not optional, and it has to rescale from its own edge.** Sticks rest
+  slightly off centre and drift as they wear, so a raw reading is never reliably zero;
+  returning the raw value past the threshold makes a barely-nudged stick jump straight
+  to a fifth of full walking speed.
+- **`releaseControllers()` runs on both exit paths** (`exit()` and the session's own
+  `end` event). Leaving VR with a stick held or a trigger down otherwise strands the
+  player walking forever in the flat view, where nothing is feeding those values any
+  more.
+
 ### Touch input is fully decoupled from PlayerController
 
 `TouchNav.js` never touches `PlayerController` directly — it dispatches synthetic
@@ -776,6 +815,35 @@ any pointerId the browser doesn't consider "active" (reliably happens with
 programmatic multi-touch) — it's wrapped in try/catch so a capture failure can never
 block the key dispatch; `pointerleave` is the release fallback for when capture isn't
 available.
+
+**Look, though, is `PlayerController`'s own job, and it is Pointer Events — not mouse
+events.** A browser only synthesises compatibility mouse events for a *tap*; a drag
+produces `pointermove`/`touchmove` and nothing else. So a `mousemove`-based look
+simply did not exist on a phone or tablet, and touch users could only turn with the
+D-pad. `PlayerController` now listens for `pointerdown`/`pointermove`/`pointerup`/
+`pointercancel`, which covers mouse, finger and stylus in one handler set (and matches
+how every other custom drag in this codebase is built). Four things it depends on:
+
+- **`#scene` sets `touch-action: none`.** Left on `auto`, the browser claims the
+  gesture as a pan/zoom a few pixels in and fires `pointercancel` — the look starts and
+  then dies mid-drag, which is a far more confusing failure than not working at all.
+- **The active look pointer is held by *id*, not as a boolean.** A second finger
+  landing (on the D-pad, or a pinch) must not hijack the look another finger started,
+  and must not end it on its own `pointerup` — which a `dragging = true/false` flag
+  cannot express. Walking with one thumb while looking with the other is the whole
+  point of doing this on a tablet.
+- **`pointercancel` is bound to the same handler as `pointerup`.** The browser takes a
+  touch away without a `pointerup` (a system gesture, an incoming call), and a look
+  left attached to a finger that no longer exists then follows the next unrelated
+  `pointermove`.
+- **Touch gets its own, larger `TOUCH_LOOK_SENSITIVITY`.** A handset screen is a few
+  hundred pixels wide where a mouse has a whole desktop display, so at the mouse's
+  radians-per-pixel a full swipe turns the view by well under 45°.
+
+Click-vs-drag arbitration elsewhere (`ObjectMenu`, `PlayIconManager`,
+`WebBrowserManager`) needed no changes and must not grow any: each already runs its own
+movement/time threshold over this same pointer stream, so a tap still opens an object's
+menu and a drag across that same object looks around instead.
 
 ### Balloon inflation is a custom heightfield sampled from the actual painting
 

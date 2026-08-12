@@ -2,7 +2,11 @@
 // distance/size constant below is calibrated against that.
 export const MOVE_SPEED = 6; // feet/second
 export const TURN_SPEED = 2; // radians/second
-export const LOOK_SENSITIVITY = 0.0035; // radians per pixel of drag
+export const LOOK_SENSITIVITY = 0.0035; // radians per pixel of mouse drag
+// A finger swipe crosses a few hundred pixels at most on a phone, where a mouse drag
+// has a whole desktop display to work with -- at the mouse figure above, a full swipe
+// across a handset turns the view by well under 45deg and reads as broken.
+export const TOUCH_LOOK_SENSITIVITY = 0.0055; // radians per pixel of finger drag
 export const MAX_PITCH = Math.PI / 2 - 0.08; // clamp just short of straight up/down
 export const EYE_HEIGHT = 5; // feet
 export const WORLD_BOUND_RADIUS = 195; // stay within the 400x400 ground plane

@@ -18,8 +18,22 @@ The menu is collapsed to a small "☰ Menu" button by default — click it to ex
 - `Arrow Left` / `Arrow Right` — turn left / right
 - Left-click + drag — look around
 - Left-click an object — open its menu (Size / Move / Program)
-- On touch devices, the on-screen D-pad in the bottom-right corner mirrors the arrow
-  keys — press and hold to walk/turn, and it supports multiple fingers at once
+
+On a phone or tablet:
+
+- Drag a finger anywhere on the world — look around; the view follows your finger
+- Tap an object — open its menu, exactly like a click
+- The on-screen D-pad in the bottom-right corner mirrors the arrow keys — press and
+  hold to walk/turn. It supports multiple fingers at once, so you can walk with one
+  thumb while looking around with the other
+
+In VR (Menu ▸ **VR Headset View**, with a headset and controllers):
+
+- Thumbstick forward / back — walk; thumbstick left / right — step sideways
+- Hold a trigger and swing the controller — turn. The trigger is the left mouse
+  button of VR, and swinging with it held is the drag
+- Look up and down by moving your head — the headset tracks that itself
+- Either hand works for both, and the arrow keys still walk
 
 ## Importing content
 

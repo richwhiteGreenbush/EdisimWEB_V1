@@ -15,6 +15,11 @@ html, body {
   display: block;
   width: 100vw;
   height: 100vh;
+  /* Drag-to-look needs the whole gesture. Left on `auto`, the browser claims a finger
+     drag as a pan/zoom part-way through and fires pointercancel, so the look would
+     start and then die a few pixels in -- and a double-tap would zoom the page rather
+     than reaching the world underneath. */
+  touch-action: none;
 }
 
 #menu {
