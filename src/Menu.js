@@ -1,7 +1,18 @@
+import { PRESET_WORLDS } from './WorldPresets.js';
+
 const POLYHAVEN_URL = 'https://polyhaven.com';
 
 export class Menu {
-  constructor({ onImportClick, onDrawClick, onLightOrbClick, onWebBrowserClick, onClearClick, onSaveWorldClick, onLoadWorldClick }) {
+  constructor({
+    onImportClick,
+    onDrawClick,
+    onLightOrbClick,
+    onWebBrowserClick,
+    onClearClick,
+    onSaveWorldClick,
+    onLoadWorldClick,
+    onLoadPresetClick,
+  }) {
     this.root = document.createElement('div');
     this.root.id = 'menu';
 
@@ -34,8 +45,34 @@ export class Menu {
     this.saveWorldBtn = this._button('Save World', 'Download the current world as a file you can load again later');
     this.saveWorldBtn.addEventListener('click', () => onSaveWorldClick?.());
 
-    this.loadWorldBtn = this._button('Load World', 'Load a saved world file — this replaces everything currently placed');
-    this.loadWorldBtn.addEventListener('click', () => onLoadWorldClick?.());
+    // Load World opens a submenu of the three ready-made worlds, with loading a saved
+    // .json file kept as the last entry so the existing save/load round trip still has
+    // a home. Built from PRESET_WORLDS rather than hardcoded here, so adding a fourth
+    // world is a one-line change in WorldPresets.js and shows up in the menu for free.
+    this.loadWorldBtn = this._button('Load World ▸', 'Load one of the ready-made worlds, or a world file you saved earlier');
+    this.loadWorldBtn.addEventListener('click', () => this.toggleLoadMenu());
+
+    this.loadWorldSubmenu = document.createElement('div');
+    this.loadWorldSubmenu.className = 'menu-submenu';
+    this.loadWorldSubmenu.hidden = true;
+
+    for (const [name, preset] of Object.entries(PRESET_WORLDS)) {
+      const btn = this._button(preset.label, `${preset.hint} — replaces everything currently placed`);
+      btn.classList.add('menu-subitem');
+      btn.addEventListener('click', () => {
+        this.setLoadMenuOpen(false);
+        onLoadPresetClick?.(name);
+      });
+      this.loadWorldSubmenu.appendChild(btn);
+    }
+
+    const fromFileBtn = this._button('From a file…', 'Load a world you saved earlier — this replaces everything currently placed');
+    fromFileBtn.classList.add('menu-subitem', 'menu-subitem-alt');
+    fromFileBtn.addEventListener('click', () => {
+      this.setLoadMenuOpen(false);
+      onLoadWorldClick?.();
+    });
+    this.loadWorldSubmenu.appendChild(fromFileBtn);
 
     this.clearBtn = this._button('Clear World', 'Remove everything you have placed');
     this.clearBtn.addEventListener('click', () => onClearClick?.());
@@ -59,6 +96,7 @@ export class Menu {
       this.webBrowserBtn,
       this.saveWorldBtn,
       this.loadWorldBtn,
+      this.loadWorldSubmenu,
       this.clearBtn,
       this.polyhavenLink,
       hint
@@ -86,6 +124,17 @@ export class Menu {
     this.panel.hidden = collapsed;
     this.toggleBtn.textContent = collapsed ? '☰ Menu' : '✕ Close';
     this.root.classList.toggle('menu-collapsed', collapsed);
+    if (collapsed) this.setLoadMenuOpen(false);
+  }
+
+  setLoadMenuOpen(open) {
+    this.loadWorldSubmenu.hidden = !open;
+    this.loadWorldBtn.textContent = open ? 'Load World ▾' : 'Load World ▸';
+    this.loadWorldBtn.classList.toggle('menu-btn-open', open);
+  }
+
+  toggleLoadMenu() {
+    this.setLoadMenuOpen(this.loadWorldSubmenu.hidden);
   }
 
   toggle() {

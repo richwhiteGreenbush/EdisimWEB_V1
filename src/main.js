@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { buildWorld } from './SceneSetup.js';
+import { buildWorld, applyWorldTheme } from './SceneSetup.js';
 import { PlayerController } from './PlayerController.js';
 import { Menu } from './Menu.js';
 import { PlacedRegistry } from './PlacedRegistry.js';
@@ -7,7 +7,6 @@ import { ImportManager } from './ImportManager.js';
 import { DrawTool } from './DrawTool.js';
 import { WorldStore } from './WorldStore.js';
 import { ObjectMenu } from './ObjectMenu.js';
-import { placeStartupAssets } from './StartupAssets.js';
 import { exportWorldToFile, readWorldFile } from './WorldFile.js';
 import { TouchNav } from './TouchNav.js';
 import { ProgramManager } from './ProgramManager.js';
@@ -15,7 +14,8 @@ import { ProgramEditor } from './ProgramEditor.js';
 import { PlayIconManager } from './PlayIcon.js';
 import { placeLightOrb } from './LightOrb.js';
 import { WebBrowserManager, placeWebBrowser } from './WebBrowserPanel.js';
-import { EYE_HEIGHT, PALETTE_SWATCHES } from './config.js';
+import { buildPresetWorldRecords } from './WorldPresets.js';
+import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD } from './config.js';
 
 const canvas = document.getElementById('scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -41,6 +41,17 @@ const webBrowserManager = new WebBrowserManager({
   canvas,
   onEditClick: (id, clientX, clientY) => objectMenu.open(id, clientX, clientY),
 });
+
+// Shared by the Load World menu and by the first-visit boot below.
+// buildPresetWorldRecords applies the world's theme first and then reads each object's
+// ground height off the freshly reshaped terrain -- so it has to run before
+// loadFromRecords, and the player is only moved once the new ground exists under them.
+async function loadPresetWorld(name) {
+  const { records, spawn, label } = buildPresetWorldRecords(name, { groundHeightAt });
+  await worldStore.loadFromRecords(records);
+  player.resetTo(spawn);
+  return label;
+}
 
 const loadWorldInput = document.createElement('input');
 loadWorldInput.type = 'file';
@@ -90,6 +101,16 @@ const menu = new Menu({
     }
   },
   onLoadWorldClick: () => loadWorldInput.click(),
+  onLoadPresetClick: (name) => {
+    menu.setCollapsed(true);
+    menu.toast('Building the world…');
+    loadPresetWorld(name)
+      .then((label) => menu.toast(`${label} is ready — walk in and take a look.`, { tone: 'success' }))
+      .catch((err) => {
+        console.error(`Failed to load preset world "${name}":`, err);
+        menu.toast('Could not build that world.', { tone: 'error' });
+      });
+  },
   onClearClick: async () => {
     if (registry.count === 0) {
       menu.toast('Nothing to clear yet.');
@@ -99,6 +120,10 @@ const menu = new Menu({
     playIconManager.clear();
     webBrowserManager.clear();
     await worldStore.clearAll();
+    // The theme is carried by a record, and clearing removed it -- so put the sky,
+    // terrain and lighting back to the default world rather than leaving the player
+    // standing on grey lunar hills under a black sky with nothing on them.
+    applyWorldTheme(DEFAULT_THEME);
     menu.toast('World cleared.', { tone: 'success' });
   },
 });
@@ -132,9 +157,17 @@ const objectMenu = new ObjectMenu({ scene, camera, domElement: canvas, registry,
 worldStore
   .rehydrateAll()
   .then(() => {
-    const hasStartupAssets = [...registry.items.values()].some((item) => item.record?.kind?.startsWith('startup-'));
-    if (!hasStartupAssets) {
-      return placeStartupAssets({ scene, camera, registry, worldStore, groundHeightAt });
+    // First visit (or a cleared/evicted IndexedDB) drops the student straight into the
+    // Park. The check is "nothing came back at all", not "no startup-* records came
+    // back": every preset world is built from `preset-prop` records, so the narrower
+    // check would rebuild the Park on top of whichever world they had last loaded.
+    //
+    // Once built, the Park is persisted like any other world, so a plain page refresh
+    // restores whatever the student had actually done to it rather than resetting
+    // their work. Menu > Load World > The Park is the deliberate way back to a fresh
+    // copy.
+    if (registry.count === 0) {
+      return loadPresetWorld(BOOT_WORLD);
     }
   })
   .catch((err) => console.error('World initialization failed:', err));

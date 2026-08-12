@@ -105,6 +105,17 @@ export class PlayerController {
     pos.y = this.groundHeightAt(pos.x, pos.z) + EYE_HEIGHT;
   }
 
+  // Drops the player back at a world's intended starting point. Loading a preset world
+  // replaces everything around them, so without this they can end up standing inside a
+  // building (or a mile out on empty terrain) the instant a new world appears.
+  resetTo({ x = 0, z = 6, yaw = 0, pitch = 0 } = {}) {
+    this.yaw = yaw;
+    this.pitch = pitch;
+    this.keys.clear();
+    this.camera.position.set(x, this.groundHeightAt(x, z) + EYE_HEIGHT, z);
+    this.camera.rotation.set(this.pitch, this.yaw, 0, 'YXZ');
+  }
+
   groundHeightAt(x, z) {
     if (!this.ground) return 0;
     this.rayOrigin.set(x, 50, z);

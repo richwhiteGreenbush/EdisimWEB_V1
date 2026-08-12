@@ -9,9 +9,124 @@ export const WORLD_BOUND_RADIUS = 195; // stay within the 400x400 ground plane
 
 export const GROUND_SIZE = 400;
 export const TERRAIN_SEGMENTS = 120; // ground mesh subdivisions per side
-export const TERRAIN_AMPLITUDE = 2.5; // feet, max hill height
-export const TERRAIN_FLAT_RADIUS = 14; // feet -- perfectly flat clearing around spawn/startup assets
-export const TERRAIN_BLEND_RADIUS = 34; // feet -- hills reach full height by this radius
+
+// Every visual property of the environment itself -- sky, fog, ground relief, ground
+// color, and the two scene lights -- lives here, keyed by theme name. SceneSetup's
+// applyWorldTheme() reshapes the existing ground mesh in place from these numbers, and
+// a preset world persists its choice as a `world-theme` record so the setting survives
+// a reload or a Save/Load World round trip.
+//
+// flatRadius / blendRadius: terrain is EXACTLY flat inside flatRadius and reaches full
+// amplitude by blendRadius. The museum and library both drop a ~50ft building near the
+// origin, so their flat zone has to comfortably contain that footprint or the building
+// ends up straddling a hillside.
+// `park` is the world a brand-new visitor lands in -- main.js builds it whenever
+// rehydration comes back empty. `default` is the bare green world, kept for backward
+// compatibility: it is exactly the old hardcoded terrain constants, so any world saved
+// before themes existed, or cleared back to nothing, looks precisely as it always did.
+export const DEFAULT_THEME = 'default';
+export const BOOT_WORLD = 'park';
+
+export const WORLD_THEMES = {
+  default: {
+    sky: 0x87ceeb,
+    fogNear: 60,
+    fogFar: 220,
+    groundLow: 0x3d6b30,
+    groundHigh: 0x7fae52,
+    amplitude: 2.5,
+    flatRadius: 14,
+    blendRadius: 34,
+    hemiSky: 0xbfd9ff,
+    hemiGround: 0x3a3a2a,
+    hemiIntensity: 1.1,
+    sunColor: 0xfff2d6,
+    sunIntensity: 2.2,
+    sunPosition: [60, 90, 40],
+    stars: false,
+  },
+  park: {
+    sky: 0x8fc4ea,
+    fogNear: 110,
+    fogFar: 340,
+    groundLow: 0x3f6b2e,
+    groundHigh: 0x82b34d,
+    // Gentle rolling meadow rather than the default's hillier ground: an Olmsted park
+    // reads as broad open lawn with soft swells. Amplitude is kept low because the
+    // flagstone paths are laid as flat segments -- steeper ground would bury one end
+    // of a segment and float the other.
+    amplitude: 3.2,
+    flatRadius: 26,
+    blendRadius: 95,
+    hemiSky: 0xd2e8ff,
+    hemiGround: 0x46512c,
+    hemiIntensity: 1.25,
+    sunColor: 0xfff4d9,
+    sunIntensity: 2.4,
+    sunPosition: [80, 120, 55],
+    stars: false,
+  },
+  museum: {
+    sky: 0x9ec6e8,
+    fogNear: 90,
+    fogFar: 280,
+    groundLow: 0x5f7a4a,
+    groundHigh: 0x8fa86a,
+    amplitude: 1.6,
+    flatRadius: 76,
+    blendRadius: 130,
+    hemiSky: 0xd6e6ff,
+    hemiGround: 0x4a4536,
+    hemiIntensity: 1.35,
+    sunColor: 0xfff4e0,
+    sunIntensity: 2.3,
+    sunPosition: [70, 110, 60],
+    stars: false,
+  },
+  library: {
+    sky: 0xa9c9e6,
+    fogNear: 90,
+    fogFar: 280,
+    groundLow: 0x496b34,
+    groundHigh: 0x84a55a,
+    amplitude: 1.8,
+    flatRadius: 82,
+    blendRadius: 140,
+    hemiSky: 0xcfe2ff,
+    hemiGround: 0x574d3c,
+    hemiIntensity: 1.5,
+    sunColor: 0xffeccb,
+    sunIntensity: 2.1,
+    // Steep on purpose. The library is the only preset with a roofed interior, and a
+    // low sun throws its daylight straight into a wall instead of down onto the floor.
+    sunPosition: [-45, 130, 40],
+    stars: false,
+  },
+  moon: {
+    // No atmosphere means a black sky at high noon and brutally hard shadows: the
+    // hemisphere fill is dialled right down so the sun does nearly all the lighting,
+    // which is exactly why real lunar photographs look the way they do.
+    sky: 0x05060b,
+    fogNear: 150,
+    fogFar: 340,
+    groundLow: 0x54524c,
+    groundHigh: 0xa8a49a,
+    groundRoughness: 1,
+    // A wide level landing site ringed by hills -- which is also how real Apollo sites
+    // were chosen. Everything the crew left behind sits inside the flat zone.
+    amplitude: 5.5,
+    pockAmplitude: 0.8,
+    flatRadius: 42,
+    blendRadius: 95,
+    hemiSky: 0x2b3038,
+    hemiGround: 0x14161a,
+    hemiIntensity: 0.35,
+    sunColor: 0xfffdf5,
+    sunIntensity: 3.4,
+    sunPosition: [90, 60, 70],
+    stars: true,
+  },
+};
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger
 // than that radius for a reasonable number of placements, or later objects wrap around
@@ -31,9 +146,6 @@ export const BALLOON_MAX_INFLATE = 0.45; // feet
 export const BALLOON_TARGET_SPAN = 1.5; // feet, normalized outline width
 
 export const MODEL_TARGET_HEIGHT = 5; // feet -- every imported model is normalized to this height
-
-export const STARTUP_ASSET_SPACING = 20; // feet between the boot-time starter assets
-export const STARTUP_LOADED_KEY = '3dcoder-starter-loaded';
 
 export const PLAY_ICON_SIZE = 0.8; // feet, billboard sprite size
 export const PLAY_ICON_MARGIN = 0.6; // feet above the object's bounding-box top

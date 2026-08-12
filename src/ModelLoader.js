@@ -73,3 +73,18 @@ export function groundLiftFor(object3D) {
   const box = new THREE.Box3().setFromObject(object3D);
   return -box.min.y;
 }
+
+// Nudges an ALREADY-POSITIONED object vertically so its bounding-box base sits exactly
+// at worldY. Unlike groundLiftFor(), this makes no assumption about the object sitting
+// at the origin, which is what a rehydrated record hands us: scale and rotation are
+// already applied, and the amount to lift depends on both.
+//
+// This is what lets a preset world place a fetched model (the maple tree, the little
+// library) at an arbitrary scale without the layout having to know the model's pivot
+// offset -- a number nobody can compute without loading the file first, and one that
+// would silently go stale the moment the .obj were replaced.
+export function seatBaseAt(object3D, worldY) {
+  const box = new THREE.Box3().setFromObject(object3D);
+  if (!Number.isFinite(box.min.y)) return;
+  object3D.position.y += worldY - box.min.y;
+}

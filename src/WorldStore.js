@@ -1,9 +1,12 @@
 import { DB_NAME, DB_VERSION, STORE_NAME } from './config.js';
-import { buildBatchLoadingManager, loadModelFile } from './ModelLoader.js';
+import { buildBatchLoadingManager, loadModelFile, scaleToHeight, seatBaseAt } from './ModelLoader.js';
 import { loadImagePlane, loadImageElement } from './MediaLoader.js';
 import { inflateFromCanvas } from './BalloonInflator.js';
 import { loadLibraryModel, loadTreeModel, loadBillboardImage } from './StartupAssets.js';
 import { createLightOrb } from './LightOrb.js';
+import { applyWorldTheme, createThemeMarker } from './SceneSetup.js';
+import { buildProp } from './props/index.js';
+import { DEFAULT_THEME } from './config.js';
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -85,6 +88,15 @@ export class WorldStore {
     this.playIconManager?.clear();
     this.webBrowserManager?.clear();
     await this.clearAll();
+
+    // Settle the environment up front from whatever the incoming set asks for, so a
+    // world file with no theme of its own resets a leftover moon sky back to daylight
+    // instead of inheriting it. applyWorldTheme() is a no-op when the theme is already
+    // live, which is what makes this free for the preset path (WorldPresets already
+    // applied it in order to read correct ground heights) and idempotent when the
+    // matching `world-theme` record comes back round through rehydrateOne() below.
+    applyWorldTheme(records.find((record) => record?.kind === 'world-theme')?.theme || DEFAULT_THEME);
+
     for (const record of records) {
       try {
         await this.rehydrateOne(record);
@@ -121,8 +133,43 @@ export class WorldStore {
       const object3D = result?.mesh || result;
       const tick = result?.tick;
       applyTransform(object3D, record.transform);
+
+      // Preset worlds reuse these fetched assets at their own real-world size, via two
+      // optional fields that older records simply don't have.
+      //
+      // `targetHeight` exists because applyTransform() REPLACES scale wholesale, which
+      // silently discards the scaleToHeight() normalization the loaders just applied --
+      // so a record asking for "scale 4" would get four times the model's raw authored
+      // size, not four times 5ft. Re-normalizing here is self-correcting no matter what
+      // scale the transform left behind.
+      //
+      // `baseOnGround` then seats it: where a model's pivot sits relative to its base
+      // is a property of the file, and depends on the final scale, so the record stores
+      // the ground height and this puts the bottom of the model on it.
+      if (record.targetHeight) scaleToHeight(object3D, record.targetHeight);
+      if (record.baseOnGround) seatBaseAt(object3D, record.transform.position[1]);
+
       this.scene.add(object3D);
       this.addAndRun(record, object3D, { tick });
+      return;
+    }
+
+    if (record.kind === 'world-theme') {
+      applyWorldTheme(record.theme);
+      const marker = createThemeMarker();
+      applyTransform(marker, record.transform);
+      this.scene.add(marker);
+      this.addAndRun(record, marker);
+      return;
+    }
+
+    // Preset-world scenery: rebuilt from its builder name + options every time, so no
+    // geometry or texture bytes are ever stored. Same philosophy as light orbs.
+    if (record.kind === 'preset-prop') {
+      const object3D = buildProp(record.prop, record.options);
+      applyTransform(object3D, record.transform);
+      this.scene.add(object3D);
+      this.addAndRun(record, object3D);
       return;
     }
 

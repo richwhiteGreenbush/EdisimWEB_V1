@@ -7,8 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 3DCoder is a single-user, browser-based 3D sandbox (Second Life-inspired): walk a
 rolling-terrain world with the arrow keys / on-screen D-pad, import glTF/OBJ models
 and images, freehand-draw shapes that inflate into 3D balloons, drop glowing light
-orbs, place live interactive web browser panels, and save/load the world. Pure
-client-side Three.js app — no backend, ships as a static `dist/` bundle.
+orbs, place live interactive web browser panels, and save/load the world. New visitors
+land in a prebuilt Park; The Museum, The Library and The Moon are loadable from the
+menu. Pure client-side Three.js app — no backend, ships as a static `dist/` bundle.
 
 ## Commands
 
@@ -29,9 +30,10 @@ There is no lint or test setup in this project.
 then `PlayerController`, `ProgramManager`, `PlacedRegistry`, `Menu`, `PlayIconManager`,
 `WebBrowserManager`, `WorldStore`, `ImportManager`, `DrawTool`, `ProgramEditor`,
 `ObjectMenu`, and `TouchNav`. Boot sequence: `worldStore.rehydrateAll()` restores
-whatever's in IndexedDB, and only if that leaves zero `startup-*` records does it call
-`placeStartupAssets()` — so the library/tree/billboard load once ever (or once per
-fresh IndexedDB), not on every visit. The animate loop ticks `registry`,
+whatever's in IndexedDB, and only if that leaves the registry **completely empty** does
+it build the Park (`loadPresetWorld(BOOT_WORLD)`) — so a first visit gets a world, a
+refresh keeps the student's own edits, and a loaded preset is never overwritten.
+The animate loop ticks `registry`,
 `programManager`, `playIconManager`, and `webBrowserManager`, in that order, before
 `renderer.render()`.
 
@@ -46,10 +48,10 @@ placement spiral's radius grows as `SPAWN_SPACING·√n`, and if that ever excee
 camera instead of fanning out in front of it. If either constant changes, re-check
 this relationship.
 
-### Terrain: a height-displaced, vertex-colored plane
+### Terrain: a height-displaced, vertex-colored plane, retinted per theme
 
 `SceneSetup.js` builds the ground as a subdivided `PlaneGeometry` (`TERRAIN_SEGMENTS`
-per side) with each vertex's local Z displaced by `terrainHeightAt(worldX, worldZ)`
+per side) with each vertex's local Z displaced by `terrainHeightAt(theme, worldX, worldZ)`
 before `computeVertexNormals()` — there's no separate heightmap asset or texture.
 **Gotcha**: `PlaneGeometry` is authored flat in local XY; the mesh is then rotated
 `-90°` about X to lay it down, which maps local Z → world Y (up) and local Y → world
@@ -69,6 +71,23 @@ every placement path (`ImportManager`, `DrawTool`, `StartupAssets`, `LightOrb`) 
 get ground height by raycasting straight down against the actual `ground` mesh
 (`groundHeightAt`/`this.raycaster.intersectObject(this.ground)`), so they automatically
 follow whatever height the mesh's real geometry has — flat or hilly.
+
+**World themes.** Every visual property of the environment — sky/fog color, ground
+relief (`amplitude`/`flatRadius`/`blendRadius`/`pockAmplitude`), ground color ramp,
+hemisphere + sun color/intensity/direction, and whether the starfield is visible —
+lives in `config.js`'s `WORLD_THEMES`
+(`default`/`park`/`museum`/`library`/`moon`).
+`applyWorldTheme(name)` rewrites the ground's **existing** position/color attributes
+**in place** on the **same** `BufferGeometry` and the same `Mesh` — deliberately, since
+`PlayerController` and every placement path hold a reference to that mesh; swapping the
+object out would strand them, whereas mutating it means they all pick up the new
+terrain on their very next raycast with no notification plumbing at all. It's a no-op
+when the requested theme is already live, which is what lets `WorldPresets` apply a
+theme up front (to read correct ground heights) and then have that world's own
+`world-theme` record re-apply it harmlessly during rehydration.
+
+The `default` theme's numbers are exactly the old hardcoded constants, so a world with
+no theme record looks precisely as it did before themes existed.
 
 ### PlacedRegistry is the hub
 
@@ -94,15 +113,156 @@ and call each item's `tick.dispose()`.
 
 Both funnel through the same `record.kind` dispatch in `WorldStore.rehydrateOne()`:
 `'gltf' | 'obj' | 'image' | 'gif' | 'balloon' | 'light-orb' | 'web-browser' |
-'startup-library' | 'startup-tree' | 'startup-billboard'`. gltf/obj/image/gif/balloon
-all carry `files: [{name, type, data: Blob}]` (balloon's file is the painted canvas as
+'preset-prop' | 'world-theme' | 'startup-library' | 'startup-tree' |
+'startup-billboard'`. gltf/obj/image/gif/balloon all carry
+`files: [{name, type, data: Blob}]` (balloon's file is the painted canvas as
 a PNG — geometry is *regenerated* via `BalloonInflator.inflateFromCanvas()`, never
-stored); `light-orb`, `web-browser`, and the three `startup-*` kinds carry no `files`
-at all — a `light-orb` record is just `{ color, transform }` and a `web-browser`
-record is `{ url, transform }`, since both `LightOrb.createLightOrb(color)` and
-`WebBrowserManager.createPanel(record, worldStore)` rebuild everything procedurally
+stored); `light-orb`, `web-browser`, `preset-prop`, `world-theme`, and the three
+`startup-*` kinds carry no `files` at all — a `light-orb` record is just
+`{ color, transform }`, a `web-browser` record is `{ url, transform }`, and a
+`preset-prop` record is `{ prop, options, transform }`, since
+`LightOrb.createLightOrb(color)`, `WebBrowserManager.createPanel(record, worldStore)`
+and `props/index.js`'s `buildProp(name, options)` all rebuild everything procedurally
 every time, same philosophy as the balloon regenerating its geometry instead of
 storing it.
+
+`loadFromRecords()` settles the theme up front from
+`records.find(r => r.kind === 'world-theme')?.theme || DEFAULT_THEME` **before**
+rehydrating anything, so a world file with no theme of its own resets a leftover moon
+sky back to daylight instead of inheriting it.
+
+### Prebuilt worlds: The Park / The Museum / The Library / The Moon
+
+Menu ▸ **Load World** opens a submenu (`Menu.js`, built by iterating
+`WorldPresets.PRESET_WORLDS` so a fifth world is a one-line change) listing the four
+ready-made worlds plus **From a file…**, which is where the original .json load lives.
+
+**The Park is the boot world** (`config.js`'s `BOOT_WORLD`). A first visit — or any
+visit where `rehydrateAll()` comes back with an empty registry — builds it via the same
+`loadPresetWorld()` helper the menu uses. It then persists like any other world, so a
+plain page refresh restores whatever the student actually did to it rather than
+resetting their work; Load World ▸ The Park is the deliberate way back to a fresh copy.
+This replaced `placeStartupAssets()`, which no longer exists — `StartupAssets.js` is now
+just the three loaders, and the Park places those assets as records instead (the little
+library as the nature centre, the maple as specimen trees, the Edusim image as the
+welcome banner).
+
+A preset world is *just a list of records* — the same record shape IndexedDB and a
+world file already hold — handed to the existing `WorldStore.loadFromRecords()`. So
+presets need no loading path of their own, and once loaded every object in them is
+clickable, resizable, movable, **programmable** and saveable like anything else the
+user placed. Nothing stores geometry or image bytes.
+
+`buildPresetWorldRecords(name, { groundHeightAt })` (`WorldPresets.js`) **applies the
+theme first, then reads each object's Y off the freshly reshaped terrain.** That order
+is load-bearing: doing it the other way grounds every object to the *previous* world's
+hills. `main.js`'s `onLoadPresetClick` then calls `player.resetTo(spawn)` — without it
+a student who walked 100ft away reappears inside a wall when the world under them is
+replaced.
+
+**Everything is generated in code** — `PropKit.js` (shared helpers) plus `src/props/`
+(`CommonProps` / `ParkProps` / `MuseumProps` / `LibraryProps` / `MoonProps` / `Earth`),
+with `props/index.js`'s `PROP_BUILDERS` as the name→builder table. **Those keys are
+persisted**, so renaming one silently breaks every already-saved world using it; add a
+new key instead. `buildProp()` throws on an unknown name rather than silently dropping
+the object, so a typo in a layout surfaces immediately instead of leaving a hole.
+
+House rules every builder follows (also stated at the top of `PropKit.js`):
+
+- Authored directly in **feet at scale 1** — these are not user imports, so they never
+  go through `ModelLoader.scaleToHeight()`. Sizes are real: the LRV is 10.2ft long, the
+  LM ~20ft tall, a bookshelf 7ft, a bench seat 1.5ft.
+- A builder returns a `Group` whose **origin is its base centre**, so a layout can place
+  it with `position.set(x, groundHeightAt(x, z), z)` and nothing else. Anything that
+  deliberately floats (Earth in the moon sky, wall-hung paintings) takes an explicit
+  `y`/`absoluteY` in the layout instead of breaking the rule.
+- **Materials and textures are built fresh per call, never shared between builders.**
+  `PlacedRegistry.disposeObject3D()` disposes a removed object's materials/maps
+  outright, so a material shared across two registry roots gets destroyed out from
+  under the survivor.
+- Randomness goes through `seededRandom()`, never `Math.random()` — a world rebuilt
+  from its records must look identical to the one the student first saw, not reshuffle
+  every bookshelf and boulder field on each rehydrate.
+
+`mergeColored()`/`mergedMesh()` collapse many small solids into one vertex-colored
+geometry (a 30-book shelf, a 40-part wire wheel, a whole arcaded wall) so the scene
+stays at a few hundred draw calls. **Merging is not optional polish** — every mesh is
+drawn twice (main pass + the sun's shadow map), so anything the layouts place *many* of
+must be one mesh. Trees, benches and info placards were each originally 6–15 meshes;
+merging them took the Park from ~1430 draw calls to ~1125. Three traps:
+
+- **`mergeGeometries()` refuses a mix of indexed and non-indexed inputs**, and three.js
+  is inconsistent about which it returns (Box/Cylinder/Sphere/Torus are indexed;
+  `IcosahedronGeometry` and anything else from `PolyhedronGeometry` is not).
+  `mergeColored()` drops everything to non-indexed when the batch is mixed rather than
+  making every caller remember that.
+- **A material with BOTH a `map` and `vertexColors` multiplies the two.** Tinting the
+  vertices to the same colour the map already is squares it: the bear dens' facade came
+  out near black that way. Where both are used, the vertex colours must be near-white
+  brightness variation and the map supplies the colour.
+- **Never jitter a non-indexed geometry per vertex index.** Each triangle owns its own
+  copy of every corner, so per-index randomness moves the copies apart and the surface
+  tears into loose overlapping shards — which is exactly how the puddingstone outcrops
+  and the moon's boulders first looked. `PropKit.roughenSphere()` displaces by a smooth
+  function of *direction* instead, so every copy of a shared corner moves identically.
+
+**Arch geometry, in three places** (the bear dens, the park's bridge, the library's
+arcaded walls): a voussoir rotated by `angle - 90°` only lies flush if the ring is a
+true **circle** — give the arch an independent `rise` and the blocks splay outward like
+a starburst. And the pier width between two arched openings is fixed at
+`bay - 2 × archRadius`; padding the piers "so they overlap" narrows every opening while
+the ring keeps its radius, leaving voussoirs apparently floating in the wall.
+
+**Interior lighting is a shadow-map problem, not a materials problem.** three.js has no
+light transmission through translucent materials, so the *only* thing deciding whether
+sun reaches an interior floor is whether something above it casts a shadow. Anything
+with `castShadow = false` lets the sun straight through — that's how both the museum's
+skylight and the library's glazed lantern roof work. Two traps this hit in practice:
+
+1. **A "cornice" or "roof" that is one solid box spanning the footprint caps the whole
+   building.** It's invisible from inside (you're looking at the roof above it) but it
+   silently cancels every bit of glazing above it. `libraryHall()` builds its cornice as
+   a *ring* of four strips for exactly this reason.
+2. **The glazed opening has to be generous.** Sun arrives at an angle, so a beam lands
+   roughly `(height above floor) / tan(elevation)` further along — 12ft+ for a 22ft
+   drop. A modest central skylight therefore throws its one patch of daylight against a
+   wall and leaves the room dark. The library additionally uses a deliberately steep
+   `sunPosition`, since it's the only preset with a roofed interior.
+
+Light orbs are used as the in-world fill lighting (that's the app's own mechanism), but
+`ORB_LIGHT_INTENSITY`/`ORB_LIGHT_DISTANCE` give a `decay: 2` falloff that is nearly
+spent at ~12ft — hang them around 9ft indoors, not up at the ceiling, or the floor sits
+at the edge of the cone. On the moon they're kept low (5–6ft) and close to hardware:
+against a black sky a high orb reads as a floating ball rather than as a lamp.
+
+The museum's paintings are generated **in the style of** a movement (De Stijl, Colour
+Field, Post-Impressionist, Ukiyo-e, Pointillist, Geometric Abstraction) rather than
+copied from a specific canvas — that's the educational point (each frame's built-in
+plaque names the movement) and it means the gallery ships no third-party image files.
+
+`main.js`'s boot check is `registry.count === 0`, **not** "no `startup-*` records came
+back" — every preset world is built from `preset-prop` records, so the narrower check
+would rebuild the Park on top of whichever world the student last loaded. Clearing the
+world also calls `applyWorldTheme(DEFAULT_THEME)`, since the theme is carried by a
+record that `registry.clear()` just removed.
+
+**Reusing the fetched `public/` assets at preset scale** needs two optional record
+fields, both handled in `WorldStore.rehydrateOne()`'s `startup-*` branch and both absent
+from older records:
+
+- `targetHeight` (feet) — because `applyTransform()` **replaces** scale wholesale, which
+  silently discards the `scaleToHeight()` normalization the loaders just applied. A
+  record asking for "scale 4" therefore gets four times the model's *raw authored* size,
+  not four times 5ft; the maple came back hundreds of feet tall. Re-normalizing after
+  the transform is self-correcting whatever scale it left behind. Layouts size these
+  assets in feet via `asset(kind, x, z, { height })` and never with a scale factor.
+- `baseOnGround` — where a model's pivot sits relative to its base is a property of the
+  file and depends on the final scale, so the record stores the ground height and
+  `ModelLoader.seatBaseAt()` drops the model's bottom onto it.
+
+Note that sizing by *height* means a wide, low model gets a big footprint: the little
+library normalized to a 15ft ridge is 45ft square, and the Edusim banner at 6ft tall is
+24ft wide. Both are held smaller in the Park layout for exactly that reason.
 
 ### Startup assets always re-fetch, never store bytes
 
@@ -459,11 +619,12 @@ a frame later just adds a visible jump when opening near a screen edge.
 ### Build/tooling notes
 
 - `vite.config.js`'s `optimizeDeps.include` must list `three` alongside the specific
-  `three/examples/jsm/loaders/*.js` and `renderers/*.js` paths in use — omitting this
-  produces a "multiple instances of three.js" runtime warning, because Vite's dev-time
-  pre-bundling otherwise treats the deep-imported files as a separate module graph
-  from the bare `three` import. `CSS3DRenderer.js` was added here alongside the
-  existing loaders when the web browser panel feature was built.
+  `three/examples/jsm/loaders/*.js`, `renderers/*.js` and `utils/*.js` paths in use —
+  omitting this produces a "multiple instances of three.js" runtime warning, because
+  Vite's dev-time pre-bundling otherwise treats the deep-imported files as a separate
+  module graph from the bare `three` import. `CSS3DRenderer.js` was added here when the
+  web browser panel was built, and `BufferGeometryUtils.js` when the preset worlds
+  started merging geometry.
 - Vite only serves `public/` verbatim over HTTP. Anything that needs to be
   `fetch()`-able at runtime by a fixed URL (the startup assets) must live under
   `public/`, not the project root.

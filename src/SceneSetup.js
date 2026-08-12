@@ -1,9 +1,5 @@
 import * as THREE from 'three';
-import { GROUND_SIZE, TERRAIN_SEGMENTS, TERRAIN_AMPLITUDE, TERRAIN_FLAT_RADIUS, TERRAIN_BLEND_RADIUS } from './config.js';
-
-const SKY_COLOR = 0x87ceeb;
-const LOW_COLOR = new THREE.Color(0x3d6b30);
-const HIGH_COLOR = new THREE.Color(0x7fae52);
+import { GROUND_SIZE, TERRAIN_SEGMENTS, WORLD_THEMES, DEFAULT_THEME } from './config.js';
 
 function smoothstep(edge0, edge1, x) {
   const t = THREE.MathUtils.clamp((x - edge0) / (edge1 - edge0), 0, 1);
@@ -23,20 +19,35 @@ function rawNoise(x, z) {
 }
 const RAW_NOISE_PEAK = 1.85; // ~= sum of the term amplitudes above, for normalizing to [-1, 1]
 
-// Flattens out to exactly 0 within TERRAIN_FLAT_RADIUS of the origin (so the spawn
-// point and the boot-time library/tree/billboard sit on level ground), then eases up
-// to full hill height by TERRAIN_BLEND_RADIUS.
-function terrainHeightAt(worldX, worldZ) {
-  const radius = Math.hypot(worldX, worldZ);
-  const falloff = smoothstep(TERRAIN_FLAT_RADIUS, TERRAIN_BLEND_RADIUS, radius);
-  if (falloff === 0) return 0;
-  return (rawNoise(worldX, worldZ) / RAW_NOISE_PEAK) * TERRAIN_AMPLITUDE * falloff;
+// A second, higher-frequency layer used only by the moon theme: shallow dimples that
+// read as small impact craters at walking scale, on top of the broad maria swells.
+function pockNoise(x, z) {
+  return Math.sin(x * 0.32 + 0.4) * Math.cos(z * 0.29 - 1.1) * Math.cos(x * 0.11 + z * 0.13);
 }
 
-function buildTerrainGeometry() {
-  const geometry = new THREE.PlaneGeometry(GROUND_SIZE, GROUND_SIZE, TERRAIN_SEGMENTS, TERRAIN_SEGMENTS);
+// Flattens out to exactly 0 within the theme's flatRadius (so the spawn point and
+// whatever sits at the middle of a world are on level ground), then eases up to full
+// hill height by blendRadius.
+function terrainHeightAt(theme, worldX, worldZ) {
+  const radius = Math.hypot(worldX, worldZ);
+  const falloff = smoothstep(theme.flatRadius, theme.blendRadius, radius);
+  if (falloff === 0) return 0;
+  const base = (rawNoise(worldX, worldZ) / RAW_NOISE_PEAK) * theme.amplitude;
+  const pocks = theme.pockAmplitude ? pockNoise(worldX, worldZ) * theme.pockAmplitude : 0;
+  return (base + pocks) * falloff;
+}
+
+// Rewrites the ground mesh's existing position + color attributes in place for a
+// theme. Deliberately in-place on the SAME BufferGeometry and the same Mesh:
+// PlayerController and every placement path hold a reference to that mesh and raycast
+// against it for ground height, so swapping the object out would strand them, while
+// mutating it means they all pick up the new terrain on their very next raycast with
+// no notification plumbing at all.
+function writeTerrain(geometry, theme) {
   const position = geometry.attributes.position;
-  const colors = new Float32Array(position.count * 3);
+  const color = geometry.attributes.color;
+  const low = new THREE.Color(theme.groundLow);
+  const high = new THREE.Color(theme.groundHigh);
   const tint = new THREE.Color();
 
   for (let i = 0; i < position.count; i++) {
@@ -44,30 +55,75 @@ function buildTerrainGeometry() {
     // X to lay it down, which maps local Z -> world Y (up) and local Y -> world -Z.
     const localX = position.getX(i);
     const localY = position.getY(i);
-    const worldZ = -localY;
-    const height = terrainHeightAt(localX, worldZ);
+    const height = terrainHeightAt(theme, localX, -localY);
     position.setZ(i, height);
 
-    const t = THREE.MathUtils.clamp(height / TERRAIN_AMPLITUDE, -1, 1) * 0.5 + 0.5;
-    tint.copy(LOW_COLOR).lerp(HIGH_COLOR, t);
+    const t = THREE.MathUtils.clamp(height / (theme.amplitude || 1), -1, 1) * 0.5 + 0.5;
+    tint.copy(low).lerp(high, t);
+    color.setXYZ(i, tint.r, tint.g, tint.b);
+  }
+
+  position.needsUpdate = true;
+  color.needsUpdate = true;
+  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+  geometry.computeBoundingBox();
+}
+
+// A dome of points far outside the play area. Only the airless themes switch it on --
+// stars are invisible from a daylit planet surface with an atmosphere.
+function buildStarfield() {
+  const count = 2200;
+  const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+  const tint = new THREE.Color();
+
+  for (let i = 0; i < count; i++) {
+    // Uniform over the upper hemisphere: sampling cos(phi) rather than phi avoids the
+    // dense clump straight overhead that naive uniform-angle sampling produces.
+    const theta = Math.random() * Math.PI * 2;
+    const y = Math.random();
+    const r = Math.sqrt(1 - y * y);
+    const radius = 460;
+    positions[i * 3] = Math.cos(theta) * r * radius;
+    positions[i * 3 + 1] = y * radius;
+    positions[i * 3 + 2] = Math.sin(theta) * r * radius;
+
+    tint.setHSL(0.55 + Math.random() * 0.12, 0.25 * Math.random(), 0.6 + Math.random() * 0.4);
     colors[i * 3] = tint.r;
     colors[i * 3 + 1] = tint.g;
     colors[i * 3 + 2] = tint.b;
   }
 
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  geometry.computeVertexNormals();
-  return geometry;
+
+  const stars = new THREE.Points(
+    geometry,
+    new THREE.PointsMaterial({ size: 2, sizeAttenuation: false, vertexColors: true, fog: false })
+  );
+  stars.name = 'starfield';
+  stars.visible = false;
+  return stars;
 }
 
-export function buildWorld(scene) {
-  scene.background = new THREE.Color(SKY_COLOR);
-  scene.fog = new THREE.Fog(SKY_COLOR, 60, 220);
+// Module-level because the theme is a property of THE world, not of any one caller --
+// main.js, WorldStore (rehydrating a saved theme) and WorldPresets all reach for it.
+const state = {
+  scene: null,
+  ground: null,
+  hemi: null,
+  sun: null,
+  stars: null,
+  themeName: null,
+};
 
-  const ground = new THREE.Mesh(
-    buildTerrainGeometry(),
-    new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 })
-  );
+export function buildWorld(scene) {
+  const geometry = new THREE.PlaneGeometry(GROUND_SIZE, GROUND_SIZE, TERRAIN_SEGMENTS, TERRAIN_SEGMENTS);
+  geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(geometry.attributes.position.count * 3), 3));
+
+  const ground = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
   ground.rotation.x = -Math.PI / 2;
   ground.receiveShadow = true;
   ground.name = 'ground';
@@ -77,7 +133,6 @@ export function buildWorld(scene) {
   scene.add(hemi);
 
   const sun = new THREE.DirectionalLight(0xfff2d6, 2.2);
-  sun.position.set(60, 90, 40);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
   const shadowExtent = GROUND_SIZE / 2;
@@ -86,9 +141,65 @@ export function buildWorld(scene) {
   sun.shadow.camera.top = shadowExtent;
   sun.shadow.camera.bottom = -shadowExtent;
   sun.shadow.camera.near = 1;
-  sun.shadow.camera.far = 300;
+  sun.shadow.camera.far = 400;
   sun.shadow.bias = -0.0005;
   scene.add(sun);
 
+  const stars = buildStarfield();
+  scene.add(stars);
+
+  state.scene = scene;
+  state.ground = ground;
+  state.hemi = hemi;
+  state.sun = sun;
+  state.stars = stars;
+
+  applyWorldTheme(DEFAULT_THEME);
+
   return { ground };
+}
+
+export function getWorldTheme() {
+  return state.themeName;
+}
+
+// The scene-graph stand-in for a `world-theme` record. The theme is a property of the
+// world rather than of any object, but every persisted thing in this app is a record
+// with an Object3D, so it gets an empty Group: it renders nothing, has no geometry to
+// raycast against (so ObjectMenu and PlayIconManager can never pick it), and rides
+// along through registry.clear(), Save World and Load World for free.
+export function createThemeMarker() {
+  const marker = new THREE.Group();
+  marker.userData.isWorldTheme = true;
+  return marker;
+}
+
+// Retints and reshapes the whole environment: sky, fog, ground relief and color, the
+// two lights, and the starfield. Cheap enough to call on a menu click (one pass over
+// ~15k terrain vertices), and a no-op when the requested theme is already live -- which
+// is what lets WorldPresets apply a theme up front to get correct ground heights and
+// then have the world's own `world-theme` record re-apply it harmlessly on rehydrate.
+export function applyWorldTheme(themeName) {
+  const name = WORLD_THEMES[themeName] ? themeName : DEFAULT_THEME;
+  if (!state.scene || state.themeName === name) return;
+  const theme = WORLD_THEMES[name];
+
+  state.scene.background = new THREE.Color(theme.sky);
+  state.scene.fog = new THREE.Fog(theme.sky, theme.fogNear, theme.fogFar);
+
+  writeTerrain(state.ground.geometry, theme);
+  state.ground.material.roughness = theme.groundRoughness ?? 1;
+  state.ground.material.needsUpdate = true;
+
+  state.hemi.color.set(theme.hemiSky);
+  state.hemi.groundColor.set(theme.hemiGround);
+  state.hemi.intensity = theme.hemiIntensity;
+
+  state.sun.color.set(theme.sunColor);
+  state.sun.intensity = theme.sunIntensity;
+  state.sun.position.set(theme.sunPosition[0], theme.sunPosition[1], theme.sunPosition[2]);
+
+  state.stars.visible = !!theme.stars;
+
+  state.themeName = name;
 }

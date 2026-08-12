@@ -73,6 +73,44 @@ html, body {
   pointer-events: none;
 }
 
+.menu-btn-open {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Load World's nested world list. Indented behind a rule so the three ready-made
+   worlds read as children of the button that opened them rather than as more
+   top-level menu actions. */
+.menu-submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: -2px 0 2px 8px;
+  padding-left: 8px;
+  border-left: 2px solid rgba(125, 211, 252, 0.4);
+}
+
+.menu-submenu[hidden] {
+  display: none;
+}
+
+.menu-subitem {
+  font-size: 13px;
+  padding: 7px 9px;
+  background: rgba(125, 211, 252, 0.1);
+  border-color: rgba(125, 211, 252, 0.28);
+}
+
+.menu-subitem:hover {
+  background: rgba(125, 211, 252, 0.22);
+}
+
+.menu-subitem-alt {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(242, 245, 247, 0.8);
+}
+
 .menu-link {
   color: #7dd3fc;
   border-color: rgba(125, 211, 252, 0.35);
