@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Edusim: Web Edition — Build Your Own 3D World!</title>
-<meta name="description" content="Edusim: Web Edition is a free, browser-based 3D world where kids walk, draw, build, and code their own creations — no downloads, no accounts, no ads." />
+<meta name="description" content="Edusim: Web Edition is a free, browser-based 3D world with ready-made places to explore — a city park, an art museum, a public library, the Moon — where kids walk, draw, build, and code their own creations. No downloads, no accounts, no ads." />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,8 +22,8 @@
       </span>
     </a>
     <ul class="nav-links">
+      <li><a href="#worlds">Explore The Worlds</a></li>
       <li><a href="#features">What You Can Do</a></li>
-      <li><a href="#how-it-works">How It Works</a></li>
       <li><a href="#parents">For Parents &amp; Teachers</a></li>
     </ul>
     <a class="btn btn-primary nav-cta" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">Play Now</a>
@@ -35,13 +35,14 @@
     <span class="eyebrow hero-eyebrow">✨ A 3D World You Build Yourself</span>
     <h1>Imagine, <span class="pop-orange">Create</span>, <span class="pop-red">Share</span> your world!</h1>
     <p class="hero-sub">
-      Edusim: Web Edition is a giant, rolling 3D playground that lives right in your
-      web browser. Bring in your own 3D models, paint a squiggle and watch it puff up
-      into a balloon, drop glowing light orbs, and even teach your creations to move
-      all by themselves — with drag-and-drop blocks, just like a game designer.
+      Edusim: Web Edition is a giant 3D playground that lives right in your web
+      browser. Start in a huge city park, then travel to an art museum, a public
+      library, or the surface of the Moon — and make every one of them your own.
+      Import 3D models, paint a squiggle and watch it puff into a balloon, drop
+      glowing light orbs, and teach your creations to move with drag-and-drop blocks.
     </p>
     <div class="hero-cta-row">
-      <a class="btn btn-primary" href="#features">See What You Can Build ↓</a>
+      <a class="btn btn-primary" href="#worlds">Explore The Worlds ↓</a>
       <a class="btn btn-ghost" href="#parents">I'm a Parent or Teacher</a>
     </div>
 
@@ -52,7 +53,7 @@
         <span class="browser-dot g"></span>
         <span class="addr">🌎 your-world.local</span>
       </div>
-      <img src="assets/screenshots/01_hero_world.png" alt="A rolling green 3D world with a maple tree, a glass library building, and a floating Edusim sign, viewed in the Edusim: Web Edition browser app." loading="eager" />
+      <img src="assets/screenshots/01_hero_park.jpg" alt="A bird's-eye view of the Park world: a stone entrance gate reading Franklin Park, a flagstone path past cherry trees and flower beds, a fountain, a wooden bandstand, a stone shelter, the historic bear dens, and a playground with a yellow slide." loading="eager" width="1600" height="1000" />
     </div>
 
     <div class="hero-stats">
@@ -64,10 +65,157 @@
   </div>
 </header>
 
-<main id="features">
+<main>
+
+  <!-- The prebuilt worlds. Deliberately no count anywhere in the copy or markup, so
+       adding or retiring a world never leaves the page contradicting itself. -->
+  <section class="section worlds" id="worlds">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow" style="background: var(--green); color: #fff;">🗺️ Worlds Ready to Explore</span>
+        <h2>Explore the Worlds - Change the Worlds</h2>
+        <p>
+          You don't start on an empty field. Open <strong>Menu → Load World</strong>
+          and step straight into a park, a museum, a library, or the Moon. Little
+          signs all over each one tell you what you're looking at, and you can move,
+          resize, or program absolutely anything you find.
+        </p>
+      </div>
+
+      <div class="world-grid">
+
+        <article class="world-card reveal" style="--accent: var(--green);">
+          <div class="world-shot">
+            <img src="assets/screenshots/world_park.jpg" width="1600" height="1000" loading="lazy"
+                 alt="Looking through a tall stone gate marked Franklin Park, down a flagstone path lined with pink blossom trees and flower beds toward a wooden bandstand, with a playground slide off to the right." />
+            <span class="world-pin">🌳</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">You start here</span>
+            <h3>The Park</h3>
+            <p>
+              A whole city park laid out like the real ones designed over a hundred
+              years ago. Follow the path to the bandstand, walk under a stone arch
+              bridge, find the pond with the geese, and climb around the playground.
+            </p>
+            <ul class="world-chips">
+              <li>🦆 Pond &amp; bandstand</li>
+              <li>🛝 Playground</li>
+              <li>🐻 Historic bear dens</li>
+              <li>🪨 Real puddingstone rock</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="world-card reveal" style="--accent: var(--purple);">
+          <div class="world-shot">
+            <img src="assets/screenshots/world_museum.jpg" width="1600" height="1000" loading="lazy"
+                 alt="A marble museum with tall columns across the front, opening onto a checkerboard gallery floor hung with six colorful paintings, a white statue behind a velvet rope, and a hanging mobile sculpture." />
+            <span class="world-pin">🖼️</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">Art &amp; sculpture</span>
+            <h3>The Museum</h3>
+            <p>
+              A grand skylit gallery. Every painting is done in the style of a
+              different art movement, and its plaque tells you what makes that style
+              special. Walk all the way around five sculptures — one is a mobile you
+              can program to spin.
+            </p>
+            <ul class="world-chips">
+              <li>🎨 6 painting styles</li>
+              <li>🗿 5 sculptures</li>
+              <li>🔴 Velvet ropes &amp; benches</li>
+              <li>🧩 A programmable mobile</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="world-card reveal" style="--accent: var(--orange);">
+          <div class="world-shot">
+            <img src="assets/screenshots/world_library.jpg" width="1600" height="1000" loading="lazy"
+                 alt="Inside a warm library reading room: long wooden tables with green banker's lamps, rows of bookshelves packed with colorful books under hanging Dewey Decimal signs, a curved circulation desk, a globe, and a glass roof overhead." />
+            <span class="world-pin">📚</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">A real public library</span>
+            <h3>The Library</h3>
+            <p>
+              A huge reading room with arched windows and a glass lantern roof.
+              Wander the stacks, follow the hanging Dewey Decimal signs to find your
+              subject, spin the tilted globe, and find out what a card catalog was.
+            </p>
+            <ul class="world-chips">
+              <li>🔢 Dewey Decimal aisles</li>
+              <li>🗂️ A real card catalog</li>
+              <li>🌍 Globe on a tilted axis</li>
+              <li>💡 Reading lamps that glow</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="world-card reveal" style="--accent: var(--blue);">
+          <div class="world-shot">
+            <img src="assets/screenshots/world_moon.jpg" width="1600" height="1000" loading="lazy"
+                 alt="The surface of the Moon at Tranquility Base: a gold-foil lunar module, the wire-wheeled Moon buggy in the foreground, the American flag held out flat, information signs, and Earth hanging in a black sky full of stars." />
+            <span class="world-pin">🌙</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">Apollo landing site</span>
+            <h3>The Moon</h3>
+            <p>
+              Step onto Tranquility Base. The lunar module, the Moon buggy at its
+              real 10-foot size, footprints that will still be there in a million
+              years — and Earth hanging in a pitch-black sky, because the Moon has
+              no air to make it blue.
+            </p>
+            <ul class="world-chips">
+              <li>🛸 Lunar module &amp; rover</li>
+              <li>🇺🇸 The flag that can't wave</li>
+              <li>👣 Footprints that never fade</li>
+              <li>🌍 Earth in a starry sky</li>
+            </ul>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="world-switch reveal">
+        <div class="menu-mock" aria-hidden="true">
+          <div class="menu-mock-toggle">✕ Close</div>
+          <div class="menu-mock-panel">
+            <span class="mm-item">Import</span>
+            <span class="mm-item">Draw</span>
+            <span class="mm-item">Light Orb</span>
+            <span class="mm-item">Web Browser</span>
+            <span class="mm-item">Save World</span>
+            <span class="mm-item mm-open">Load World ▾</span>
+            <span class="mm-sub">The Park</span>
+            <span class="mm-sub">The Museum</span>
+            <span class="mm-sub">The Library</span>
+            <span class="mm-sub">The Moon</span>
+            <span class="mm-item">Clear World</span>
+          </div>
+        </div>
+        <div class="world-switch-text">
+          <h3>Hop between worlds any time</h3>
+          <p>
+            Tap <strong>☰ Menu</strong>, then <strong>Load World</strong>, and pick
+            one. The whole world swaps around you — new ground, new sky, new
+            everything — and you're set down right at its front gate.
+          </p>
+          <p class="world-switch-note">
+            💾 Your changes save themselves as you go, so a world is exactly how you
+            left it next time. Picking it from the menu again gives you a fresh copy
+            to start over with.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Feature: Import -->
-  <section class="section tint-cream">
+  <section class="section tint-cream" id="features">
     <div class="wrap">
       <div class="feature reveal">
         <div class="feature-media">
@@ -223,9 +371,9 @@
           <h3>Bring a real web page into your world</h3>
           <p>
             Place a real, clickable web browser panel right in your 3D world —
-            complete with its own address bar. It opens on Wikipedia by default,
-            so you can build a little reading nook, a research corner, or just
-            park a fun page next to your treehouse.
+            complete with its own address bar. It opens on Edusim's own Wikipedia
+            page to get you started, so you can build a little reading nook, a
+            research corner, or just park a fun page next to your treehouse.
           </p>
           <ul class="feature-list">
             <li><span class="check" style="background: var(--orange);">✓</span> Type any address into the panel's own toolbar</li>
@@ -323,6 +471,11 @@
         <p>Spatial reasoning, color and design, and an honest first taste of programming logic through drag-and-drop blocks.</p>
       </div>
       <div class="parent-card reveal">
+        <span class="icon">🪧</span>
+        <h4>Worlds that quietly teach</h4>
+        <p>Every ready-made world is dotted with short, readable signs — park design and geology, art movements, the Dewey Decimal System, the Apollo landings. Written for ages 12–15, and easy to ignore if a child just wants to build.</p>
+      </div>
+      <div class="parent-card reveal">
         <span class="icon">🖥️</span>
         <h4>Runs on what you already have</h4>
         <p>It's a web app — no installs, no app store, no special hardware. Just open it in a modern browser.</p>
@@ -338,8 +491,8 @@
 
 <section class="final-cta" id="play">
   <div class="wrap">
-    <h2>Ready to build your first world?</h2>
-    <p>Open Edusim: Web Edition right in your browser and start walking, drawing, and building. Your world is waiting.</p>
+    <h2>Ready to explore your first world?</h2>
+    <p>Open Edusim: Web Edition right in your browser — you'll land in the park. From there it's a whole menu of worlds, and anything you can imagine on top.</p>
     <div class="hero-cta-row">
       <a class="btn btn-primary" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">▶ Launch Edusim: Web Edition</a>
     </div>
@@ -355,6 +508,7 @@
         Edusim: Web Edition
       </div>
       <ul class="footer-links">
+        <li><a href="#worlds">Explore The Worlds</a></li>
         <li><a href="#features">What You Can Do</a></li>
         <li><a href="#parents">For Parents</a></li>
         <li><a href="#top">Back to Top</a></li>
