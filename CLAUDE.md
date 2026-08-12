@@ -760,11 +760,73 @@ Three smaller things worth keeping:
   `#object-menu`). The web browser panels matter most: CSS3D draws real DOM over the
   canvas as ONE flat image, so in a split view it would straddle both eyes at once.
   Toasts stay, moved to the top — they're how "press Esc to come back" is delivered.
+  `#menu` stays hidden too, and `VRMenu`'s in-scene panel replaces it (below) — the DOM
+  menu is not merely inconvenient in VR, it is unrenderable.
 
 Exit is reachable three ways and they all converge on the same cleanup: the menu button
 (now labelled *Exit VR Headset View*), `Esc`, and the headset's own menu button, which
 fires the session's `end` event without going through the menu at all — hence
 `onNotice({type:'exited'})` calling back into `menu.setVRActive(false)`.
+
+**The menu inside VR is a 3D object, and it has to be** (`VRMenu.js`). Un-hiding `#menu`
+achieves nothing: in an `immersive-vr` session the headset displays only what the WebGL
+renderer draws into the XR framebuffer, and HTML is never composited into it (WebXR's
+`dom-overlay` exists but is specified for immersive-**AR** on handheld devices). In the
+stereo path the DOM *is* visible — drawn ONCE, flat, straddling both eye halves, which in
+a Cardboard holder is doubled and unfocusable. One panel in the scene fixes both at once,
+because the headset projects it per-eye and `StereoEffect` draws it twice with correct
+parallax for free.
+
+`main.js` extracts every menu action into one `menuActions` object keyed by the row ids
+`VRMenu` emits, so the DOM menu and the in-scene panel run literally the same code.
+Rows that need a file picker, a 2D modal or a CSS3D panel (Import / Draw / Web Browser /
+Save World / Load World File) are marked `leavesVR` and drop out of VR before running —
+a real answer, where a greyed-out button is not. Everything else (all seven worlds,
+Light Orb, Clear World, Exit) runs without leaving the headset.
+
+Five things this got wrong first, four of them only visible once actually driven:
+
+- **`rotation.y` must be the bearing FROM the player TO the panel, with no half turn.**
+  Adding `Math.PI` — the instinctive "turn it round to face me" — aims the face directly
+  away, and with a `FrontSide` material the panel then renders as *nothing at all*:
+  present, correctly placed, in the scene, and completely invisible.
+- **A body-locked panel welded to `player.yaw` can never be reached by gaze.** On
+  anything without head tracking the view direction *is* the yaw, so a panel held at a
+  fixed offset from it sits permanently beside the crosshair. Hence `FOLLOW_DEAD_ANGLE`:
+  the panel only starts following after ~31° of turn, which is what lets a student look
+  at it while it stays still.
+- **The header is pinned to the horizon, and the offset must stay smaller than half the
+  header's own height.** Pinning the panel's *top edge* left the collapsed tab ~10° up;
+  even a 0.25ft lift missed, because a 0.32ft tab at 4.6ft only spans ±2° while that lift
+  is 3.1°. The header is deliberately chunky for the same reason — it is the one target a
+  student must find before anything else is reachable.
+- **A resized canvas needs a NEW `CanvasTexture`, not `needsUpdate` on the old one.**
+  three allocates immutable GPU storage at first upload, so a re-upload at a different
+  size is silently dropped and the panel keeps showing the previous drawing stretched
+  over the new quad — which looks exactly like the menu having failed to open.
+- **VR offsets have to be far smaller than the flat UI's.** Split side-by-side, each eye
+  gets roughly 32° either side of centre, so the flat menu's "up in the corner" placement
+  (~24° left, ~18° up) put the panel off the edge of the frame entirely.
+
+**Two teardown races that only exist because the animate loop never stops.** `exit()`
+awaits `session.end()` and `exitFullscreen()`, and `render()` keeps being called straight
+through both — so `this.mode` is cleared FIRST, before any await, rather than last.
+Separately, `updateMenu()` can itself *end the session* (a dwell or trigger landing on
+Exit runs `exit()` synchronously as far as its first await), so both render branches
+re-read `this.mode` immediately after calling it and return `false` to hand that frame
+back to `main.js` for the flat view.
+
+**Gaze-dwell is gated on there being no `tracked-pointer` input source.** With
+controllers in hand, letting the panel also fire on a timer wherever the student happened
+to be *looking* would select things they never chose. The trigger arbitrates the other
+way: `onSelectStart()` gives the menu first refusal, and only starts a look-drag if the
+ray missed — otherwise pressing a menu item would also start swinging the world around.
+
+**Testing gotcha:** a three.js XR controller has `matrixAutoUpdate = false` (the pose is
+written straight into `.matrix`), so posing one by hand for a test needs
+`.matrix.compose(...)` — setting `.position`/`.quaternion` alone does nothing and the
+ray silently misses. The real pose path is unaffected: `WebXRManager` decomposes into
+`.position`/`.quaternion` itself, which is why `controllerYaw()` can read `.quaternion`.
 
 **Controllers: trigger-drag to turn, thumbstick to walk.** Both controllers are parented
 to the **dolly**, not to the scene — `WebXRManager` writes the raw pose into each one's

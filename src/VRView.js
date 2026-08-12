@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { StereoEffect } from 'three/examples/jsm/effects/StereoEffect.js';
+import { VRMenu } from './VRMenu.js';
 import { EYE_HEIGHT } from './config.js';
 
 // Menu ▸ VR Headset View. Two very different paths behind one button:
@@ -90,12 +91,22 @@ function deadzoned(value) {
 }
 
 export class VRView {
-  constructor({ renderer, scene, camera, player, onNotice }) {
+  constructor({ renderer, scene, camera, player, onNotice, actions = {} }) {
     this.renderer = renderer;
     this.scene = scene;
     this.camera = camera;
     this.player = player;
     this.onNotice = onNotice;
+    this.actions = actions;
+
+    // The in-scene menu. The DOM one is unusable in both VR paths -- see VRMenu.js for
+    // why -- so this is the only way a student in a headset can load a world or get out.
+    this.menu = new VRMenu({ onSelect: (row) => this.runMenuRow(row) });
+    this.rayOrigin = new THREE.Vector3();
+    this.rayDirection = new THREE.Vector3();
+    this.gazeOrigin = new THREE.Vector3();
+    this.gazeDirection = new THREE.Vector3();
+    this.lastFrameTime = 0;
 
     this.mode = null; // null | 'xr' | 'stereo'
     this.session = null;
@@ -173,12 +184,94 @@ export class VRView {
   }
 
   onSelectStart(controller) {
+    // The menu gets first refusal on every trigger press. The trigger is both "click"
+    // and "grab the view and turn it", so if the ray is on the panel the press has to
+    // mean the button under it -- otherwise pressing a menu item would ALSO start
+    // swinging the world around, which is what happened before this check existed.
+    this.controllerRay(controller);
+    if (this.menu.trySelect(this.rayOrigin, this.rayDirection)) return;
+
     const state = this.controllerState.get(controller);
     state.dragging = true;
     // Anchor the drag where the controller is NOW, so the first frame of the drag
     // turns by zero rather than by however far the controller has moved since the
     // last time anyone looked at it.
     state.lastYaw = this.controllerYaw(controller);
+  }
+
+  // World-space ray down the controller's -Z, written into the shared scratch vectors.
+  // transformDirection() normalizes, so the dolly's metres->feet scale does not leak
+  // into the direction, and the origin comes out in world feet as the raycast needs.
+  controllerRay(controller) {
+    controller.updateMatrixWorld(true);
+    this.rayOrigin.setFromMatrixPosition(controller.matrixWorld);
+    this.rayDirection.set(0, 0, -1).transformDirection(controller.matrixWorld);
+  }
+
+  // True when the session actually has a pointing device in hand. Gaze-dwell is gated on
+  // this being false: with controllers present, letting the panel also fire on a timer
+  // wherever the student happened to be LOOKING would select things they never chose.
+  hasPointerInput() {
+    for (const source of this.session?.inputSources ?? []) {
+      if (source.targetRayMode === 'tracked-pointer') return true;
+    }
+    return false;
+  }
+
+  // Every controller currently tracking, as world rays for the menu to test.
+  menuPointers() {
+    const pointers = [];
+    for (const controller of this.controllers) {
+      if (!controller.visible) continue;
+      this.controllerRay(controller);
+      pointers.push({ origin: this.rayOrigin.clone(), direction: this.rayDirection.clone() });
+    }
+    return pointers;
+  }
+
+  // Drives the panel for this frame and returns nothing -- called from render() before
+  // the scene is drawn, so a hover repaint lands in the same frame it was caused by.
+  updateMenu(gazeCamera) {
+    const now = performance.now();
+    const dt = this.lastFrameTime ? Math.min(0.1, (now - this.lastFrameTime) / 1000) : 0;
+    this.lastFrameTime = now;
+
+    let gaze = null;
+    if (gazeCamera && !this.hasPointerInput()) {
+      gazeCamera.updateMatrixWorld(true);
+      this.gazeOrigin.setFromMatrixPosition(gazeCamera.matrixWorld);
+      this.gazeDirection.set(0, 0, -1).transformDirection(gazeCamera.matrixWorld);
+      gaze = { origin: this.gazeOrigin, direction: this.gazeDirection };
+    }
+
+    this.menu.update({
+      position: this.camera.position,
+      yaw: this.player.yaw,
+      pointers: this.mode === 'xr' ? this.menuPointers() : [],
+      gaze,
+      dt,
+    });
+  }
+
+  // Runs a chosen menu row. Anything that needs a file picker, a 2D modal or a CSS3D
+  // panel cannot be shown by a headset at all, so those rows leave VR first and then
+  // open on the flat screen -- which is a real answer, where a greyed-out button is not.
+  async runMenuRow(row) {
+    if (row.leavesVR) {
+      await this.exit();
+      this.onNotice?.({ type: 'exited' });
+    }
+
+    if (row.id === 'exit') {
+      await this.exit();
+      this.onNotice?.({ type: 'exited' });
+      return;
+    }
+    if (row.id.startsWith('preset:')) {
+      this.actions.loadPreset?.(row.id.slice('preset:'.length));
+      return;
+    }
+    this.actions[row.id]?.();
   }
 
   onSelectEnd(controller) {
@@ -298,11 +391,12 @@ export class VRView {
     await this.renderer.xr.setSession(session);
 
     this.scene.add(this.dolly);
+    this.showMenu();
     this.mode = 'xr';
     document.body.classList.add('vr-active');
     this.notice(
       'Headset connected — push a thumbstick to walk, hold a trigger and swing the controller to turn. ' +
-        'Take the headset off or press its menu button to come back.'
+        'Point at the MENU panel on your left and pull the trigger to load a world or leave VR.'
     );
     return true;
   }
@@ -313,6 +407,7 @@ export class VRView {
     this.effect.setSize(window.innerWidth, window.innerHeight);
 
     this.mode = 'stereo';
+    this.showMenu();
     document.body.classList.add('vr-active');
     this.syncViewCameraLens();
 
@@ -330,8 +425,8 @@ export class VRView {
     await this.startHeadTracking();
     this.notice(
       this.hasDeviceOrientation
-        ? 'Side-by-side VR view. Slide the phone into a headset and look around — press Esc to come back.'
-        : 'Side-by-side VR view — one image per eye. Press Esc to come back.'
+        ? 'Side-by-side VR view. Look left at the MENU panel and hold your gaze on an item to choose it.'
+        : 'Side-by-side VR view — one image per eye. Look left at the MENU panel, or press Esc to come back.'
     );
     return true;
   }
@@ -339,7 +434,18 @@ export class VRView {
   async exit() {
     if (!this.active) return;
 
-    if (this.mode === 'xr') {
+    // The mode is cleared FIRST, before any of the awaits below.
+    //
+    // exit() awaits session.end() and exitFullscreen(), and the animate loop keeps
+    // calling render() straight through both. Tearing the stereo path down in the
+    // obvious order -- null the effect, do the awaits, null the mode last -- leaves a
+    // window several frames long where mode is still 'stereo' but effect is already
+    // null, and render() throws on every one of them.
+    const mode = this.mode;
+    this.mode = null;
+    document.body.classList.remove('vr-active');
+
+    if (mode === 'xr') {
       const session = this.session;
       this.session = null;
       if (session) {
@@ -352,8 +458,10 @@ export class VRView {
       }
       this.scene.remove(this.dolly);
       this.releaseControllers();
+      this.hideMenu();
     } else {
       this.stopHeadTracking();
+      this.hideMenu();
       document.removeEventListener('fullscreenchange', this.onFullscreenChange);
       window.removeEventListener('keydown', this.onKeyDown);
       this.effect = null;
@@ -374,9 +482,6 @@ export class VRView {
         }
       }
     }
-
-    this.mode = null;
-    document.body.classList.remove('vr-active');
   }
 
   onSessionEnd() {
@@ -385,6 +490,7 @@ export class VRView {
     this.session = null;
     this.scene.remove(this.dolly);
     this.releaseControllers();
+    this.hideMenu();
     this.mode = null;
     document.body.classList.remove('vr-active');
     this.onNotice?.({ type: 'exited' });
@@ -467,6 +573,16 @@ export class VRView {
       // pose the headset is about to be shown, with no frame of lag on the turn.
       this.updateControllerLook();
       this.updateControllerMove();
+      // The XR camera's world matrix is written by WebXRManager during the render below,
+      // so this reads LAST frame's head pose. One frame of lag is invisible on a dwell
+      // timer, and it is only consulted at all when no controller is in hand.
+      this.updateMenu(this.renderer.xr.getCamera());
+      // updateMenu() can END THE SESSION: a dwell or a trigger landing on "Exit VR View"
+      // runs exit() synchronously as far as its first await. So the mode has to be
+      // re-read here rather than trusted from the branch above. Returning false hands
+      // this frame straight back to main.js, which draws the flat view -- exactly the
+      // right thing on the frame VR was left.
+      if (this.mode !== 'xr') return false;
 
       // local-floor puts the pose origin on the floor, so the dolly sits at the
       // player's FEET rather than at their eyes -- the headset supplies the height.
@@ -477,7 +593,7 @@ export class VRView {
       return true;
     }
 
-    if (this.mode === 'stereo') {
+    if (this.mode === 'stereo' && this.effect) {
       this.viewCamera.position.copy(this.camera.position);
       if (this.hasDeviceOrientation) {
         // Turning with the arrow keys still works: the player's yaw is applied on top
@@ -487,6 +603,11 @@ export class VRView {
       } else {
         this.viewCamera.quaternion.copy(this.camera.quaternion);
       }
+      this.updateMenu(this.viewCamera);
+      // Same re-check as the XR branch: choosing "Exit VR View" by dwell tears the
+      // stereo path down inside the call above, and this.effect is null by the time
+      // control gets back here.
+      if (this.mode !== 'stereo' || !this.effect) return false;
       this.effect.render(this.scene, this.viewCamera);
       return true;
     }
@@ -499,6 +620,18 @@ export class VRView {
       this.effect.setSize(width, height);
       this.syncViewCameraLens();
     }
+  }
+
+  // The panel lives in the scene only while VR is running. It is never registered with
+  // PlacedRegistry, so it is not clickable, not saveable and not touched by Clear World.
+  showMenu() {
+    this.menu.reset();
+    this.lastFrameTime = 0;
+    if (!this.menu.object3D.parent) this.scene.add(this.menu.object3D);
+  }
+
+  hideMenu() {
+    this.scene.remove(this.menu.object3D);
   }
 
   notice(message) {

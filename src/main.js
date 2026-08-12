@@ -73,21 +73,26 @@ loadWorldInput.addEventListener('change', async () => {
 });
 document.body.appendChild(loadWorldInput);
 
-const menu = new Menu({
-  onImportClick: () => importManager.openFilePicker(),
-  onDrawClick: () => drawTool.open(),
-  onLightOrbClick: () => {
+// Every menu action, keyed by id, in one place. There are now TWO menus driving these
+// -- the DOM one in the corner and VRMenu's in-scene panel -- and the keys here are the
+// row ids VRMenu emits. Extracted rather than duplicated so that "Load Object > Light
+// Orb" cannot come to mean two slightly different things depending on which menu the
+// student happened to be looking at.
+const menuActions = {
+  import: () => importManager.openFilePicker(),
+  draw: () => drawTool.open(),
+  lightOrb: () => {
     const color = PALETTE_SWATCHES[registry.count % PALETTE_SWATCHES.length];
     const { record } = placeLightOrb({ scene, camera, registry, groundHeightAt, color });
     worldStore.saveObject(record);
     menu.toast('Light orb placed!', { tone: 'success' });
   },
-  onWebBrowserClick: () => {
+  webBrowser: () => {
     const { record } = placeWebBrowser({ scene, camera, registry, groundHeightAt, webBrowserManager, worldStore });
     worldStore.saveObject(record);
     menu.toast('Web browser placed — some sites block being embedded.', { tone: 'success' });
   },
-  onSaveWorldClick: async () => {
+  saveWorld: async () => {
     if (registry.count === 0) {
       menu.toast('Nothing to save yet.');
       return;
@@ -101,20 +106,8 @@ const menu = new Menu({
       menu.toast('Could not save the world.', { tone: 'error' });
     }
   },
-  onLoadWorldClick: () => loadWorldInput.click(),
-  onVRClick: async () => {
-    // Collapse first: the menu is hidden while VR is on, and leaving it open means it
-    // reappears mid-panel the moment the student comes back out.
-    menu.setCollapsed(true);
-    try {
-      await vrView.toggle();
-    } catch (err) {
-      console.error('VR view failed:', err);
-      menu.toast('Could not start the VR view on this device.', { tone: 'error' });
-    }
-    menu.setVRActive(vrView.active);
-  },
-  onLoadPresetClick: (name) => {
+  loadWorldFile: () => loadWorldInput.click(),
+  loadPreset: (name) => {
     menu.setCollapsed(true);
     menu.toast('Building the world…');
     loadPresetWorld(name)
@@ -124,7 +117,7 @@ const menu = new Menu({
         menu.toast('Could not build that world.', { tone: 'error' });
       });
   },
-  onClearClick: async () => {
+  clear: async () => {
     if (registry.count === 0) {
       menu.toast('Nothing to clear yet.');
       return;
@@ -138,6 +131,29 @@ const menu = new Menu({
     // standing on grey lunar hills under a black sky with nothing on them.
     applyWorldTheme(DEFAULT_THEME);
     menu.toast('World cleared.', { tone: 'success' });
+  },
+};
+
+const menu = new Menu({
+  onImportClick: menuActions.import,
+  onDrawClick: menuActions.draw,
+  onLightOrbClick: menuActions.lightOrb,
+  onWebBrowserClick: menuActions.webBrowser,
+  onSaveWorldClick: menuActions.saveWorld,
+  onLoadWorldClick: menuActions.loadWorldFile,
+  onLoadPresetClick: menuActions.loadPreset,
+  onClearClick: menuActions.clear,
+  onVRClick: async () => {
+    // Collapse first: the menu is hidden while VR is on, and leaving it open means it
+    // reappears mid-panel the moment the student comes back out.
+    menu.setCollapsed(true);
+    try {
+      await vrView.toggle();
+    } catch (err) {
+      console.error('VR view failed:', err);
+      menu.toast('Could not start the VR view on this device.', { tone: 'error' });
+    }
+    menu.setVRActive(vrView.active);
   },
 });
 
@@ -192,6 +208,9 @@ const vrView = new VRView({
   scene,
   camera,
   player,
+  // The same actions the DOM menu runs. VRView's in-scene panel is the only menu a
+  // headset can actually display, so it has to reach all of them.
+  actions: menuActions,
   onNotice: ({ type, message }) => {
     if (type === 'exited') {
       // The headset's own menu button and the Esc key both leave without going through
