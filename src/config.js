@@ -166,7 +166,10 @@ export const WEB_BROWSER_WIDTH = 4; // feet
 export const WEB_BROWSER_HEIGHT = 2.6; // feet
 export const WEB_BROWSER_DOM_WIDTH = 900; // px -- DOM authoring size, for crisp text
 export const WEB_BROWSER_DOM_HEIGHT = 585; // px -- keeps the same 4:2.6 aspect as above
-export const WEB_BROWSER_DEFAULT_URL = 'https://en.wikipedia.org/wiki/Three.js';
+// Wikipedia specifically because it is known to allow being framed -- most large sites
+// send X-Frame-Options/CSP frame-ancestors headers that block it outright, and there is
+// no client-side workaround. See the web browser panel notes in CLAUDE.md.
+export const WEB_BROWSER_DEFAULT_URL = 'https://en.wikipedia.org/wiki/Edusim';
 export const EDIT_ICON_SIZE = 0.7; // feet, billboard sprite size
 export const EDIT_ICON_MARGIN = 0.6; // feet above the panel's bounding-box top
 
