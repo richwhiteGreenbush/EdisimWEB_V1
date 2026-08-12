@@ -126,6 +126,35 @@ export const WORLD_THEMES = {
     sunPosition: [90, 60, 70],
     stars: true,
   },
+  mars: {
+    // The butterscotch sky is not artistic licence: fine iron-oxide dust suspended in
+    // the thin air scatters the red end of sunlight through, which is also why Martian
+    // SUNSETS are blue -- the exact opposite of Earth's.
+    sky: 0xc8a184,
+    fogNear: 100,
+    fogFar: 340,
+    groundLow: 0x6d3a22,
+    groundHigh: 0xb0714a,
+    groundRoughness: 1,
+    // A broad flat basin for the base, ringed by hills. flatRadius has to comfortably
+    // contain the 44ft dome AND its outbuildings, or the habitat straddles a slope.
+    amplitude: 5.5,
+    pockAmplitude: 0.7,
+    flatRadius: 50,
+    blendRadius: 115,
+    hemiSky: 0xe6b892,
+    hemiGround: 0x3d1f12,
+    hemiIntensity: 0.95,
+    sunColor: 0xfff0dc,
+    // Mars gets about 43% of the sunlight Earth does, and dust dims it further, so the
+    // sun is a notch weaker than the park's -- but only a notch. Dialled to what it
+    // "really" is, the world reads as broken rather than as distant.
+    sunIntensity: 2.0,
+    sunPosition: [75, 105, 45],
+    // No starfield: unlike the Moon, Mars has enough atmosphere to make a bright
+    // daytime sky, and stars are washed out of it just as they are on Earth.
+    stars: false,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger

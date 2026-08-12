@@ -2,6 +2,7 @@ import * as Common from './CommonProps.js';
 import * as Museum from './MuseumProps.js';
 import * as Library from './LibraryProps.js';
 import * as Moon from './MoonProps.js';
+import * as Mars from './MarsProps.js';
 import * as Park from './ParkProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
@@ -57,6 +58,26 @@ export const PROP_BUILDERS = {
   'moon-habitat': Moon.moonHabitat,
   'solar-array': Moon.solarArray,
   'lunar-plaque': Moon.lunarPlaque,
+
+  // Mars
+  'habitation-dome': Mars.habitationDome,
+  'hydroponic-rack': Mars.hydroponicRack,
+  'bunk-pod': Mars.bunkPod,
+  'life-support-rack': Mars.lifeSupportRack,
+  'command-console': Mars.commandConsole,
+  'greenhouse-tunnel': Mars.greenhouseTunnel,
+  'ice-drill-rig': Mars.iceDrillRig,
+  'comms-relay': Mars.commsRelay,
+  'mars-lander': Mars.marsLander,
+  'weather-mast': Mars.weatherMast,
+  'mars-rover': Mars.marsRover,
+  'mars-helicopter': Mars.marsHelicopter,
+  'rover-tracks': Mars.roverTracks,
+  'dust-devil': Mars.dustDevil,
+  'phobos-in-sky': Mars.phobosInSky,
+  'distant-mountain': Mars.distantMountain,
+  'mars-crater': Mars.marsCrater,
+  'mars-rocks': Mars.marsRocks,
 
   // Park
   'park-gate': Park.parkGate,

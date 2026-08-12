@@ -8,8 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 rolling-terrain world with the arrow keys / on-screen D-pad, import glTF/OBJ models
 and images, freehand-draw shapes that inflate into 3D balloons, drop glowing light
 orbs, place live interactive web browser panels, and save/load the world. New visitors
-land in a prebuilt Park; The Museum, The Library and The Moon are loadable from the
-menu. Pure client-side Three.js app — no backend, ships as a static `dist/` bundle.
+land in a prebuilt Park; The Museum, The Library, The Moon and On Mars are loadable
+from the menu. Pure client-side Three.js app — no backend, ships as a static `dist/` bundle.
 
 ## Commands
 
@@ -76,7 +76,7 @@ follow whatever height the mesh's real geometry has — flat or hilly.
 relief (`amplitude`/`flatRadius`/`blendRadius`/`pockAmplitude`), ground color ramp,
 hemisphere + sun color/intensity/direction, and whether the starfield is visible —
 lives in `config.js`'s `WORLD_THEMES`
-(`default`/`park`/`museum`/`library`/`moon`).
+(`default`/`park`/`museum`/`library`/`moon`/`mars`).
 `applyWorldTheme(name)` rewrites the ground's **existing** position/color attributes
 **in place** on the **same** `BufferGeometry` and the same `Mesh` — deliberately, since
 `PlayerController` and every placement path hold a reference to that mesh; swapping the
@@ -131,10 +131,10 @@ storing it.
 rehydrating anything, so a world file with no theme of its own resets a leftover moon
 sky back to daylight instead of inheriting it.
 
-### Prebuilt worlds: The Park / The Museum / The Library / The Moon
+### Prebuilt worlds: The Park / The Museum / The Library / The Moon / On Mars
 
 Menu ▸ **Load World** opens a submenu (`Menu.js`, built by iterating
-`WorldPresets.PRESET_WORLDS` so a fifth world is a one-line change) listing the four
+`WorldPresets.PRESET_WORLDS` so another world is a one-line change) listing the
 ready-made worlds plus **From a file…**, which is where the original .json load lives.
 
 **The Park is the boot world** (`config.js`'s `BOOT_WORLD`). A first visit — or any
@@ -161,8 +161,9 @@ a student who walked 100ft away reappears inside a wall when the world under the
 replaced.
 
 **Everything is generated in code** — `PropKit.js` (shared helpers) plus `src/props/`
-(`CommonProps` / `ParkProps` / `MuseumProps` / `LibraryProps` / `MoonProps` / `Earth`),
-with `props/index.js`'s `PROP_BUILDERS` as the name→builder table. **Those keys are
+(`CommonProps` / `ParkProps` / `MuseumProps` / `LibraryProps` / `MoonProps` /
+`MarsProps` / `Earth`), with `props/index.js`'s `PROP_BUILDERS` as the name→builder
+table. **Those keys are
 persisted**, so renaming one silently breaks every already-saved world using it; add a
 new key instead. `buildProp()` throws on an unknown name rather than silently dropping
 the object, so a typo in a layout surfaces immediately instead of leaving a hole.
@@ -234,6 +235,51 @@ Light orbs are used as the in-world fill lighting (that's the app's own mechanis
 spent at ~12ft — hang them around 9ft indoors, not up at the ceiling, or the floor sits
 at the edge of the cone. On the moon they're kept low (5–6ft) and close to hardware:
 against a black sky a high orb reads as a floating ball rather than as a lamp.
+
+The Mars dome's glazing works the same way (`castShadow = false` on the shell, the ribs
+and the apex hub), but its **floor is at ground level**, unlike the museum's and the
+library's raised ones. `PlayerController` walks on the terrain mesh, never on props, so
+a raised interior floor puts the student's eyes below the deck they appear to be
+standing on — tolerable in a gallery you look across, obvious in a room you walk into.
+Mars therefore has no `MARS_FLOOR` constant: everything indoors is placed at `y = 0`.
+
+**A big flat surface facing away from the sun is a black silhouette, not a dark
+surface.** This bit three separate props in the Mars world and is worth recognising
+early, because no amount of picking a lighter `color` fixes it:
+
+- The airlock's swung-open hatch leaf — a 7ft disc has one face permanently unlit at
+  every hinge angle, so it read as a black slab parked in the doorway. Deleted; the
+  collar ring says "hatch" on its own.
+- The relay dish — three compounding mistakes: too deep a cap (a 67° sweep is a bowl,
+  and its convex back reads as a solid ball on a stick), the *north* cap (which opens
+  downward, aiming the concave side at the ground), and raked so the approach saw the
+  back. It now uses a shallow **south** cap tipped toward the walk-up. Note that a cap
+  is authored around the sphere's pole, so the sphere centre must be offset by exactly
+  the radius to put the bowl's vertex on the mount — otherwise the dish floats several
+  feet clear of the mast it is bolted to.
+- The life-support cabinet — an 8×7ft slab at `metalness: 0.7` has almost no diffuse
+  response and, indoors under orb light, renders as a hole in the room.
+
+Two more shape/texture traps from the same world:
+
+- **A smoothly curved, zero-thickness surface is the worst case for shadow-map acne.**
+  The dome's ring wall and airlock tube showed wavy bands right across them inside and
+  out; both set `receiveShadow = false`, which costs nothing since neither has any
+  thickness to shadow itself with.
+- **`CircleGeometry` laid down by a −90° X rotation flips its texture's handedness** —
+  the dome floor's "MUSTER" marking has to be drawn mirrored to read correctly underfoot.
+- **Painted rectangles do not survive being wrapped on a cylinder.** The dust devil's
+  first texture was random `fillRect` streaks; on a 40ft column they read as literal
+  floating panels over the landscape. Soft-edged ellipses filled with a gradient that
+  fades at both ends, plus a vertical fade over the whole sheet, is what makes it dust.
+- **A shield volcano needs `baseRadius` several times its `height`.** Built to the
+  proportions of a hill, `distantMountain()` came out as a sharp dark cone — the one
+  silhouette Mars does not have.
+
+`moonCrater()` and `moonRocks()` take `rimColor`/`floorColor` and `colors` options
+because the Mars world reuses them: an impact is the same physics on both worlds and
+only the mineral colour differs. The defaults are the original lunar greys, so every
+already-saved moon world is untouched.
 
 The museum's paintings are generated **in the style of** a movement (De Stijl, Colour
 Field, Post-Impressionist, Ukiyo-e, Pointillist, Geometric Abstraction) rather than

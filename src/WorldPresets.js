@@ -1,6 +1,6 @@
 import { applyWorldTheme } from './SceneSetup.js';
 
-// The three ready-made worlds behind Menu > Load World.
+// The ready-made worlds behind Menu > Load World.
 //
 // A preset world is just a LIST OF RECORDS -- exactly the same record shape that
 // IndexedDB and a .json world file hold -- handed to WorldStore.loadFromRecords(),
@@ -21,6 +21,7 @@ const LIBRARY_FLOOR = 1.55;
 const ORB_WARM = '#f2a541';
 const ORB_WHITE = '#f5f5f5';
 const ORB_BLUE = '#3d8bf2';
+const ORB_ROSE = '#e0455f';
 
 // ---------------------------------------------------------------------------
 // Layout entry helpers -- each returns a plain object the materializer turns into a
@@ -818,6 +819,279 @@ function moonLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// On Mars
+// ---------------------------------------------------------------------------
+
+// A crewed outpost on a flat basin, built around one walk-in Habitation Dome. The dome
+// is the hub and everything else radiates off it, so a student who gets lost can always
+// find the dome on the skyline and walk back to it -- the same navigational trick the
+// Park's single north-south axis plays.
+//
+// The dome's interior floor sits at GROUND LEVEL rather than on a raised stylobate like
+// the museum's and the library's. The player walks on the terrain mesh, not on props,
+// so a raised floor would leave a student's eye height sunk below the deck they appear
+// to be standing on. Everything indoors is therefore placed at y = 0.
+function marsLayout() {
+  const items = [];
+
+  // Dome centre. Radius 22, so its wall runs from z = 8 (front, with the airlock out to
+  // z ~ 16) back to z = -36, and interior props are kept within ~16ft of this point.
+  const domeX = 0;
+  const domeZ = -14;
+  const inside = (ox, oz) => [domeX + ox, domeZ + oz];
+  // Points a prop at the dome's centre from its offset, so nothing indoors ends up
+  // presenting its back to the room.
+  const facingIn = (ox, oz) => Math.atan2(-ox, -oz);
+
+  items.push(prop('habitation-dome', domeX, domeZ, { options: { label: 'MARS BASE ONE' } }));
+
+  // --- Inside: the grow bay, the crew berths, and life support ------------
+  for (const [ox, oz, seed] of [
+    [-13, -8, 5],
+    [-8, -14, 11],
+    [-15, 1, 17],
+  ]) {
+    const [x, z] = inside(ox, oz);
+    items.push(prop('hydroponic-rack', x, z, { rotY: facingIn(ox, oz), options: { seed } }));
+  }
+
+  for (const [ox, oz] of [
+    [13, -8],
+    [15, 2],
+  ]) {
+    const [x, z] = inside(ox, oz);
+    items.push(prop('bunk-pod', x, z, { rotY: facingIn(ox, oz) }));
+  }
+
+  items.push(prop('life-support-rack', ...inside(5, -15), { rotY: facingIn(5, -15) }));
+  items.push(prop('command-console', ...inside(10, 9), { rotY: facingIn(10, 9) }));
+  items.push(prop('bench', ...inside(-4, 3), { rotY: 0.4 }));
+  items.push(prop('bench', ...inside(4, 3), { rotY: -0.4 }));
+
+  const indoorFacts = [
+    {
+      x: -9, z: -16, rotY: 1.1,
+      eyebrow: 'The grow bay',
+      title: 'Dinner under pink light',
+      body: 'No soil — the roots sit in nutrient water. The lights are magenta because plants only use the red and blue parts of sunlight; the green is reflected, which is why leaves look green.',
+    },
+    {
+      x: -3, z: -25, rotY: -0.2,
+      eyebrow: 'Life support',
+      title: 'Oxygen out of thin air',
+      body: 'Martian air is 95% carbon dioxide. Split CO₂ and you get carbon and the O₂ you breathe. NASA really did this on Mars in 2021, with an instrument the size of a toaster.',
+    },
+    {
+      x: 9, z: -14, rotY: -1.0,
+      eyebrow: 'Crew quarters',
+      title: 'A day and a bit',
+      body: 'A Martian day — a "sol" — is 24 hours 37 minutes. Close enough to sleep by, but the extra 37 minutes add up: crews drift a whole night out of step with Earth in about a month.',
+    },
+    {
+      x: -6, z: 2, rotY: 0.3,
+      eyebrow: 'Why the dome',
+      title: 'The air is the problem',
+      body: 'Outside, the pressure is under 1% of Earth\'s — so low that the water in your blood would boil. The dome is not for warmth. It is holding an atmosphere in.',
+    },
+  ];
+  for (const fact of indoorFacts) {
+    items.push(prop('info-placard', fact.x, fact.z, { rotY: fact.rotY, options: fact }));
+  }
+
+  // Interior lighting. Hung at 9ft: a light orb's PointLight is nearly spent by ~12ft
+  // (ORB_LIGHT_DISTANCE with decay 2), so hanging these up at the 20ft apex would leave
+  // the floor at the very edge of the falloff. The grow bay gets a rose orb to match
+  // the LED bars it is lighting.
+  items.push(orb(0, -14, 9, ORB_WARM));
+  items.push(orb(-12, -20, 9, ORB_ROSE));
+  items.push(orb(12, -18, 9, ORB_WARM));
+  items.push(orb(2, -28, 9, ORB_WHITE));
+  items.push(orb(0, -2, 9, ORB_WHITE));
+
+  // --- The approach -------------------------------------------------------
+  items.push(
+    prop('standing-sign', -20, 24, {
+      rotY: 0.45,
+      options: {
+        lines: ['MARS BASE ONE'],
+        subtitle: 'ARES PLANITIA · SOL 412 · CREW OF SIX',
+        width: 13,
+        height: 3.2,
+        postHeight: 7.5,
+        face: '#3a1d12',
+        accent: '#ff9a5c',
+      },
+    })
+  );
+
+  // --- Outside: the hardware that keeps the base alive --------------------
+  items.push(prop('greenhouse-tunnel', -40, -8, { rotY: 0.4 }));
+  items.push(prop('ice-drill-rig', 36, -32, { rotY: -0.6 }));
+  items.push(prop('comms-relay', 30, 12, { rotY: -0.4 }));
+  items.push(prop('mars-lander', -30, -48, { rotY: 0.7 }));
+  items.push(prop('weather-mast', 26, -6));
+
+  // Kept well clear of the greenhouse and the entrance sign: a three-panel array is
+  // over 20ft across the booms, so a nominal 10ft gap between centres is still an
+  // overlap, and a panel sails straight through whatever it was parked beside.
+  items.push(prop('solar-array', -40, 26, { rotY: -0.4 }));
+  items.push(prop('solar-array', -62, 6, { rotY: -0.15 }));
+  items.push(prop('solar-array', -52, -34, { rotY: 0.3 }));
+
+  // The rover, with its own tracks running back past the spawn point so a student
+  // arrives standing in them and can follow them to the machine that made them.
+  items.push(prop('mars-rover', 28, 22, { rotY: -0.9 }));
+  items.push(prop('rover-tracks', 10, 36, { rotY: -0.9, options: { count: 20, seed: 7 } }));
+  items.push(prop('mars-helicopter', 16, 30, { rotY: 0.5 }));
+
+  // --- Landscape ----------------------------------------------------------
+  items.push(prop('dust-devil', -76, -70, { options: { height: 46, radius: 7 } }));
+  items.push(prop('dust-devil', 92, -34, { options: { height: 34, radius: 5 } }));
+
+  for (const [x, z, radius, seed] of [
+    [-60, 44, 20, 3],
+    [70, -70, 26, 7],
+    [-74, -60, 16, 11],
+    [62, 50, 14, 17],
+    [6, -96, 22, 23],
+    [-96, 6, 18, 29],
+  ]) {
+    items.push(prop('mars-crater', x, z, { options: { radius, rimHeight: 1.3 + (seed % 4) * 0.3, seed } }));
+  }
+
+  for (const [x, z, count, spread, scale, seed] of [
+    [-52, -20, 10, 9, 1.1, 31],
+    [48, -8, 8, 7, 0.9, 37],
+    [30, -60, 12, 11, 1.3, 41],
+    [-40, 40, 9, 8, 1.0, 43],
+    [56, 24, 7, 6, 0.8, 47],
+    [-14, -70, 11, 10, 1.2, 53],
+  ]) {
+    items.push(prop('mars-rocks', x, z, { options: { count, spread, scale, seed } }));
+  }
+
+  // Horizon relief. These sit past the fog's midpoint on purpose: half-dissolved into
+  // the dust haze is what stops the 400ft ground plane reading as a flat disc with an
+  // edge, and it is also exactly how a real Martian horizon looks.
+  items.push(prop('distant-mountain', -150, -165, { options: { height: 46, baseRadius: 130 } }));
+  items.push(prop('distant-mountain', 155, -135, { options: { height: 34, baseRadius: 92, caldera: false, color: 0x8f5231 } }));
+  items.push(prop('distant-mountain', -55, 178, { options: { height: 28, baseRadius: 80, caldera: false, color: 0x94573a } }));
+
+  // Phobos, fixed in the south-eastern sky. Small and far out on purpose: it is only
+  // about 14 miles across, and pushed in any closer it stops reading as a moon and
+  // starts reading as a boulder someone left hanging over the base.
+  items.push(prop('phobos-in-sky', 118, -228, { y: 138, absoluteY: true, options: { radius: 6 } }));
+
+  // --- Fact placards ------------------------------------------------------
+  const facts = [
+    {
+      x: -9, z: 22, rotY: 0.35,
+      eyebrow: 'Welcome',
+      title: 'You are a long way from home',
+      body: 'Mars is between 34 and 250 million miles away depending on where the two planets are. Even the fast trips take about seven months each way.',
+    },
+    {
+      x: 9, z: 22, rotY: -0.35,
+      eyebrow: 'Look up',
+      title: 'Why the sky is butterscotch',
+      body: 'Fine dust in the air scatters the red end of sunlight all over the sky. The strange part: at sunset it flips, and the glow around the setting sun turns BLUE.',
+    },
+    {
+      x: -16, z: 30, rotY: 0.5,
+      eyebrow: 'Gravity',
+      title: 'You would weigh a third',
+      body: 'Mars pulls with about 38% of Earth\'s gravity. A 100-pound student weighs 38 pounds here — and could jump nearly three times as high.',
+    },
+    {
+      x: -38, z: 26, rotY: 0.7,
+      eyebrow: 'On the horizon',
+      title: 'The biggest volcano anywhere',
+      body: 'Olympus Mons is about 16 miles high and as wide as Arizona — but its slopes are so gentle that standing on it, you would never know you were on a mountain.',
+    },
+    {
+      x: -30, z: -2, rotY: -1.1,
+      eyebrow: 'The greenhouse',
+      title: 'Farming without soil',
+      body: 'Martian dirt contains perchlorates, which are poisonous to us. Crops here are grown in trays of water instead — and every plant also helps recycle the air.',
+    },
+    {
+      x: 32, z: -22, rotY: -0.3,
+      eyebrow: 'The drill',
+      title: 'There is ice under your feet',
+      body: 'Buried water ice covers much of Mars. It is drinking water, it is breathable oxygen, and split into hydrogen and oxygen it is rocket fuel for the trip home.',
+    },
+    {
+      x: 24, z: 16, rotY: -0.6,
+      eyebrow: 'The relay dish',
+      title: 'Nobody phones home',
+      body: 'A radio signal takes 3 to 22 minutes each way. Ask Earth a question and the answer is at best six minutes behind you, so crews send messages, not conversations.',
+    },
+    {
+      x: -28, z: 12, rotY: -0.5,
+      eyebrow: 'Power',
+      title: 'Sunlight, and a dust problem',
+      body: 'Mars gets less than half the sunlight Earth does, and dust settling on the panels steals more. Planet-wide dust storms can dim the sky for months at a time.',
+    },
+    {
+      // On the far side of the rover: sat on the near side it stands squarely between
+      // the spawn point and the machine it is describing.
+      x: 34, z: 17, rotY: -2.2,
+      eyebrow: 'The rover',
+      title: 'Wheels made of metal',
+      body: 'About 10 feet long — twice your height. The wheels are milled from aluminium, because rubber goes brittle at −100°F and would fall apart in the near-vacuum.',
+    },
+    {
+      x: 12, z: 33, rotY: 0.2,
+      eyebrow: 'The scout',
+      title: 'First flight on another world',
+      body: 'The air here is 1% as thick as Earth\'s, so the blades have to spin about 2,400 times a minute — five times a helicopter at home — to find anything to push against.',
+    },
+    {
+      x: 22, z: 2, rotY: -0.4,
+      eyebrow: 'The weather mast',
+      title: 'Wind you would barely feel',
+      body: 'A 60 mph Martian gale pushes about as hard as a 4 mph breeze on Earth, because there is so little air in it. The movie version of a Mars storm is fiction.',
+    },
+    {
+      x: 34, z: 2, rotY: -0.8,
+      eyebrow: 'Two moons',
+      title: 'Phobos and Deimos',
+      body: 'Both are tiny lumps, probably captured asteroids. Phobos races around so fast that it rises in the WEST and sets in the east — twice every single day.',
+    },
+    {
+      x: -22, z: -42, rotY: 0.6,
+      eyebrow: 'The cargo lander',
+      title: 'How all this got here',
+      body: 'Nothing was carried by the crew. Supplies are landed years ahead, unmanned, and checked from Earth — so the base is already built and working before anyone arrives.',
+    },
+    {
+      x: 16, z: -34, rotY: -2.6,
+      eyebrow: 'The calendar',
+      title: 'A year that lasts 687 days',
+      body: 'Mars is further out, so its orbit takes almost twice as long. You would have birthdays half as often — and each of the four seasons lasts about six Earth months.',
+    },
+    {
+      x: -46, z: -40, rotY: 0.5,
+      eyebrow: 'Geology',
+      title: 'Why Mars is red',
+      body: 'The dust is full of iron oxide. That is rust — the same thing that forms on an old bicycle, spread across an entire planet and blown into every corner of it.',
+    },
+  ];
+  for (const fact of facts) {
+    items.push(prop('info-placard', fact.x, fact.z, { rotY: fact.rotY, options: fact }));
+  }
+
+  // Fill light where the base genuinely goes dark: inside the greenhouse tunnel, under
+  // the lander's deck, in the airlock mouth, and at the foot of the drill derrick.
+  items.push(orb(-40, -8, 5, ORB_WARM));
+  items.push(orb(-30, -42, 6, ORB_WHITE));
+  items.push(orb(0, 14, 6, ORB_WARM));
+  items.push(orb(36, -32, 7, ORB_WHITE));
+
+  return { theme: 'mars', spawn: { x: 0, z: 34, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + materialization
 // ---------------------------------------------------------------------------
 
@@ -826,6 +1100,7 @@ export const PRESET_WORLDS = {
   museum: { label: 'The Museum', hint: 'A gallery of sculpture and painting, with a plaza out front', build: museumLayout },
   library: { label: 'The Library', hint: 'A public reading room: stacks, Dewey signs, card catalog, globe', build: libraryLayout },
   moon: { label: 'The Moon', hint: 'An Apollo landing site — lander, rover, flag and craters', build: moonLayout },
+  mars: { label: 'On Mars', hint: 'A crewed outpost — walk into the Habitation Dome, then explore the base', build: marsLayout },
 };
 
 function toRecord(item, groundHeightAt) {

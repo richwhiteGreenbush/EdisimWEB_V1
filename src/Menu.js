@@ -45,9 +45,9 @@ export class Menu {
     this.saveWorldBtn = this._button('Save World', 'Download the current world as a file you can load again later');
     this.saveWorldBtn.addEventListener('click', () => onSaveWorldClick?.());
 
-    // Load World opens a submenu of the three ready-made worlds, with loading a saved
-    // .json file kept as the last entry so the existing save/load round trip still has
-    // a home. Built from PRESET_WORLDS rather than hardcoded here, so adding a fourth
+    // Load World opens a submenu of the ready-made worlds, with loading a saved .json
+    // file kept as the last entry so the existing save/load round trip still has a
+    // home. Built from PRESET_WORLDS rather than hardcoded here, so adding another
     // world is a one-line change in WorldPresets.js and shows up in the menu for free.
     this.loadWorldBtn = this._button('Load World ▸', 'Load one of the ready-made worlds, or a world file you saved earlier');
     this.loadWorldBtn.addEventListener('click', () => this.toggleLoadMenu());

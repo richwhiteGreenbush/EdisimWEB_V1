@@ -384,7 +384,12 @@ export function alsepStation() {
 
 // A shallow impact crater: dished floor inside a raised ejecta rim, with the outer
 // apron dropping below y=0 so it beds into whatever the terrain is doing underneath.
-export function moonCrater({ radius = 14, rimHeight = 1.6, seed = 11 } = {}) {
+//
+// The two colours are options rather than constants because the Mars world reuses this
+// builder (and moonRocks below) for its own craters and boulder fields -- an impact is
+// the same physics on both worlds, and only the mineral colour differs. The defaults
+// are the original lunar greys, so every already-saved moon world is untouched.
+export function moonCrater({ radius = 14, rimHeight = 1.6, seed = 11, rimColor = 0x6b6862, floorColor = 0x4f4d48 } = {}) {
   const rng = seededRandom(seed);
   const profile = [
     [0.0, 0.03],
@@ -405,12 +410,12 @@ export function moonCrater({ radius = 14, rimHeight = 1.6, seed = 11 } = {}) {
   }
   geometry.computeVertexNormals();
 
-  const crater = mesh(geometry, standard({ color: 0x6b6862, roughness: 1, flatShading: true }));
+  const crater = mesh(geometry, standard({ color: rimColor, roughness: 1, flatShading: true }));
   crater.castShadow = false;
 
   const floor = mesh(
     new THREE.CircleGeometry(radius * 0.55, 32),
-    standard({ color: 0x4f4d48, roughness: 1 }),
+    standard({ color: floorColor, roughness: 1 }),
     0,
     0.04,
     0
@@ -422,13 +427,18 @@ export function moonCrater({ radius = 14, rimHeight = 1.6, seed = 11 } = {}) {
 }
 
 // A field of boulders and small rocks, all merged into one geometry.
-export function moonRocks({ count = 9, spread = 9, scale = 1, seed = 23 } = {}) {
-  const rng = seededRandom(seed);
-  const parts = [];
+export function moonRocks({
+  count = 9,
+  spread = 9,
+  scale = 1,
+  seed = 23,
   // Deliberately darker than they look "correct" on paper. Lunar regolith reflects
   // only about 12% of the light hitting it -- roughly as dark as worn asphalt -- and
   // under this theme's very strong sun anything lighter blows out to white paper.
-  const greys = [0x605d57, 0x4e4c47, 0x6d6a63, 0x3f3d39];
+  colors = [0x605d57, 0x4e4c47, 0x6d6a63, 0x3f3d39],
+} = {}) {
+  const rng = seededRandom(seed);
+  const parts = [];
 
   for (let i = 0; i < count; i++) {
     const size = randomIn(rng, 0.35, 1.5) * scale;
@@ -447,7 +457,7 @@ export function moonRocks({ count = 9, spread = 9, scale = 1, seed = 23 } = {}) 
       geometry,
       position: [Math.cos(angle) * distance, size * 0.55, Math.sin(angle) * distance],
       rotation: [randomIn(rng, 0, 1), randomIn(rng, 0, 6.28), randomIn(rng, 0, 1)],
-      color: greys[Math.floor(rng() * greys.length)],
+      color: colors[Math.floor(rng() * colors.length)],
     });
   }
 
