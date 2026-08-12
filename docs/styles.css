@@ -535,6 +535,21 @@ a {
     grid-template-columns: 1fr 1fr;
     gap: 40px;
   }
+
+  /* An ODD number of worlds leaves the last card stranded in the left column with a
+     hole beside it. Spanning it across both columns and laying it out side-on keeps
+     the grid balanced whatever the count is -- which matters, because worlds keep
+     getting added and nobody should have to remember to come back and re-tune this. */
+  .world-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+  }
+
+  .world-card:last-child:nth-child(odd) .world-shot img {
+    height: 100%;
+    aspect-ratio: auto;
+  }
 }
 
 .world-card {
