@@ -527,6 +527,65 @@
   </div>
 </section>
 
+<!-- For developers. Deliberately the last thing before the footer: it is the one
+     section written for a different reader than the rest of the page, and a student or
+     parent who never scrolls this far has lost nothing. -->
+<section class="devs" id="developers">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow dev-eyebrow">&lt;/&gt; For Developers</span>
+      <h2>The whole thing is open — go make your own version</h2>
+      <p>
+        Edusim: Web Edition is a single-page Three.js app with no backend and no build
+        magic. Every world you just read about is generated in plain JavaScript, so
+        there's nothing hidden: read it, change it, and make it yours.
+      </p>
+    </div>
+
+    <div class="dev-panel reveal">
+      <div class="dev-copy">
+        <h3>Fork it, branch it, make it yours</h3>
+        <p>
+          Clone the repository, cut yourself a branch, and start changing things. Add a
+          world of your own to <code>src/props/</code>, teach the block editor a new
+          block, restyle the whole place — it's your copy, and you can't break anyone
+          else's.
+        </p>
+        <ul class="dev-list">
+          <li><strong>No backend.</strong> Pure client-side Three.js that ships as a static <code>dist/</code> folder — host it anywhere.</li>
+          <li><strong>Worlds are code.</strong> Each prebuilt world is a list of records and a set of prop builders, so a new one is a new file plus one entry in a table.</li>
+          <li><strong>Read <code>CLAUDE.md</code> first.</strong> It's the architecture tour, written as the project was built — including the traps that were hit along the way.</li>
+        </ul>
+        <div class="dev-cta-row">
+          <a class="btn btn-primary" href="https://github.com/richwhiteGreenbush/EdisimWEB_V1" target="_blank" rel="noopener noreferrer">
+            <svg class="gh-mark" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+            View the code on GitHub
+          </a>
+          <a class="btn btn-ghost" href="https://github.com/richwhiteGreenbush/EdisimWEB_V1/fork" target="_blank" rel="noopener noreferrer">Fork it and start branching</a>
+        </div>
+      </div>
+
+      <div class="dev-terminal" aria-label="Getting started commands">
+        <div class="dev-terminal-bar">
+          <span class="browser-dot r"></span>
+          <span class="browser-dot y"></span>
+          <span class="browser-dot g"></span>
+          <span class="dev-terminal-title">your-turn — zsh</span>
+        </div>
+        <pre><code><span class="c"># grab a copy</span>
+git clone https://github.com/richwhiteGreenbush/EdisimWEB_V1
+cd EdisimWEB_V1
+
+<span class="c"># branch it — this part is yours</span>
+git checkout -b my-world
+
+npm install
+npm run dev   <span class="c"># then open the printed URL</span></code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
 <footer class="site-footer">
   <div class="wrap">
     <div class="footer-row">
@@ -538,6 +597,8 @@
         <li><a href="#worlds">Explore The Worlds</a></li>
         <li><a href="#features">What You Can Do</a></li>
         <li><a href="#parents">For Parents</a></li>
+        <li><a href="#developers">For Developers</a></li>
+        <li><a href="https://github.com/richwhiteGreenbush/EdisimWEB_V1" target="_blank" rel="noopener noreferrer">GitHub</a></li>
         <li><a href="#top">Back to Top</a></li>
       </ul>
     </div>

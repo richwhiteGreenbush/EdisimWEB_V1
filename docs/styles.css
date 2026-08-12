@@ -823,6 +823,154 @@ a {
   color: #cdeccf;
 }
 
+/* ---------- for developers ---------- */
+
+/* Sits between the green play CTA and the near-black footer, so it is deliberately
+   dark: it reads as the start of the footer rather than as one more thing being
+   pitched at a child. */
+.devs {
+  background: linear-gradient(170deg, #182636, #101b26);
+  color: #fff;
+  padding: 90px 0 80px;
+}
+
+.devs .section-head h2 {
+  color: #fff;
+}
+
+.devs .section-head p {
+  color: #bcd0de;
+}
+
+.dev-eyebrow {
+  background: rgba(63, 179, 127, 0.16);
+  color: #7fe3b4;
+  font-family: "Fredoka", monospace;
+  letter-spacing: 0.06em;
+}
+
+.dev-panel {
+  display: grid;
+  gap: 30px;
+  align-items: start;
+}
+
+.dev-copy h3 {
+  font-size: 1.35rem;
+  color: #fff;
+}
+
+.dev-copy p {
+  color: #bcd0de;
+}
+
+.dev-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 26px;
+  display: grid;
+  gap: 12px;
+}
+
+.dev-list li {
+  position: relative;
+  padding-left: 26px;
+  color: #bcd0de;
+  line-height: 1.55;
+}
+
+/* A branch glyph rather than a bullet -- the section is about cutting your own. */
+.dev-list li::before {
+  content: "⑂";
+  position: absolute;
+  left: 0;
+  top: -1px;
+  color: var(--green);
+  font-size: 1.05rem;
+}
+
+.dev-list strong {
+  color: #fff;
+}
+
+.devs code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+
+.dev-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.gh-mark {
+  flex: none;
+}
+
+.dev-terminal {
+  /* A grid item defaults to min-width: auto, which means "never shrink below your
+     content" -- so without this the un-wrappable clone URL inside would widen the
+     column itself and the pre's own overflow-x would never get a chance to scroll. */
+  min-width: 0;
+  background: #0b1017;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.dev-terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dev-terminal-title {
+  margin-left: 8px;
+  font-size: 0.78rem;
+  color: #7f95a6;
+}
+
+.dev-terminal pre {
+  margin: 0;
+  padding: 20px 22px 24px;
+  /* Commands are one long line each and must never be wrapped mid-URL -- scroll the
+     block itself instead, which is also what stops a narrow phone from being pushed
+     into a horizontal page scroll by this section. */
+  overflow-x: auto;
+}
+
+.dev-terminal code {
+  background: none;
+  padding: 0;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  /* Sized so the clone line -- the longest, and the one a reader most needs to see
+     whole -- fits the panel on a desktop without being scrolled to. */
+  font-size: 0.8rem;
+  line-height: 1.85;
+  color: #d8e6f0;
+  white-space: pre;
+}
+
+.dev-terminal .c {
+  color: #6f8a9c;
+}
+
+@media (min-width: 900px) {
+  .dev-panel {
+    grid-template-columns: 1fr 1fr;
+    gap: 44px;
+    align-items: center;
+  }
+}
+
 /* ---------- footer ---------- */
 
 .site-footer {
@@ -854,7 +1002,10 @@ a {
 
 .footer-links {
   display: flex;
-  gap: 22px;
+  /* Wraps because this list grew past what a phone can hold on one line -- without it
+     the row runs off the right edge and drags the whole page into a sideways scroll. */
+  flex-wrap: wrap;
+  gap: 12px 22px;
   list-style: none;
   padding: 0;
   margin: 0;
