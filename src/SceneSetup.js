@@ -167,7 +167,7 @@ export function getWorldTheme() {
 // world rather than of any object, but every persisted thing in this app is a record
 // with an Object3D, so it gets an empty Group: it renders nothing, has no geometry to
 // raycast against (so ObjectMenu and PlayIconManager can never pick it), and rides
-// along through registry.clear(), Save World and Load World for free.
+// along through registry.clear(), Load World and a world-file export for free.
 export function createThemeMarker() {
   const marker = new THREE.Group();
   marker.userData.isWorldTheme = true;

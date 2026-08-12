@@ -106,10 +106,12 @@ and call each item's `tick.dispose()`.
   placement or edit calls `onPlaced`/`persistTransform` → `worldStore.saveObject()`.
   `rehydrateAll()` runs once at boot.
 - **`WorldFile`** (`WorldFile.js`) — explicit, user-triggered, portable `.json`
-  export/import (Save World / Load World buttons in the menu). Base64-encodes any
-  Blob file data for JSON transport. `WorldStore.loadFromRecords()` wipes the live
-  world + IndexedDB and rehydrates + re-persists from a given record set — this is
-  what a "Load World" click ultimately calls.
+  export/import, reached from Load World ▸ **Save World** / **Load World File**.
+  Base64-encodes any Blob file data for JSON transport.
+  `WorldStore.loadFromRecords()` wipes the live world + IndexedDB and rehydrates +
+  re-persists from a given record set — this is what Load World File ultimately calls.
+  Keep both halves in the menu: export alone gives a student no way to open what a
+  classmate sent them, and import alone gives them no way to send their own.
 
 Both funnel through the same `record.kind` dispatch in `WorldStore.rehydrateOne()`:
 `'gltf' | 'obj' | 'image' | 'gif' | 'balloon' | 'light-orb' | 'web-browser' |
@@ -132,6 +134,15 @@ rehydrating anything, so a world file with no theme of its own resets a leftover
 sky back to daylight instead of inheriting it.
 
 ### Prebuilt worlds: The Park / The Museum / The Library / The Moon / On Mars
+
+The menu's top level is just two expanding groups plus **Clear World**: **Load Object**
+(Import / Draw / Light Orb / Web Browser — the things you put *into* a world) and
+**Load World** (the worlds themselves). Both are built by `Menu.js`'s `_group()`, which
+pairs a `▸`/`▾` toggle button with a `.menu-submenu` panel and registers the pair in
+`this.groups`. `setGroupOpen(group, open)` walks that list and closes every group except
+the one being opened, so the panel never shows two trees at once; `closeGroups()` is the
+same call with `null`, which matches nothing and therefore shuts them all — that's what
+collapsing the whole menu and picking any submenu item both go through.
 
 Menu ▸ **Load World** opens a submenu (`Menu.js`, built by iterating
 `WorldPresets.PRESET_WORLDS` so another world is a one-line change) listing the

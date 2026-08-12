@@ -78,9 +78,9 @@ html, body {
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Load World's nested world list. Indented behind a rule so the three ready-made
-   worlds read as children of the button that opened them rather than as more
-   top-level menu actions. */
+/* The nested list under an expanding menu group (Load Object, Load World). Indented
+   behind a rule so its entries read as children of the button that opened them rather
+   than as more top-level menu actions. */
 .menu-submenu {
   display: flex;
   flex-direction: column;
