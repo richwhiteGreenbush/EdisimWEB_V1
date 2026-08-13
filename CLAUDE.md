@@ -483,6 +483,54 @@ Note that sizing by *height* means a wide, low model gets a big footprint: the l
 library normalized to a 15ft ridge is 45ft square, and the Edusim banner at 6ft tall is
 24ft wide. Both are held smaller in the Park layout for exactly that reason.
 
+### Photo textures, but only on the big flat surfaces
+
+`SurfaceTextures.js` loads photographic maps from `public/textures/` for the handful of
+genuinely large **flat** surfaces: the terrain, the museum and library hall floors, and
+the Mars dome deck. Everything else stays generated in code.
+
+The line is drawn there on purpose. A photograph wins where a surface is big, flat and
+seen close up — real material has colour variation at several scales at once, which no
+amount of summed sine waves invents — and "a photo has no silhouette" costs nothing when
+the surface genuinely is flat. On anything a student walks around, generated geometry
+plus `PropKit.relief()` is still right: a photo cannot give a T. rex a profile. Sources
+are CC0 (ambientCG), so nothing here carries an attribution obligation.
+
+Four things hold it together:
+
+- **Missing files degrade, they do not break.** `photoMap()` returns a Texture
+  immediately, backed by a 1×1 white pixel (or by the overlay canvas, below). A map
+  multiplies the material's colour, so white is a no-op — with `public/textures/` empty
+  the whole app renders exactly as it did before this existed, with one console warning
+  per file and no errors. These are fetched over HTTP at runtime, so a 404 must never
+  take a world down.
+- **Decoded images are cached; Textures are not.** `disposeObject3D()` disposes a removed
+  object's `map` outright, so one cached Texture handed to two props dies with the first
+  removal — the same trap that governs materials throughout `src/props/`. Caching one
+  level lower, at the `HTMLImageElement`, keeps the decode and the request shared while
+  every caller still owns its own Texture. (The ground mesh is the one exception: it is
+  created once and mutated in place forever, never disposed, so `SceneSetup` caches its
+  detail textures per file.)
+- **`neutralized()` is what lets a photo coexist with `vertexColors`.** The terrain is
+  vertex-coloured from each theme's `groundLow`/`groundHigh` ramp, and a material with
+  both a `map` and `vertexColors` multiplies them — dropping a grass photo straight on
+  would stain Mars and the Moon green. Normalising the photo **per channel** to a mean of
+  white makes the multiply a no-op on average: the theme still decides the hue, the photo
+  contributes grain, grit and wear. Per channel, not by luminance — a single luminance
+  divisor leaves the photo's colour *cast* intact, which is exactly the green-Mars bug.
+- **Composite the existing canvas over the photo; never replace it with a bumpMap.** The
+  instinct is to promote the photo to `map` and demote the canvas to `bumpMap`. That is
+  wrong wherever the canvas carries **colour that means something** — the museum floor's
+  two-tone checker is a checkerboard *because of its colour*, and the Mars deck's yellow
+  hazard ring and painted MUSTER marking are not markings once they are relief.
+  `photoMap({ overlay })` multiplies the canvas over the photo instead, and the canvas can
+  still be passed separately as `bumpMap` for the joints. It also makes the no-file
+  fallback exact rather than merely acceptable, since the composite degrades to the canvas
+  alone.
+
+`photoMap` takes `repeat`/`repeatY` separately because the library floor tiles 24×18 — a
+scalar repeat stretches the boards.
+
 ### Startup assets always re-fetch, never store bytes
 
 `StartupAssets.js`'s `loadLibraryModel()` / `loadTreeModel()` / `loadBillboardImage()`

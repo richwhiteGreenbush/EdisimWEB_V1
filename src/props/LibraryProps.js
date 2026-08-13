@@ -15,6 +15,7 @@ import {
   randomIn,
   relief,
 } from '../PropKit.js';
+import { photoMap } from '../SurfaceTextures.js';
 import { earthTexture } from './Earth.js';
 
 // "The Library" -- a large public library laid out the way a real one is: a reading
@@ -184,12 +185,20 @@ export function libraryHall({ width = 52, depth = 40, wallHeight = 16 } = {}) {
   }
   const floorY = 1.35;
 
+  const grain = woodTexture(24, 18);
   g.add(
     mesh(
       new THREE.BoxGeometry(width - thickness * 2, 0.2, depth - thickness * 2),
-      // Tight repeat so one tile is ~2ft: at 10x8 across a 50ft room each grain line
-      // is half a foot wide and the floor reads as painted swirls, not boards.
-      woodMat(24, 18, 0.6),
+      // Photographed boards over the drawn grain -- the photo carries the figure and
+      // wear, the canvas keeps supplying the plank seams as bump. The tight repeat is
+      // still the point: at 10x8 across a 50ft room each board is half a foot wide and
+      // the floor reads as painted swirls rather than as timber.
+      standard({
+        map: photoMap('wood-floor.jpg', { repeat: 24, repeatY: 18, neutralize: 0.85, overlay: grain.image }),
+        bumpMap: grain,
+        bumpScale: 0.45,
+        roughness: 0.55,
+      }),
       0,
       floorY + 0.1,
       0

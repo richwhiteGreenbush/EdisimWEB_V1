@@ -14,6 +14,7 @@ import {
   relief,
 } from '../PropKit.js';
 import { moonCrater, moonRocks } from './MoonProps.js';
+import { photoMap } from '../SurfaceTextures.js';
 
 // "On Mars" -- a rust-coloured plain with a theoretical crewed outpost on it. The
 // hardware is deliberately near-future/fictional rather than a copy of any one mission
@@ -239,9 +240,19 @@ export function habitationDome({ radius = 22, height = 20, wallHeight = 5, label
   // Laid at ground level rather than on a raised stylobate: the player walks on the
   // terrain mesh, not on props, so a raised interior floor would leave a student's eyes
   // sunk below the deck they appear to be standing on.
+  // Photographed plate for the metal, the drawn deck texture for the seams, rings and
+  // the MUSTER marking -- the one part of it that has to stay exactly where it is drawn.
+  const deck = deckTexture();
   const floor = mesh(
     new THREE.CircleGeometry(radius - 0.25, 64),
-    standard({ map: deckTexture(), roughness: 0.85 }),
+    standard({
+      // Composited under the drawn deck, which carries the hazard ring and the painted
+      // MUSTER marking -- neither of which survives being turned into relief.
+      map: photoMap('metal-deck.jpg', { repeat: 1, neutralize: 0.85, overlay: deck.image }),
+      bumpMap: deck,
+      bumpScale: 0.5,
+      roughness: 0.85,
+    }),
     0,
     0.08,
     0

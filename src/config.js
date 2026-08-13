@@ -50,6 +50,7 @@ export const WORLD_THEMES = {
     stars: false,
   },
   park: {
+    groundDetail: 'ground-soil.jpg',
     sky: 0x8fc4ea,
     fogNear: 110,
     fogFar: 340,
@@ -71,6 +72,7 @@ export const WORLD_THEMES = {
     stars: false,
   },
   museum: {
+    groundDetail: 'ground-soil.jpg',
     sky: 0x9ec6e8,
     fogNear: 90,
     fogFar: 280,
@@ -88,6 +90,7 @@ export const WORLD_THEMES = {
     stars: false,
   },
   library: {
+    groundDetail: 'ground-soil.jpg',
     sky: 0xa9c9e6,
     fogNear: 90,
     fogFar: 280,
@@ -107,6 +110,7 @@ export const WORLD_THEMES = {
     stars: false,
   },
   moon: {
+    groundDetail: 'ground-regolith.jpg',
     // No atmosphere means a black sky at high noon and brutally hard shadows: the
     // hemisphere fill is dialled right down so the sun does nearly all the lighting,
     // which is exactly why real lunar photographs look the way they do.
@@ -131,6 +135,7 @@ export const WORLD_THEMES = {
     stars: true,
   },
   mars: {
+    groundDetail: 'ground-regolith.jpg',
     // The butterscotch sky is not artistic licence: fine iron-oxide dust suspended in
     // the thin air scatters the red end of sunlight through, which is also why Martian
     // SUNSETS are blue -- the exact opposite of Earth's.
@@ -191,6 +196,7 @@ export const WORLD_THEMES = {
     stars: false,
   },
   dinosaur: {
+    groundDetail: 'ground-soil.jpg',
     // Late Cretaceous: hot, humid and far more carbon dioxide than today, with no ice
     // at either pole. The short fog distance is the point -- a coastal floodplain in
     // that climate is hazy, and the haze is what makes the island feel enclosed and

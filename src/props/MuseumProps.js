@@ -15,6 +15,7 @@ import {
   randomIn,
   relief,
 } from '../PropKit.js';
+import { photoMap } from '../SurfaceTextures.js';
 
 // "The Museum" -- a neoclassical art gallery, its sculptures, and its paintings.
 //
@@ -95,11 +96,32 @@ export function museumHall({ width = 44, depth = 34, wallHeight = 15 } = {}) {
   }
   const floorY = 1.5;
 
+  // Photographed marble for the surface, the drawn checker for the JOINTS.
+  //
+  // Splitting the two this way is the point of the whole flat-surface pass. A photo
+  // gives real stone the thing procedural drawing cannot fake -- variation at several
+  // scales at once, so the floor still looks like something when a student stands on it
+  // and looks straight down. The canvas texture keeps its job as the bump map, where its
+  // one genuine strength (knowing exactly where the tile joints are) turns into real
+  // grooves the light catches.
+  //
+  // `color` still carries the marble's tint and the photo is neutralized against it, so
+  // a missing texture file leaves a plain cream floor with grooved joints rather than a
+  // white void -- and so the gallery's colour stays a decision made here in code.
   const floorTexture = marbleFloorTexture(8);
   g.add(
     mesh(
       new THREE.BoxGeometry(width - wall * 2, 0.2, depth - wall * 2),
-      standard({ map: floorTexture, roughness: 0.28, metalness: 0.05 }),
+      standard({
+        // The photo is composited UNDER the drawn checker, not swapped for it. A
+        // checkerboard floor is a checkerboard because of its colour, so demoting the
+        // canvas to bump alone would have thrown the pattern away and left grooves.
+        map: photoMap('marble.jpg', { repeat: 8, neutralize: 0.85, overlay: floorTexture.image }),
+        bumpMap: floorTexture,
+        bumpScale: 0.35,
+        roughness: 0.28,
+        metalness: 0.05,
+      }),
       0,
       floorY + 0.1,
       0

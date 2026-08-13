@@ -1,5 +1,28 @@
 import * as THREE from 'three';
 import { GROUND_SIZE, TERRAIN_SEGMENTS, WORLD_THEMES, DEFAULT_THEME } from './config.js';
+import { photoMap } from './SurfaceTextures.js';
+
+// One tile of ground detail per ~6.7ft. Small enough that a student standing still sees
+// real grain underfoot, large enough that the repeat is not obvious across a 400ft plane.
+const GROUND_DETAIL_REPEAT = 60;
+// How hard the photo is allowed to swing away from the theme's own colour. See
+// neutralized() in SurfaceTextures.js -- at 1.0 the photo's full relative range comes
+// through, and past about 0.6 the ground starts to read as the photo's material rather
+// than as the world's.
+const GROUND_DETAIL_STRENGTH = 0.55;
+
+// Ground detail maps are cached per FILE, not per theme, because several themes share
+// one: the park, museum, library and dinosaur worlds are all soil-and-growth, and the
+// moon and mars are both regolith. Unlike the props, the ground mesh is created once and
+// never disposed -- applyWorldTheme mutates it in place -- so a shared texture here is
+// safe in the one place it would not be anywhere else.
+const groundDetail = new Map();
+function groundDetailFor(file) {
+  if (!groundDetail.has(file)) {
+    groundDetail.set(file, photoMap(file, { repeat: GROUND_DETAIL_REPEAT, neutralize: GROUND_DETAIL_STRENGTH }));
+  }
+  return groundDetail.get(file);
+}
 
 function smoothstep(edge0, edge1, x) {
   const t = THREE.MathUtils.clamp((x - edge0) / (edge1 - edge0), 0, 1);
@@ -189,6 +212,9 @@ export function applyWorldTheme(themeName) {
 
   writeTerrain(state.ground.geometry, theme);
   state.ground.material.roughness = theme.groundRoughness ?? 1;
+  // A theme without a groundDetail file keeps the plain vertex-coloured ground it has
+  // always had; `map = null` is the same no-op as the white stand-in.
+  state.ground.material.map = theme.groundDetail ? groundDetailFor(theme.groundDetail) : null;
   state.ground.material.needsUpdate = true;
 
   state.hemi.color.set(theme.hemiSky);
