@@ -834,7 +834,7 @@ function waterTexture() {
 // below y=0 so it beds into whatever the terrain is doing, with the water plane held
 // just inside the rim. That keeps the pond flat and level on rolling ground without
 // needing to cut the terrain mesh.
-export function parkPond({ radius = 22, seed = 23 } = {}) {
+export function parkPond({ radius = 22, seed = 23, geese = true } = {}) {
   const rng = seededRandom(seed);
   const g = group();
 
@@ -929,31 +929,43 @@ export function parkPond({ radius = 22, seed = 23 } = {}) {
   }
   g.add(mergedMesh(reedParts, { roughness: 0.9, flatShading: true }));
 
-  // A pair of Canada geese on the water.
-  const geeseParts = [];
-  for (const [gx, gz, turn] of [[radius * 0.3, radius * 0.18, 0.6], [radius * 0.46, -radius * 0.1, -1.1]]) {
+  // The geese are an option rather than a fixture -- see pondGeese() below.
+  if (geese) g.add(pondGeese({ spread: radius * 0.3 }).children[0]);
+
+  return g;
+}
+
+// A pair of Canada geese, as their OWN placed object rather than part of the pond.
+//
+// They were built into parkPond(), which meant clicking one selected the entire pond --
+// so "program the geese to paddle about" moved the water, the bank and the cattails with
+// them. Anything a student is invited to program has to be a thing they can actually
+// pick, and that is a placement decision, not a modelling one. parkPond keeps drawing
+// its own pair by default so every world already saved with a pond is unchanged; the
+// Park now asks for `geese: false` and places this separately on top.
+export function pondGeese({ spread = 6.6 } = {}) {
+  const parts = [];
+  for (const [gx, gz, turn] of [[0, spread * 0.6, 0.6], [spread * 0.53, -spread * 0.33, -1.1]]) {
     const bodyLength = 2.0;
-    geeseParts.push({
-      geometry: new THREE.SphereGeometry(0.62, 10, 8),
+    parts.push({
+      geometry: new THREE.SphereGeometry(0.62, 12, 9),
       rotation: [0, turn, 0],
       position: [gx, 0.35, gz],
       color: 0x6b625a,
     });
-    geeseParts.push({
-      geometry: new THREE.CylinderGeometry(0.13, 0.17, 1.5, 7),
+    parts.push({
+      geometry: new THREE.CylinderGeometry(0.13, 0.17, 1.5, 9),
       rotation: [0.25, turn, 0],
       position: [gx + Math.sin(turn) * bodyLength * 0.35, 1.15, gz + Math.cos(turn) * bodyLength * 0.35],
       color: 0x1d1d1d,
     });
-    geeseParts.push({
-      geometry: new THREE.SphereGeometry(0.26, 8, 6),
+    parts.push({
+      geometry: new THREE.SphereGeometry(0.26, 10, 7),
       position: [gx + Math.sin(turn) * bodyLength * 0.5, 1.85, gz + Math.cos(turn) * bodyLength * 0.5],
       color: 0x1d1d1d,
     });
   }
-  g.add(mergedMesh(geeseParts, { roughness: 0.9 }));
-
-  return g;
+  return group(mergedMesh(parts, { roughness: 0.9 }));
 }
 
 // Tiered stone fountain. The falling water is a pair of thin translucent cones --

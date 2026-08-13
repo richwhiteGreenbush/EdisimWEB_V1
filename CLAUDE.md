@@ -585,6 +585,48 @@ Three tuning rules, each learned the hard way:
 `photoMap` takes `repeat`/`repeatY` separately because the library floor tiles 24×18 — a
 scalar repeat stretches the boards.
 
+### Programming activities: two per world
+
+Every preset world carries two `activity-board` props — big, bright signs setting a
+programming challenge for one particular object in that world, with the exact blocks to
+snap together. `WorldPresets.activity()` places one; `ctrlStep`/`moveStep`/`lookStep`
+build its block list.
+
+**The chips are coloured from `CATEGORIES` in `BlockDefs.js`, not from a copy of those
+hex values.** That import is the whole trick: the orange chip on the sign is the same
+orange as the `repeat` block the student is about to go and drag, so the board teaches
+the palette while it sets the task. A local copy of the colours would drift silently and
+produce exactly the confusion the board exists to prevent.
+
+**Every sequence on these boards has been run.** That is not politeness — `move X/Y/Z`
+shift an object along the **WORLD** axes, not along its own facing, so rotating something
+does **not** change which way it will then travel. "Drive around the field in a square"
+is not writable with this block set. Every patrol on every board is therefore an
+out-and-back along one axis with a `rotate 180 degrees` in the middle so the thing faces
+the way it is going, and several boards say so in their tip. If a block is ever added
+that moves relative to facing, these can be rewritten — until then, a board promising a
+circuit would be a board that lies.
+
+Two placement rules, both learned by getting them wrong:
+
+- **The posts go OUTSIDE the panel**, unlike `standingSign`, which tucks them inside its
+  edges. That works there because its text is centred; an activity board's text is
+  left-aligned and starts a few inches in, so an inset post stands in front of the first
+  character of every single line.
+- **A board has to be readable, which is a stronger condition than not overlapping.** The
+  automated overlap sweep passes things that are visually hopeless — a tree fern's fronds
+  or a bridge abutment can sit clear of the board's box and still cover half of it from
+  the angle a student actually approaches from. Boards need eyes on them, not just a
+  clean audit.
+
+`pondGeese()` exists because of this feature. The geese were built into `parkPond()`, so
+clicking one selected the entire pond — "program the geese to paddle about" moved the
+water, the bank and the cattails with them. **Anything a student is invited to program has
+to be a thing they can pick**, which is a placement decision as much as a modelling one.
+`parkPond` still draws its own pair by default (`geese: true`) so every world already
+saved with a pond is untouched; the Park asks for `geese: false` and places the pair
+separately on top.
+
 ### Startup assets always re-fetch, never store bytes
 
 `StartupAssets.js`'s `loadLibraryModel()` / `loadTreeModel()` / `loadBillboardImage()`

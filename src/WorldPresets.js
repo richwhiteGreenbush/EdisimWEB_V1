@@ -50,6 +50,28 @@ function asset(kind, x, z, { height, y = 0, rotY = 0 } = {}) {
   return { kind, x, z, y, rotY, height };
 }
 
+// ---------------------------------------------------------------------------
+// Programming activities
+// ---------------------------------------------------------------------------
+
+// One block on an activity board, in the colour of its palette category.
+const ctrlStep = (text, depth = 0) => ({ cat: 'control', text, depth });
+const moveStep = (text, depth = 0) => ({ cat: 'motion', text, depth });
+const lookStep = (text, depth = 0) => ({ cat: 'look', text, depth });
+
+// A challenge board pointed at one particular object in the world.
+//
+// Every sequence written on these boards has been checked against what the blocks
+// ACTUALLY do, which is a real constraint: `move X/Y/Z` shift an object along the
+// WORLD axes, not along its own facing. Rotating something therefore does not change
+// which way it will travel -- so "drive in a square" is not writable with these blocks,
+// and every patrol here is instead an out-and-back along one axis, with a `rotate 180`
+// in the middle so the thing is facing the way it is going. That is a more honest
+// lesson anyway: it is exactly the difference between turning and moving.
+function activity(x, z, { number, title, target, steps, tip, rotY = 0, accent, y = 0 }) {
+  return prop('activity-board', x, z, { rotY, y, options: { number, title, target, steps, tip, accent } });
+}
+
 // Feet from the ground to the CENTRE of a browser panel. WEB_BROWSER_HEIGHT is 2.6, so
 // this puts the bottom edge at 2.7ft and the top at 5.3ft -- straddling a 5ft student's
 // eye line, which is where a real information kiosk puts its screen.
@@ -211,7 +233,8 @@ function parkLayout() {
   // --- The pond -----------------------------------------------------------
   // Radius 15, not 20: the pond's reed margin sits at ~1.0x its radius, and at 20 those
   // cattails came up through the floor of the Overlook shelter 25ft away.
-  items.push(prop('park-pond', -52, -40, { options: { radius: 15, seed: 23 } }));
+  items.push(prop('park-pond', -52, -40, { options: { radius: 15, seed: 23, geese: false } }));
+  items.push(prop('pond-geese', -52, -40, { rotY: 0.4, options: { spread: 4.5 } }));
   items.push(prop('bench', -33, -31, { rotY: -2.4 }));
   items.push(
     prop('info-placard', -24, -28, {
@@ -388,6 +411,40 @@ function parkLayout() {
     })
   );
 
+  // --- Activities ---------------------------------------------------------
+  items.push(
+    activity(-40, -56, {
+      number: 1,
+      rotY: -2.5,
+      accent: '#2f8f5b',
+      title: 'Send the geese out for a paddle',
+      target: 'Click a goose → Program. (They are one object, so they paddle together.)',
+      steps: [
+        ctrlStep('forever'),
+        ctrlStep('repeat 20 times', 1),
+        moveStep('move X by 0.3 feet', 2),
+        ctrlStep('repeat 20 times', 1),
+        moveStep('move X by -0.3 feet', 2),
+      ],
+      tip: 'Out six feet, back six feet, over and over. Drop a wait 0.1 seconds inside each loop to slow them to a proper glide — geese are never in a hurry.',
+    })
+  );
+  items.push(
+    activity(24, -42, {
+      number: 2,
+      rotY: -0.9,
+      accent: '#c2521f',
+      title: 'Grow the maple from a sapling',
+      target: 'Click the big maple tree → Program.',
+      steps: [
+        ctrlStep('repeat 12 times'),
+        lookStep('change size by 8 %', 1),
+        ctrlStep('wait 0.2 seconds', 1),
+      ],
+      tip: 'Watch closely: 8% of a big tree is more than 8% of a small one, so it speeds up as it goes. That is what growth really does. Use -7 % to shrink it back down.',
+    })
+  );
+
   // --- Lighting -----------------------------------------------------------
   // Light orbs where the park genuinely goes dark: deep under the shelter roof, inside
   // the bear dens' alcoves, under the bandstand dome, and beneath the bridge arch.
@@ -517,6 +574,36 @@ function museumLayout() {
     items.push(orb(x, z, MUSEUM_FLOOR + 11, ORB_WARM));
   }
 
+  items.push(
+    activity(10, -34, {
+      number: 1,
+      y: MUSEUM_FLOOR,
+      rotY: -0.7,
+      accent: '#6b3fa0',
+      title: 'Set the mobile turning',
+      target: 'Click the hanging mobile → Program.',
+      steps: [ctrlStep('forever'), moveStep('rotate 2 degrees', 1)],
+      tip: 'Two degrees a frame is a slow, gallery-ish drift. Try 10 for a fairground spin, or 0.5 if you want visitors to wonder whether it is moving at all.',
+    })
+  );
+  items.push(
+    activity(-7, -36, {
+      number: 2,
+      y: MUSEUM_FLOOR,
+      rotY: 0.6,
+      accent: '#0f7d8c',
+      title: 'Make the glass study change colour',
+      target: 'Click the coloured glass sculpture → Program.',
+      steps: [
+        ctrlStep('forever'),
+        lookStep('change color to blue', 1),
+        ctrlStep('wait 1 seconds', 1),
+        lookStep('change color to red', 1),
+        ctrlStep('wait 1 seconds', 1),
+      ],
+      tip: 'Colour Field painters spent whole careers on how two colours sit next to each other. Pick your two and see which pair you cannot stop looking at.',
+    })
+  );
   items.push(prop('bench', -8, -29, { y: MUSEUM_FLOOR, rotY: Math.PI / 2 }));
   items.push(prop('bench', 8, -29, { y: MUSEUM_FLOOR, rotY: -Math.PI / 2 }));
 
@@ -666,6 +753,38 @@ function libraryLayout() {
 
   items.push(prop('library-globe', 21, -20, { y: floor }));
   items.push(prop('book-cart', 8, -28, { y: floor, rotY: 0.6 }));
+  items.push(
+    activity(12, -19, {
+      number: 1,
+      y: floor,
+      rotY: -0.5,
+      accent: '#8a5a1e',
+      title: 'Send the book cart back to the stacks',
+      target: 'Click the book cart → Program.',
+      steps: [
+        ctrlStep('forever'),
+        ctrlStep('repeat 15 times', 1),
+        moveStep('move Z by -1 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+        ctrlStep('repeat 15 times', 1),
+        moveStep('move Z by 1 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+      ],
+      tip: 'Notice the second loop uses MINUS one foot. Turning the cart round does not change which way move Z pushes it — you have to flip the number yourself.',
+    })
+  );
+  items.push(
+    activity(23, -31, {
+      number: 2,
+      y: floor,
+      rotY: -0.6,
+      accent: '#1f6b8a',
+      title: 'Give the globe a spin',
+      target: 'Click the globe → Program.',
+      steps: [ctrlStep('forever'), moveStep('rotate 1 degrees', 1)],
+      tip: 'The real Earth manages one full turn a day. See if you can find a number that looks convincing rather than dizzying — and remember the globe is tilted, so it will wobble like the real thing.',
+    })
+  );
   items.push(prop('story-rug', 19, -48, { y: floor }));
   items.push(
     prop('info-placard', 19, -41, {
@@ -758,6 +877,36 @@ function moonLayout() {
   items.push(prop('lunar-plaque', 7, -16, { rotY: 0.2 }));
   items.push(prop('alsep-station', -24, -33, { rotY: 0.5 }));
 
+  items.push(
+    activity(27, -10, {
+      number: 1,
+      rotY: -0.8,
+      accent: '#2f6bd6',
+      title: 'Take the buggy out for rock samples',
+      target: 'Click the Moon buggy → Program.',
+      steps: [
+        ctrlStep('forever'),
+        ctrlStep('repeat 12 times', 1),
+        moveStep('move X by 0.5 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+        ctrlStep('repeat 12 times', 1),
+        moveStep('move X by -0.5 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+      ],
+      tip: 'Six feet out, turn, six feet home. The real crews were never allowed to drive further than they could WALK back if it broke down — so keep your loops short.',
+    })
+  );
+  items.push(
+    activity(10, 2, {
+      number: 2,
+      rotY: -0.3,
+      accent: '#b8471f',
+      title: 'Set the Earth turning',
+      target: 'Look up, click the Earth → Program.',
+      steps: [ctrlStep('forever'), moveStep('rotate 0.5 degrees', 1)],
+      tip: 'From here the Earth never rises and never sets — the Moon keeps one face toward us, so it just hangs there. It does still turn, though. One full spin every 24 hours.',
+    })
+  );
   items.push(prop('bootprint-trail', 6, -14, { rotY: 0.35, options: { count: 10, seed: 5 } }));
   items.push(prop('bootprint-trail', -7, -12, { rotY: -0.5, options: { count: 8, seed: 8 } }));
   items.push(prop('bootprint-trail', 12, -26, { rotY: 1.3, options: { count: 9, seed: 13 } }));
@@ -994,7 +1143,47 @@ function marsLayout() {
   // arrives standing in them and can follow them to the machine that made them.
   items.push(prop('mars-rover', 28, 22, { rotY: -0.9 }));
   items.push(prop('rover-tracks', 10, 36, { rotY: -0.9, options: { count: 20, seed: 7 } }));
+  items.push(
+    activity(36, 28, {
+      number: 1,
+      rotY: -2.3,
+      accent: '#c2521f',
+      title: 'Send the rover out on survey',
+      target: 'Click the six-wheeled rover → Program.',
+      steps: [
+        ctrlStep('forever'),
+        ctrlStep('repeat 20 times', 1),
+        moveStep('move Z by -0.4 feet', 2),
+        ctrlStep('wait 0.1 seconds', 2),
+        moveStep('rotate 180 degrees', 1),
+        ctrlStep('repeat 20 times', 1),
+        moveStep('move Z by 0.4 feet', 2),
+        ctrlStep('wait 0.1 seconds', 2),
+        moveStep('rotate 180 degrees', 1),
+      ],
+      tip: 'Real Mars rovers crawl. Curiosity averages about 100 feet an HOUR, because every step has to be checked from Earth first — and Earth is up to 22 light-minutes away.',
+    })
+  );
   items.push(prop('mars-helicopter', 16, 30, { rotY: 0.5 }));
+  items.push(
+    activity(8, 42, {
+      number: 2,
+      rotY: 0.3,
+      accent: '#1f6b8a',
+      title: 'Fly the scout copter',
+      target: 'Click the little helicopter → Program.',
+      steps: [
+        ctrlStep('forever'),
+        ctrlStep('repeat 10 times', 1),
+        moveStep('move Y by 0.4 feet', 2),
+        ctrlStep('wait 0.1 seconds', 2),
+        ctrlStep('repeat 10 times', 1),
+        moveStep('move Y by -0.4 feet', 2),
+        ctrlStep('wait 0.1 seconds', 2),
+      ],
+      tip: 'Up four feet, hover, back down. move Y is the only block that goes UP — and on Mars getting off the ground is the hard part, because there is barely any air for the blades to push against.',
+    })
+  );
 
   // --- Landscape ----------------------------------------------------------
   items.push(prop('dust-devil', -76, -70, { options: { height: 46, radius: 7 } }));
@@ -1227,6 +1416,45 @@ function dinosaurLayout() {
   items.push(prop('ankylosaurus', -24, -32, { rotY: 2.4 }));
   items.push(prop('pachycephalosaurus', 16, -21, { rotY: -1.25 }));
   items.push(prop('dino-nest', -13, -45, { rotY: 0.6 }));
+
+  items.push(
+    activity(-12, -8, {
+      number: 1,
+      rotY: 0.9,
+      accent: '#2f8f5b',
+      title: 'Set the Triceratops grazing',
+      target: 'Click the Triceratops → Program.',
+      steps: [
+        ctrlStep('forever'),
+        ctrlStep('repeat 15 times', 1),
+        moveStep('move X by 1 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+        ctrlStep('repeat 15 times', 1),
+        moveStep('move X by -1 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+      ],
+      tip: 'Fifteen feet out across the clearing, turn, fifteen feet back — a browsing animal working a patch of ferns. Add wait 0.3 seconds inside the loops and it stops to chew.',
+    })
+  );
+  items.push(
+    activity(6, -70, {
+      number: 2,
+      rotY: -0.1,
+      accent: '#6b3fa0',
+      title: 'Put the Quetzalcoatlus on patrol',
+      target: 'Look up, click the pterosaur → Program.',
+      steps: [
+        ctrlStep('forever'),
+        ctrlStep('repeat 40 times', 1),
+        moveStep('move X by 0.5 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+        ctrlStep('repeat 40 times', 1),
+        moveStep('move X by -0.5 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+      ],
+      tip: 'A 33-foot wingspan does not flap much — it soars. Long, slow, steady passes look far more right than anything quick. Try adding move Y to make it ride a thermal.',
+    })
+  );
 
   // A pterosaur overhead. Held at about 46ft: high enough to read as flying, low enough
   // that its shadow still crosses the ground where students are walking.
@@ -1489,6 +1717,25 @@ function voyageLayout() {
   items.push(...browserStation(-9, 73, { faceX: 0, faceZ: 82 }));
 
   items.push(prop('micro-sub', 18, 60, { rotY: -0.6 }));
+  items.push(
+    activity(8, 66, {
+      number: 2,
+      rotY: -0.35,
+      accent: '#0f7d8c',
+      title: 'Launch the micro-sub',
+      target: 'Click the submarine → Program.',
+      steps: [
+        ctrlStep('forever'),
+        ctrlStep('repeat 30 times', 1),
+        moveStep('move Z by -0.8 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+        ctrlStep('repeat 30 times', 1),
+        moveStep('move Z by 0.8 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+      ],
+      tip: 'Twenty-four feet down the hall and back. Swallowable pill-sized cameras have been doing the real version of this trip since 2001 — no crew, but a very long journey.',
+    })
+  );
   placard(
     10,
     51,
@@ -1651,6 +1898,23 @@ function voyageLayout() {
   );
   items.push(orb(-6, -25, 9, ORB_ROSE));
   items.push(orb(6, -25, 9, ORB_ROSE));
+  items.push(
+    activity(-13, -24, {
+      number: 1,
+      rotY: 0.55,
+      accent: '#b8324a',
+      title: 'Make the heart beat',
+      target: 'Click the heart → Program.',
+      steps: [
+        ctrlStep('repeat 12 times'),
+        lookStep('change size by 6 %', 1),
+        ctrlStep('wait 0.3 seconds', 1),
+        lookStep('change size by -6 %', 1),
+        ctrlStep('wait 0.3 seconds', 1),
+      ],
+      tip: 'Squeeze, rest, squeeze, rest — about 100,000 times a day without a single break. Watch carefully and the heart ends up a shade smaller than it started: +6% then -6% does not quite cancel out. Percentages are sneaky like that.',
+    })
+  );
   items.push(prop('bench', -9, -30, { rotY: 0.3 }));
   items.push(prop('bench', 9, -30, { rotY: -0.3 }));
 

@@ -23,6 +23,7 @@ export const PROP_BUILDERS = {
   'lamp-post': Common.lampPost,
   planter: Common.planter,
   'shade-tree': Common.shadeTree,
+  'activity-board': Common.activityBoard,
   'browser-kiosk': Common.browserKiosk,
 
   // Museum
@@ -131,6 +132,7 @@ export const PROP_BUILDERS = {
   bandstand: Park.bandstand,
   'park-pavilion': Park.parkPavilion,
   'park-pond': Park.parkPond,
+  'pond-geese': Park.pondGeese,
   'stone-fountain': Park.stoneFountain,
   'stone-arch-bridge': Park.stoneArchBridge,
   'stone-steps': Park.stoneSteps,

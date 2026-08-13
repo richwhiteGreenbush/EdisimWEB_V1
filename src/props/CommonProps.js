@@ -12,7 +12,9 @@ import {
   seededRandom,
   randomIn,
   relief,
+  wrapText,
 } from '../PropKit.js';
+import { CATEGORIES } from '../BlockDefs.js';
 
 // Props shared by more than one preset world: the info placards that carry each
 // world's teaching text, plain signage, benches, and lamp posts.
@@ -236,6 +238,121 @@ export function shadeTree({ height = 22, seed = 4, leafColor = 0x4c7d33, trunkCo
   // compromise -- a flat-shaded blob is the one part of this tree that most gives away
   // that it was generated.
   return group(mergedMesh(parts, { roughness: 0.9, flatShading: true, ...relief('bark', { seed, repeat: 3 }) }));
+}
+
+// A "your turn" board: a big, bright sign setting a programming challenge for one
+// particular object in the world, with the exact blocks to snap together.
+//
+// Deliberately loud, and deliberately unlike infoPlacard. A placard is a museum label —
+// cream card, brown rule, read it if you like. This is a call to action, and it has to
+// win against a T. rex or a heart the size of a car for a student's attention, so it is
+// twice the size, chest-height on two posts, and led by a saturated colour band.
+//
+// The step chips are coloured from `CATEGORIES` in BlockDefs.js, NOT from a copy of
+// those hex values. That import is the whole trick of this prop: the orange chip on the
+// sign is the same orange as the `repeat` block the student is about to go and drag, so
+// the sign is teaching the palette at the same time as the task. Redefining the colours
+// locally would let the two drift apart silently, which is exactly the confusion this is
+// meant to prevent.
+export function activityBoard({
+  number = 1,
+  title = 'Your turn',
+  target = '',
+  steps = [],
+  tip = '',
+  accent = '#ff7a3d',
+  width = 6.4,
+  height = 5.5,
+  postHeight = 9,
+} = {}) {
+  const post = standard({ color: 0x39332b, roughness: 0.7, metalness: 0.3, ...relief('metal', { seed: 97, repeat: 3 }) });
+  const g = group();
+
+  // Posts OUTSIDE the panel, not tucked inside its edges the way standingSign puts
+  // them. That works there because its text is centred; here every line is left-aligned
+  // and starts a few inches in from the edge, so an inset post stands directly in front
+  // of the first character of every single line.
+  const inset = width / 2 + 0.28;
+  g.add(cyl(0.17, 0.22, postHeight, post, -inset, postHeight / 2, 0, 12));
+  g.add(cyl(0.17, 0.22, postHeight, post, inset, postHeight / 2, 0, 12));
+
+  const texture = canvasTexture(1024, 880, (ctx, w, h) => {
+    const round = (x, y, rw, rh, r) => {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + rw, y, x + rw, y + rh, r);
+      ctx.arcTo(x + rw, y + rh, x, y + rh, r);
+      ctx.arcTo(x, y + rh, x, y, r);
+      ctx.arcTo(x, y, x + rw, y, r);
+      ctx.closePath();
+    };
+
+    ctx.fillStyle = '#fdfaf3';
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 16;
+    ctx.strokeRect(8, 8, w - 16, h - 16);
+
+    // Header band.
+    ctx.fillStyle = accent;
+    ctx.fillRect(16, 16, w - 32, 116);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 52px "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText('⚡ ACTIVITY', 46, 94);
+    ctx.textAlign = 'right';
+    ctx.font = 'bold 62px "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText(String(number), w - 46, 98);
+    ctx.textAlign = 'left';
+
+    let y = 208;
+    ctx.fillStyle = '#241f1a';
+    ctx.font = 'bold 50px Georgia, "Times New Roman", serif';
+    y = wrapText(ctx, title, 46, y, w - 92, 58);
+
+    if (target) {
+      ctx.fillStyle = '#5d5348';
+      ctx.font = '30px "Helvetica Neue", Arial, sans-serif';
+      y = wrapText(ctx, target, 46, y + 26, w - 92, 38) + 14;
+    }
+
+    // The blocks, drawn as the chips they will look like in the editor. Indented by
+    // depth, because a student's first real difficulty with a C-block is not knowing
+    // that "inside" is a place.
+    for (const step of steps) {
+      const depth = step.depth || 0;
+      const x = 46 + depth * 40;
+      ctx.font = 'bold 30px "Helvetica Neue", Arial, sans-serif';
+      const chipWidth = Math.min(w - 92 - depth * 40, ctx.measureText(step.text).width + 52);
+      const fill = CATEGORIES[step.cat]?.fill || '#8d8d8d';
+      const dark = CATEGORIES[step.cat]?.dark || '#5f5f5f';
+      ctx.fillStyle = dark;
+      round(x, y + 5, chipWidth, 52, 16);
+      ctx.fill();
+      ctx.fillStyle = fill;
+      round(x, y, chipWidth, 52, 16);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(step.text, x + 26, y + 36);
+      y += 66;
+    }
+
+    if (tip) {
+      const top = Math.max(y + 16, h - 132);
+      ctx.fillStyle = 'rgba(0,0,0,0.055)';
+      round(30, top, w - 60, h - top - 30, 18);
+      ctx.fill();
+      ctx.fillStyle = '#4a4137';
+      ctx.font = 'italic 27px Georgia, "Times New Roman", serif';
+      wrapText(ctx, tip, 56, top + 46, w - 112, 34);
+    }
+  });
+
+  const panelY = postHeight - height / 2 - 0.5;
+  const panel = signPanel(width, height, texture);
+  panel.position.set(0, panelY, 0.001);
+  g.add(box(width + 0.16, height + 0.16, 0.12, post, 0, panelY, -0.07), panel);
+
+  return g;
 }
 
 // The stand a web browser panel sits on.
