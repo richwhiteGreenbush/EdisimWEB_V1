@@ -133,6 +133,10 @@ export class VRView {
     this.xrCamera = new THREE.PerspectiveCamera(70, 1, 0.1, 1000);
     this.dolly.add(this.xrCamera);
 
+    // Eye-height calibration for the headset path. See calibrateEyeHeight().
+    this.eyeHeightOffset = 0;
+    this.eyeHeightSamples = [];
+
     this.setupControllers();
 
     // Head-look for the stereo path. A proxy camera rather than the player's own, for
@@ -390,6 +394,10 @@ export class VRView {
     session.addEventListener('end', this.onSessionEnd);
     await this.renderer.xr.setSession(session);
 
+    // A fresh session is a fresh wearer: throw away whatever the last one measured.
+    this.eyeHeightOffset = 0;
+    this.eyeHeightSamples = [];
+
     this.scene.add(this.dolly);
     this.showMenu();
     this.mode = 'xr';
@@ -556,6 +564,47 @@ export class VRView {
   // Per-frame
   // ---------------------------------------------------------------------------
 
+  // Works out how far to sink or lift the dolly so the wearer's eyes land at EYE_HEIGHT.
+  //
+  // Without this, the eye height in a headset is whoever happens to be wearing it: the
+  // dolly sits on the floor and `local-floor` adds the person's real head height on top,
+  // so a tall adult stands at 5.9ft, a seated student at 3.9ft, and a 12-year-old at 4.9.
+  // Worse, `local-floor` is only an OPTIONAL feature of the session — if the runtime
+  // declines it the pose is measured from wherever the headset was when the session
+  // began, which on a desk or in someone's hands puts the eyes at ground level and the
+  // whole world towering overhead. Every other mode in this app is a 5ft person, and the
+  // sizes in these worlds are calibrated against exactly that: "the T. rex's hip is
+  // taller than a grown-up" is only true from 5ft.
+  //
+  // A CONSTANT offset, measured once, rather than clamping the height every frame.
+  // Clamping would also cancel out ducking, leaning and crouching — the very things a
+  // headset is for. Calibrating instead means the wearer's standing height maps to 5ft
+  // and every movement away from standing still comes through at full size.
+  //
+  // The measurement is the tallest sample from the first second or so, because a wearer
+  // settles INTO position rather than out of it: the early frames catch them still
+  // lifting the headset on. Taking the max also makes a stray low reading harmless.
+  calibrateEyeHeight() {
+    if (this.eyeHeightSamples === null) return;
+
+    // Head height above the dolly's origin, in world feet. The XR camera's world matrix
+    // is written by WebXRManager during render(), so this is last frame's pose -- fine
+    // for a value that changes on the timescale of a person standing up.
+    const head = this.renderer.xr.getCamera().position.y - this.dolly.position.y;
+    if (!Number.isFinite(head)) return;
+    this.eyeHeightSamples.push(head);
+
+    if (this.eyeHeightSamples.length < 60) {
+      // Track the best guess as we go, so the first second is not spent at the wrong
+      // height waiting for the sample count to fill.
+      this.eyeHeightOffset = EYE_HEIGHT - Math.max(...this.eyeHeightSamples);
+      return;
+    }
+
+    this.eyeHeightOffset = EYE_HEIGHT - Math.max(...this.eyeHeightSamples);
+    this.eyeHeightSamples = null; // calibrated; stop sampling
+  }
+
   syncViewCameraLens() {
     this.viewCamera.fov = this.camera.fov;
     this.viewCamera.aspect = this.camera.aspect;
@@ -584,10 +633,13 @@ export class VRView {
       // right thing on the frame VR was left.
       if (this.mode !== 'xr') return false;
 
-      // local-floor puts the pose origin on the floor, so the dolly sits at the
-      // player's FEET rather than at their eyes -- the headset supplies the height.
+      // local-floor puts the pose origin on the floor, so the dolly sits at the player's
+      // FEET rather than at their eyes and the headset supplies the height -- corrected
+      // by eyeHeightOffset so that height comes out at EYE_HEIGHT whoever is wearing it.
+      // See calibrateEyeHeight().
+      this.calibrateEyeHeight();
       const position = this.camera.position;
-      this.dolly.position.set(position.x, position.y - EYE_HEIGHT, position.z);
+      this.dolly.position.set(position.x, position.y - EYE_HEIGHT + this.eyeHeightOffset, position.z);
       this.dolly.rotation.y = this.player.yaw;
       this.renderer.render(this.scene, this.xrCamera);
       return true;

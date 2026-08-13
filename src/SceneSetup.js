@@ -20,7 +20,11 @@ const groundDetail = new Map();
 function groundDetailFor(file) {
   if (!groundDetail.has(file)) {
     groundDetail.set(file, {
-      map: photoMap(file, { repeat: GROUND_DETAIL_REPEAT, neutralize: GROUND_DETAIL_STRENGTH }),
+      // luminance: the photo contributes brightness variation ONLY, never hue. Keeping
+      // its relative channel differences left mossy patches in the source showing
+      // through as green on the Moon and Mars; the world theme owns the ground colour,
+      // and the photo's job is grain, grit and wear.
+      map: photoMap(file, { repeat: GROUND_DETAIL_REPEAT, neutralize: GROUND_DETAIL_STRENGTH, luminance: true }),
       // The SAME photo again, un-neutralized, as a height field. Neutralizing is what
       // keeps the photo's colour out of the theme's way, but a bump map wants its full
       // range -- flattening it toward white would flatten the relief with it. This is

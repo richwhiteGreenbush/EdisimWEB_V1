@@ -76,9 +76,13 @@ function loadImage(url) {
 // -- blades, grit, pebbles, wear, at several scales at once. `strength` damps how far the
 // variation swings; 1.0 keeps the photo's full relative range, 0 returns flat white.
 //
-// Per channel rather than by luminance on purpose. A single luminance divisor would leave
-// the photo's overall colour CAST intact, which is exactly the green-Mars problem.
-function neutralized(image, strength) {
+// `luminance` goes one step further and throws the photo's colour away entirely before
+// normalising, leaving only brightness variation. Normalising per channel removes the
+// average cast but keeps the RELATIVE differences between channels, so a mossy patch in
+// a photograph stays greener than the grit around it -- which is fine on grass and quite
+// wrong on the Moon, where it left the regolith faintly mottled with green. For the
+// terrain the theme should own the colour completely, and this is how it gets to.
+function neutralized(image, strength, luminance = false) {
   const canvas = document.createElement('canvas');
   canvas.width = image.naturalWidth || image.width;
   canvas.height = image.naturalHeight || image.height;
@@ -87,6 +91,16 @@ function neutralized(image, strength) {
 
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const px = data.data;
+
+  // Rec. 709 luma -- weighted, not a flat average of the channels, because the eye is
+  // far more sensitive to green than to blue and a flat average visibly darkens foliage.
+  if (luminance) {
+    for (let i = 0; i < px.length; i += 4) {
+      const y = 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2];
+      px[i] = px[i + 1] = px[i + 2] = y;
+    }
+  }
+
   const totals = [0, 0, 0];
   for (let i = 0; i < px.length; i += 4) {
     totals[0] += px[i];
@@ -155,7 +169,7 @@ function composited(image, overlay, neutralize, tiles) {
 // When one is given, the returned texture starts out showing the OVERLAY ALONE rather
 // than white, so the surface looks correct from the first frame and simply gains
 // photographic depth a moment later when the image lands.
-export function photoMap(file, { repeat = 1, repeatY = null, neutralize = 0, anisotropy = 8, overlay = null, overlayTiles = 1, data = false } = {}) {
+export function photoMap(file, { repeat = 1, repeatY = null, neutralize = 0, luminance = false, anisotropy = 8, overlay = null, overlayTiles = 1, data = false } = {}) {
   const texture = new THREE.Texture(overlay || getWhitePixel());
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
@@ -171,7 +185,7 @@ export function photoMap(file, { repeat = 1, repeatY = null, neutralize = 0, ani
     texture.image = overlay
       ? composited(image, overlay, neutralize, overlayTiles)
       : neutralize > 0
-        ? neutralized(image, neutralize)
+        ? neutralized(image, neutralize, luminance)
         : image;
     texture.needsUpdate = true;
   });

@@ -548,6 +548,15 @@ Four things hold it together:
   every caller still owns its own Texture. (The ground mesh is the one exception: it is
   created once and mutated in place forever, never disposed, so `SceneSetup` caches its
   detail textures per file.)
+- **The terrain's ground maps are converted to pure LUMINANCE first** (`luminance: true`,
+  Rec. 709 weights). Normalising per channel removes a photo's average colour cast but
+  keeps the *relative* differences between channels, so a mossy patch in the source stays
+  greener than the grit around it — fine on grass, and quite wrong on the Moon, where it
+  left the regolith visibly mottled with green. Discarding hue entirely means the theme's
+  ramp owns the ground colour completely and the photo contributes only grain, grit and
+  wear, which is the whole reason it is there. Rec. 709 weights rather than a flat channel
+  average: the eye is far more sensitive to green, and a flat average visibly darkens
+  foliage.
 - **`neutralized()` is what lets a photo coexist with `vertexColors`.** The terrain is
   vertex-coloured from each theme's `groundLow`/`groundHigh` ramp, and a material with
   both a `map` and `vertexColors` multiplies them — dropping a grass photo straight on
@@ -1059,6 +1068,25 @@ Five things this got wrong first, four of them only visible once actually driven
 - **VR offsets have to be far smaller than the flat UI's.** Split side-by-side, each eye
   gets roughly 32° either side of centre, so the flat menu's "up in the corner" placement
   (~24° left, ~18° up) put the panel off the edge of the frame entirely.
+
+**Eye height is 5ft in every mode, and in a headset that takes calibration.** Flat and
+stereo both put the camera at `EYE_HEIGHT` because both read `PlayerController`'s camera
+directly. XR cannot: the dolly sits on the floor and `local-floor` adds the WEARER's real
+head height on top, so a tall adult stood at 5.9ft, a seated student at 3.9ft, and — since
+`local-floor` is only an *optional* session feature — a runtime that declines it measures
+from wherever the headset was at session start, which on a desk puts the eyes at ground
+level with the world towering overhead. Every size in these worlds is calibrated against a
+5ft person ("the T. rex's hip is taller than a grown-up" is only true from 5ft), so
+`calibrateEyeHeight()` measures the head's height above the dolly and sinks or lifts the
+dolly by the difference.
+
+It is a **constant offset measured once**, not a per-frame clamp. Clamping would also
+cancel out ducking, leaning and crouching — the very things a headset is for. Calibrating
+maps the wearer's standing height to 5ft and lets every movement away from standing come
+through at full size. The measurement is the *tallest* sample from the first ~60 frames,
+because a wearer settles into position rather than out of it (the first frames catch them
+still lifting the headset on), and because taking the max makes a stray low reading
+harmless — including the zero-valued first frame before any pose exists.
 
 **Two teardown races that only exist because the animate loop never stops.** `exit()`
 awaits `session.end()` and `exitFullscreen()`, and `render()` keeps being called straight
