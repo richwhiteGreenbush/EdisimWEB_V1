@@ -119,15 +119,28 @@ function neutralized(image, strength) {
 // It also makes the fallback exact rather than merely acceptable: with no photo present
 // the composite is the canvas over plain white, which is precisely what the floor
 // rendered before any of this existed.
-function composited(image, overlay, neutralize) {
+// `tiles` lets the photo repeat WITHIN one overlay tile, which matters wherever the
+// overlay does not tile at all. The Mars deck is the case: its canvas is one circular
+// layout drawn once across a 44ft floor, so at tiles=1 the photograph is stretched to
+// 44ft too and turns to mush. Tiling it 6x inside the same composite gives the plate a
+// ~7ft repeat while the hazard ring and the MUSTER marking stay exactly where they were
+// drawn. The composite is rendered at 2048 in that case so the photo copies are not
+// squeezed into a few hundred pixels each.
+function composited(image, overlay, neutralize, tiles) {
   const base = neutralize > 0 ? neutralized(image, neutralize) : image;
+  const size = tiles > 1 ? 2048 : overlay.width;
   const canvas = document.createElement('canvas');
-  canvas.width = overlay.width;
-  canvas.height = overlay.height;
+  canvas.width = size;
+  canvas.height = size;
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(base, 0, 0, canvas.width, canvas.height);
+
+  const step = size / tiles;
+  for (let y = 0; y < tiles; y++) {
+    for (let x = 0; x < tiles; x++) ctx.drawImage(base, x * step, y * step, step, step);
+  }
+
   ctx.globalCompositeOperation = 'multiply';
-  ctx.drawImage(overlay, 0, 0);
+  ctx.drawImage(overlay, 0, 0, size, size);
   return canvas;
 }
 
@@ -142,18 +155,24 @@ function composited(image, overlay, neutralize) {
 // When one is given, the returned texture starts out showing the OVERLAY ALONE rather
 // than white, so the surface looks correct from the first frame and simply gains
 // photographic depth a moment later when the image lands.
-export function photoMap(file, { repeat = 1, repeatY = null, neutralize = 0, anisotropy = 8, overlay = null } = {}) {
+export function photoMap(file, { repeat = 1, repeatY = null, neutralize = 0, anisotropy = 8, overlay = null, overlayTiles = 1, data = false } = {}) {
   const texture = new THREE.Texture(overlay || getWhitePixel());
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
   texture.repeat.set(repeat, repeatY ?? repeat);
-  texture.colorSpace = THREE.SRGBColorSpace;
+  // `data: true` for a bump/roughness map -- that is a height field, not colour, and
+  // putting it through the sRGB decode reshapes every value in it.
+  texture.colorSpace = data ? THREE.NoColorSpace : THREE.SRGBColorSpace;
   texture.anisotropy = anisotropy;
   texture.needsUpdate = true;
 
   loadImage(BASE + file).then((image) => {
     if (!image) return; // stays as the overlay alone -- i.e. exactly as it looked before
-    texture.image = overlay ? composited(image, overlay, neutralize) : neutralize > 0 ? neutralized(image, neutralize) : image;
+    texture.image = overlay
+      ? composited(image, overlay, neutralize, overlayTiles)
+      : neutralize > 0
+        ? neutralized(image, neutralize)
+        : image;
     texture.needsUpdate = true;
   });
 

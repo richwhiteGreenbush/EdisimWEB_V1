@@ -9,7 +9,7 @@ const GROUND_DETAIL_REPEAT = 60;
 // neutralized() in SurfaceTextures.js -- at 1.0 the photo's full relative range comes
 // through, and past about 0.6 the ground starts to read as the photo's material rather
 // than as the world's.
-const GROUND_DETAIL_STRENGTH = 0.55;
+const GROUND_DETAIL_STRENGTH = 0.8;
 
 // Ground detail maps are cached per FILE, not per theme, because several themes share
 // one: the park, museum, library and dinosaur worlds are all soil-and-growth, and the
@@ -19,7 +19,15 @@ const GROUND_DETAIL_STRENGTH = 0.55;
 const groundDetail = new Map();
 function groundDetailFor(file) {
   if (!groundDetail.has(file)) {
-    groundDetail.set(file, photoMap(file, { repeat: GROUND_DETAIL_REPEAT, neutralize: GROUND_DETAIL_STRENGTH }));
+    groundDetail.set(file, {
+      map: photoMap(file, { repeat: GROUND_DETAIL_REPEAT, neutralize: GROUND_DETAIL_STRENGTH }),
+      // The SAME photo again, un-neutralized, as a height field. Neutralizing is what
+      // keeps the photo's colour out of the theme's way, but a bump map wants its full
+      // range -- flattening it toward white would flatten the relief with it. This is
+      // what puts real grain under a student's feet; the rebalanced colour map alone is
+      // too washed out to read at standing height.
+      bumpMap: photoMap(file, { repeat: GROUND_DETAIL_REPEAT, data: true }),
+    });
   }
   return groundDetail.get(file);
 }
@@ -214,7 +222,10 @@ export function applyWorldTheme(themeName) {
   state.ground.material.roughness = theme.groundRoughness ?? 1;
   // A theme without a groundDetail file keeps the plain vertex-coloured ground it has
   // always had; `map = null` is the same no-op as the white stand-in.
-  state.ground.material.map = theme.groundDetail ? groundDetailFor(theme.groundDetail) : null;
+  const detail = theme.groundDetail ? groundDetailFor(theme.groundDetail) : null;
+  state.ground.material.map = detail?.map ?? null;
+  state.ground.material.bumpMap = detail?.bumpMap ?? null;
+  state.ground.material.bumpScale = detail ? 0.45 : 1;
   state.ground.material.needsUpdate = true;
 
   state.hemi.color.set(theme.hemiSky);

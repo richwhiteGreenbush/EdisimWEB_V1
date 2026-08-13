@@ -528,6 +528,23 @@ Four things hold it together:
   fallback exact rather than merely acceptable, since the composite degrades to the canvas
   alone.
 
+Three tuning rules, each learned the hard way:
+
+- **`neutralize` has to be set against how much the OVERLAY needs to stay readable, not
+  against how good the photo looks.** The library's boards and the Mars deck plate take
+  0.85 because their overlays are low-contrast seams. The museum floor takes **0.3**: its
+  overlay is the entire design of the room, and at 0.85 a high-contrast blue-grey marble
+  buried the checkerboard completely and the gallery came out looking like camouflage.
+- **`overlayTiles` exists for overlays that do not tile.** The Mars deck's canvas is one
+  circular layout drawn once across a 44ft floor, so at 1:1 the photograph was stretched
+  to 44ft as well and turned to mush. Tiling the photo 6× *inside* the composite gives the
+  plate a ~7ft repeat while the hazard ring and MUSTER marking stay where they were drawn.
+- **The terrain wants the photo TWICE** — neutralized as `map`, and again raw as
+  `bumpMap`. Neutralizing is what keeps the photo's colour out of the theme's way, but a
+  bump map wants the full range; flattening it toward white flattens the relief with it.
+  The rebalanced colour map on its own is too washed out to read at standing height, and
+  the bump is what actually puts grain under a student's feet.
+
 `photoMap` takes `repeat`/`repeatY` separately because the library floor tiles 24×18 — a
 scalar repeat stretches the boards.
 

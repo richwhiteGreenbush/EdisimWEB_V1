@@ -116,7 +116,14 @@ export function museumHall({ width = 44, depth = 34, wallHeight = 15 } = {}) {
         // The photo is composited UNDER the drawn checker, not swapped for it. A
         // checkerboard floor is a checkerboard because of its colour, so demoting the
         // canvas to bump alone would have thrown the pattern away and left grooves.
-        map: photoMap('marble.jpg', { repeat: 8, neutralize: 0.85, overlay: floorTexture.image }),
+        //
+        // A much lower neutralize than the other floors, and this is the general rule:
+        // the strength has to be set against how much the OVERLAY needs to stay
+        // readable. The library's boards and the Mars deck plate can take 0.85 because
+        // their overlays are low-contrast seams. Here the overlay is the entire design
+        // of the floor, and at 0.85 a high-contrast blue-grey marble buried the
+        // checkerboard completely -- the gallery floor came out looking like camouflage.
+        map: photoMap('marble.jpg', { repeat: 8, neutralize: 0.3, overlay: floorTexture.image }),
         bumpMap: floorTexture,
         bumpScale: 0.35,
         roughness: 0.28,

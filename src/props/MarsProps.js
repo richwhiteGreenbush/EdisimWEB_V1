@@ -248,7 +248,7 @@ export function habitationDome({ radius = 22, height = 20, wallHeight = 5, label
     standard({
       // Composited under the drawn deck, which carries the hazard ring and the painted
       // MUSTER marking -- neither of which survives being turned into relief.
-      map: photoMap('metal-deck.jpg', { repeat: 1, neutralize: 0.85, overlay: deck.image }),
+      map: photoMap('metal-deck.jpg', { repeat: 1, neutralize: 0.85, overlay: deck.image, overlayTiles: 6 }),
       bumpMap: deck,
       bumpScale: 0.5,
       roughness: 0.85,
