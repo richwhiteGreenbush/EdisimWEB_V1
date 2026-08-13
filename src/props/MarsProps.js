@@ -11,6 +11,7 @@ import {
   seededRandom,
   randomIn,
   roughenSphere,
+  relief,
 } from '../PropKit.js';
 import { moonCrater, moonRocks } from './MoonProps.js';
 
@@ -20,9 +21,11 @@ import { moonCrater, moonRocks } from './MoonProps.js';
 // to its apex and 44ft across, the rover is about 10ft long (twice the student's
 // height), and Ingenuity-class helicopter is barely knee-high.
 
-const HULL = () => standard({ color: 0xdedbd2, roughness: 0.55, metalness: 0.18 });
-const DARK = () => standard({ color: 0x3b3e44, roughness: 0.45, metalness: 0.7 });
-const TRIM = () => standard({ color: 0xb5502c, roughness: 0.6, metalness: 0.2 });
+// Painted hull plate, not bare metal -- fine orbital dust settles on everything here,
+// which is exactly what a low-amplitude relief on a big pale panel looks like.
+const HULL = () => standard({ color: 0xdedbd2, roughness: 0.55, metalness: 0.18, ...relief('metal', { seed: 37, repeat: 3, strength: 0.22 }) });
+const DARK = () => standard({ color: 0x3b3e44, roughness: 0.45, metalness: 0.7, ...relief('metal', { seed: 43, repeat: 3 }) });
+const TRIM = () => standard({ color: 0xb5502c, roughness: 0.6, metalness: 0.2, ...relief('metal', { seed: 47, repeat: 4 }) });
 // Kept only lightly metallic with a standing emissive floor, for the same reason the
 // Moon's arrays are: at high metalness a panel has almost no diffuse response and
 // renders as a black slab whenever it is not facing the sun.

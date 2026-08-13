@@ -1,4 +1,5 @@
 import { applyWorldTheme } from './SceneSetup.js';
+import { WEB_BROWSER_DEFAULT_URL } from './config.js';
 
 // The ready-made worlds behind Menu > Load World.
 //
@@ -49,6 +50,32 @@ function asset(kind, x, z, { height, y = 0, rotY = 0 } = {}) {
   return { kind, x, z, y, rotY, height };
 }
 
+// Feet from the ground to the CENTRE of a browser panel. WEB_BROWSER_HEIGHT is 2.6, so
+// this puts the bottom edge at 2.7ft and the top at 5.3ft -- straddling a 5ft student's
+// eye line, which is where a real information kiosk puts its screen.
+const BROWSER_CENTRE_Y = 4;
+
+// A live web browser panel on a stand, placed so a student walks straight into it.
+//
+// TWO records, not one: the panel (a `web-browser`, rebuilt from nothing but its URL)
+// and the kiosk under it (an ordinary `preset-prop`). They are deliberately separate
+// objects -- a browser panel is one bezel mesh that the whole Size/Move/Program and
+// persistence machinery already understands, and folding scenery into it would mean
+// every one of those paths growing a special case for this one kind.
+//
+// `faceX`/`faceZ` is what the panel turns to face, normally the world's spawn point.
+// Both the panel and the stand take that same yaw, since the stand's surround is built
+// around the panel's own plane.
+function browserStation(x, z, { faceX = 0, faceZ = 0, url = WEB_BROWSER_DEFAULT_URL } = {}) {
+  // atan2(dx, dz), not atan2(dz, dx): a plain Object3D's +Z is its facing direction,
+  // and the bezel's PlaneGeometry is authored in the XY plane looking down +Z.
+  const rotY = Math.atan2(faceX - x, faceZ - z);
+  return [
+    prop('browser-kiosk', x, z, { rotY, options: { centreY: BROWSER_CENTRE_Y } }),
+    { kind: 'web-browser', x, z, y: BROWSER_CENTRE_Y, rotY, url },
+  ];
+}
+
 // ---------------------------------------------------------------------------
 // The Park -- the world a new visitor lands in
 // ---------------------------------------------------------------------------
@@ -66,21 +93,27 @@ function parkLayout() {
 
   // --- Entrance -----------------------------------------------------------
   items.push(prop('park-gate', 0, -2, { options: { name: 'FRANKLIN PARK', opening: 16 } }));
-  items.push(prop('map-kiosk', -12, -8, { rotY: 0.5 }));
+  items.push(prop('map-kiosk', -25, -8, { rotY: 0.5 }));
+
+  // A live web browser on the lawn a few paces inside the spawn point, so the first
+  // thing a student can walk up to and use is the project's own site.
+  items.push(...browserStation(-8, 6, { faceX: 0, faceZ: 16 }));
 
   // The project's own billboard image, reused as the park's welcome banner. Sized by
   // HEIGHT, and this image is a very wide banner -- at 6ft tall it comes out roughly
   // 24ft across and swallows the whole entrance. 3ft tall is about 12ft wide, which
   // reads as a sign rather than a wall.
-  items.push(asset('startup-billboard', 20, -3, { rotY: -0.7, height: 3 }));
+  items.push(asset('startup-billboard', 24, -4, { rotY: -0.7, height: 3 }));
 
-  // The little library .obj as the nature centre. It is a wide, low building, so
-  // normalizing it to a 15ft ridge gives it a 45ft-square footprint -- big enough to
-  // swallow the entrance. Held to 12ft and set well back off the path instead.
-  items.push(asset('startup-library', -48, -4, { rotY: 0.9, height: 12 }));
+  // The nature centre. This was the downloaded little-library .obj until it was
+  // replaced by a purpose-built one -- see natureCentre() in ParkProps.js for why. At
+  // this yaw the building occupies roughly x -63..-32 and z -15..20, with its porch
+  // facing east back toward the gate, so everything else out here is held clear of that
+  // box and of the pond's bank.
+  items.push(prop('nature-centre', -50, 2, { rotY: 1.3 }));
   items.push(
-    prop('info-placard', -30, -12, {
-      rotY: 0.9,
+    prop('info-placard', -30, 6, {
+      rotY: 1.3,
       options: {
         eyebrow: 'Nature centre',
         title: 'Start your visit here',
@@ -90,7 +123,7 @@ function parkLayout() {
   );
 
   items.push(
-    prop('info-placard', -6, -11, {
+    prop('info-placard', -13, -13, {
       rotY: 0.4,
       options: {
         eyebrow: 'Welcome',
@@ -100,7 +133,7 @@ function parkLayout() {
     })
   );
   items.push(
-    prop('info-placard', 6, -11, {
+    prop('info-placard', 13, -13, {
       rotY: -0.4,
       options: {
         eyebrow: 'The Emerald Necklace',
@@ -110,9 +143,9 @@ function parkLayout() {
     })
   );
 
-  items.push(prop('drinking-fountain', 11, -15));
-  items.push(prop('flower-bed', -10, -18, { options: { width: 11, depth: 5, seed: 7 } }));
-  items.push(prop('flower-bed', 10, -18, { options: { width: 11, depth: 5, seed: 8 } }));
+  items.push(prop('drinking-fountain', 20, -17));
+  items.push(prop('flower-bed', -16, -22, { options: { width: 11, depth: 5, seed: 7 } }));
+  items.push(prop('flower-bed', 16, -22, { options: { width: 11, depth: 5, seed: 8 } }));
 
   // --- The main path ------------------------------------------------------
   for (const z of [-12, -26, -40, -54]) {
@@ -145,25 +178,25 @@ function parkLayout() {
     })
   );
 
-  items.push(prop('lamp-post', -8, -22));
-  items.push(prop('lamp-post', 8, -22));
-  items.push(prop('lamp-post', -8, -50));
-  items.push(prop('lamp-post', 8, -50));
-  items.push(prop('bench', -7, -32, { rotY: Math.PI / 2 }));
-  items.push(prop('bench', 7, -32, { rotY: -Math.PI / 2 }));
-  items.push(prop('bench', -7, -48, { rotY: Math.PI / 2 }));
-  items.push(prop('bench', 7, -48, { rotY: -Math.PI / 2 }));
+  items.push(prop('lamp-post', -11, -22));
+  items.push(prop('lamp-post', 11, -22));
+  items.push(prop('lamp-post', -11, -50));
+  items.push(prop('lamp-post', 11, -50));
+  items.push(prop('bench', -12, -30, { rotY: Math.PI / 2 }));
+  items.push(prop('bench', 12, -30, { rotY: -Math.PI / 2 }));
+  items.push(prop('bench', -12, -46, { rotY: Math.PI / 2 }));
+  items.push(prop('bench', 12, -46, { rotY: -Math.PI / 2 }));
 
   // --- Fountain plaza, just off the axis ----------------------------------
   items.push(prop('stone-fountain', -19, -25, { options: { radius: 6.5 } }));
-  items.push(prop('bench', -19, -34, { rotY: 0 }));
-  items.push(prop('planter', -28, -25));
+  items.push(prop('bench', -19, -37, { rotY: 0 }));
+  items.push(prop('planter', -32, -25));
   items.push(prop('planter', -19, -16));
 
   // --- The bandstand, closing the axis ------------------------------------
   items.push(prop('bandstand', 0, -70, { rotY: -Math.PI / 2 }));
   items.push(
-    prop('info-placard', 11, -62, {
+    prop('info-placard', 15, -63, {
       rotY: -0.7,
       options: {
         eyebrow: 'The bandstand',
@@ -172,16 +205,16 @@ function parkLayout() {
       },
     })
   );
-  items.push(prop('bench', -13, -66, { rotY: -1.2 }));
-  items.push(prop('bench', 13, -66, { rotY: 1.2 }));
+  items.push(prop('bench', -18, -68, { rotY: -1.2 }));
+  items.push(prop('bench', 18, -68, { rotY: 1.2 }));
 
   // --- The pond -----------------------------------------------------------
   // Radius 15, not 20: the pond's reed margin sits at ~1.0x its radius, and at 20 those
   // cattails came up through the floor of the Overlook shelter 25ft away.
   items.push(prop('park-pond', -52, -40, { options: { radius: 15, seed: 23 } }));
-  items.push(prop('bench', -34, -34, { rotY: -2.4 }));
+  items.push(prop('bench', -33, -31, { rotY: -2.4 }));
   items.push(
-    prop('info-placard', -32, -30, {
+    prop('info-placard', -29, -23, {
       rotY: -2.3,
       options: {
         eyebrow: 'Scarboro Pond',
@@ -190,15 +223,15 @@ function parkLayout() {
       },
     })
   );
-  items.push(prop('picnic-set', -62, -22, { rotY: 0.35 }));
-  items.push(prop('picnic-set', -68, -32, { rotY: -0.2 }));
+  items.push(prop('picnic-set', -66, -18, { rotY: 0.35 }));
+  items.push(prop('picnic-set', -74, -28, { rotY: -0.2 }));
 
   // The arch bridge straddles the west path, so students walk THROUGH it. Rotated a
   // quarter turn because the builder's arch opening runs along its local X while its
   // barrel runs along Z -- unrotated, the path would meet a solid abutment.
   items.push(prop('stone-arch-bridge', -26, -40, { rotY: Math.PI / 2, options: { span: 14, width: 8 } }));
   items.push(
-    prop('info-placard', -26, -30, {
+    prop('info-placard', -20, -29, {
       rotY: -0.2,
       options: {
         eyebrow: 'Separate ways',
@@ -212,7 +245,7 @@ function parkLayout() {
   items.push(prop('park-pavilion', -30, -72, { rotY: 0.35 }));
   items.push(prop('stone-steps', -28, -58, { options: { steps: 7, width: 9 } }));
   items.push(
-    prop('info-placard', -24, -60, {
+    prop('info-placard', -20, -55, {
       rotY: -0.9,
       options: {
         eyebrow: 'The Overlook',
@@ -225,7 +258,7 @@ function parkLayout() {
   // --- The great meadow and the Playstead ---------------------------------
   items.push(prop('playground', 34, -14));
   items.push(
-    prop('info-placard', 20, -12, {
+    prop('info-placard', 23, -8, {
       rotY: -0.5,
       options: {
         eyebrow: 'The playground',
@@ -240,7 +273,7 @@ function parkLayout() {
   // dirt of the infield straight on top of the bear dens.
   items.push(prop('ball-field', 58, -44, { rotY: -1.1, options: { baseline: 30 } }));
   items.push(
-    prop('info-placard', 46, -38, {
+    prop('info-placard', 43, -33, {
       rotY: -0.8,
       options: {
         eyebrow: 'The Playstead',
@@ -254,7 +287,7 @@ function parkLayout() {
   items.push(prop('wildflowers', 40, -32, { options: { radius: 7, count: 130, seed: 12 } }));
   items.push(prop('wildflowers', 18, -56, { options: { radius: 8, count: 150, seed: 13 } }));
   items.push(
-    prop('info-placard', 24, -35, {
+    prop('info-placard', 20, -29, {
       rotY: 0.3,
       options: {
         eyebrow: 'Pollinator meadow',
@@ -267,7 +300,7 @@ function parkLayout() {
   // --- Puddingstone -------------------------------------------------------
   items.push(prop('puddingstone-outcrop', 22, -70, { options: { size: 10, seed: 13 } }));
   items.push(
-    prop('info-placard', 15, -64, {
+    prop('info-placard', 13, -73, {
       rotY: 0.5,
       options: {
         eyebrow: 'Geology',
@@ -286,7 +319,7 @@ function parkLayout() {
   // now faces out along (sin 0.45, cos 0.45), so these sit up that way and face back
   // toward whoever is walking in.
   items.push(
-    prop('info-placard', 53, -70, {
+    prop('info-placard', 57, -66, {
       rotY: 0.45,
       options: {
         eyebrow: 'Historic structure',
@@ -295,7 +328,7 @@ function parkLayout() {
       },
     })
   );
-  items.push(prop('bench', 59, -73, { rotY: 0.45 }));
+  items.push(prop('bench', 64, -70, { rotY: 0.45 }));
 
   // --- Planting -----------------------------------------------------------
   // Perimeter woods and specimen trees. Kept to a modest count: each tree is several
@@ -306,7 +339,7 @@ function parkLayout() {
   // also kept clear of that side of the bear dens, whose deep arches are already the
   // darkest thing in the park and go pitch black under a tree shadow.
   const trees = [
-    ['shade-tree', -32, 10, 24, 4], ['shade-tree', 36, 6, 22, 9],
+    ['shade-tree', -24, 22, 24, 4], ['shade-tree', 36, 6, 22, 9],
     ['shade-tree', -72, -26, 26, 14], ['shade-tree', 48, -8, 23, 21],
     ['shade-tree', -70, -52, 25, 26], ['shade-tree', 70, -26, 24, 33],
     ['shade-tree', -22, -80, 26, 38], ['shade-tree', 20, -96, 23, 45],
@@ -339,13 +372,13 @@ function parkLayout() {
   for (const [x, z, rotY, height] of [
     [-16, -46, 0.4, 22],
     [18, -46, -0.9, 19],
-    [-42, -18, 1.6, 24],
+    [-36, -26, 1.6, 24],
     [26, -54, 2.2, 21],
   ]) {
     items.push(asset('startup-tree', x, z, { rotY, height }));
   }
   items.push(
-    prop('info-placard', -12, -50, {
+    prop('info-placard', -7, -56, {
       rotY: 0.8,
       options: {
         eyebrow: 'Trees',
@@ -363,7 +396,7 @@ function parkLayout() {
   items.push(orb(-26, -40, 5.5, ORB_WHITE));
   items.push(orb(43, -83, 6, ORB_WARM));
   items.push(orb(50, -86, 6, ORB_WARM));
-  items.push(orb(-12, -8, 7, ORB_WARM));
+  items.push(orb(-25, -8, 7, ORB_WARM));
 
   return { theme: 'park', spawn: { x: 0, z: 16, yaw: 0 }, items };
 }
@@ -417,17 +450,21 @@ function museumLayout() {
 
   items.push(prop('museum-hall', 0, hallZ));
 
+  // Out on the plaza, where a student arrives -- not inside the gallery, where a live
+  // web page competes with the exhibits it is standing among.
+  items.push(...browserStation(-8, 4, { faceX: 0, faceZ: 14 }));
+
   // Five plinths down the gallery, each with its sculpture and its own label.
   const displays = [
-    { x: -13, z: -22, sculpture: 'sculpture-bust', pedestal: 3.0, options: {},
+    { x: -15, z: -21, sculpture: 'sculpture-bust', pedestal: 3.0, options: {},
       title: 'Portrait Bust', body: 'Carved portraits like this are over 2,000 years old. Before photographs, this was how you remembered a face.' },
-    { x: 13, z: -22, sculpture: 'sculpture-knot', pedestal: 3.0, options: { size: 1.3 },
+    { x: 15, z: -21, sculpture: 'sculpture-knot', pedestal: 3.0, options: { size: 1.3 },
       title: 'Bronze Knot', body: 'One continuous surface with no beginning or end. Try walking all the way around it — can you find a seam?' },
     { x: 0, z: -38, sculpture: 'sculpture-figure', pedestal: 3.5, options: {},
       title: 'Standing Figure', body: 'The weight rests on one leg, so the hips and shoulders tilt opposite ways. Sculptors call this contrapposto.' },
-    { x: -13, z: -44, sculpture: 'sculpture-crystals', pedestal: 2.6, options: { height: 3.4 },
+    { x: -15, z: -45, sculpture: 'sculpture-crystals', pedestal: 2.6, options: { height: 3.4 },
       title: 'Light Study', body: 'Glass and colour. Move around it and watch the colour change as light passes through at different angles.' },
-    { x: 13, z: -44, sculpture: 'sculpture-mobile', pedestal: 0, options: { height: 9 },
+    { x: 15, z: -45, sculpture: 'sculpture-mobile', pedestal: 0, options: { height: 9 },
       title: 'Kinetic Sculpture', body: 'Sculpture that MOVES. Click this one, choose Program, and give it a "rotate forever" block of your own.' },
   ];
 
@@ -442,7 +479,10 @@ function museumLayout() {
       })
     );
     items.push(
-      prop('info-placard', display.x + 2.6, display.z + 2.6, {
+      // A real gallery stands its label a good pace clear of the work so two people can
+      // read it without blocking the view. At the original 2.6ft the label was close
+      // enough to the plinth to read as part of the sculpture's base.
+      prop('info-placard', display.x + 3.8, display.z + 3.8, {
         y: MUSEUM_FLOOR,
         rotY: 0.5,
         options: { eyebrow: 'On display', title: display.title, body: display.body, height: 2.8, width: 2.0 },
@@ -477,13 +517,13 @@ function museumLayout() {
     items.push(orb(x, z, MUSEUM_FLOOR + 11, ORB_WARM));
   }
 
-  items.push(prop('bench', -7, -30, { y: MUSEUM_FLOOR, rotY: Math.PI / 2 }));
-  items.push(prop('bench', 7, -30, { y: MUSEUM_FLOOR, rotY: -Math.PI / 2 }));
+  items.push(prop('bench', -8, -29, { y: MUSEUM_FLOOR, rotY: Math.PI / 2 }));
+  items.push(prop('bench', 8, -29, { y: MUSEUM_FLOOR, rotY: -Math.PI / 2 }));
 
   // Approach and plaza. The sign sits off the centre line on purpose -- squared up on
   // the axis it reads as a billboard bolted across the museum's own facade.
   items.push(
-    prop('standing-sign', -19, -6, {
+    prop('standing-sign', -23, -7, {
       rotY: 0.42,
       options: {
         lines: ['MUSEUM OF ART'],
@@ -496,7 +536,7 @@ function museumLayout() {
     })
   );
   items.push(
-    prop('info-placard', -8, -6, {
+    prop('info-placard', -11, -7, {
       rotY: 0.35,
       options: {
         eyebrow: 'Before you go in',
@@ -506,7 +546,7 @@ function museumLayout() {
     })
   );
   items.push(
-    prop('info-placard', 8, -6, {
+    prop('info-placard', 11, -7, {
       rotY: -0.35,
       options: {
         eyebrow: 'Try this',
@@ -518,7 +558,7 @@ function museumLayout() {
 
   items.push(prop('sculpture-rings', -30, -16, { options: { radius: 3.6 } }));
   items.push(
-    prop('info-placard', -30, -10, {
+    prop('info-placard', -31, -8, {
       options: {
         eyebrow: 'Plaza commission',
         title: 'Three Rings',
@@ -527,8 +567,8 @@ function museumLayout() {
     })
   );
 
-  items.push(prop('planter', -26, -10));
-  items.push(prop('planter', 26, -10));
+  items.push(prop('planter', -17, -13));
+  items.push(prop('planter', 17, -13));
   items.push(prop('bench', -14, -2));
   items.push(prop('bench', 14, -2));
   items.push(prop('lamp-post', -22, 2));
@@ -566,6 +606,10 @@ function libraryLayout() {
 
   items.push(prop('library-hall', 0, hallZ));
 
+  // On the approach, before the doors -- and outdoors, where the panel is not competing
+  // with the reading room's own lighting.
+  items.push(...browserStation(-8, 6, { faceX: 0, faceZ: 16 }));
+
   // Three stack rows running across the room, four double-sided units per row.
   const rows = [
     { z: -34, range: '500–599', subject: 'SCIENCE', color: '#1f6b4a' },
@@ -592,7 +636,7 @@ function libraryLayout() {
 
   items.push(prop('circulation-desk', 0, -22, { y: floor }));
   items.push(
-    prop('info-placard', 6.5, -17, {
+    prop('info-placard', 8.5, -16, {
       y: floor,
       rotY: -0.5,
       options: {
@@ -624,7 +668,7 @@ function libraryLayout() {
   items.push(prop('book-cart', 8, -28, { y: floor, rotY: 0.6 }));
   items.push(prop('story-rug', 19, -48, { y: floor }));
   items.push(
-    prop('info-placard', 19, -42, {
+    prop('info-placard', 19, -41, {
       y: floor,
       rotY: Math.PI,
       options: {
@@ -636,7 +680,7 @@ function libraryLayout() {
   );
 
   items.push(
-    prop('info-placard', -6.5, -17, {
+    prop('info-placard', -8.5, -16, {
       y: floor,
       rotY: 0.5,
       options: {
@@ -658,7 +702,7 @@ function libraryLayout() {
 
   // Approach. Off-axis, so it announces the building instead of hiding the entrance.
   items.push(
-    prop('standing-sign', -21, -5, {
+    prop('standing-sign', -25, -5, {
       rotY: 0.45,
       options: {
         lines: ['PUBLIC LIBRARY'],
@@ -672,7 +716,7 @@ function libraryLayout() {
   );
   items.push(prop('book-drop', 13, -6, { rotY: -0.3 }));
   items.push(
-    prop('info-placard', 18, -6, {
+    prop('info-placard', 21, -7, {
       rotY: -0.6,
       options: {
         eyebrow: 'After hours',
@@ -682,7 +726,7 @@ function libraryLayout() {
     })
   );
 
-  items.push(prop('bench', -13, -6, { rotY: 0.2 }));
+  items.push(prop('bench', -15, -7, { rotY: 0.2 }));
   items.push(prop('bench', -20, 2));
   items.push(prop('lamp-post', -24, 4));
   items.push(prop('lamp-post', 24, 4));
@@ -702,6 +746,11 @@ function libraryLayout() {
 
 function moonLayout() {
   const items = [];
+
+  // Set beside the spawn point, well clear of the hardware -- on the Moon a lit panel
+  // against a black sky is the brightest thing in the world, and parked among the
+  // hardware it would pull the eye off all of it.
+  items.push(...browserStation(-8, 4, { faceX: 0, faceZ: 14 }));
 
   items.push(prop('lunar-module', 0, -30));
   items.push(prop('lunar-rover', 17, -17, { rotY: -0.9 }));
@@ -744,7 +793,7 @@ function moonLayout() {
   }
 
   items.push(
-    prop('standing-sign', -21, -6, {
+    prop('standing-sign', -25, -7, {
       rotY: 0.5,
       options: {
         lines: ['TRANQUILITY BASE'],
@@ -760,43 +809,43 @@ function moonLayout() {
 
   const facts = [
     {
-      x: -8, z: -8, rotY: 0.3,
+      x: -11, z: -5, rotY: 0.3,
       eyebrow: 'Look up',
       title: 'Why the sky is black',
       body: 'The Moon has almost no atmosphere. With no air to scatter sunlight, the sky stays black even at noon — and the stars never twinkle.',
     },
     {
-      x: 10, z: -9, rotY: -0.3,
+      x: -18, z: -13, rotY: 0.9,
       eyebrow: 'The flag',
       title: 'It is not waving',
       body: 'No air means no wind. A horizontal rod along the top hem holds the flag out flat. The ripples are just creases from being rolled up.',
     },
     {
-      x: 22, z: -24, rotY: -0.9,
+      x: 26, z: -26, rotY: -0.9,
       eyebrow: 'Lunar Roving Vehicle',
       title: 'The Moon buggy',
       body: 'About 10 feet long — twice your height. Wheels of woven piano wire, because rubber tyres would crack in vacuum. Top speed: 8 mph.',
     },
     {
-      x: -6, z: -20, rotY: 0.6,
+      x: -9, z: -25, rotY: 0.6,
       eyebrow: 'Lunar Module',
       title: 'Two ships in one',
       body: 'Only the top half flew home. The gold foil is Kapton, wrapped on to keep the temperature steady between +250°F in sun and -280°F in shade.',
     },
     {
-      x: 9, z: -13, rotY: -0.2,
+      x: 13, z: -8, rotY: -0.4,
       eyebrow: 'Footprints',
       title: 'They are still there',
       body: 'No wind, no rain, no running water. The prints left in 1969 could stay sharp for millions of years — only micrometeorites slowly erase them.',
     },
     {
-      x: -30, z: -22, rotY: 0.9,
+      x: -33, z: -26, rotY: 0.9,
       eyebrow: 'ALSEP',
       title: 'Experiments still running',
       body: 'The mirror panel here reflects laser beams straight back to Earth. Scientists still fire at it, and have measured the Moon drifting 1.5 inches farther away each year.',
     },
     {
-      x: -34, z: 14, rotY: -0.4,
+      x: -45, z: 13, rotY: -0.4,
       eyebrow: 'What comes next',
       title: 'Living here',
       body: 'A lunar day lasts about 29.5 Earth days — two weeks of sun, then two weeks of night. Any real base has to store power for all of it.',
@@ -843,6 +892,9 @@ function marsLayout() {
   // presenting its back to the room.
   const facingIn = (ox, oz) => Math.atan2(-ox, -oz);
 
+  // Straight out to the left of the spawn point, on the walk in to the dome.
+  items.push(...browserStation(-8, 24, { faceX: 0, faceZ: 34 }));
+
   items.push(prop('habitation-dome', domeX, domeZ, { options: { label: 'MARS BASE ONE' } }));
 
   // --- Inside: the grow bay, the crew berths, and life support ------------
@@ -870,25 +922,25 @@ function marsLayout() {
 
   const indoorFacts = [
     {
-      x: -9, z: -16, rotY: 1.1,
+      x: -11, z: -18, rotY: 1.1,
       eyebrow: 'The grow bay',
       title: 'Dinner under pink light',
       body: 'No soil — the roots sit in nutrient water. The lights are magenta because plants only use the red and blue parts of sunlight; the green is reflected, which is why leaves look green.',
     },
     {
-      x: -3, z: -25, rotY: -0.2,
+      x: -4, z: -27, rotY: -0.2,
       eyebrow: 'Life support',
       title: 'Oxygen out of thin air',
       body: 'Martian air is 95% carbon dioxide. Split CO₂ and you get carbon and the O₂ you breathe. NASA really did this on Mars in 2021, with an instrument the size of a toaster.',
     },
     {
-      x: 9, z: -14, rotY: -1.0,
+      x: 11, z: -16, rotY: -1.0,
       eyebrow: 'Crew quarters',
       title: 'A day and a bit',
       body: 'A Martian day — a "sol" — is 24 hours 37 minutes. Close enough to sleep by, but the extra 37 minutes add up: crews drift a whole night out of step with Earth in about a month.',
     },
     {
-      x: -6, z: 2, rotY: 0.3,
+      x: -7, z: 3, rotY: 0.3,
       eyebrow: 'Why the dome',
       title: 'The air is the problem',
       body: 'Outside, the pressure is under 1% of Earth\'s — so low that the water in your blood would boil. The dome is not for warmth. It is holding an atmosphere in.',
@@ -910,7 +962,7 @@ function marsLayout() {
 
   // --- The approach -------------------------------------------------------
   items.push(
-    prop('standing-sign', -20, 24, {
+    prop('standing-sign', -23, 22, {
       rotY: 0.45,
       options: {
         lines: ['MARS BASE ONE'],
@@ -985,49 +1037,49 @@ function marsLayout() {
   // --- Fact placards ------------------------------------------------------
   const facts = [
     {
-      x: -9, z: 22, rotY: 0.35,
+      x: -13, z: 17, rotY: 0.35,
       eyebrow: 'Welcome',
       title: 'You are a long way from home',
       body: 'Mars is between 34 and 250 million miles away depending on where the two planets are. Even the fast trips take about seven months each way.',
     },
     {
-      x: 9, z: 22, rotY: -0.35,
+      x: 14, z: 22, rotY: -0.35,
       eyebrow: 'Look up',
       title: 'Why the sky is butterscotch',
       body: 'Fine dust in the air scatters the red end of sunlight all over the sky. The strange part: at sunset it flips, and the glow around the setting sun turns BLUE.',
     },
     {
-      x: -16, z: 30, rotY: 0.5,
+      x: -26, z: 29, rotY: 0.5,
       eyebrow: 'Gravity',
       title: 'You would weigh a third',
       body: 'Mars pulls with about 38% of Earth\'s gravity. A 100-pound student weighs 38 pounds here — and could jump nearly three times as high.',
     },
     {
-      x: -38, z: 26, rotY: 0.7,
+      x: -43, z: 30, rotY: 0.7,
       eyebrow: 'On the horizon',
       title: 'The biggest volcano anywhere',
       body: 'Olympus Mons is about 16 miles high and as wide as Arizona — but its slopes are so gentle that standing on it, you would never know you were on a mountain.',
     },
     {
-      x: -30, z: -2, rotY: -1.1,
+      x: -34, z: 0, rotY: -1.1,
       eyebrow: 'The greenhouse',
       title: 'Farming without soil',
       body: 'Martian dirt contains perchlorates, which are poisonous to us. Crops here are grown in trays of water instead — and every plant also helps recycle the air.',
     },
     {
-      x: 32, z: -22, rotY: -0.3,
+      x: 36, z: -25, rotY: -0.3,
       eyebrow: 'The drill',
       title: 'There is ice under your feet',
       body: 'Buried water ice covers much of Mars. It is drinking water, it is breathable oxygen, and split into hydrogen and oxygen it is rocket fuel for the trip home.',
     },
     {
-      x: 24, z: 16, rotY: -0.6,
+      x: 26, z: 18, rotY: -0.6,
       eyebrow: 'The relay dish',
       title: 'Nobody phones home',
       body: 'A radio signal takes 3 to 22 minutes each way. Ask Earth a question and the answer is at best six minutes behind you, so crews send messages, not conversations.',
     },
     {
-      x: -28, z: 12, rotY: -0.5,
+      x: -33, z: 14, rotY: -0.5,
       eyebrow: 'Power',
       title: 'Sunlight, and a dust problem',
       body: 'Mars gets less than half the sunlight Earth does, and dust settling on the panels steals more. Planet-wide dust storms can dim the sky for months at a time.',
@@ -1035,31 +1087,31 @@ function marsLayout() {
     {
       // On the far side of the rover: sat on the near side it stands squarely between
       // the spawn point and the machine it is describing.
-      x: 34, z: 17, rotY: -2.2,
+      x: 38, z: 18, rotY: -2.2,
       eyebrow: 'The rover',
       title: 'Wheels made of metal',
       body: 'About 10 feet long — twice your height. The wheels are milled from aluminium, because rubber goes brittle at −100°F and would fall apart in the near-vacuum.',
     },
     {
-      x: 12, z: 33, rotY: 0.2,
+      x: 21, z: 36, rotY: 0.2,
       eyebrow: 'The scout',
       title: 'First flight on another world',
       body: 'The air here is 1% as thick as Earth\'s, so the blades have to spin about 2,400 times a minute — five times a helicopter at home — to find anything to push against.',
     },
     {
-      x: 22, z: 2, rotY: -0.4,
+      x: 20, z: 4, rotY: -0.4,
       eyebrow: 'The weather mast',
       title: 'Wind you would barely feel',
       body: 'A 60 mph Martian gale pushes about as hard as a 4 mph breeze on Earth, because there is so little air in it. The movie version of a Mars storm is fiction.',
     },
     {
-      x: 34, z: 2, rotY: -0.8,
+      x: 39, z: 4, rotY: -0.8,
       eyebrow: 'Two moons',
       title: 'Phobos and Deimos',
       body: 'Both are tiny lumps, probably captured asteroids. Phobos races around so fast that it rises in the WEST and sets in the east — twice every single day.',
     },
     {
-      x: -22, z: -42, rotY: 0.6,
+      x: -21, z: -44, rotY: 0.6,
       eyebrow: 'The cargo lander',
       title: 'How all this got here',
       body: 'Nothing was carried by the crew. Supplies are landed years ahead, unmanned, and checked from Earth — so the base is already built and working before anyone arrives.',
@@ -1071,7 +1123,7 @@ function marsLayout() {
       body: 'Mars is further out, so its orbit takes almost twice as long. You would have birthdays half as often — and each of the four seasons lasts about six Earth months.',
     },
     {
-      x: -46, z: -40, rotY: 0.5,
+      x: -49, z: -46, rotY: 0.5,
       eyebrow: 'Geology',
       title: 'Why Mars is red',
       body: 'The dust is full of iron oxide. That is rust — the same thing that forms on an old bicycle, spread across an entire planet and blown into every corner of it.',
@@ -1123,9 +1175,12 @@ function dinosaurLayout() {
     })
   );
 
+  // Beside the path down from the spawn point, before the camp.
+  items.push(...browserStation(-8, 46, { faceX: 0, faceZ: 56 }));
+
   items.push(prop('field-camp', 0, 26));
-  items.push(prop('bench', -6, 30, { rotY: Math.PI }));
-  items.push(prop('bench', 6, 30, { rotY: Math.PI }));
+  items.push(prop('bench', -8, 32, { rotY: Math.PI }));
+  items.push(prop('bench', 8, 32, { rotY: Math.PI }));
   items.push(orb(-6, 24, 6, ORB_WARM));
   items.push(orb(6, 24, 6, ORB_WARM));
   items.push(orb(0, 30, 6, ORB_WARM));
@@ -1248,115 +1303,115 @@ function dinosaurLayout() {
   // --- Placards ------------------------------------------------------------
   const facts = [
     {
-      x: -8, z: 34, rotY: 0.3,
+      x: -11, z: 37, rotY: 0.3,
       eyebrow: 'Where you are',
       title: 'The last day of the dinosaurs',
       body: 'Everything here lived about 66 million years ago, right at the end of the Cretaceous. Every animal on this island really did share that time and place — most famous dinosaurs never met each other.',
     },
     {
-      x: 8, z: 34, rotY: -0.3,
+      x: 11, z: 37, rotY: -0.3,
       eyebrow: 'Deep time',
       title: 'Stegosaurus was already ancient',
       body: 'More time separates Stegosaurus from T. rex than separates T. rex from you. The Age of Dinosaurs lasted so long that its own history had ancient history.',
     },
     {
-      x: -7, z: 20, rotY: 0.4,
+      x: -10, z: 17, rotY: 0.4,
       eyebrow: 'Underfoot',
       title: 'No grass anywhere',
       body: 'Grass had barely appeared. The green here is ferns, horsetails and moss — which is why almost every plant-eater on this island is built to browse low shrubs, not to graze a lawn.',
     },
     {
-      x: 7, z: 20, rotY: -0.4,
+      x: 10, z: 17, rotY: -0.4,
       eyebrow: 'Something new',
       title: 'The first flowers',
       body: 'Flowering plants were a recent invention in the Cretaceous. The magnolias here are among the oldest kinds still alive — T. rex lived alongside the very first blossom.',
     },
     {
-      x: 24, z: 10, rotY: -0.5,
+      x: 23, z: 14, rotY: -0.5,
       eyebrow: 'The dig',
       title: 'How anyone knows any of this',
       body: 'The string grid is not decoration. Every bone is drawn and measured inside its own square before it is lifted, because where a bone sat tells you as much as the bone does.',
     },
     {
-      x: 34, z: 17, rotY: -2.6,
+      x: 37, z: 19, rotY: -2.6,
       eyebrow: 'The dig',
       title: 'How a fossil forms',
       body: 'An animal has to be buried fast — under river mud or sand — before it rots or is eaten. Minerals then seep in over millions of years. Almost nothing that dies ever becomes a fossil.',
     },
     {
-      x: 25, z: -2, rotY: -1.5,
+      x: 26, z: -5, rotY: -1.5,
       eyebrow: 'The dig',
       title: 'Plaster jackets',
       body: 'Those white bundles are bones wrapped in plaster and burlap, exactly like a cast on a broken arm. It is the only way to move something that has been shattered for 66 million years.',
     },
     {
-      x: -24, z: -2, rotY: 1.4,
+      x: -21, z: 2, rotY: 1.4,
       eyebrow: 'Triceratops',
       title: 'Three horns and a shield',
       body: 'The frill is bone, and the brow horns are over three feet long. They were probably used against rivals as much as against predators — plenty of frills carry healed wounds from other Triceratops.',
     },
     {
-      x: -20, z: -28, rotY: 2.2,
+      x: -15, z: -25, rotY: 2.2,
       eyebrow: 'Ankylosaurus',
       title: 'A living tank',
       body: 'Armour plates set into the skin, spikes along both flanks, and a solid bone club on the tail heavy enough to break a leg. Even its eyelids were armoured.',
     },
     {
-      x: -42, z: -34, rotY: 1.1,
+      x: -43, z: -29, rotY: 1.1,
       eyebrow: 'Edmontosaurus',
       title: 'What T. rex ate',
       body: 'Some Edmontosaurus fossils carry T. rex bite marks that HEALED. That is the strongest evidence we have that T. rex attacked living prey — and that sometimes the prey got away.',
     },
     {
-      x: 12, z: -18, rotY: -1.2,
+      x: 9, z: -14, rotY: -1.2,
       eyebrow: 'Pachycephalosaurus',
       title: 'Ten inches of solid skull',
       body: 'Stand next to this one — it is about your height. The dome on its head is bone up to ten inches thick, probably for shoving contests with rivals rather than head-on charges.',
     },
     {
-      x: 14, z: -34, rotY: -1.0,
+      x: 17, z: -37, rotY: -1.0,
       eyebrow: 'Footprints',
       title: 'What tracks tell you',
       body: 'A skeleton tells you how an animal was built. A trackway tells you what it did — how fast it walked, whether it travelled alone, and how it placed its feet.',
     },
     {
-      x: -8, z: -38, rotY: 0.5,
+      x: -6, z: -36, rotY: 0.5,
       eyebrow: 'The nest',
       title: 'Dinosaur parents',
       body: 'Dinosaurs built nests, sat on their eggs and looked after what hatched. That behaviour is one of the strongest links between them and the birds outside your window.',
     },
     {
-      x: 16, z: -60, rotY: -2.3,
+      x: 19, z: -62, rotY: -2.3,
       eyebrow: 'Tyrannosaurus rex',
       title: 'Thirteen feet at the hip',
       body: 'Nearly three times your height at the hip, and forty feet nose to tail. The biggest teeth found are about the size of a banana — and built like railway spikes, for crushing bone rather than slicing.',
     },
     {
-      x: -6, z: -58, rotY: 1.1,
+      x: -8, z: -61, rotY: 1.1,
       eyebrow: 'Tyrannosaurus rex',
       title: 'Those arms are not a joke',
       body: 'They are shorter than yours, but each one could curl around 400 pounds. Nobody is certain what they were for — holding struggling prey and pushing up off the ground are the best guesses.',
     },
     {
-      x: 30, z: -46, rotY: -1.9,
+      x: 33, z: -47, rotY: -1.9,
       eyebrow: 'Look up',
       title: 'That is not a dinosaur',
       body: 'Quetzalcoatlus is a pterosaur — a flying cousin, not a dinosaur. Its wings are skin stretched on one enormous finger. Standing on the ground it was as tall as a giraffe.',
     },
     {
-      x: -30, z: 14, rotY: 0.9,
+      x: -34, z: 17, rotY: 0.9,
       eyebrow: 'Living fossil',
       title: 'You can go and touch one',
       body: 'The ginkgo here is near-identical to the ginkgo growing in car parks today. Whatever wiped out the dinosaurs, this tree walked straight through it unchanged.',
     },
     {
-      x: -20, z: 6, rotY: 0.7,
+      x: -24, z: 10, rotY: 0.7,
       eyebrow: 'They are still here',
       title: 'Birds are dinosaurs',
       body: 'Not "descended from" — they ARE dinosaurs, the one branch that survived. Every sparrow is a closer relative of T. rex than T. rex was of Triceratops.',
     },
     {
-      x: -34, z: 30, rotY: 0.8,
+      x: -39, z: 34, rotY: 0.8,
       eyebrow: 'What happens next',
       title: 'The worst day on Earth',
       body: 'An asteroid about six miles across strikes near what is now Mexico. Within hours the sky is on fire; within years the cold and dark end three quarters of all species. Everything you can see from here goes — except the birds.',
@@ -1429,10 +1484,14 @@ function voyageLayout() {
     })
   );
 
+  // Right at the entrance, before the artery -- this is the one world where the walk in
+  // is a corridor, so the panel has to be met before the student commits to it.
+  items.push(...browserStation(-9, 73, { faceX: 0, faceZ: 82 }));
+
   items.push(prop('micro-sub', 18, 60, { rotY: -0.6 }));
   placard(
-    13,
-    54,
+    10,
+    51,
     -0.5,
     'Your ride',
     'Shrunk down and injected',
@@ -1444,8 +1503,8 @@ function voyageLayout() {
   items.push(asset('startup-billboard', -18, 60, { rotY: 0.7, height: 3 }));
 
   placard(
-    -10,
-    58,
+    -8,
+    53,
     0.35,
     'Scale',
     'Everything here is enlarged',
@@ -1509,16 +1568,16 @@ function voyageLayout() {
   items.push(orb(-28, 0, 8, ORB_WHITE));
   items.push(orb(-16, -13, 8, ORB_WHITE));
 
-  items.push(prop('alveoli-cluster', -36, 4, { rotY: 0.5 }));
+  items.push(prop('alveoli-cluster', -38, 5, { rotY: 0.5 }));
   placard(
-    -32,
-    9,
+    -29,
+    11,
     0.5,
     'Zoom in',
     'Where the swap happens',
     'This is one alveolus and its blood vessels, blown up enormously. The wall between air and blood is about one five-hundredth of a millimetre thick — thin enough for oxygen to cross by simply drifting.'
   );
-  items.push(orb(-36, 6, 7, ORB_BLUE));
+  items.push(orb(-38, 7, 7, ORB_BLUE));
 
   exhibit('stomach-model', 22, -6, {
     label: 'Stomach',
@@ -1535,8 +1594,8 @@ function voyageLayout() {
     'Stomach acid sits around pH 1.5–3.5 — strong enough to strip rust off steel. The reason it does not eat through you is a layer of mucus that the stomach lining replaces every few days.'
   );
   placard(
-    30,
-    -13,
+    31,
+    -9,
     -2.5,
     'How much fits',
     'Empty, it is fist-sized',
@@ -1545,10 +1604,10 @@ function voyageLayout() {
   items.push(orb(28, 0, 8, ORB_WARM));
   items.push(orb(16, -13, 8, ORB_WHITE));
 
-  items.push(prop('villi-patch', 34, 4, { options: { count: 46, radius: 6, seed: 11 } }));
+  items.push(prop('villi-patch', 36, 5, { options: { count: 46, radius: 6, seed: 11 } }));
   placard(
-    30,
-    10,
+    28,
+    12,
     -0.5,
     'Small intestine',
     'Lined with millions of fingers',
@@ -1645,7 +1704,7 @@ function voyageLayout() {
   items.push(orb(28, -30, 8, ORB_BLUE));
   items.push(orb(16, -43, 8, ORB_WHITE));
 
-  items.push(prop('anatomy-chart', 34, -46, { rotY: -1.0, options: { chart: 'kidney-section', width: 8 } }));
+  items.push(prop('anatomy-chart', 38, -49, { rotY: -1.0, options: { chart: 'kidney-section', width: 8 } }));
 
   // --- The far wings: brain, nerve, DNA, cell ------------------------------
   exhibit('brain-model', -42, -24, {
@@ -1677,7 +1736,7 @@ function voyageLayout() {
 
   items.push(prop('dna-helix', 46, -30, { options: { height: 22, turns: 3.2 } }));
   placard(
-    41,
+    44,
     -26,
     -1.1,
     'DNA',
@@ -1686,17 +1745,17 @@ function voyageLayout() {
   );
   items.push(orb(46, -34, 8, ORB_ROSE));
 
-  items.push(prop('cell-model', -46, -46, { rotY: 0.6 }));
-  items.push(prop('anatomy-chart', -38, -52, { rotY: 0.5, options: { chart: 'cell', width: 8 } }));
+  items.push(prop('cell-model', -54, -40, { rotY: 0.6 }));
+  items.push(prop('anatomy-chart', -57, -29, { rotY: 0.9, options: { chart: 'cell', width: 8 } }));
   placard(
-    -42,
-    -40,
+    -46,
+    -33,
     0.5,
     'One cell',
     'Thirty-seven trillion of these',
     'Every organ in this hall is built from cells like this one. The purple ball is the nucleus, holding the DNA; the orange capsules are mitochondria, which release the energy from your food. This model is about a million times life size.'
   );
-  items.push(orb(-46, -42, 8, ORB_BLUE));
+  items.push(orb(-54, -36, 8, ORB_BLUE));
 
   // --- The systems gallery -------------------------------------------------
   // The sign stands well FORWARD of the charts. Parked at the mouth of the gallery it
@@ -1720,20 +1779,23 @@ function voyageLayout() {
   // answers "where was the thing I just walked around, and what is it next to?"
   items.push(prop('anatomy-chart', 0, -64, { options: { chart: 'body-systems', width: 12 } }));
 
+  // Nine-foot charts, so the x positions here are centres about 16ft apart -- roughly a
+  // 7ft gap between neighbouring boards. Any tighter and the gallery reads as one long
+  // wall of paper rather than as six things you go and look at one at a time.
   for (const [chart, x, z, rotY] of [
-    ['respiratory', -30, -60, 0.34],
-    ['circulatory', -15, -62, 0.16],
-    ['digestive', 15, -62, -0.16],
-    ['urinary', 30, -60, -0.34],
-    ['nervous', -45, -54, 0.6],
-    ['skeletal', 45, -54, -0.6],
+    ['respiratory', -34, -60, 0.34],
+    ['circulatory', -18, -62, 0.16],
+    ['digestive', 18, -62, -0.16],
+    ['urinary', 34, -60, -0.34],
+    ['nervous', -52, -54, 0.6],
+    ['skeletal', 52, -54, -0.6],
   ]) {
     items.push(prop('anatomy-chart', x, z, { rotY, options: { chart, width: 9 } }));
   }
 
   // The gallery is a wall of cream paper at the dark end of the hall, so it gets its own
   // lighting rather than relying on the exhibits' orbs 30ft away.
-  for (const [x, z] of [[-30, -55], [-8, -57], [8, -57], [30, -55]]) {
+  for (const [x, z] of [[-34, -55], [-9, -57], [9, -57], [34, -55]]) {
     items.push(orb(x, z, 9, ORB_WHITE));
   }
   items.push(prop('bench', -12, -48, { rotY: Math.PI - 0.2 }));
@@ -1778,6 +1840,9 @@ function toRecord(item, groundHeightAt) {
   };
 
   if (item.kind === 'light-orb') return { ...base, kind: 'light-orb', color: item.color };
+  // A browser panel carries no files either -- WebBrowserManager.createPanel() rebuilds
+  // the whole thing from the URL, exactly as a light orb rebuilds from its colour.
+  if (item.kind === 'web-browser') return { ...base, kind: 'web-browser', url: item.url };
   if (item.kind.startsWith('startup-')) {
     return { ...base, kind: item.kind, targetHeight: item.height, baseOnGround: true };
   }

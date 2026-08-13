@@ -12,6 +12,11 @@ export const CATEGORIES = {
   look: { name: 'Look', fill: '#9966ff', dark: '#774dcc' },
 };
 
+// `duplicate` is the one block whose effect is not confined to the object running it,
+// so it is the one block a copy must never inherit -- see stripDuplicateBlocks() in
+// Duplicator.js. Named here rather than spelled as a literal in three files.
+export const DUPLICATE_BLOCK = 'duplicate';
+
 export const BLOCK_DEFS = {
   repeat: {
     category: 'control',
@@ -67,9 +72,25 @@ export const BLOCK_DEFS = {
     label: [{ text: 'change color to' }, { field: 'color' }],
     params: { color: { type: 'color', default: PALETTE_SWATCHES[0] } },
   },
+  // Filed under Control, not Look: Scratch puts "create clone of" there for the same
+  // reason -- it does not change how this object looks, it changes how many there are.
+  //
+  // The copy is offset rather than dropped in place. Two objects sharing one position
+  // is the worst possible outcome for a student: the copy is invisible, and the pair
+  // z-fight into a flickering mess that reads as a bug rather than as a second object.
+  duplicate: {
+    category: 'control',
+    hasChildren: false,
+    label: [{ text: 'duplicate' }, { field: 'offset' }, { text: 'ft away' }],
+    params: { offset: { type: 'number', default: 4, step: 0.5 } },
+  },
 };
 
-export const PALETTE_ORDER = ['repeat', 'forever', 'wait', 'moveX', 'moveY', 'moveZ', 'rotate', 'changeSize', 'changeColor'];
+export const PALETTE_ORDER = [
+  'repeat', 'forever', 'wait', 'duplicate',
+  'moveX', 'moveY', 'moveZ', 'rotate',
+  'changeSize', 'changeColor',
+];
 
 export function createBlockInstance(type) {
   const def = BLOCK_DEFS[type];

@@ -6,12 +6,29 @@ import { runProgram } from './ProgramRunner.js';
 export class ProgramManager {
   constructor() {
     this.runners = new Map(); // placedId -> { generator, waitUntil }
+    // Set from main.js once the registry and world store exist. This manager is
+    // constructed before both of them (PlacedRegistry takes it as a constructor
+    // argument), so the "duplicate" block's effect has to be handed over afterwards
+    // rather than injected here -- it is only ever called from a running program, long
+    // past boot.
+    this.onDuplicate = null;
   }
 
   start(id, program, object3D) {
     this.stop(id);
     if (!program || !program.length) return;
-    this.runners.set(id, { generator: runProgram(program, object3D), waitUntil: 0 });
+
+    // Each copy is placed one offset FURTHER out than the last, counted per run.
+    //
+    // Without this, `repeat 3 { duplicate 4 ft }` puts all three copies at the same
+    // point 4ft away -- the object never moved between them, so every copy measured
+    // from the same origin. A student sees one object and reasonably concludes the
+    // block is broken. Stepping the offset turns the same program into a neat row of
+    // three, which is what "duplicate three times" is expected to look like.
+    let copies = 0;
+    const effects = { duplicate: (offset) => this.onDuplicate?.(id, offset * ++copies) };
+
+    this.runners.set(id, { generator: runProgram(program, object3D, effects), waitUntil: 0 });
   }
 
   stop(id) {

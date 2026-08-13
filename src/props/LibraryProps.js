@@ -13,6 +13,7 @@ import {
   pediment,
   seededRandom,
   randomIn,
+  relief,
 } from '../PropKit.js';
 import { earthTexture } from './Earth.js';
 
@@ -24,6 +25,14 @@ const BOOK_COLORS = [
   0x7d2b2b, 0x2f4f77, 0x2d5f3f, 0x6b4a1f, 0x4a2f5e, 0x8a5a1e,
   0x1f4a4a, 0x7a3050, 0x3a3f4a, 0x93702c, 0x54306b, 0x2b5a2b,
 ];
+
+// Wood, with its own colour map ALSO wired in as the bump map. Grain is relief -- the
+// same tile that draws the darker lines can just as well sink them, and reusing one
+// texture in two material slots costs nothing (dispose() is idempotent).
+function woodMat(repeatX, repeatY, roughness = 0.6, base) {
+  const map = woodTexture(repeatX, repeatY, base);
+  return standard({ map, bumpMap: map, bumpScale: 0.45, roughness });
+}
 
 function woodTexture(repeatX, repeatY, base = '#8a5a30', grain = 'rgba(60,35,15,0.35)') {
   const texture = canvasTexture(256, 256, (ctx, w, h) => {
@@ -161,8 +170,8 @@ function arcadeWall({ length, height, thickness, baseColor = 0x9c7a63, bays = 4,
 // the stacks. 16ft to the eaves -- about three times a 5ft student's height.
 export function libraryHall({ width = 52, depth = 40, wallHeight = 16 } = {}) {
   const brickColor = 0xa8735a;
-  const stone = standard({ color: 0xd9d2c1, roughness: 0.8 });
-  const trim = standard({ color: 0xe6e0d0, roughness: 0.65 });
+  const stone = standard({ color: 0xd9d2c1, roughness: 0.8, ...relief('stone', { seed: 5, repeat: 6 }) });
+  const trim = standard({ color: 0xe6e0d0, roughness: 0.65, ...relief('stone', { seed: 7, repeat: 4, strength: 0.3 }) });
   const g = group();
 
   const halfW = width / 2;
@@ -180,7 +189,7 @@ export function libraryHall({ width = 52, depth = 40, wallHeight = 16 } = {}) {
       new THREE.BoxGeometry(width - thickness * 2, 0.2, depth - thickness * 2),
       // Tight repeat so one tile is ~2ft: at 10x8 across a 50ft room each grain line
       // is half a foot wide and the floor reads as painted swirls, not boards.
-      standard({ map: woodTexture(24, 18), roughness: 0.6 }),
+      woodMat(24, 18, 0.6),
       0,
       floorY + 0.1,
       0
@@ -261,7 +270,7 @@ export function libraryHall({ width = 52, depth = 40, wallHeight = 16 } = {}) {
   // against a wall and leaves the rest of the room in shadow, which is exactly how the
   // first version of this roof read: almost black inside.
   const roofY = floorY + wallHeight + 3.7;
-  const slate = standard({ color: 0x4a5560, roughness: 0.85 });
+  const slate = standard({ color: 0x4a5560, roughness: 0.85, ...relief('stone', { seed: 11, repeat: 8 }) });
   const frame = 3;
   const openW = width - 4 - frame * 2;
   const openD = depth - 4 - frame * 2;
@@ -355,7 +364,7 @@ export function bookshelf({ height = 7, width = 6, depth = 1.2, shelves = 5, see
 // public-reading-room silhouette. Table top at 2.5ft, chair seats at 1.5ft.
 export function readingTable({ length = 8, width = 3.6 } = {}) {
   const g = group();
-  const wood = standard({ map: woodTexture(3, 2, '#7d5330'), roughness: 0.55 });
+  const wood = woodMat(3, 2, 0.55, '#7d5330');
 
   g.add(box(length, 0.22, width, wood, 0, 2.5, 0));
   g.add(box(length - 1.2, 0.5, width - 1, wood, 0, 2.2, 0));
@@ -421,7 +430,7 @@ export function readingTable({ length = 8, width = 3.6 } = {}) {
 // a date-stamp caddy. Where a student would actually check a book out.
 export function circulationDesk({ radius = 7, height = 3.4 } = {}) {
   const g = group();
-  const wood = standard({ map: woodTexture(4, 1, '#6f4a29'), roughness: 0.6 });
+  const wood = woodMat(4, 1, 0.6, '#6f4a29');
   const top = standard({ color: 0x2f3a42, roughness: 0.4 });
 
   const counter = mesh(
@@ -526,7 +535,7 @@ export function cardCatalog({ columns = 8, rows = 6, height = 4.4 } = {}) {
 // spine of the library world -- walk to "500-599 SCIENCE" to find the science stacks.
 export function deweySign({ range = '500–599', subject = 'SCIENCE', color = '#1f4f7a', height = 9 } = {}) {
   const g = group();
-  const metal = standard({ color: 0x3c4248, roughness: 0.45, metalness: 0.6 });
+  const metal = standard({ color: 0x3c4248, roughness: 0.45, metalness: 0.6, ...relief('metal', { seed: 17, repeat: 3 }) });
 
   g.add(cyl(0.5, 0.6, 0.2, metal, 0, 0.1, 0, 18));
   g.add(cyl(0.12, 0.15, height, metal, 0, height / 2, 0, 12));
@@ -561,8 +570,8 @@ export function deweySign({ range = '500–599', subject = 'SCIENCE', color = '#
 // Floor globe on a wooden cradle, tilted to Earth's real 23.5 degrees of axial tilt.
 export function libraryGlobe({ radius = 1.4 } = {}) {
   const g = group();
-  const wood = standard({ map: woodTexture(2, 2, '#6b4426'), roughness: 0.6 });
-  const brass = standard({ color: 0xc9a227, roughness: 0.3, metalness: 0.9 });
+  const wood = woodMat(2, 2, 0.6, '#6b4426');
+  const brass = standard({ color: 0xc9a227, roughness: 0.3, metalness: 0.9, ...relief('metal', { seed: 13, repeat: 2 }) });
 
   g.add(cyl(0.9, 1.1, 0.3, wood, 0, 0.15, 0, 20));
   g.add(cyl(0.16, 0.2, 2.1, wood, 0, 1.2, 0, 14));

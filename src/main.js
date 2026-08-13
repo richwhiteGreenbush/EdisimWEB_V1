@@ -15,6 +15,7 @@ import { PlayIconManager } from './PlayIcon.js';
 import { placeLightOrb } from './LightOrb.js';
 import { WebBrowserManager, placeWebBrowser } from './WebBrowserPanel.js';
 import { buildPresetWorldRecords } from './WorldPresets.js';
+import { duplicatePlacedObject } from './Duplicator.js';
 import { VRView } from './VRView.js';
 import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD } from './config.js';
 
@@ -182,6 +183,12 @@ const drawTool = new DrawTool({
 const programEditor = new ProgramEditor({ registry, worldStore, programManager, menu, playIconManager });
 
 const objectMenu = new ObjectMenu({ scene, camera, domElement: canvas, registry, menu, worldStore, programEditor });
+
+// The "duplicate" block's effect, handed over now that both the registry and the world
+// store exist. ProgramManager is built at the top of this file because PlacedRegistry
+// takes it as a constructor argument, so it cannot be given these up front -- and it
+// does not need to be, since nothing calls this until a program is actually running.
+programManager.onDuplicate = (id, offset) => duplicatePlacedObject({ id, offset, registry, worldStore, menu });
 
 worldStore
   .rehydrateAll()

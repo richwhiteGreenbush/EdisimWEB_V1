@@ -173,9 +173,11 @@ export class ProgramEditor {
         this.renderBlockList(block.children, body);
         wrap.appendChild(body);
 
+        // The darker shade, matching the left arm above it rather than the header --
+        // arm and footer then read as one continuous bracket around the children.
         const footer = document.createElement('div');
         footer.className = 'pe-footer';
-        footer.style.background = CATEGORIES[def.category].fill;
+        footer.style.background = CATEGORIES[def.category].dark;
         wrap.appendChild(footer);
       }
 
@@ -189,15 +191,14 @@ export class ProgramEditor {
     const def = BLOCK_DEFS[type];
     const category = CATEGORIES[def.category];
 
+    // No jigsaw nub on top: Scratch draws one because its blocks are a single bitmap
+    // per block with no gap between them, so the tab is what shows they interlock. Here
+    // every block is a rounded DOM pill with real spacing around it, and a 5px stub
+    // poking out of the top edge just read as a rendering artifact.
     const el = document.createElement('div');
     el.className = `pe-block pe-cat-${def.category}`;
-    el.style.background = category.fill;
+    el.style.background = `linear-gradient(180deg, ${category.fill} 0%, ${category.dark} 148%)`;
     el.dataset.type = type;
-
-    const notch = document.createElement('div');
-    notch.className = 'pe-notch';
-    notch.style.background = category.fill;
-    el.appendChild(notch);
 
     for (const token of def.label) {
       if (token.text) {

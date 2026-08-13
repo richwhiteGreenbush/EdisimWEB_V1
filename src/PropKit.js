@@ -98,6 +98,163 @@ export function mergedMesh(parts, materialParams = {}) {
 }
 
 // ---------------------------------------------------------------------------
+// Procedural surface relief
+// ---------------------------------------------------------------------------
+
+// Every prop in this project is built from smooth analytic solids -- boxes, cylinders,
+// spheres, swept tubes -- and a smooth solid under a single sun reads as plastic no
+// matter what colour it is painted. `relief()` below is what breaks that up: a small
+// tileable greyscale height field wired in as a **bumpMap**, which perturbs the surface
+// normal per pixel so the light catches grain, pitting and weathering that the geometry
+// does not actually have.
+//
+// bumpMap specifically, and NOT a colour map, for two reasons:
+//
+//  1. Nearly every prop here is a merged, vertex-coloured mesh, and a material carrying
+//     BOTH a `map` and `vertexColors` MULTIPLIES the two -- the mistake that turned the
+//     bear dens' facade near-black (see the merge notes in CLAUDE.md). A bumpMap does
+//     not touch colour at all, so it composes safely with vertex colours, with a real
+//     texture map, or with a plain flat colour.
+//  2. It costs one greyscale texture and no extra geometry. Getting the same relief out
+//     of triangles would multiply the vertex count of every object in every world.
+//
+// The trade-off worth knowing: a bumpMap fakes lighting, not silhouette. It disappears
+// at grazing angles and never self-shadows, so it is right for grain and weathering and
+// wrong for anything whose outline should visibly change.
+
+const RELIEF_TILE = 96; // px per tile -- small on purpose, see the cost note in relief()
+const RELIEF_GRID = 8; // noise lattice cells across one tile
+
+// Tileable value noise. The lattice wraps at `gridSize`, so ANY integer multiple of it
+// samples seamlessly -- which is what lets the patterns below stack octaves and stretch
+// axes freely and still tile. Deterministic from `seed`, like everything else here: a
+// world rebuilt from its records has to come back looking identical.
+function makeNoise(gridSize, seed) {
+  const rng = seededRandom(seed);
+  const lattice = new Float32Array(gridSize * gridSize);
+  for (let i = 0; i < lattice.length; i++) lattice[i] = rng();
+
+  return function sample(x, y) {
+    const x0 = Math.floor(x);
+    const y0 = Math.floor(y);
+    const fx = x - x0;
+    const fy = y - y0;
+    const sx = fx * fx * (3 - 2 * fx); // smoothstep, so the lattice does not show as a grid
+    const sy = fy * fy * (3 - 2 * fy);
+    const i0 = ((x0 % gridSize) + gridSize) % gridSize;
+    const j0 = ((y0 % gridSize) + gridSize) % gridSize;
+    const i1 = (i0 + 1) % gridSize;
+    const j1 = (j0 + 1) % gridSize;
+    const a = lattice[j0 * gridSize + i0];
+    const b = lattice[j0 * gridSize + i1];
+    const c = lattice[j1 * gridSize + i0];
+    const d = lattice[j1 * gridSize + i1];
+    const top = a + (b - a) * sx;
+    const bottom = c + (d - c) * sx;
+    return top + (bottom - top) * sy;
+  };
+}
+
+// Each pattern maps (noise, u, v) in tile space to a height in [0, 1]. The trick in all
+// of them is ANISOTROPY: a material's character is mostly in which direction its detail
+// runs, so bark stretches the noise vertically into fibres, brushed metal stretches it
+// the other way, and only stone is left isotropic.
+const RELIEF_PATTERNS = {
+  // Long vertical fibres split by a few deep furrows -- the furrows are what actually
+  // reads as bark; fibre alone just looks like dirt.
+  bark: (n, u, v) => {
+    const fibre = n(u * 64, v * 8) * 0.62 + n(u * 128, v * 24) * 0.24;
+    const wander = n(u * 16, v * 8) * 0.14;
+    const furrow = Math.abs(Math.sin((u + wander) * Math.PI * 2 * 5));
+    return fibre * 0.62 + Math.pow(furrow, 0.5) * 0.38;
+  },
+  // Grain running the long way, plus a plank seam every quarter tile.
+  wood: (n, u, v) => {
+    const grain = n(u * 8, v * 96) * 0.7 + n(u * 16, v * 48) * 0.3;
+    const seam = Math.min(1, Math.abs(((v * 4) % 1) - 0.5) * 7);
+    return 0.25 + grain * 0.55 * seam + seam * 0.2;
+  },
+  // Plain three-octave fBm: rock has no preferred direction, and pretending it does is
+  // what makes procedural stone look like fabric.
+  stone: (n, u, v) => {
+    const f = n(u * 8, v * 8) * 0.55 + n(u * 24, v * 24) * 0.29 + n(u * 64, v * 64) * 0.16;
+    return Math.pow(f, 1.25);
+  },
+  // Brushed: heavily stretched across u, and deliberately low-contrast. Metal that is
+  // visibly bumpy reads as corroded, which is not what most of this hardware is.
+  metal: (n, u, v) => 0.45 + (n(u * 4, v * 128) * 0.7 + n(u * 8, v * 64) * 0.3) * 0.3,
+  // Clumped grit -- loose soil, regolith, dust.
+  soil: (n, u, v) => {
+    const clump = n(u * 12, v * 12) * 0.5 + n(u * 40, v * 40) * 0.3 + n(u * 96, v * 96) * 0.2;
+    return Math.pow(clump, 0.85);
+  },
+  // Over-under crosshatch, for cloth and canvas.
+  weave: (n, u, v) => {
+    const warp = Math.abs(Math.sin(u * Math.PI * 2 * 24));
+    const weft = Math.abs(Math.sin(v * Math.PI * 2 * 24));
+    return 0.35 + Math.max(warp, weft) * 0.45 + n(u * 32, v * 32) * 0.2;
+  },
+};
+
+// How pronounced each surface is by default. bumpScale is roughly "how far the fake
+// normal leans", so these are tuned by eye against a 5ft player standing next to the
+// prop -- close enough to see the grain, far enough that it does not boil.
+const RELIEF_STRENGTH = { bark: 0.85, wood: 0.4, stone: 0.6, metal: 0.14, soil: 0.9, weave: 0.3 };
+
+// Renders one tile of `kind` as a greyscale height field.
+//
+// NoColorSpace, not the sRGB that canvasTexture() sets: a bump map is DATA, not colour,
+// and putting it through the sRGB decode would silently reshape every height in it.
+function reliefTexture(kind, seed, repeat, size) {
+  const pattern = RELIEF_PATTERNS[kind];
+  const noise = makeNoise(RELIEF_GRID, seed);
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const image = ctx.createImageData(size, size);
+  const data = image.data;
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const height = pattern(noise, x / size, y / size);
+      const value = Math.max(0, Math.min(255, Math.round(height * 255)));
+      const i = (y * size + x) * 4;
+      data[i] = value;
+      data[i + 1] = value;
+      data[i + 2] = value;
+      data[i + 3] = 255;
+    }
+  }
+  ctx.putImageData(image, 0, 0);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.NoColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(repeat, repeat);
+  texture.anisotropy = 4;
+  return texture;
+}
+
+// Material parameters adding `kind` surface relief, to spread into standard()/mergedMesh():
+//
+//     mergedMesh(parts, { roughness: 0.9, ...relief('bark', { seed }) })
+//
+// A FRESH texture per call, never a shared cached one -- PlacedRegistry.disposeObject3D()
+// disposes a removed object's bumpMap outright, so one cached tile handed to two props
+// would be destroyed out from under whichever of them survived the other. That is why
+// the tile is only 96px square: at ~9k pixels it costs well under a millisecond to
+// generate, and a world places a few hundred of them during one load.
+export function relief(kind, { seed = 7, repeat = 3, size = RELIEF_TILE, strength } = {}) {
+  if (!RELIEF_PATTERNS[kind]) throw new Error(`Unknown relief surface: "${kind}"`);
+  return {
+    bumpMap: reliefTexture(kind, seed, repeat, size),
+    bumpScale: strength ?? RELIEF_STRENGTH[kind],
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Canvas-drawn textures
 // ---------------------------------------------------------------------------
 

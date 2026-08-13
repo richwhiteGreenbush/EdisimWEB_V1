@@ -9,9 +9,11 @@ import {
   mergedMesh,
   canvasTexture,
   signPanel,
+  pediment,
   seededRandom,
   randomIn,
   roughenSphere,
+  relief,
 } from '../PropKit.js';
 
 // "The Park" -- the default world, laid out like a large Olmsted-style city park in
@@ -55,12 +57,18 @@ function puddingstoneTexture(repeatX = 1, repeatY = 1, seed = 3) {
   return texture;
 }
 
-const stoneMat = (repeatX = 2, repeatY = 1, seed = 3) =>
-  standard({ map: puddingstoneTexture(repeatX, repeatY, seed), roughness: 0.95 });
+// The colour map doubles as the bump map. The cobbles ARE the relief in a conglomerate,
+// so the same tile that draws them can just as well displace them -- and reusing it
+// costs nothing, since a texture's dispose() is idempotent no matter how many material
+// slots point at it.
+const stoneMat = (repeatX = 2, repeatY = 1, seed = 3) => {
+  const map = puddingstoneTexture(repeatX, repeatY, seed);
+  return standard({ map, bumpMap: map, bumpScale: 0.55, roughness: 0.95 });
+};
 
-const timberMat = () => standard({ color: 0x6b4a2c, roughness: 0.85 });
-const shingleMat = () => standard({ color: 0x50412f, roughness: 0.9 });
-const IRON = () => standard({ color: 0x2b2f33, roughness: 0.5, metalness: 0.6 });
+const timberMat = () => standard({ color: 0x6b4a2c, roughness: 0.85, ...relief('wood', { seed: 61, repeat: 5 }) });
+const shingleMat = () => standard({ color: 0x50412f, roughness: 0.9, ...relief('wood', { seed: 67, repeat: 8 }) });
+const IRON = () => standard({ color: 0x2b2f33, roughness: 0.5, metalness: 0.6, ...relief('metal', { seed: 71, repeat: 3 }) });
 
 // ---------------------------------------------------------------------------
 // Planting
@@ -92,7 +100,7 @@ export function coniferTree({ height = 24, seed = 2, needleColor = 0x2f5c3a } = 
       color: shade.clone().multiplyScalar(0.82 + t * 0.3).getHex(),
     });
   }
-  return group(mergedMesh(parts, { roughness: 0.9, flatShading: true }));
+  return group(mergedMesh(parts, { roughness: 0.9, flatShading: true, ...relief('bark', { seed, repeat: 4 }) }));
 }
 
 // Blossom tree -- the spring colour in the entrance beds and along the pond bank.
@@ -134,7 +142,7 @@ export function floweringTree({ height = 16, seed = 5, blossomColor = 0xf2a8c4 }
       color: shade.clone().multiplyScalar(randomIn(rng, 0.85, 1.12)).getHex(),
     });
   }
-  g.add(mergedMesh(wood, { roughness: 0.92, flatShading: true }));
+  g.add(mergedMesh(wood, { roughness: 0.92, flatShading: true, ...relief('bark', { seed, repeat: 3 }) }));
   return g;
 }
 
@@ -476,6 +484,155 @@ export function parkPavilion({ width = 22, depth = 14, postHeight = 9 } = {}) {
   return g;
 }
 
+// The nature centre: the park's visitor building, and the thing the "Start your visit
+// here" placard is pointing at.
+//
+// This replaced the downloaded little-library .obj that used to stand here. That model
+// was a street-corner book box scaled up to 12ft, so it read as a garden shed with a
+// glass front rather than as a building anyone could go into, and being sized by HEIGHT
+// it came with a 36ft-square footprint it did not visually earn. Built in code it can be
+// the right shape for the job -- long, low, deep-eaved, with a porch you can read as an
+// entrance from across the lawn -- and it drops one fetch from every load of this world.
+export function natureCentre({ width = 30, depth = 18, wallHeight = 9 } = {}) {
+  const g = group();
+  const stone = stoneMat(5, 1, 71);
+  const timber = timberMat();
+  const trim = standard({ color: 0x8a6a3f, roughness: 0.8, ...relief('wood', { seed: 89, repeat: 4 }) });
+  // Warm interior light behind the glass. Emissive rather than transparent: there is no
+  // interior behind these windows, and a see-through pane would show the far wall's
+  // inside face, which is unlit and reads as a hole in the building.
+  const glass = standard({
+    color: 0x24333d,
+    roughness: 0.22,
+    metalness: 0.35,
+    emissive: new THREE.Color(0xffd79a),
+    emissiveIntensity: 0.3,
+  });
+
+  // Fieldstone plinth, then the timber box on top of it.
+  g.add(box(width + 2.4, 1.1, depth + 2.4, stone, 0, 0.55, 0));
+  const sillY = 1.1;
+
+  const wall = 0.7;
+  // Side and back walls are solid; the front is built as two returns either side of the
+  // porch opening, which is what gives the building a door without cutting geometry.
+  g.add(box(wall, wallHeight, depth, timber, -width / 2 + wall / 2, sillY + wallHeight / 2, 0));
+  g.add(box(wall, wallHeight, depth, timber, width / 2 - wall / 2, sillY + wallHeight / 2, 0));
+  g.add(box(width, wallHeight, wall, timber, 0, sillY + wallHeight / 2, -depth / 2 + wall / 2));
+  const doorWidth = 7;
+  for (const side of [-1, 1]) {
+    const runWidth = (width - doorWidth) / 2;
+    g.add(box(runWidth, wallHeight, wall, timber, side * (doorWidth + runWidth) / 2, sillY + wallHeight / 2, depth / 2 - wall / 2));
+  }
+  // A header over the opening, so the front wall reads as one continuous plane.
+  const doorHeight = 7.4;
+  g.add(box(doorWidth, wallHeight - doorHeight, wall, timber, 0, sillY + wallHeight - (wallHeight - doorHeight) / 2, depth / 2 - wall / 2));
+
+  // The entrance. Glazing the whole opening as one sheet is what a first pass does and
+  // it is wrong every time: a 7ft x 7ft pane of lit glass has no features at all, so it
+  // reads as a blank illuminated board rather than as a way in. What makes it a door is
+  // the divisions -- a dark reveal behind, a transom above, a centre mullion, and rails
+  // at handle height. The glass is dimmer than it looks like it should be, too: this
+  // pane is under a deep porch in permanent shade, so anything brighter glows.
+  const reveal = standard({ color: 0x1b1f22, roughness: 0.95 });
+  const doorFace = depth / 2 - wall - 0.02;
+  g.add(box(doorWidth - 0.5, doorHeight - 0.3, 0.1, reveal, 0, sillY + (doorHeight - 0.3) / 2, doorFace + 0.02));
+  const transomY = sillY + doorHeight - 1.1;
+  g.add(box(doorWidth - 0.9, 1.3, 0.14, glass, 0, transomY, doorFace));
+  for (const side of [-1, 1]) {
+    g.add(box(doorWidth / 2 - 0.75, doorHeight - 2.1, 0.14, glass, side * (doorWidth / 4 + 0.05), sillY + (doorHeight - 2.1) / 2, doorFace));
+    g.add(box(0.16, doorHeight - 2.1, 0.22, trim, side * (doorWidth / 2 - 0.42), sillY + (doorHeight - 2.1) / 2, doorFace + 0.04));
+    // Push bar, at the height a door actually has one.
+    g.add(box(doorWidth / 2 - 1.4, 0.14, 0.22, trim, side * (doorWidth / 4 + 0.05), sillY + 3.3, doorFace + 0.09));
+  }
+  g.add(box(0.34, doorHeight - 0.3, 0.24, trim, 0, sillY + (doorHeight - 0.3) / 2, doorFace + 0.04));
+  g.add(box(doorWidth - 0.5, 0.24, 0.24, trim, 0, transomY - 0.75, doorFace + 0.04));
+
+  // Windows: three a side on the flanks, one either side of the door on the front.
+  //
+  // These hang on the OUTSIDE face of the wall, not its inside face. There is no
+  // interior in this building -- the walls are solid boxes -- so a pane set at
+  // `width / 2 - wall` (the instinctive "inner face", and where these started) is
+  // sealed inside the timber and can never be seen from anywhere a student can stand.
+  // Frame first, glass proud of it, both clear of the wall surface.
+  const paneH = 4;
+  const paneY = sillY + 4.4;
+  const flankX = width / 2;
+  for (const side of [-1, 1]) {
+    for (const dz of [-5.5, 0, 5.5]) {
+      g.add(box(0.3, paneH + 0.7, 4.3, trim, side * (flankX + 0.06), paneY, dz));
+      g.add(box(0.16, paneH, 3.6, glass, side * (flankX + 0.2), paneY, dz));
+    }
+    const frontX = side * (doorWidth / 2 + 4.2);
+    g.add(box(4.1, paneH + 0.7, 0.3, trim, frontX, paneY, depth / 2 + 0.06));
+    g.add(box(3.4, paneH, 0.16, glass, frontX, paneY, depth / 2 + 0.2));
+  }
+
+  // Deep-eaved gable roof. The eaves overhang by 2.5ft, which is most of what makes a
+  // small building read as a park shelter rather than as a shed.
+  const plateY = sillY + wallHeight;
+  const ridgeY = plateY + 5;
+  const pitch = Math.atan2(ridgeY - plateY, depth / 2 + 2.5);
+  const slope = Math.hypot(depth / 2 + 2.5, ridgeY - plateY);
+
+  g.add(box(width + 5.4, 0.55, 0.7, timber, 0, plateY + 0.25, -depth / 2 - 0.2));
+  g.add(box(width + 5.4, 0.55, 0.7, timber, 0, plateY + 0.25, depth / 2 + 0.2));
+  g.add(box(width + 5.4, 0.6, 0.6, timber, 0, ridgeY, 0));
+  for (const sz of [-1, 1]) {
+    const roof = box(width + 5, 0.45, slope, shingleMat(), 0, (ridgeY + plateY) / 2 + 0.3, (sz * (depth / 2 + 2.5)) / 2);
+    roof.rotation.x = sz * pitch;
+    g.add(roof);
+  }
+  // Gable ends, filling the triangle the two roof planes leave open.
+  for (const sx of [-1, 1]) {
+    const gable = pediment(depth + 1.2, ridgeY - plateY, 0.6, timber);
+    gable.position.set(sx * (width / 2 - 0.3), plateY, 0);
+    gable.rotation.y = Math.PI / 2;
+    g.add(gable);
+  }
+
+  // Porch: four posts under a lower shed roof, covering the entrance.
+  const porchDepth = 6;
+  const porchPlate = sillY + 7.4;
+  for (const px of [-doorWidth / 2 - 1.2, doorWidth / 2 + 1.2]) {
+    for (const pz of [depth / 2 + 1, depth / 2 + porchDepth - 1]) {
+      g.add(cyl(0.3, 0.36, porchPlate - sillY, timber, px, sillY + (porchPlate - sillY) / 2, pz, 12));
+    }
+  }
+  g.add(box(doorWidth + 4, 0.4, porchDepth + 1, timber, 0, porchPlate, depth / 2 + porchDepth / 2));
+  const canopy = box(doorWidth + 5, 0.35, porchDepth + 2, shingleMat(), 0, porchPlate + 0.9, depth / 2 + porchDepth / 2);
+  canopy.rotation.x = -0.22;
+  g.add(canopy);
+  // Steps down to the lawn.
+  for (let i = 0; i < 3; i++) {
+    g.add(box(doorWidth + 2, 0.4, 1.2 - i * 0.1, stone, 0, sillY - 0.2 - i * 0.4, depth / 2 + porchDepth + 0.6 + i * 1.1));
+  }
+
+  // The hanging name board under the porch.
+  const board = signPanel(
+    6.4,
+    1.6,
+    canvasTexture(640, 160, (ctx, w, h) => {
+      ctx.fillStyle = '#20401f';
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = '#c9a227';
+      ctx.lineWidth = 6;
+      ctx.strokeRect(10, 10, w - 20, h - 20);
+      ctx.fillStyle = '#f3ead6';
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 54px Georgia, "Times New Roman", serif';
+      ctx.fillText('NATURE CENTRE', w / 2, h * 0.52);
+      ctx.fillStyle = '#c9a227';
+      ctx.font = '24px "Helvetica Neue", Arial, sans-serif';
+      ctx.fillText('MAPS · TRAIL GUIDES · RANGERS', w / 2, h * 0.8);
+    })
+  );
+  board.position.set(0, porchPlate - 1.4, depth / 2 + porchDepth - 0.4);
+  g.add(board);
+
+  return g;
+}
+
 // The historic bear dens: a run of barred stone alcoves under a heavy cornice. Kept
 // because they are the most-visited ruin in the real park, and because "why did we
 // stop keeping animals like this?" is a genuinely good question for a 13-year-old.
@@ -702,10 +859,17 @@ export function parkPond({ radius = 22, seed = 23 } = {}) {
   bank.castShadow = false;
   g.add(bank);
 
+  // The painted ripple streaks double as the bump map, which is what turns a flat disc
+  // of blue-grey into a surface the sun actually glints off as you walk round it. A
+  // near-mirror surface (roughness 0.12) is the one place relief pays off most, since
+  // every bump swings a specular highlight rather than just shading a diffuse face.
+  const ripples = waterTexture();
   const water = mesh(
-    new THREE.CircleGeometry(radius * 0.93, 56),
+    new THREE.CircleGeometry(radius * 0.93, 64),
     standard({
-      map: waterTexture(),
+      map: ripples,
+      bumpMap: ripples,
+      bumpScale: 0.35,
       roughness: 0.12,
       metalness: 0.45,
       transparent: true,

@@ -13,6 +13,7 @@ import {
   roughenSphere,
   seededRandom,
   randomIn,
+  relief,
 } from '../PropKit.js';
 
 // "Fantastic Voyage" -- a walk-through human-anatomy exhibition, built at exhibition
@@ -377,7 +378,7 @@ export function liverModel() {
   standParts(parts, { top: 2.4, x: -3.4, z: -1.5 });
   standParts(parts, { top: 2.4, x: 3.2, z: -1.4, plate: 1.2 });
 
-  g.add(mergedMesh(parts, { roughness: 0.6 }));
+  g.add(mergedMesh(parts, { roughness: 0.6, ...relief('soil', { seed: 5, repeat: 9, strength: 0.35 }) }));
   return g;
 }
 
@@ -457,7 +458,7 @@ export function kidneyModel({ withBladder = true } = {}) {
   standParts(parts, { top: kidneyY - 2.4, x: -3.6, z: -1.6, plate: 1.3 });
   standParts(parts, { top: kidneyY - 1.7, x: 3.6, z: -1.6, plate: 1.3 });
 
-  g.add(mergedMesh(parts, { roughness: 0.62 }));
+  g.add(mergedMesh(parts, { roughness: 0.62, ...relief('soil', { seed: 11, repeat: 8, strength: 0.3 }) }));
   return g;
 }
 
@@ -539,7 +540,7 @@ export function heartModel() {
   standParts(parts, { top: 2.2, x: -2.6, z: -2.0, plate: 1.3 });
   standParts(parts, { top: 2.6, x: 2.6, z: -2.0, plate: 1.3 });
 
-  g.add(mergedMesh(parts, { roughness: 0.55 }));
+  g.add(mergedMesh(parts, { roughness: 0.55, ...relief('soil', { seed: 13, repeat: 7, strength: 0.26 }) }));
   return g;
 }
 
@@ -603,7 +604,7 @@ export function brainModel() {
   );
 
   standParts(parts, { top: lift - 0.6, x: 0, z: -3.9, plate: 1.9 });
-  g.add(mergedMesh(parts, { roughness: 0.68 }));
+  g.add(mergedMesh(parts, { roughness: 0.68, ...relief('soil', { seed: 17, repeat: 10, strength: 0.3 }) }));
   return g;
 }
 
@@ -665,7 +666,7 @@ export function intestineCoil({ turns = 4.2, seed = 5 } = {}) {
   standParts(parts, { top: 1.4, x: -5.6, z: -1.6, plate: 1.4 });
   standParts(parts, { top: 1.4, x: 5.6, z: -1.6, plate: 1.4 });
 
-  g.add(mergedMesh(parts, { roughness: 0.66 }));
+  g.add(mergedMesh(parts, { roughness: 0.66, ...relief('soil', { seed: 19, repeat: 12, strength: 0.3 }) }));
   return g;
 }
 
@@ -1119,7 +1120,7 @@ export function ribCageArch({ span = 15, height = 13, pairs = 7, spacing = 3.4 }
     }
   }
 
-  return group(mergedMesh(parts, { roughness: 0.72 }));
+  return group(mergedMesh(parts, { roughness: 0.72, ...relief('stone', { seed: 23, repeat: 6, strength: 0.32 }) }));
 }
 
 function endotheliumTexture() {
@@ -1280,7 +1281,7 @@ export function microSub({ length = 12 } = {}) {
     });
   }
 
-  g.add(mergedMesh(parts, { roughness: 0.45, metalness: 0.55 }));
+  g.add(mergedMesh(parts, { roughness: 0.45, metalness: 0.55, ...relief('metal', { seed: 29, repeat: 3, strength: 0.18 }) }));
 
   // Canopy: a bubble on the FRONT of the sail, where it clears the hull. Sunk into the
   // hull line -- which is where it started -- a canopy the width of the hull is simply

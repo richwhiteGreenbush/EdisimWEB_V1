@@ -446,7 +446,10 @@ html, body {
 }
 
 #program-palette {
-  width: 190px;
+  /* Sized to the widest block template, which is "duplicate [4] ft away" -- the
+     labels are nowrap, so a palette narrower than its longest block overflows
+     sideways rather than wrapping. */
+  width: 208px;
   flex-shrink: 0;
   overflow-y: auto;
   background: rgba(255, 255, 255, 0.03);
@@ -490,33 +493,30 @@ html, body {
 .pe-block-wrap {
   display: flex;
   flex-direction: column;
-  margin-bottom: 2px;
+  margin-bottom: 5px;
 }
 
+/* Smooth-edged pills, with no jigsaw nub on the top edge -- see the note in
+   ProgramEditor.renderBlockChrome(). The order they run in is carried by the stack
+   itself and by the drop indicator, so nothing is lost by dropping the tab, and the
+   highlight along the top edge does the same "this is a raised object" job the nub's
+   silhouette used to. */
 .pe-block {
   position: relative;
   display: flex;
   align-items: center;
   gap: 6px;
-  min-height: 30px;
-  padding: 5px 10px;
-  border-radius: 7px;
+  min-height: 32px;
+  padding: 6px 11px;
+  border-radius: 11px;
   color: #fff;
   font-size: 12.5px;
   font-weight: 600;
   cursor: grab;
   user-select: none;
   touch-action: none;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.15) inset, 0 2px 3px rgba(0, 0, 0, 0.18);
-}
-
-.pe-notch {
-  position: absolute;
-  top: -4px;
-  left: 14px;
-  width: 16px;
-  height: 5px;
-  border-radius: 3px 3px 0 0;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.28) inset, 0 1px 2px rgba(0, 0, 0, 0.16),
+    0 2px 6px rgba(15, 30, 45, 0.14);
 }
 
 .pe-label {
@@ -561,10 +561,15 @@ html, body {
   background: rgba(0, 0, 0, 0.35);
 }
 
+/* The C-block's left arm. Rounded at both ends and inset a little so it reads as one
+   continuous stroke running from the header down to the footer, rather than as a bar
+   that stops dead. */
 .pe-body {
-  margin-left: 18px;
-  padding: 4px 0 4px 10px;
-  border-left: 4px solid var(--pe-cat-color, #999);
+  margin-left: 16px;
+  margin-top: -2px;
+  padding: 5px 0 5px 12px;
+  border-left: 5px solid var(--pe-cat-color, #999);
+  border-radius: 0 0 0 4px;
   min-height: 10px;
 }
 
@@ -576,9 +581,11 @@ html, body {
 }
 
 .pe-footer {
-  height: 10px;
-  width: 34px;
-  border-radius: 0 0 7px 7px;
+  height: 11px;
+  width: 42px;
+  margin-top: -2px;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
 }
 
 .pe-ghost {

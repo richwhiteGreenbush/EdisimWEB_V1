@@ -59,6 +59,15 @@ function* runBlock(block, ctx) {
       yield { type: 'tick' };
       return;
 
+    case 'duplicate':
+      // ctx.duplicate is wired up by ProgramManager. It is optional so that this
+      // runner stays usable (and testable) with nothing but an object3D, the way
+      // every other block here is -- an unwired duplicate is simply a no-op rather
+      // than an exception that kills the whole program mid-run.
+      ctx.duplicate?.(Number(block.params.offset) || 0);
+      yield { type: 'tick' };
+      return;
+
     default:
       return;
   }
@@ -74,6 +83,11 @@ function* runBlocks(blocks, ctx) {
 // step it a little at a time (once per animation frame) instead of running it to
 // completion synchronously -- required for `forever` to not hang the tab, and it also
 // paces movement blocks inside loops to a smooth ~1-step-per-frame cadence.
-export function runProgram(blocks, object3D) {
-  return runBlocks(blocks, { object3D });
+//
+// `effects` carries anything a block needs that is not the object itself -- currently
+// just `duplicate`, which has to reach the registry and the world store. Kept as an
+// injected callback rather than an import so this module stays a pure interpreter over
+// one Object3D, with no knowledge of how the rest of the app is wired together.
+export function runProgram(blocks, object3D, effects = {}) {
+  return runBlocks(blocks, { object3D, ...effects });
 }

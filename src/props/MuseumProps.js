@@ -13,6 +13,7 @@ import {
   pediment,
   seededRandom,
   randomIn,
+  relief,
 } from '../PropKit.js';
 
 // "The Museum" -- a neoclassical art gallery, its sculptures, and its paintings.
@@ -23,9 +24,11 @@ import {
 // (each frame's plaque names the movement and what defines it) and it means the
 // gallery ships no third-party image files at all.
 
-const MARBLE = () => standard({ color: 0xf1ede3, roughness: 0.34, metalness: 0.02 });
-const STONE = () => standard({ color: 0xe4dfd2, roughness: 0.72 });
-const BRONZE = () => standard({ color: 0x8c6a3f, roughness: 0.3, metalness: 0.85 });
+// Polished marble is nearly smooth, so its relief is deliberately faint -- just enough
+// veining and tool-marking to stop a 50ft wall of it reading as a single flat fill.
+const MARBLE = () => standard({ color: 0xf1ede3, roughness: 0.34, metalness: 0.02, ...relief('stone', { seed: 11, repeat: 4, strength: 0.2 }) });
+const STONE = () => standard({ color: 0xe4dfd2, roughness: 0.72, ...relief('stone', { seed: 13, repeat: 3 }) });
+const BRONZE = () => standard({ color: 0x8c6a3f, roughness: 0.3, metalness: 0.85, ...relief('metal', { seed: 17, repeat: 2, strength: 0.22 }) });
 
 function tiledTexture(repeatX, repeatY, size, draw) {
   const texture = canvasTexture(size, size, draw);

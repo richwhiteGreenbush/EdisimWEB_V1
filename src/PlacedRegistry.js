@@ -7,7 +7,7 @@ function disposeObject3D(root) {
     if (node.material) {
       const materials = Array.isArray(node.material) ? node.material : [node.material];
       for (const material of materials) {
-        for (const key of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'emissiveMap', 'aoMap']) {
+        for (const key of ['map', 'normalMap', 'bumpMap', 'roughnessMap', 'metalnessMap', 'emissiveMap', 'aoMap']) {
           material[key]?.dispose?.();
         }
         material.dispose();

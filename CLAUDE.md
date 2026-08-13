@@ -154,15 +154,53 @@ visit where `rehydrateAll()` comes back with an empty registry — builds it via
 plain page refresh restores whatever the student actually did to it rather than
 resetting their work; Load World ▸ The Park is the deliberate way back to a fresh copy.
 This replaced `placeStartupAssets()`, which no longer exists — `StartupAssets.js` is now
-just the three loaders, and the Park places those assets as records instead (the little
-library as the nature centre, the maple as specimen trees, the Edusim image as the
-welcome banner).
+just the three loaders, and the Park places two of those assets as records (the maple as
+specimen trees, the Edusim image as the welcome banner).
+
+**The Park no longer uses `startup-library` at all.** The downloaded little-library
+`.obj` stood in as the nature centre and was the wrong object for the job twice over: it
+is a street-corner book box, so blown up to a 12ft ridge it read as a garden shed with a
+glass front rather than a building anyone could enter, and because these assets are
+sized by *height*, that 12ft gave it a ~36ft-square footprint it did not visually earn.
+`ParkProps.natureCentre()` replaces it — long, low, deep-eaved, with a porch that reads
+as an entrance from across the lawn — and drops one fetch from every load of this world.
+The loader and the `startup-library` record kind both stay: worlds saved before this
+still carry those records, and `WorldStore` must keep rehydrating them.
+
+Two things that building caught, both general:
+
+- **A window has to sit on the OUTER face of a wall.** These buildings have no interior —
+  the walls are solid boxes — so a pane placed at the instinctive "inner face"
+  (`width / 2 - wall`) is sealed inside the timber and can never be seen from anywhere a
+  student can stand. Only the doorway is different, because it is a real opening.
+- **Glazing a whole door opening as one sheet is always wrong.** A 7ft × 7ft pane of lit
+  glass has no features, so it reads as a blank illuminated board, not a way in. What
+  makes it a door is the divisions — a dark reveal behind it, a transom, a centre
+  mullion, rails at handle height — and the glass has to be dimmer than instinct says,
+  since it sits in permanent shade under the porch.
 
 A preset world is *just a list of records* — the same record shape IndexedDB and a
 world file already hold — handed to the existing `WorldStore.loadFromRecords()`. So
 presets need no loading path of their own, and once loaded every object in them is
 clickable, resizable, movable, **programmable** and saveable like anything else the
 user placed. Nothing stores geometry or image bytes.
+
+**Every world puts a live web browser panel by its spawn point**, via
+`WorldPresets.browserStation()`. It emits **two** records, not one: the panel (a
+`web-browser`, carrying nothing but its URL) and a `browser-kiosk` prop under it. They
+stay separate objects deliberately — a browser panel is one bezel mesh that the whole
+Size/Move/Program and persistence machinery already understands, and folding scenery into
+it would mean every one of those paths growing a special case for this one kind. The
+price is that resizing the panel does not resize its stand, which is the right trade.
+Two placement details:
+
+- `rotY` is `atan2(dx, dz)`, not `atan2(dz, dx)` — a plain `Object3D`'s **+Z** is its
+  facing direction, and the bezel's `PlaneGeometry` is authored in XY looking down +Z.
+- Each station sits about **10ft ahead of the spawn and 8ft to one side**, ~39° off the
+  arrival sightline. The first pass used ~11ft to the side and 3ft ahead, which is 75°
+  off — outside the frame on any screen, so a student arrived with the panel behind their
+  shoulder. Note the camera's `fov: 70` is **vertical**; a 16:9 screen actually sees about
+  51° either side, which is what makes 39° comfortable rather than marginal.
 
 `buildPresetWorldRecords(name, { groundHeightAt })` (`WorldPresets.js`) **applies the
 theme first, then reads each object's Y off the freshly reshaped terrain.** That order
@@ -195,6 +233,38 @@ House rules every builder follows (also stated at the top of `PropKit.js`):
 - Randomness goes through `seededRandom()`, never `Math.random()` — a world rebuilt
   from its records must look identical to the one the student first saw, not reshuffle
   every bookshelf and boulder field on each rehydrate.
+- Surfaces get their texture from `PropKit.relief(kind, { seed, repeat, strength })`,
+  spread into a material's params (`bark` / `wood` / `stone` / `metal` / `soil` /
+  `weave`).
+
+`relief()` exists because every prop here is built from smooth analytic solids, and a
+smooth solid under a single sun reads as plastic whatever colour it is painted. It
+returns a small tileable greyscale height field wired in as a **`bumpMap`** — and it has
+to be a bumpMap, not a colour map, for two reasons. First, nearly every prop is a merged
+**vertex-coloured** mesh, and a material carrying both a `map` and `vertexColors`
+multiplies the two — the exact mistake that turned the bear dens' facade near-black. A
+bump map does not touch colour, so it composes safely with vertex colours, with a real
+map, or with a flat colour. Second, getting the same relief out of triangles would
+multiply the vertex count of every object in every world.
+
+Four things to know about it:
+
+- **A fresh texture per call, never a cached shared one.** `disposeObject3D()` disposes a
+  removed object's `bumpMap` outright, so one cached tile handed to two props is
+  destroyed out from under whichever survives. That is why the tile is only 96px square.
+- **`NoColorSpace`, not the sRGB `canvasTexture()` sets.** A bump map is data, not
+  colour; the sRGB decode would silently reshape every height in it.
+- **The patterns are anisotropic on purpose.** A material's character is mostly *which
+  direction its detail runs* — bark stretches the noise vertically into fibres, brushed
+  metal stretches it the other way, and only stone is left isotropic.
+- **It fakes lighting, not silhouette.** It vanishes at grazing angles and never
+  self-shadows, so it is right for grain and weathering and wrong for anything whose
+  outline should visibly change.
+
+Where a prop *already* has a colour map whose light and dark **are** its relief — the
+Park's puddingstone and pond ripples, the Library's wood — that same texture is passed as
+`bumpMap` as well rather than generating a second one. A texture's `dispose()` is
+idempotent, so pointing two material slots at one texture is safe.
 
 `mergeColored()`/`mergedMesh()` collapse many small solids into one vertex-colored
 geometry (a 30-book shelf, a 40-part wire wheel, a whole arcaded wall) so the scene
@@ -468,9 +538,16 @@ Clicking **Program** in `ObjectMenu` opens `ProgramEditor`, a Scratch-style
 drag-and-drop block editor. The pieces:
 
 - `BlockDefs.js` — the schema: block type → category/color, label tokens, and param
-  defaults (`repeat`/`forever`/`wait` control; `moveX/Y/Z`/`rotate` motion;
+  defaults (`repeat`/`forever`/`wait`/`duplicate` control; `moveX/Y/Z`/`rotate` motion;
   `changeSize`/`changeColor` look). `createBlockInstance()`/`cloneBlockTree()` are the
-  only ways block instances get created — always with fresh `id`s.
+  only ways block instances get created — always with fresh `id`s. Blocks are rendered
+  as plain rounded pills with **no jigsaw nub on the top edge** — Scratch draws one
+  because its blocks are a single bitmap per block with no gap between them, so the tab
+  is what shows they interlock; here they are spaced DOM elements and a 5px stub poking
+  out of the top read as a rendering artifact. Order is carried by the stack itself and
+  by the drop indicator, so nothing is lost. Note `#program-palette`'s width is sized to
+  the widest block template (`duplicate [4] ft away`) — the labels are `nowrap`, so a
+  narrower palette overflows sideways rather than wrapping.
 - `ProgramRunner.js` — a **generator-based** interpreter (`function*`). Every action
   yields once (`{type:'tick'}` or `{type:'wait', seconds}`) instead of running to
   completion, so a `forever` loop can be stepped one action per frame without ever
@@ -499,6 +576,37 @@ resume automatically no matter how the object entered the scene — it starts th
 section). `ProgramEditor.save()` is the only other place a program is written; both
 call `programManager.start()`, which always calls `stop()` first, so re-saving or
 re-clicking play cleanly replaces any prior runner rather than stacking multiple.
+
+**The `duplicate` block is the only one whose effect leaves its own object**, and
+everything awkward about it follows from that (`Duplicator.js`):
+
+- It copies the **record**, not the `Object3D`. Every kind already knows how to rebuild
+  itself from a record, so cloning it and handing it back to `WorldStore.rehydrateOne()`
+  duplicates all nine kinds with no per-kind code. `object3D.clone()` would instead share
+  materials and maps with the original — which `PlacedRegistry.disposeObject3D()` then
+  destroys out from under the survivor — and would leave the copy with no record, so it
+  could never be saved, reloaded or edited.
+- The transform comes from the **live** `object3D`, not `record.transform`. A program
+  that has been moving its object has not written those changes back to the record
+  (`persistTransform` only runs on an `ObjectMenu` edit), so the record can be many feet
+  stale and the copy would appear at the object's starting point.
+- **`stripDuplicateBlocks()` is what stops the block being exponential.** A copy that
+  inherited an unmodified program would start duplicating on its own next frame, and each
+  of its copies after that, so `forever { duplicate }` would double the world every few
+  frames. Removing just this one block leaves the rest intact — a spinning object still
+  produces spinning copies, they simply do not breed. A loop left holding nothing after
+  the strip is dropped too, or `repeat 4 { duplicate }` hands every copy an empty
+  `repeat` — a non-empty program that does nothing, which still earns a green play icon.
+- **The offset is stepped per run**, counted in the closure `ProgramManager.start()`
+  builds. Without it `repeat 3 { duplicate 4 ft }` puts all three copies at the same
+  point, because the object never moved between them and each measured from the same
+  origin — a student sees one object and concludes the block is broken.
+- `MAX_WORLD_OBJECTS` (400) exists only because of this block: it is the one thing in the
+  app that adds objects without a human clicking each time.
+- `ProgramManager` is constructed at the top of `main.js` (`PlacedRegistry` takes it as a
+  constructor argument), long before the registry and world store exist, so
+  `programManager.onDuplicate` is **assigned afterwards** rather than injected. That is
+  safe because nothing calls it until a program is actually running.
 
 ### Play icon: manual (re)start for programmed objects
 

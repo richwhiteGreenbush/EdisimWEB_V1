@@ -12,6 +12,7 @@ import {
   seededRandom,
   randomIn,
   roughenSphere,
+  relief,
 } from '../PropKit.js';
 import { moonRocks } from './MoonProps.js';
 import { dustDevil } from './MarsProps.js';
@@ -82,8 +83,20 @@ function spike(length, radius, color, [x, y, z], rotation, s = 1) {
 // real work: it reads as scaled hide on a low-poly form, and it hides the seams where a
 // dozen separately-swept tubes intersect. side: DoubleSide is for the pterosaur's
 // membrane sheets and is harmless on the rest.
-function creature(parts) {
-  return group(mergedMesh(parts, { roughness: 0.9, flatShading: true, side: THREE.DoubleSide }));
+//
+// The 'soil' relief on top of it is the pebbled hide. Flat shading gives the broad
+// facets of a big animal's form; the bump map gives the fine scale texture inside each
+// facet, which is the scale a student is actually standing at next to a 13ft hip.
+// A high repeat is the point -- the tile has to land at scale-sized, not plate-sized.
+function creature(parts, seed = 3) {
+  return group(
+    mergedMesh(parts, {
+      roughness: 0.9,
+      flatShading: true,
+      side: THREE.DoubleSide,
+      ...relief('soil', { seed, repeat: 14, strength: 0.55 }),
+    })
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -161,7 +174,7 @@ export function tyrannosaurus({ scale = 1, back = 0x7d7c53, belly = 0xc6ba8e, se
     }
   }
 
-  return creature(parts);
+  return creature(parts, seed);
 }
 
 // ---------------------------------------------------------------------------
@@ -227,7 +240,7 @@ export function triceratops({ scale = 1, hide = 0x93977a, frill = 0xa07f56, seed
   parts.push(tube([[-8.5, 8.6, 0], [-11.5, 8.0, 0], [-14.5, 7.0, 0]], [2.2, 1.2, 0.28], hide, s, { tubularSegments: 12 }));
   for (const side of [-1, 1]) parts.push(blob(0.3, EYE, [11.3, 9.2, side * 1.85], s, 8));
 
-  return creature(parts);
+  return creature(parts, seed);
 }
 
 // ---------------------------------------------------------------------------
@@ -283,7 +296,7 @@ export function ankylosaurus({ scale = 1, hide = 0x847768, armor = 0x9c9280, see
     }
   }
 
-  return creature(parts);
+  return creature(parts, seed);
 }
 
 // ---------------------------------------------------------------------------
@@ -323,7 +336,7 @@ export function edmontosaurus({ scale = 1, hide = 0xa89873, stripe = 0x7a6b45, s
     parts.push(blob(0.75, hide, [5.4, 0.5, side * 2.5], s, 8));
   }
 
-  return creature(parts);
+  return creature(parts, seed);
 }
 
 // ---------------------------------------------------------------------------
@@ -356,7 +369,7 @@ export function pachycephalosaurus({ scale = 1, hide = 0x9c7c53, dome = 0xd0b98b
     parts.push(tube([[3.2, 5.2, side * 1.0], [4.0, 3.9, side * 1.2]], [0.35, 0.22], hide, s, { tubularSegments: 6 }));
   }
 
-  return creature(parts);
+  return creature(parts, 23);
 }
 
 // ---------------------------------------------------------------------------
@@ -408,7 +421,7 @@ export function quetzalcoatlus({ scale = 1, hide = 0xd6cfbe, wing = 0x9d8f7a } =
     parts.push(tube([[-2.4, 0.2, side * 1.0], [-3.2, -0.6, side * 1.8]], [0.32, 0.2], hide, s, { tubularSegments: 6 }));
   }
 
-  return creature(parts);
+  return creature(parts, 29);
 }
 
 // ---------------------------------------------------------------------------
@@ -530,7 +543,7 @@ export function treeFern({ height = 14, fronds = 11, seed = 3, leaf = 0x4f7f35 }
   // A tight fiddlehead at the crown -- the new frond, still coiled.
   parts.push({ geometry: new THREE.TorusGeometry(0.55, 0.22, 6, 12), rotation: [0, 0.6, 0], position: [0, height + 0.9, 0], color: leaf });
 
-  return group(mergedMesh(parts, { roughness: 0.9, flatShading: true }));
+  return group(mergedMesh(parts, { roughness: 0.9, flatShading: true, ...relief('bark', { seed, repeat: 5 }) }));
 }
 
 // Cycads look like palms and are not remotely related to them. They were so abundant in
@@ -556,7 +569,7 @@ export function cycad({ height = 6, seed = 5, leaf = 0x3f6f30 } = {}) {
     parts.push(frond(height * randomIn(rng, 0.75, 1.0), height * 0.3, shade, [0, height, 0], angle));
   }
 
-  return group(mergedMesh(parts, { roughness: 0.85, flatShading: true }));
+  return group(mergedMesh(parts, { roughness: 0.85, flatShading: true, ...relief('bark', { seed, repeat: 4 }) }));
 }
 
 // Ginkgo: a living fossil. The tree in a car park today is near-identical to the one a
@@ -595,7 +608,7 @@ export function ginkgoTree({ height = 26, seed = 7, leaf = 0x9cbb46 } = {}) {
     });
   }
 
-  return group(mergedMesh(parts, { roughness: 0.9, flatShading: true }));
+  return group(mergedMesh(parts, { roughness: 0.9, flatShading: true, ...relief('bark', { seed, repeat: 5 }) }));
 }
 
 // Araucaria -- the monkey-puzzle family. Whorls of branches up a straight trunk give
@@ -633,7 +646,7 @@ export function araucariaTree({ height = 40, seed = 9, needle = 0x2f5b34 } = {})
   }
   parts.push({ geometry: new THREE.ConeGeometry(height * 0.07, height * 0.16, 8), position: [0, height * 1.02, 0], color: needle });
 
-  return group(mergedMesh(parts, { roughness: 0.92, flatShading: true }));
+  return group(mergedMesh(parts, { roughness: 0.92, flatShading: true, ...relief('bark', { seed, repeat: 6 }) }));
 }
 
 // Horsetails. The same plant still grows by ditches today, but in the Cretaceous some
@@ -784,9 +797,9 @@ function researchBoardTexture() {
 // raised platform would only be somewhere they could look at and never stand.
 export function fieldCamp({ width = 20, depth = 14, postHeight = 9 } = {}) {
   const g = group();
-  const timber = standard({ color: 0x7a5c3a, roughness: 0.92 });
-  const dark = standard({ color: 0x4b3a26, roughness: 0.9 });
-  const thatch = standard({ color: 0xa88b4e, roughness: 1, flatShading: true });
+  const timber = standard({ color: 0x7a5c3a, roughness: 0.92, ...relief('wood', { seed: 73, repeat: 6 }) });
+  const dark = standard({ color: 0x4b3a26, roughness: 0.9, ...relief('wood', { seed: 79, repeat: 4 }) });
+  const thatch = standard({ color: 0xa88b4e, roughness: 1, flatShading: true, ...relief('weave', { seed: 83, repeat: 5 }) });
 
   const structure = [];
   for (const sx of [-1, 1]) {
@@ -984,7 +997,7 @@ export function boardwalk({ length = 14, width = 6, seed = 23 } = {}) {
     parts.push({ geometry: new THREE.BoxGeometry(0.35, 0.3, length), position: [sx * (width / 2 - 0.3), 0.05, 0], color: 0x5f4830 });
   }
 
-  const walk = mergedMesh(parts, { roughness: 0.95 });
+  const walk = mergedMesh(parts, { roughness: 0.95, ...relief('wood', { seed, repeat: 6 }) });
   walk.castShadow = false;
   return group(walk);
 }

@@ -11,6 +11,7 @@ import {
   canvasTexture,
   seededRandom,
   randomIn,
+  relief,
 } from '../PropKit.js';
 
 // Props shared by more than one preset world: the info placards that carry each
@@ -45,7 +46,8 @@ export function infoPlacard({ title, body, eyebrow, accent = '#8c6b3f', height =
           color: metalColor,
         },
       ],
-      { roughness: 0.5, metalness: 0.6 }
+      // Cast, not machined: a placard stand that is perfectly smooth reads as plastic.
+      { roughness: 0.5, metalness: 0.6, ...relief('metal', { seed: 31, repeat: 2 }) }
     )
   );
 
@@ -80,7 +82,7 @@ export function standingSign({
   ink = '#f3ead6',
   accent = '#c9a227',
 } = {}) {
-  const post = standard({ color: 0x4a4136, roughness: 0.85 });
+  const post = standard({ color: 0x4a4136, roughness: 0.85, ...relief('wood', { seed: 17, repeat: 4 }) });
   const g = group();
 
   const inset = width / 2 - 0.5;
@@ -140,27 +142,30 @@ export function bench({ length = 5, woodColor = 0x8a5a32 } = {}) {
     parts.push({ geometry: new THREE.BoxGeometry(length, 0.3, 0.1), position: [0, 2.0 + i * 0.38, -0.62], color: woodColor });
   }
 
-  return group(mergedMesh(parts, { roughness: 0.75 }));
+  // One bump map over the whole merge, so the grain runs across the cast legs as well
+  // as the slats. That is not wrong -- cast iron of this period is visibly grainy too --
+  // and it is the price of the merge that keeps a bench at one draw call.
+  return group(mergedMesh(parts, { roughness: 0.75, ...relief('wood', { seed: 23, repeat: 5 }) }));
 }
 
 // Lamp post with a real PointLight inside the globe, so it genuinely lights the
 // ground under it rather than only looking lit.
 export function lampPost({ height = 11, color = 0xffe6b0, intensity = 1.6 } = {}) {
-  const iron = standard({ color: 0x24272b, roughness: 0.55, metalness: 0.5 });
+  const iron = standard({ color: 0x24272b, roughness: 0.55, metalness: 0.5, ...relief('metal', { seed: 41, repeat: 3 }) });
   const g = group();
 
-  g.add(cyl(0.32, 0.44, 0.5, iron, 0, 0.25, 0, 16));
-  g.add(cyl(0.14, 0.2, height, iron, 0, height / 2 + 0.4, 0, 14));
+  g.add(cyl(0.32, 0.44, 0.5, iron, 0, 0.25, 0, 18));
+  g.add(cyl(0.14, 0.2, height, iron, 0, height / 2 + 0.4, 0, 16));
 
   const globe = new THREE.Mesh(
-    new THREE.SphereGeometry(0.6, 20, 14),
+    new THREE.SphereGeometry(0.6, 24, 16),
     standard({ color: 0xfff4d8, emissive: new THREE.Color(color), emissiveIntensity: 2.4, roughness: 0.4 })
   );
   globe.position.y = height + 0.7;
   globe.userData.isGlowMesh = true;
   g.add(globe);
 
-  g.add(cyl(0.32, 0.12, 0.5, iron, 0, height + 1.35, 0, 14));
+  g.add(cyl(0.32, 0.12, 0.5, iron, 0, height + 1.35, 0, 16));
 
   const light = new THREE.PointLight(color, intensity, 34, 2);
   light.position.y = height + 0.7;
@@ -207,7 +212,11 @@ export function shadeTree({ height = 22, seed = 4, leafColor = 0x4c7d33, trunkCo
   const crownY = trunkHeight + height * 0.24;
   const crownRadius = height * 0.3;
   const shade = new THREE.Color(leafColor);
-  parts.push({ geometry: new THREE.IcosahedronGeometry(crownRadius, 1), position: [0, crownY, 0], color: leafColor });
+  // Detail 2 on the main mass only. At detail 1 a 6-7ft-radius crown is a visibly
+  // twenty-sided lump from underneath, which is exactly where a student stands; the
+  // satellite blobs are small enough that the extra 240 triangles each would buy
+  // nothing.
+  parts.push({ geometry: new THREE.IcosahedronGeometry(crownRadius, 2), position: [0, crownY, 0], color: leafColor });
   for (let i = 0; i < 5; i++) {
     const angle = (i / 5) * Math.PI * 2 + 0.6;
     parts.push({
@@ -222,13 +231,51 @@ export function shadeTree({ height = 22, seed = 4, leafColor = 0x4c7d33, trunkCo
     });
   }
 
-  return group(mergedMesh(parts, { roughness: 0.9, flatShading: true }));
+  // Bark relief over the whole merge. On the trunk and limbs it is doing its real job;
+  // on the canopy the same fibres read as leaf clutter, which is a bonus rather than a
+  // compromise -- a flat-shaded blob is the one part of this tree that most gives away
+  // that it was generated.
+  return group(mergedMesh(parts, { roughness: 0.9, flatShading: true, ...relief('bark', { seed, repeat: 3 }) }));
+}
+
+// The stand a web browser panel sits on.
+//
+// A browser panel is a WebGL bezel with a CSS3D <iframe> welded to its transform, and
+// nothing else -- so left on its own it hangs in mid-air with clear sky underneath,
+// which reads as a bug rather than as a screen. This is the missing furniture: a plinth,
+// a column and a surround sized to the panel, so the thing looks bolted down.
+//
+// It is a SEPARATE placed object from the panel, not part of it. The panel has to stay
+// exactly what it is -- one bezel mesh that Size/Move/Program and persistence already
+// understand -- and welding scenery into it would mean every one of those paths growing
+// a special case. The cost is that resizing the panel does not resize the stand, which
+// is the right trade: a student who shrinks a panel has moved on from caring about its
+// furniture.
+export function browserKiosk({ width = 4, panelHeight = 2.6, centreY = 4 } = {}) {
+  const steel = standard({ color: 0x2a2f35, roughness: 0.45, metalness: 0.65, ...relief('metal', { seed: 53, repeat: 3 }) });
+  const g = group();
+
+  const sillY = centreY - panelHeight / 2; // the panel's bottom edge -- where the column stops
+  const inset = width / 2 - 0.18;
+
+  g.add(cyl(1.15, 1.45, 0.22, steel, 0, 0.11, 0, 24));
+  g.add(box(0.85, sillY - 0.22, 0.5, steel, 0, 0.22 + (sillY - 0.22) / 2, -0.1));
+  g.add(box(width + 0.36, 0.26, 0.42, steel, 0, sillY - 0.05, -0.1));
+
+  // A surround rather than a solid backing board: the panel is double-sided DOM content
+  // and a backing board behind it would be the only thing visible from behind.
+  for (const side of [-1, 1]) {
+    g.add(box(0.22, panelHeight + 0.5, 0.32, steel, side * inset, centreY, -0.1));
+  }
+  g.add(box(width + 0.36, 0.22, 0.32, steel, 0, centreY + panelHeight / 2 + 0.15, -0.1));
+
+  return g;
 }
 
 // A shallow planter box with a simple shrub -- softens the plaza edges outdoors.
 export function planter({ size = 3, shrubColor = 0x3f7a3a } = {}) {
-  const stone = standard({ color: 0xb9b3a6, roughness: 0.95 });
-  const soil = standard({ color: 0x3a2d21, roughness: 1 });
+  const stone = standard({ color: 0xb9b3a6, roughness: 0.95, ...relief('stone', { seed: 13, repeat: 2 }) });
+  const soil = standard({ color: 0x3a2d21, roughness: 1, ...relief('soil', { seed: 19, repeat: 3 }) });
   const leaf = standard({ color: shrubColor, roughness: 0.9, flatShading: true });
   const g = group();
 

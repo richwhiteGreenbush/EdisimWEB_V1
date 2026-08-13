@@ -12,6 +12,7 @@ import {
   seededRandom,
   randomIn,
   roughenSphere,
+  relief,
 } from '../PropKit.js';
 import { earthTexture } from './Earth.js';
 
@@ -30,8 +31,8 @@ const FOIL = () =>
     emissive: new THREE.Color(0x2a1c05),
     emissiveIntensity: 0.5,
   });
-const WHITE_PAINT = () => standard({ color: 0xe8e6e0, roughness: 0.6 });
-const DARK_METAL = () => standard({ color: 0x3a3d42, roughness: 0.45, metalness: 0.7 });
+const WHITE_PAINT = () => standard({ color: 0xe8e6e0, roughness: 0.6, ...relief('metal', { seed: 23, repeat: 3, strength: 0.2 }) });
+const DARK_METAL = () => standard({ color: 0x3a3d42, roughness: 0.45, metalness: 0.7, ...relief('metal', { seed: 29, repeat: 3 }) });
 
 // ---------------------------------------------------------------------------
 // Lunar Roving Vehicle
