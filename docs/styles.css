@@ -1150,3 +1150,46 @@ a {
   color: rgba(238, 242, 248, 0.86);
   text-align: center;
 }
+
+/* --------------------------------------------------------------------------
+   Hands-On Guide callout, in the worlds section. The guide is the one part of
+   the site a visitor is meant to LEAVE with, so it gets a real block rather
+   than only a nav link.
+   -------------------------------------------------------------------------- */
+
+.guide-callout {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 1.8rem;
+  align-items: center;
+  margin-top: 2.2rem;
+  padding: 1.6rem 1.8rem;
+  background: var(--cream, #fdf7ea);
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  border-radius: 22px;
+}
+
+.guide-callout h3 {
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  margin: 0.6rem 0 0.5rem;
+}
+
+.guide-callout p {
+  margin-bottom: 1.1rem;
+}
+
+.guide-callout img {
+  width: 100%;
+  border-radius: 14px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  display: block;
+}
+
+@media (max-width: 820px) {
+  .guide-callout {
+    grid-template-columns: 1fr;
+  }
+  .guide-callout img {
+    order: -1;
+  }
+}

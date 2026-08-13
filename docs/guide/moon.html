@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Moon — Edusim Hands-On Guide</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+<nav class="gnav no-print">
+  <div class="wrap">
+    <a class="gbrand" href="index.html"><span>🌎</span> Hands-On Guide</a>
+    <div class="gnav-links">
+      <a href="index.html">All cards</a>
+      <a href="teachers.html">For teachers</a>
+      <a href="../index.html">Main site</a>
+      <a class="gbtn" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">Open Edusim</a>
+    </div>
+  </div>
+</nav>
+
+<main class="card" style="--accent: #2f6bd6;">
+  <div class="wrap">
+
+    <header class="card-head">
+      <div class="ch-left">
+        <span class="ch-kicker">Training Card 4 of 7</span>
+        <h1><span class="ch-emoji">🌙</span> The Moon</h1>
+        <p class="ch-tag">Tranquility Base, at real size — and a sky that stays black at noon.</p>
+      </div>
+      <button class="printbtn no-print" onclick="window.print()">🖨️ Print this card</button>
+    </header>
+
+    <p class="howto"><strong>Getting there:</strong> open Edusim, tap <span class="key">☰ Menu</span> →
+      <span class="key">Load World</span> → <span class="key">The Moon</span>. You will be set down at the
+      front gate. Look for the bright <span class="key">⚡ ACTIVITY</span> boards — there are two of them.</p>
+
+    <div class="shots">
+      <figure class="shot">
+        <img src="shots/moon_1.jpg" alt="The landing site. The lunar module, the flag that cannot wave, and Earth hanging in a black sky." loading="lazy" />
+        <figcaption>The landing site. The lunar module, the flag that cannot wave, and Earth hanging in a black sky.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="shots/moon_2.jpg" alt="Activity 1 stands beside the Moon buggy." loading="lazy" />
+        <figcaption>Activity 1 stands beside the Moon buggy.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="shots/moon_3.jpg" alt="Activity 2 is back near where you arrive — look up from it." loading="lazy" />
+        <figcaption>Activity 2 is back near where you arrive — look up from it.</figcaption>
+      </figure>
+    </div>
+
+    <h2 class="sec">Quick starts — do these first</h2>
+    <p class="sec-note">Both of these are printed on boards inside the world too, so you can leave this card at home.
+      Click the object, choose <strong>Program</strong>, drag the blocks together in this order, then press <strong>Save</strong>.</p>
+      <section class="qs">
+        <div class="qs-head"><span class="qs-num">1</span>
+          <div><h3>Take the buggy out for rock samples</h3><p class="qs-target">Click the Moon buggy → Program</p></div>
+        </div>
+        <ol class="blocks">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk ctrl d1">repeat 12 times</li>
+            <li class="blk motion d2">move X by 0.5 feet</li>
+            <li class="blk motion d1">rotate 180 degrees</li>
+            <li class="blk ctrl d1">repeat 12 times</li>
+            <li class="blk motion d2">move X by -0.5 feet</li>
+            <li class="blk motion d1">rotate 180 degrees</li>
+        </ol>
+        <p class="qs-tip">💡 Six feet out, turn, six feet home. Real crews were never allowed to drive further than they could <i>walk</i> back if the buggy broke down — so keep your loops short.</p>
+      </section>
+      <section class="qs">
+        <div class="qs-head"><span class="qs-num">2</span>
+          <div><h3>Set the Earth turning</h3><p class="qs-target">Look up, click the Earth → Program</p></div>
+        </div>
+        <ol class="blocks">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk motion d1">rotate 0.5 degrees</li>
+        </ol>
+        <p class="qs-tip">💡 From here the Earth never rises and never sets — the Moon keeps one face toward us, so it just hangs there. It does still turn, though: one full spin every 24 hours.</p>
+      </section>
+
+    <h2 class="sec">Then try these three</h2>
+    <ol class="more">
+        <li>
+          <h4>One-sixth gravity hop</h4>
+          <p>Make the lunar module bounce gently. On the Moon you weigh a sixth of what you do at home, so things come down slowly — see if you can find timings that <i>feel</i> like low gravity.</p>
+          <ol class="blocks mini">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk ctrl d1">repeat 8 times</li>
+            <li class="blk motion d2">move Y by 0.3 feet</li>
+            <li class="blk ctrl d2">wait 0.08 seconds</li>
+            <li class="blk ctrl d1">repeat 8 times</li>
+            <li class="blk motion d2">move Y by -0.3 feet</li>
+            <li class="blk ctrl d2">wait 0.08 seconds</li>
+          </ol>
+        </li>
+        <li>
+          <h4>Rover convoy</h4>
+          <p>Duplicate the buggy twice, then give each copy a different <b>wait</b> so they set off at different speeds. Which one gets home first, and why?</p>
+          <ol class="blocks mini">
+            <li class="blk ctrl d0">repeat 2 times</li>
+            <li class="blk ctrl d1">duplicate 8 ft away</li>
+          </ol>
+        </li>
+        <li>
+          <h4>Solar tracker</h4>
+          <p>The habitat's solar array should follow the Sun. Turn it slowly and work out how long your version takes to go all the way round. A real lunar day is 29½ Earth days.</p>
+          <ol class="blocks mini">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk motion d1">rotate 0.2 degrees</li>
+            <li class="blk ctrl d1">wait 0.1 seconds</li>
+          </ol>
+        </li>
+    </ol>
+
+    <aside class="fact">
+      <h4>🤯 Worth knowing</h4>
+      <p>The footprints out there have no wind, no rain and no running water to erase them. The ones left in 1969 could still be sharp in a million years — only the slow sandblasting of micrometeorites will ever wear them away.</p>
+    </aside>
+
+    <section class="legend">
+      <h4>Block colours</h4>
+      <ul>
+        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, duplicate</li>
+        <li><span class="swatch motion"></span> <strong>Motion</strong> — move X / Y / Z, rotate</li>
+        <li><span class="swatch look"></span> <strong>Looks</strong> — change size, change colour</li>
+      </ul>
+      <p class="legend-note"><strong>One rule that catches everybody:</strong> <span class="key">move X</span>,
+        <span class="key">move Y</span> and <span class="key">move Z</span> slide an object along the
+        <em>world's</em> directions, not the direction it happens to be facing. Turning something does not change
+        which way it will then travel — that is why the loops above go out and come back rather than driving in a circle.</p>
+    </section>
+
+    <nav class="cardnav no-print">
+      <a href="library.html">← previous card</a>
+      <a href="index.html">all cards</a>
+      <a href="mars.html">next card →</a>
+    </nav>
+
+  </div>
+</main>
+
+<footer class="gfoot">
+  <div class="wrap">
+    <p><strong>Edusim: Web Edition</strong> — Hands-On Guide. Print as many as you like.</p>
+    <p class="fine">Open the app at <span class="mono">edisimwebv1-production.up.railway.app</span> · No account needed.</p>
+  </div>
+</footer>
+</body>
+</html>

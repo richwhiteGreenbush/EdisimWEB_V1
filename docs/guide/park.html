@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Park — Edusim Hands-On Guide</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+<nav class="gnav no-print">
+  <div class="wrap">
+    <a class="gbrand" href="index.html"><span>🌎</span> Hands-On Guide</a>
+    <div class="gnav-links">
+      <a href="index.html">All cards</a>
+      <a href="teachers.html">For teachers</a>
+      <a href="../index.html">Main site</a>
+      <a class="gbtn" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">Open Edusim</a>
+    </div>
+  </div>
+</nav>
+
+<main class="card" style="--accent: #2f8f5b;">
+  <div class="wrap">
+
+    <header class="card-head">
+      <div class="ch-left">
+        <span class="ch-kicker">Training Card 1 of 7</span>
+        <h1><span class="ch-emoji">🌳</span> The Park</h1>
+        <p class="ch-tag">A whole city park — pond, bandstand, playground and a hundred-year-old design.</p>
+      </div>
+      <button class="printbtn no-print" onclick="window.print()">🖨️ Print this card</button>
+    </header>
+
+    <p class="howto"><strong>Getting there:</strong> open Edusim, tap <span class="key">☰ Menu</span> →
+      <span class="key">Load World</span> → <span class="key">The Park</span>. You will be set down at the
+      front gate. Look for the bright <span class="key">⚡ ACTIVITY</span> boards — there are two of them.</p>
+
+    <div class="shots">
+      <figure class="shot">
+        <img src="shots/park_1.jpg" alt="Standing at the gate. The path runs straight down to the bandstand — everything else branches off it." loading="lazy" />
+        <figcaption>Standing at the gate. The path runs straight down to the bandstand — everything else branches off it.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="shots/park_2.jpg" alt="Activity 1 waits by the pond, over on the west side past the arch bridge." loading="lazy" />
+        <figcaption>Activity 1 waits by the pond, over on the west side past the arch bridge.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="shots/park_3.jpg" alt="Activity 2 stands out on the meadow, near the tall maple." loading="lazy" />
+        <figcaption>Activity 2 stands out on the meadow, near the tall maple.</figcaption>
+      </figure>
+    </div>
+
+    <h2 class="sec">Quick starts — do these first</h2>
+    <p class="sec-note">Both of these are printed on boards inside the world too, so you can leave this card at home.
+      Click the object, choose <strong>Program</strong>, drag the blocks together in this order, then press <strong>Save</strong>.</p>
+      <section class="qs">
+        <div class="qs-head"><span class="qs-num">1</span>
+          <div><h3>Send the geese out for a paddle</h3><p class="qs-target">Click a goose → Program</p></div>
+        </div>
+        <ol class="blocks">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk ctrl d1">repeat 20 times</li>
+            <li class="blk motion d2">move X by 0.3 feet</li>
+            <li class="blk ctrl d1">repeat 20 times</li>
+            <li class="blk motion d2">move X by -0.3 feet</li>
+        </ol>
+        <p class="qs-tip">💡 Out six feet, back six feet, over and over. Drop a <b>wait 0.1 seconds</b> inside each loop to slow them to a proper glide — geese are never in a hurry.</p>
+      </section>
+      <section class="qs">
+        <div class="qs-head"><span class="qs-num">2</span>
+          <div><h3>Grow the maple from a sapling</h3><p class="qs-target">Click the big maple tree → Program</p></div>
+        </div>
+        <ol class="blocks">
+            <li class="blk ctrl d0">repeat 12 times</li>
+            <li class="blk look d1">change size by 8 %</li>
+            <li class="blk ctrl d1">wait 0.2 seconds</li>
+        </ol>
+        <p class="qs-tip">💡 8% of a big tree is more than 8% of a small one, so it speeds up as it goes — which is exactly what real growth does. Use <b>-7 %</b> to shrink it back.</p>
+      </section>
+
+    <h2 class="sec">Then try these three</h2>
+    <ol class="more">
+        <li>
+          <h4>Bench city</h4>
+          <p>Click a bench and give it <b>repeat 5 times → duplicate 6 ft away</b>. You get a whole row. Now program one of the copies to spin and watch which ones copied the spin and which didn't.</p>
+          <ol class="blocks mini">
+            <li class="blk ctrl d0">repeat 5 times</li>
+            <li class="blk ctrl d1">duplicate 6 ft away</li>
+          </ol>
+        </li>
+        <li>
+          <h4>Sunset over the pond</h4>
+          <p>Click one of the glowing light orbs and make it fade between two colours. Stand back at dusk distance and see what it does to the water.</p>
+          <ol class="blocks mini">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk look d1">change color to orange</li>
+            <li class="blk ctrl d1">wait 2 seconds</li>
+            <li class="blk look d1">change color to blue</li>
+            <li class="blk ctrl d1">wait 2 seconds</li>
+          </ol>
+        </li>
+        <li>
+          <h4>Tallest tree in the park</h4>
+          <p>Grow a conifer by 5% twenty times over. Before you run it, predict: is it now twice as tall, or more? (Get a calculator out — 1.05 multiplied by itself 20 times is about 2.65.)</p>
+          <ol class="blocks mini">
+            <li class="blk ctrl d0">repeat 20 times</li>
+            <li class="blk look d1">change size by 5 %</li>
+            <li class="blk ctrl d1">wait 0.1 seconds</li>
+          </ol>
+        </li>
+    </ol>
+
+    <aside class="fact">
+      <h4>🤯 Worth knowing</h4>
+      <p>Franklin Park in Boston really exists, and it really was designed in the 1880s by Frederick Law Olmsted — the same man who designed New York's Central Park. The bear dens are real too, and animals really did live in them until the 1950s.</p>
+    </aside>
+
+    <section class="legend">
+      <h4>Block colours</h4>
+      <ul>
+        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, duplicate</li>
+        <li><span class="swatch motion"></span> <strong>Motion</strong> — move X / Y / Z, rotate</li>
+        <li><span class="swatch look"></span> <strong>Looks</strong> — change size, change colour</li>
+      </ul>
+      <p class="legend-note"><strong>One rule that catches everybody:</strong> <span class="key">move X</span>,
+        <span class="key">move Y</span> and <span class="key">move Z</span> slide an object along the
+        <em>world's</em> directions, not the direction it happens to be facing. Turning something does not change
+        which way it will then travel — that is why the loops above go out and come back rather than driving in a circle.</p>
+    </section>
+
+    <nav class="cardnav no-print">
+      <a href="voyage.html">← previous card</a>
+      <a href="index.html">all cards</a>
+      <a href="museum.html">next card →</a>
+    </nav>
+
+  </div>
+</main>
+
+<footer class="gfoot">
+  <div class="wrap">
+    <p><strong>Edusim: Web Edition</strong> — Hands-On Guide. Print as many as you like.</p>
+    <p class="fine">Open the app at <span class="mono">edisimwebv1-production.up.railway.app</span> · No account needed.</p>
+  </div>
+</footer>
+</body>
+</html>

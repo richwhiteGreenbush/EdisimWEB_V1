@@ -362,12 +362,12 @@ export function cardTexture({
 }
 
 // A flat, double-sided sign face. Used for placards, aisle signs, and building signage.
-export function signPanel(width, height, texture, { emissive = null } = {}) {
+export function signPanel(width, height, texture, { emissive = null, emissiveIntensity = 0.35 } = {}) {
   const material = standard({
     map: texture,
     roughness: 0.85,
     side: THREE.DoubleSide,
-    ...(emissive ? { emissive: new THREE.Color(emissive), emissiveMap: texture, emissiveIntensity: 0.35 } : {}),
+    ...(emissive ? { emissive: new THREE.Color(emissive), emissiveMap: texture, emissiveIntensity } : {}),
   });
   return mesh(new THREE.PlaneGeometry(width, height), material);
 }

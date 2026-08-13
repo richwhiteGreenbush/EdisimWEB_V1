@@ -1,0 +1,231 @@
+/* Hands-On Guide — printable training cards and lesson plans.
+   Kept separate from the marketing site's styles.css: this one is built around a sheet
+   of paper first and a screen second, which is the opposite of the main page. */
+
+:root {
+  --ink: #241f1a;
+  --muted: #5d5348;
+  --paper: #fdfaf3;
+  --line: #e3dccc;
+  --ctrl: #ffab19;
+  --ctrl-dark: #cf8b17;
+  --motion: #4c97ff;
+  --motion-dark: #3373cc;
+  --look: #9966ff;
+  --look-dark: #774dcc;
+  --accent: #2f8f5b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #eef1f4;
+  color: var(--ink);
+  font-family: Nunito, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3, h4 { font-family: Fredoka, Nunito, sans-serif; margin: 0 0 0.4em; line-height: 1.15; }
+p { margin: 0 0 0.9em; }
+a { color: #1f6b8a; }
+.wrap { width: min(1080px, 100% - 2.5rem); margin-inline: auto; }
+.mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.9em; }
+
+/* ---------------------------------------------------------------- nav / footer */
+
+.gnav { background: var(--paper); border-bottom: 3px solid var(--line); position: sticky; top: 0; z-index: 20; }
+.gnav .wrap { display: flex; align-items: center; gap: 1rem; padding: 0.7rem 0; flex-wrap: wrap; }
+.gbrand { font-family: Fredoka, sans-serif; font-weight: 600; font-size: 1.15rem; color: var(--ink); text-decoration: none; margin-right: auto; }
+.gnav-links { display: flex; align-items: center; gap: 1.1rem; flex-wrap: wrap; }
+.gnav-links a { color: var(--muted); text-decoration: none; font-weight: 700; font-size: 0.95rem; }
+.gnav-links a:hover { color: var(--ink); }
+.gbtn {
+  background: #f2a541; color: #402200 !important; border-radius: 999px;
+  padding: 0.5rem 1.1rem; font-weight: 800; text-decoration: none; display: inline-block;
+  box-shadow: 0 3px 0 #c9821f;
+}
+.gbtn.ghost { background: transparent; color: #fff !important; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.6); }
+.gbtn.big { padding: 0.75rem 1.6rem; font-size: 1.05rem; }
+
+.gfoot { background: #241f1a; color: #d9d2c6; padding: 2rem 0; margin-top: 3rem; }
+.gfoot p { margin: 0.2rem 0; }
+.gfoot .fine { color: #9d9384; font-size: 0.9rem; }
+
+/* ---------------------------------------------------------------- hub */
+
+.hub-hero { background: linear-gradient(160deg, #3d8bf2, #7b5cf5); color: #fff; padding: 3rem 0 3.4rem; text-align: center; }
+.hub-hero.teachers { background: linear-gradient(160deg, #1f7d63, #2f6bd6); }
+.hub-eyebrow { display: inline-block; background: rgba(255,255,255,0.18); border-radius: 999px; padding: 0.3rem 0.9rem; font-weight: 800; font-size: 0.85rem; letter-spacing: 0.03em; }
+.hub-hero h1 { font-size: clamp(2.1rem, 6vw, 3.2rem); margin: 0.7rem 0 0.5rem; }
+.hub-hero p { max-width: 62ch; margin-inline: auto; color: rgba(255,255,255,0.94); }
+.hub-cta { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; margin-top: 1.4rem; }
+
+.hub { padding: 2.5rem 0 1rem; }
+.hub-how { background: var(--paper); border: 2px solid var(--line); border-radius: 18px; padding: 1.4rem 1.6rem; margin-bottom: 2.2rem; }
+.steps { margin: 0; padding-left: 1.3rem; }
+.steps li { margin-bottom: 0.45rem; }
+.hub-tip { margin: 0.9rem 0 0; color: var(--muted); font-style: italic; }
+
+.hub-grid { display: grid; gap: 1.3rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.hub-card {
+  display: flex; flex-direction: column; background: var(--paper); border: 2px solid var(--line);
+  border-top: 7px solid var(--accent); border-radius: 16px; overflow: hidden; text-decoration: none;
+  color: var(--ink); transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.hub-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(20,30,45,0.14); }
+.hub-card img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; }
+.hub-body { padding: 1rem 1.1rem 1.2rem; }
+.hub-num { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.hub-card h3 { font-size: 1.3rem; margin: 0.2rem 0 0.4rem; }
+.hub-card p { color: var(--muted); font-size: 0.94rem; }
+.hub-qs { margin: 0.6rem 0 0; padding-left: 1.1rem; font-size: 0.9rem; color: var(--muted); }
+.hub-qs li { margin-bottom: 0.15rem; }
+
+/* ---------------------------------------------------------------- card */
+
+.card { padding: 2rem 0 1rem; }
+.card .wrap { background: var(--paper); border: 2px solid var(--line); border-radius: 18px; padding: 1.8rem 2rem 2.2rem; }
+
+.card-head { display: flex; align-items: flex-start; gap: 1rem; border-bottom: 5px solid var(--accent); padding-bottom: 1rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+.ch-left { flex: 1 1 320px; }
+.ch-kicker { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: var(--accent); }
+.card-head h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); margin: 0.15rem 0 0.3rem; }
+.ch-emoji { margin-right: 0.2rem; }
+.ch-tag { color: var(--muted); margin: 0; }
+.printbtn { background: var(--accent); color: #fff; border: 0; border-radius: 999px; padding: 0.6rem 1.2rem; font: inherit; font-weight: 800; cursor: pointer; }
+
+.howto { background: #fff; border: 2px dashed var(--line); border-radius: 12px; padding: 0.8rem 1rem; }
+.key { background: #ece5d6; border-radius: 6px; padding: 0.05em 0.4em; font-weight: 700; white-space: nowrap; }
+
+.shots { display: grid; gap: 0.9rem; grid-template-columns: repeat(3, 1fr); margin: 1.3rem 0 1.6rem; }
+.shot { margin: 0; }
+.shot img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 10px; border: 2px solid var(--line); display: block; }
+.shot figcaption { font-size: 0.82rem; color: var(--muted); margin-top: 0.35rem; line-height: 1.35; }
+
+.sec { font-size: 1.45rem; margin-top: 1.6rem; border-top: 2px solid var(--line); padding-top: 1.1rem; }
+.sec-note { color: var(--muted); margin-top: -0.3rem; }
+
+/* Quick starts */
+.qs { background: #fff; border: 2px solid var(--line); border-left: 6px solid var(--accent); border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1rem; break-inside: avoid; }
+.qs-head { display: flex; gap: 0.8rem; align-items: flex-start; }
+.qs-num { flex: 0 0 auto; width: 2rem; height: 2rem; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; display: grid; place-items: center; }
+.qs h3 { font-size: 1.25rem; margin: 0.1rem 0 0.15rem; }
+.qs-target { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.qs-tip { margin: 0.7rem 0 0; font-size: 0.92rem; color: var(--muted); background: rgba(0,0,0,0.035); border-radius: 8px; padding: 0.55rem 0.75rem; }
+
+/* Block chips — same three colours as the palette inside the app, so the card and the
+   editor agree at a glance. */
+.blocks { list-style: none; margin: 0.8rem 0 0; padding: 0; }
+.blocks li {
+  display: inline-block; color: #fff; font-weight: 700; font-size: 0.92rem;
+  border-radius: 10px; padding: 0.3rem 0.75rem; margin: 0 0 0.32rem;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.3) inset, 0 2px 3px rgba(0,0,0,0.14);
+}
+.blocks li { display: block; width: fit-content; }
+.blocks .ctrl { background: var(--ctrl); }
+.blocks .motion { background: var(--motion); }
+.blocks .look { background: var(--look); }
+.blocks .d1 { margin-left: 1.5rem; }
+.blocks .d2 { margin-left: 3rem; }
+.blocks.mini li { font-size: 0.82rem; padding: 0.22rem 0.6rem; }
+
+/* Extra challenges */
+.more { list-style: none; counter-reset: ch; margin: 0; padding: 0; display: grid; gap: 1rem; grid-template-columns: repeat(3, 1fr); }
+.more li { counter-increment: ch; background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 0.9rem 1rem; break-inside: avoid; }
+.more h4 { font-size: 1.05rem; margin: 0 0 0.35rem; }
+.more h4::before { content: counter(ch); display: inline-grid; place-items: center; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.8rem; margin-right: 0.45rem; vertical-align: 0.05em; }
+.more p { font-size: 0.9rem; color: var(--muted); }
+
+.fact { background: #fff6e2; border: 2px solid #f0dcb0; border-radius: 12px; padding: 0.9rem 1.2rem; margin: 1.5rem 0 0; break-inside: avoid; }
+.fact h4 { margin: 0 0 0.3rem; }
+.fact p { margin: 0; }
+
+.legend { margin-top: 1.4rem; border-top: 2px solid var(--line); padding-top: 1rem; break-inside: avoid; }
+.legend ul { list-style: none; margin: 0 0 0.7rem; padding: 0; display: flex; gap: 1.4rem; flex-wrap: wrap; font-size: 0.92rem; }
+.swatch { display: inline-block; width: 1rem; height: 1rem; border-radius: 4px; vertical-align: -0.15em; margin-right: 0.25rem; }
+.swatch.ctrl { background: var(--ctrl); }
+.swatch.motion { background: var(--motion); }
+.swatch.look { background: var(--look); }
+.legend-note { font-size: 0.9rem; color: var(--muted); margin: 0; }
+
+.cardnav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.6rem; border-top: 2px solid var(--line); padding-top: 1rem; font-weight: 700; }
+
+/* ---------------------------------------------------------------- lessons */
+
+.lessons { padding: 2.2rem 0 1rem; }
+.before { background: var(--paper); border: 2px solid var(--line); border-radius: 16px; padding: 1.3rem 1.6rem; margin-bottom: 2rem; }
+.beforelist { margin: 0; padding-left: 1.2rem; }
+.beforelist li { margin-bottom: 0.4rem; }
+
+.lesson { background: var(--paper); border: 2px solid var(--line); border-top: 7px solid var(--accent); border-radius: 16px; padding: 1.3rem 1.6rem 1.5rem; margin-bottom: 1.6rem; break-inside: avoid; }
+.lesson-head { display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap; border-bottom: 2px solid var(--line); padding-bottom: 0.6rem; margin-bottom: 0.9rem; }
+.lesson-head h2 { font-size: 1.55rem; margin: 0; }
+.subjects { color: var(--accent); font-weight: 800; font-size: 0.88rem; }
+.objective { background: #fff; border-left: 5px solid var(--accent); border-radius: 8px; padding: 0.6rem 0.9rem; }
+
+.lesson-grid { display: grid; gap: 0.9rem; grid-template-columns: repeat(4, 1fr); margin: 1rem 0 1.1rem; }
+.lesson-grid h4 { font-size: 0.98rem; margin: 0 0 0.3rem; }
+.lesson-grid p { font-size: 0.9rem; color: var(--muted); margin: 0; }
+.mins { display: block; font-size: 0.76rem; font-weight: 700; color: var(--accent); letter-spacing: 0.03em; }
+
+.lesson-cols { display: grid; gap: 1.4rem; grid-template-columns: 1.15fr 1fr; border-top: 2px solid var(--line); padding-top: 0.9rem; }
+.lesson-cols h4 { font-size: 1rem; margin: 0 0 0.4rem; }
+.qlist { margin: 0 0 0.6rem; padding-left: 1.2rem; font-size: 0.92rem; }
+.qlist li { margin-bottom: 0.3rem; }
+.qslist { margin: 0 0 0.9rem; padding-left: 1.2rem; font-size: 0.92rem; color: var(--muted); }
+.lesson-cols p { font-size: 0.92rem; color: var(--muted); }
+.cardlink { font-weight: 700; }
+
+/* ---------------------------------------------------------------- responsive */
+
+@media (max-width: 860px) {
+  .shots, .more { grid-template-columns: 1fr; }
+  .lesson-grid { grid-template-columns: repeat(2, 1fr); }
+  .lesson-cols { grid-template-columns: 1fr; }
+  .card .wrap { padding: 1.2rem 1.1rem 1.6rem; }
+}
+
+/* ---------------------------------------------------------------- print
+
+   A card is meant to come out as one or two sheets a student can carry to a machine, so
+   print styling is not an afterthought here. Everything chrome-like goes, the paper goes
+   white, colours are forced to print (browsers strip backgrounds by default and the
+   block chips are USELESS in greyscale -- their colour is the whole point), and anything
+   that must not be split across a page break says so. */
+
+@media print {
+  @page { margin: 12mm; }
+
+  body { background: #fff; font-size: 10.5pt; line-height: 1.4; }
+  .no-print, .gnav, .gfoot, .printbtn, .cardnav, .hub-cta { display: none !important; }
+
+  .wrap { width: 100% !important; }
+  .card { padding: 0; }
+  .card .wrap, .hub-how, .before, .lesson, .qs, .more li, .fact, .hub-card {
+    border-radius: 0; box-shadow: none; background: #fff !important;
+  }
+  .card .wrap { border: 0; padding: 0; }
+
+  /* Force the block colours through. Without this the chips print as grey lozenges and
+     a student cannot tell Control from Motion, which is the one thing they encode. */
+  .blocks li, .swatch, .qs-num, .more h4::before, .hub-num {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  a { color: var(--ink); text-decoration: none; }
+  .shots { grid-template-columns: repeat(3, 1fr); gap: 6mm; }
+  .shot img { border: 1px solid #bbb; }
+  .qs, .more li, .fact, .legend, .lesson { break-inside: avoid; page-break-inside: avoid; }
+  .sec { break-after: avoid; page-break-after: avoid; }
+
+  /* One lesson plan per sheet, so a teacher can pull out just the one they need. */
+  .lesson { break-after: page; page-break-after: always; border-top-width: 4px; }
+  .lesson:last-child { break-after: auto; page-break-after: auto; }
+
+  .hub-hero { background: #fff !important; color: var(--ink) !important; padding: 0 0 1rem; text-align: left; }
+  .hub-hero p, .hub-eyebrow { color: var(--ink) !important; background: none !important; padding: 0; }
+}

@@ -347,8 +347,19 @@ export function activityBoard({
     }
   });
 
+  // Self-lit, using its own artwork as the emissive map.
+  //
+  // A big flat panel facing away from the sun is a black silhouette -- the trap this
+  // project has already hit on Mars -- and it bites hardest here, because this is the one
+  // sign a student MUST be able to read. On the Moon, with the hemisphere fill at 0.35
+  // and no atmosphere to bounce anything, a board turned even slightly away from the sun
+  // came out as a solid black rectangle. Aiming every board at the sun is not a fix
+  // either: they can be approached from any direction, in any world.
+  //
+  // The intensity is a balance -- high enough to stay legible in lunar shadow, low enough
+  // that it is not a backlit advertising hoarding at noon in the park.
   const panelY = postHeight - height / 2 - 0.5;
-  const panel = signPanel(width, height, texture);
+  const panel = signPanel(width, height, texture, { emissive: '#ffffff', emissiveIntensity: 0.5 });
   panel.position.set(0, panelY, 0.001);
   g.add(box(width + 0.16, height + 0.16, 0.12, post, 0, panelY, -0.07), panel);
 

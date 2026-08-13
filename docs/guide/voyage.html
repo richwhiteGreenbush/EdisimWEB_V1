@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fantastic Voyage — Edusim Hands-On Guide</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+<nav class="gnav no-print">
+  <div class="wrap">
+    <a class="gbrand" href="index.html"><span>🌎</span> Hands-On Guide</a>
+    <div class="gnav-links">
+      <a href="index.html">All cards</a>
+      <a href="teachers.html">For teachers</a>
+      <a href="../index.html">Main site</a>
+      <a class="gbtn" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">Open Edusim</a>
+    </div>
+  </div>
+</nav>
+
+<main class="card" style="--accent: #b8324a;">
+  <div class="wrap">
+
+    <header class="card-head">
+      <div class="ch-left">
+        <span class="ch-kicker">Training Card 7 of 7</span>
+        <h1><span class="ch-emoji">🫀</span> Fantastic Voyage</h1>
+        <p class="ch-tag">You have been shrunk. Walk in along an artery and out into a hall of organs the size of cars.</p>
+      </div>
+      <button class="printbtn no-print" onclick="window.print()">🖨️ Print this card</button>
+    </header>
+
+    <p class="howto"><strong>Getting there:</strong> open Edusim, tap <span class="key">☰ Menu</span> →
+      <span class="key">Load World</span> → <span class="key">Fantastic Voyage</span>. You will be set down at the
+      front gate. Look for the bright <span class="key">⚡ ACTIVITY</span> boards — there are two of them.</p>
+
+    <div class="shots">
+      <figure class="shot">
+        <img src="shots/voyage_1.jpg" alt="The organ hall. Lungs, stomach, liver and kidneys around the outside, heart in the middle joining them up." loading="lazy" />
+        <figcaption>The organ hall. Lungs, stomach, liver and kidneys around the outside, heart in the middle joining them up.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="shots/voyage_2.jpg" alt="Activity 1 stands beside the heart, at the centre of everything." loading="lazy" />
+        <figcaption>Activity 1 stands beside the heart, at the centre of everything.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="shots/voyage_3.jpg" alt="Activity 2 is right back at the entrance, by the micro-sub." loading="lazy" />
+        <figcaption>Activity 2 is right back at the entrance, by the micro-sub.</figcaption>
+      </figure>
+    </div>
+
+    <h2 class="sec">Quick starts — do these first</h2>
+    <p class="sec-note">Both of these are printed on boards inside the world too, so you can leave this card at home.
+      Click the object, choose <strong>Program</strong>, drag the blocks together in this order, then press <strong>Save</strong>.</p>
+      <section class="qs">
+        <div class="qs-head"><span class="qs-num">1</span>
+          <div><h3>Make the heart beat</h3><p class="qs-target">Click the heart → Program</p></div>
+        </div>
+        <ol class="blocks">
+            <li class="blk ctrl d0">repeat 12 times</li>
+            <li class="blk look d1">change size by 6 %</li>
+            <li class="blk ctrl d1">wait 0.3 seconds</li>
+            <li class="blk look d1">change size by -6 %</li>
+            <li class="blk ctrl d1">wait 0.3 seconds</li>
+        </ol>
+        <p class="qs-tip">💡 Squeeze, rest, squeeze, rest — about 100,000 times a day without a break. Watch closely and the heart ends a shade smaller than it started: +6% then −6% does not quite cancel out. Percentages are sneaky.</p>
+      </section>
+      <section class="qs">
+        <div class="qs-head"><span class="qs-num">2</span>
+          <div><h3>Launch the micro-sub</h3><p class="qs-target">Click the submarine → Program</p></div>
+        </div>
+        <ol class="blocks">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk ctrl d1">repeat 30 times</li>
+            <li class="blk motion d2">move Z by -0.8 feet</li>
+            <li class="blk motion d1">rotate 180 degrees</li>
+            <li class="blk ctrl d1">repeat 30 times</li>
+            <li class="blk motion d2">move Z by 0.8 feet</li>
+            <li class="blk motion d1">rotate 180 degrees</li>
+        </ol>
+        <p class="qs-tip">💡 Twenty-four feet down the hall and back. Swallowable pill-sized cameras have been doing the real version of this trip since 2001 — no crew, but a very long journey.</p>
+      </section>
+
+    <h2 class="sec">Then try these three</h2>
+    <ol class="more">
+        <li>
+          <h4>Resting pulse vs. running pulse</h4>
+          <p>A resting heart beats 60–100 times a minute. Work out the <b>wait</b> that gives exactly 70 beats a minute, then double the rate for someone sprinting. (Hint: one beat is two waits.)</p>
+          <ol class="blocks mini">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk look d1">change size by 6 %</li>
+            <li class="blk ctrl d1">wait 0.43 seconds</li>
+            <li class="blk look d1">change size by -6 %</li>
+            <li class="blk ctrl d1">wait 0.43 seconds</li>
+          </ol>
+        </li>
+        <li>
+          <h4>Breathe</h4>
+          <p>Give the lungs the same treatment as the heart, but slower — you breathe about 12–20 times a minute, not 70. Run both at once and listen to the rhythm they make together.</p>
+          <ol class="blocks mini">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk look d1">change size by 5 %</li>
+            <li class="blk ctrl d1">wait 1.5 seconds</li>
+            <li class="blk look d1">change size by -5 %</li>
+            <li class="blk ctrl d1">wait 1.5 seconds</li>
+          </ol>
+        </li>
+        <li>
+          <h4>Blood on the move</h4>
+          <p>Send the red blood cells drifting down the artery you walked in through. Real ones make the whole circuit of your body in about a minute.</p>
+          <ol class="blocks mini">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk ctrl d1">repeat 30 times</li>
+            <li class="blk motion d2">move Z by -0.5 feet</li>
+            <li class="blk ctrl d2">wait 0.05 seconds</li>
+            <li class="blk ctrl d1">repeat 30 times</li>
+            <li class="blk motion d2">move Z by 0.5 feet</li>
+            <li class="blk ctrl d2">wait 0.05 seconds</li>
+          </ol>
+        </li>
+    </ol>
+
+    <aside class="fact">
+      <h4>🤯 Worth knowing</h4>
+      <p>Everything in this hall is roughly fifteen to twenty times too big. A real liver is about the size of a football and a kidney is the size of your fist — you could hold the whole exhibition in two hands.</p>
+    </aside>
+
+    <section class="legend">
+      <h4>Block colours</h4>
+      <ul>
+        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, duplicate</li>
+        <li><span class="swatch motion"></span> <strong>Motion</strong> — move X / Y / Z, rotate</li>
+        <li><span class="swatch look"></span> <strong>Looks</strong> — change size, change colour</li>
+      </ul>
+      <p class="legend-note"><strong>One rule that catches everybody:</strong> <span class="key">move X</span>,
+        <span class="key">move Y</span> and <span class="key">move Z</span> slide an object along the
+        <em>world's</em> directions, not the direction it happens to be facing. Turning something does not change
+        which way it will then travel — that is why the loops above go out and come back rather than driving in a circle.</p>
+    </section>
+
+    <nav class="cardnav no-print">
+      <a href="dinosaur.html">← previous card</a>
+      <a href="index.html">all cards</a>
+      <a href="park.html">next card →</a>
+    </nav>
+
+  </div>
+</main>
+
+<footer class="gfoot">
+  <div class="wrap">
+    <p><strong>Edusim: Web Edition</strong> — Hands-On Guide. Print as many as you like.</p>
+    <p class="fine">Open the app at <span class="mono">edisimwebv1-production.up.railway.app</span> · No account needed.</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>On Mars — Edusim Hands-On Guide</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+<nav class="gnav no-print">
+  <div class="wrap">
+    <a class="gbrand" href="index.html"><span>🌎</span> Hands-On Guide</a>
+    <div class="gnav-links">
+      <a href="index.html">All cards</a>
+      <a href="teachers.html">For teachers</a>
+      <a href="../index.html">Main site</a>
+      <a class="gbtn" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">Open Edusim</a>
+    </div>
+  </div>
+</nav>
+
+<main class="card" style="--accent: #c2521f;">
+  <div class="wrap">
+
+    <header class="card-head">
+      <div class="ch-left">
+        <span class="ch-kicker">Training Card 5 of 7</span>
+        <h1><span class="ch-emoji">🔴</span> On Mars</h1>
+        <p class="ch-tag">A crewed outpost under a butterscotch sky — walk in through the airlock and look around.</p>
+      </div>
+      <button class="printbtn no-print" onclick="window.print()">🖨️ Print this card</button>
+    </header>
+
+    <p class="howto"><strong>Getting there:</strong> open Edusim, tap <span class="key">☰ Menu</span> →
+      <span class="key">Load World</span> → <span class="key">On Mars</span>. You will be set down at the
+      front gate. Look for the bright <span class="key">⚡ ACTIVITY</span> boards — there are two of them.</p>
+
+    <div class="shots">
+      <figure class="shot">
+        <img src="shots/mars_1.jpg" alt="Mars Base One. The dome is the hub — if you get lost, find it on the skyline and walk back." loading="lazy" />
+        <figcaption>Mars Base One. The dome is the hub — if you get lost, find it on the skyline and walk back.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="shots/mars_2.jpg" alt="Activity 1 stands out by the rover, east of the dome." loading="lazy" />
+        <figcaption>Activity 1 stands out by the rover, east of the dome.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="shots/mars_3.jpg" alt="Activity 2 is near the scout helicopter, on the way in." loading="lazy" />
+        <figcaption>Activity 2 is near the scout helicopter, on the way in.</figcaption>
+      </figure>
+    </div>
+
+    <h2 class="sec">Quick starts — do these first</h2>
+    <p class="sec-note">Both of these are printed on boards inside the world too, so you can leave this card at home.
+      Click the object, choose <strong>Program</strong>, drag the blocks together in this order, then press <strong>Save</strong>.</p>
+      <section class="qs">
+        <div class="qs-head"><span class="qs-num">1</span>
+          <div><h3>Send the rover out on survey</h3><p class="qs-target">Click the six-wheeled rover → Program</p></div>
+        </div>
+        <ol class="blocks">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk ctrl d1">repeat 20 times</li>
+            <li class="blk motion d2">move Z by -0.4 feet</li>
+            <li class="blk ctrl d2">wait 0.1 seconds</li>
+            <li class="blk motion d1">rotate 180 degrees</li>
+            <li class="blk ctrl d1">repeat 20 times</li>
+            <li class="blk motion d2">move Z by 0.4 feet</li>
+            <li class="blk ctrl d2">wait 0.1 seconds</li>
+            <li class="blk motion d1">rotate 180 degrees</li>
+        </ol>
+        <p class="qs-tip">💡 Real Mars rovers crawl. Curiosity averages about 100 feet an <i>hour</i>, because every step has to be checked from Earth first — and Earth is up to 22 light-minutes away.</p>
+      </section>
+      <section class="qs">
+        <div class="qs-head"><span class="qs-num">2</span>
+          <div><h3>Fly the scout copter</h3><p class="qs-target">Click the little helicopter → Program</p></div>
+        </div>
+        <ol class="blocks">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk ctrl d1">repeat 10 times</li>
+            <li class="blk motion d2">move Y by 0.4 feet</li>
+            <li class="blk ctrl d2">wait 0.1 seconds</li>
+            <li class="blk ctrl d1">repeat 10 times</li>
+            <li class="blk motion d2">move Y by -0.4 feet</li>
+            <li class="blk ctrl d2">wait 0.1 seconds</li>
+        </ol>
+        <p class="qs-tip">💡 Up four feet, hover, back down. <b>move Y</b> is the only block that goes up — and on Mars getting off the ground is the hard part, because there is barely any air for the blades to push against.</p>
+      </section>
+
+    <h2 class="sec">Then try these three</h2>
+    <ol class="more">
+        <li>
+          <h4>Two rovers, opposite ways</h4>
+          <p>Duplicate the rover, then send the original along <b>+Z</b> and the copy along <b>−Z</b>. Watch them separate. This is how a real survey covers ground twice as fast.</p>
+          <ol class="blocks mini">
+            <li class="blk ctrl d0">duplicate 10 ft away</li>
+          </ol>
+        </li>
+        <li>
+          <h4>Grow-bay light show</h4>
+          <p>The crops grow under magenta light because plants only use the red and blue parts of sunlight. Program an orb in the grow bay to cycle — then argue about whether it would still work.</p>
+          <ol class="blocks mini">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk look d1">change color to red</li>
+            <li class="blk ctrl d1">wait 1 seconds</li>
+            <li class="blk look d1">change color to blue</li>
+            <li class="blk ctrl d1">wait 1 seconds</li>
+          </ol>
+        </li>
+        <li>
+          <h4>Launch the cargo lander</h4>
+          <p>Everything at this base was landed years before the crew arrived. Send the lander back up — and count how many feet it climbs before you lose sight of it.</p>
+          <ol class="blocks mini">
+            <li class="blk ctrl d0">repeat 40 times</li>
+            <li class="blk motion d1">move Y by 1 feet</li>
+            <li class="blk ctrl d1">wait 0.1 seconds</li>
+          </ol>
+        </li>
+    </ol>
+
+    <aside class="fact">
+      <h4>🤯 Worth knowing</h4>
+      <p>The sky is butterscotch because fine iron-oxide dust scatters the red end of sunlight across it. The strange part: at sunset it flips, and the glow around the setting Sun turns <b>blue</b> — the exact opposite of Earth.</p>
+    </aside>
+
+    <section class="legend">
+      <h4>Block colours</h4>
+      <ul>
+        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, duplicate</li>
+        <li><span class="swatch motion"></span> <strong>Motion</strong> — move X / Y / Z, rotate</li>
+        <li><span class="swatch look"></span> <strong>Looks</strong> — change size, change colour</li>
+      </ul>
+      <p class="legend-note"><strong>One rule that catches everybody:</strong> <span class="key">move X</span>,
+        <span class="key">move Y</span> and <span class="key">move Z</span> slide an object along the
+        <em>world's</em> directions, not the direction it happens to be facing. Turning something does not change
+        which way it will then travel — that is why the loops above go out and come back rather than driving in a circle.</p>
+    </section>
+
+    <nav class="cardnav no-print">
+      <a href="moon.html">← previous card</a>
+      <a href="index.html">all cards</a>
+      <a href="dinosaur.html">next card →</a>
+    </nav>
+
+  </div>
+</main>
+
+<footer class="gfoot">
+  <div class="wrap">
+    <p><strong>Edusim: Web Edition</strong> — Hands-On Guide. Print as many as you like.</p>
+    <p class="fine">Open the app at <span class="mono">edisimwebv1-production.up.railway.app</span> · No account needed.</p>
+  </div>
+</footer>
+</body>
+</html>

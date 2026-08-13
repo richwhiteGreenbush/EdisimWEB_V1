@@ -754,10 +754,10 @@ function libraryLayout() {
   items.push(prop('library-globe', 21, -20, { y: floor }));
   items.push(prop('book-cart', 8, -28, { y: floor, rotY: 0.6 }));
   items.push(
-    activity(12, -19, {
+    activity(-9, -24, {
       number: 1,
       y: floor,
-      rotY: -0.5,
+      rotY: 0.25,
       accent: '#8a5a1e',
       title: 'Send the book cart back to the stacks',
       target: 'Click the book cart → Program.',
