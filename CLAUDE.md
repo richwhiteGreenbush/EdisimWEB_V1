@@ -364,6 +364,43 @@ already-saved moon world is untouched. `dustDevil()` gained `color`/`tint` for t
 reason — Dinosaur Island uses it as a volcanic smoke plume, and `moonRocks()` again as
 mossy jungle boulders.
 
+**Closing the gaps where primitives meet.** Three rules, and every visible "the leg does
+not join the body" complaint in this project traced to one of them:
+
+1. **`taperedTube`'s `radialSegments` default is 14, not 8, and that is load-bearing.** A
+   tube's rendered surface is inset from its nominal radius by `cos(π/n)` at the flats —
+   7.6% at 8 sides, 2.5% at 14. Where a limb plugs into a torso BOTH surfaces retreat by
+   that much, and since two tubes' Frenet frames are unrelated their flats meet at
+   arbitrary angles, so the worst case is a genuine V-notch. On a 3ft torso and a 2ft
+   thigh that was nearly half a foot of apparent gap. Small details still pass an explicit
+   low count — a 0.3ft dendrite gains nothing.
+2. **Two tubes meeting at an angle cannot close on their own — put a ball in the socket.**
+   Each ends in an open ring lying in its own plane, so wherever the planes disagree the
+   surfaces cross. `DinoProps.joint()` is a sphere slightly larger than the thicker tube;
+   sized to *match* it, its silhouette lands exactly on theirs and the seam only moves.
+   Every hip, knee, ankle, shoulder and elbow has one, and so does every bronchial
+   bifurcation. Root the limb a little way INSIDE the body too, not on its surface.
+3. **`taperedTube` does not cap its ends — it is a sleeve.** A tube stopping in mid-air
+   shows the hole straight through it, which is what made every great vessel on the heart
+   look broken. `BodyProps.capEnd()` closes one with a sphere of the tube's own end radius,
+   and reads as a cut vessel, which is what an anatomical specimen has. Ending at radius 0
+   also closes it but turns the last segment into a cone — right for a tail, a frond or a
+   dendrite, wrong for a bronchus, where it reads as a pale blade stuck through the tissue.
+
+**A belly is a wide flattened mass inside the torso, not a tube slung under it.** Every
+animal here originally carried its pale countershading as a narrow tube a foot *below* the
+body, which read as a plank strapped on: too small to be the body, too separate to be part
+of it, and leaving a hard step down the whole flank. They are now wide tubes whose axis
+sits inside the torso, `scaleAbout`-flattened to ~0.65 vertically, clearing the torso's own
+underside by a few inches. Countershading needs a broad pale underside, not a keel.
+
+**Stacked transparency reads as creases.** The lungs' lobes are `FrontSide`, not
+`DoubleSide`: with DoubleSide each lobe contributes two transparent layers, so where three
+lobes overlap the viewer looks through six surfaces and the overlaps darken into what look
+like hard cracks between them. Culling back faces halves the stack, and the airway inside
+is still perfectly visible through the front shell — which was the only thing DoubleSide
+was buying.
+
 **Animals are swept tubes, not boxes.** `PropKit.taperedTube(points, radii)` sweeps a
 Catmull-Rom curve with a per-control-point radius; three.js's own `TubeGeometry` is
 constant-radius, which is useless here because the taper *is* the shape of a neck, a

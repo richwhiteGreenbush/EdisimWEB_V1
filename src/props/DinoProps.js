@@ -69,6 +69,21 @@ function blob(radius, color, [x, y, z], s = 1, detail = 10) {
   };
 }
 
+// A joint mass at a limb root -- hip, shoulder, elbow.
+//
+// Two tubes meeting at an angle CANNOT close cleanly on their own: each one ends in an
+// open ring lying in its own plane, so wherever those planes disagree the surfaces cross
+// and leave a notch. Every real solution is the same one -- put a ball in the socket.
+// A sphere big enough to swallow both ring ends hides the crossing completely, costs
+// about 100 triangles inside a mesh that is already merged to one draw call, and is
+// where the animal actually has a bulge anyway.
+//
+// Deliberately a touch larger than the thicker of the two tubes: sized to match, its own
+// silhouette lands exactly on theirs and the seam simply moves rather than disappearing.
+function joint(radius, color, position, s = 1) {
+  return blob(radius, color, position, s, 14);
+}
+
 // A cone standing on the surface it is attached to: teeth, horns, spikes, claws.
 function spike(length, radius, color, [x, y, z], rotation, s = 1) {
   return {
@@ -112,7 +127,23 @@ export function tyrannosaurus({ scale = 1, back = 0x7d7c53, belly = 0xc6ba8e, se
 
   // Torso, neck, skull, jaw.
   parts.push(tube([[-3.5, 12.4, 0], [0, 13.1, 0], [4.5, 13.2, 0], [9, 12.5, 0]], [2.3, 3.0, 2.9, 2.1], back, s));
-  parts.push(tube([[-3, 10.6, 0], [1, 10.7, 0], [6, 10.6, 0], [9, 11.0, 0]], [1.5, 1.9, 1.8, 1.3], belly, s));
+
+  // The pale countershaded underside.
+  //
+  // This used to be a narrow tube slung a foot BELOW the torso, which read as a plank
+  // strapped to the animal: it was too small to be the body and too separate to be part
+  // of it, and it left a hard step all down the flank. It is now a WIDE, FLATTENED mass
+  // whose axis sits inside the torso -- it is tucked in at the sides and clears the
+  // torso's own underside by only a few inches, so it reads as the belly's swell rather
+  // than as a second object. Countershading needs a broad pale underside, not a keel.
+  const bellyTube = tube(
+    [[-3.2, 11.3, 0], [0.5, 11.6, 0], [5, 11.6, 0], [9, 11.7, 0]],
+    [2.0, 2.7, 2.6, 1.8],
+    belly,
+    s
+  );
+  scaleAbout(bellyTube.geometry, [2 * s, 11.6 * s, 0], [1, 0.65, 1]);
+  parts.push(bellyTube);
   parts.push(tube([[9, 12.5, 0], [11.4, 13.6, 0], [13.4, 14.2, 0]], [2.0, 1.5, 1.15], back, s, { tubularSegments: 14 }));
 
   const skull = tube([[13.4, 14.3, 0], [16.2, 14.2, 0], [18.9, 13.7, 0]], [1.45, 1.35, 0.5], back, s, { tubularSegments: 14 });
@@ -153,8 +184,15 @@ export function tyrannosaurus({ scale = 1, back = 0x7d7c53, belly = 0xc6ba8e, se
   // knee halfway up is really its ankle.
   for (const side of [-1, 1]) {
     const z = side * 2.5;
-    parts.push(tube([[0.2, 12.2, z * 0.95], [0.6, 8.6, z * 1.15]], [2.1, 1.2], back, s, { tubularSegments: 10 }));
+    // The thigh starts INSIDE the torso, not on its surface, and a hip ball covers the
+    // junction. Rooted on the surface it left a V-shaped notch you could see daylight
+    // through -- the two tubes' end rings lie in different planes and simply cross.
+    parts.push(joint(2.35, back, [0.4, 12.2, z * 0.8], s));
+    parts.push(tube([[0.3, 12.6, z * 0.8], [0.6, 8.6, z * 1.15]], [2.1, 1.2], back, s, { tubularSegments: 10 }));
+    // Knee and ankle get the same treatment, at their own scale.
+    parts.push(joint(1.2, back, [0.6, 8.6, z * 1.15], s));
     parts.push(tube([[0.6, 8.6, z * 1.15], [-0.9, 4.8, z * 1.15]], [1.15, 0.62], back, s, { tubularSegments: 10 }));
+    parts.push(joint(0.64, back, [-0.9, 4.8, z * 1.15], s));
     parts.push(tube([[-0.9, 4.8, z * 1.15], [0.5, 1.35, z * 1.15]], [0.6, 0.42], back, s, { tubularSegments: 8 }));
     // Three forward toes plus the little reversed hallux, each with a claw.
     for (const spread of [-0.75, 0, 0.75]) {
@@ -167,7 +205,9 @@ export function tyrannosaurus({ scale = 1, back = 0x7d7c53, belly = 0xc6ba8e, se
 
     // The famous arms. Two fingers, and shorter than a human's -- but they could curl
     // about 400 pounds, so "useless" is the one thing they were not.
+    parts.push(joint(0.72, back, [8.2, 11.4, side * 1.9], s));
     parts.push(tube([[8.3, 11.2, side * 2.0], [9.2, 9.9, side * 2.4]], [0.62, 0.42], back, s, { tubularSegments: 6 }));
+    parts.push(joint(0.42, back, [9.2, 9.9, side * 2.4], s));
     parts.push(tube([[9.2, 9.9, side * 2.4], [10.4, 9.2, side * 2.3]], [0.4, 0.28], back, s, { tubularSegments: 6 }));
     for (const finger of [-0.22, 0.22]) {
       parts.push(spike(0.9, 0.13, BONE, [11.0, 9.0, side * 2.3 + finger], [0, 0, -Math.PI / 2 - 0.5], s));
@@ -188,7 +228,9 @@ export function triceratops({ scale = 1, hide = 0x93977a, frill = 0xa07f56, seed
   const parts = [];
 
   parts.push(tube([[-8.5, 8.6, 0], [-3.5, 9.3, 0], [1.5, 9.5, 0], [6, 9.0, 0]], [2.3, 3.4, 3.5, 3.0], hide, s));
-  parts.push(tube([[-7, 6.6, 0], [0, 6.4, 0], [5.5, 6.9, 0]], [2.0, 2.6, 2.2], 0xa2a084, s));
+  const triBelly = tube([[-7, 7.5, 0], [0, 7.7, 0], [5.5, 7.9, 0]], [2.4, 3.1, 2.6], 0xa2a084, s);
+  scaleAbout(triBelly.geometry, [0, 7.7 * s, 0], [1, 0.65, 1]);
+  parts.push(triBelly);
   parts.push(tube([[6, 9.0, 0], [8.4, 8.7, 0]], [2.7, 2.3], hide, s, { tubularSegments: 8 }));
 
   // Skull and beak. The beak is a parrot-like shear, not a chewing mouth.
@@ -231,8 +273,10 @@ export function triceratops({ scale = 1, hide = 0x93977a, frill = 0xa07f56, seed
 
   // Four columnar legs. The front pair are shorter and set slightly wider.
   for (const side of [-1, 1]) {
+    parts.push(joint(2.15, hide, [4.6, 8.2, side * 2.4], s));
     parts.push(tube([[4.6, 8.2, side * 2.6], [5.0, 4.4, side * 3.1], [4.6, 0.9, side * 3.1]], [2.0, 1.15, 0.95], hide, s, { tubularSegments: 12 }));
     parts.push(blob(1.15, hide, [4.6, 0.6, side * 3.1], s, 8));
+    parts.push(joint(2.35, hide, [-5.2, 8.4, side * 2.5], s));
     parts.push(tube([[-5.2, 8.4, side * 2.7], [-5.6, 4.6, side * 3.0], [-5.2, 1.0, side * 3.0]], [2.2, 1.25, 1.0], hide, s, { tubularSegments: 12 }));
     parts.push(blob(1.2, hide, [-5.2, 0.65, side * 3.0], s, 8));
   }
@@ -291,6 +335,7 @@ export function ankylosaurus({ scale = 1, hide = 0x847768, armor = 0x9c9280, see
   // Four short stumpy legs.
   for (const side of [-1, 1]) {
     for (const x of [4.0, -3.8]) {
+      parts.push(joint(1.45, hide, [x, 3.0, side * 2.4], s));
       parts.push(tube([[x, 3.0, side * 2.6], [x, 0.8, side * 2.9]], [1.4, 1.0], hide, s, { tubularSegments: 8 }));
       parts.push(blob(1.0, hide, [x, 0.55, side * 2.9], s, 8));
     }
@@ -311,7 +356,9 @@ export function edmontosaurus({ scale = 1, hide = 0xa89873, stripe = 0x7a6b45, s
   const parts = [];
 
   parts.push(tube([[-7, 9.4, 0], [-2, 10.4, 0], [3, 10.4, 0], [7.5, 9.4, 0]], [2.3, 3.1, 3.0, 2.1], hide, s));
-  parts.push(tube([[-6, 7.6, 0], [0, 7.6, 0], [6, 8.0, 0]], [1.6, 2.1, 1.6], 0xc4b68a, s));
+  const edBelly = tube([[-6, 8.6, 0], [0, 8.8, 0], [6, 9.0, 0]], [2.1, 2.8, 2.1], 0xc4b68a, s);
+  scaleAbout(edBelly.geometry, [0, 8.8 * s, 0], [1, 0.64, 1]);
+  parts.push(edBelly);
 
   // Long low neck down to the bill -- a browser's reach, not a hunter's strike.
   parts.push(tube([[7.5, 9.4, 0], [10.5, 9.0, 0], [13.2, 7.6, 0]], [2.0, 1.4, 1.0], hide, s, { tubularSegments: 14 }));
@@ -330,8 +377,10 @@ export function edmontosaurus({ scale = 1, hide = 0xa89873, stripe = 0x7a6b45, s
   parts.push(tube([[-9, 10.6, 0], [-2, 11.9, 0], [4, 11.8, 0], [9, 10.2, 0]], [0.45, 0.5, 0.5, 0.35], stripe, s));
 
   for (const side of [-1, 1]) {
+    parts.push(joint(2.2, hide, [-3.2, 9.6, side * 2.2], s));
     parts.push(tube([[-3.2, 9.6, side * 2.4], [-3.0, 5.6, side * 2.8], [-3.4, 1.3, side * 2.8]], [2.1, 1.2, 0.8], hide, s, { tubularSegments: 12 }));
     parts.push(blob(0.95, hide, [-3.0, 0.6, side * 2.8], s, 8));
+    parts.push(joint(1.4, hide, [5.0, 8.8, side * 2.0], s));
     parts.push(tube([[5.0, 8.8, side * 2.2], [5.6, 5.4, side * 2.5], [5.2, 1.0, side * 2.5]], [1.3, 0.8, 0.6], hide, s, { tubularSegments: 12 }));
     parts.push(blob(0.75, hide, [5.4, 0.5, side * 2.5], s, 8));
   }
@@ -365,7 +414,9 @@ export function pachycephalosaurus({ scale = 1, hide = 0x9c7c53, dome = 0xd0b98b
   parts.push(tube([[-2.5, 5.6, 0], [-6, 5.4, 0], [-9.5, 4.8, 0]], [1.1, 0.7, 0.12], hide, s, { tubularSegments: 12 }));
 
   for (const side of [-1, 1]) {
+    parts.push(joint(1.05, hide, [0.2, 5.2, side * 1.05], s));
     parts.push(tube([[0.2, 5.2, side * 1.2], [0.5, 3.2, side * 1.4], [-0.2, 1.5, side * 1.4], [0.6, 0.3, side * 1.4]], [1.0, 0.55, 0.35, 0.28], hide, s, { tubularSegments: 12 }));
+    parts.push(joint(0.38, hide, [3.2, 5.2, side * 0.9], s));
     parts.push(tube([[3.2, 5.2, side * 1.0], [4.0, 3.9, side * 1.2]], [0.35, 0.22], hide, s, { tubularSegments: 6 }));
   }
 

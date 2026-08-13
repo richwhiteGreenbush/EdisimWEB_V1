@@ -410,7 +410,16 @@ export function pediment(width, height, depth, material) {
 // Returns an INDEXED geometry with correct normals, so it drops straight into
 // mergeColored() alongside boxes and cylinders -- which is the point, since an animal
 // built this way is a dozen tubes that must end up as one draw call.
-export function taperedTube(points, radii, { tubularSegments = 26, radialSegments = 8 } = {}) {
+// radialSegments defaults to 14, not 8, and that number is doing more work than it
+// looks. A tube's rendered surface is INSET from its nominal radius by cos(pi/n) at the
+// flats -- 7.6% at 8 sides, 2.5% at 14. Where a limb plugs into a torso, both surfaces
+// retreat inward by that much, and because two tubes' Frenet frames are unrelated their
+// flats meet at arbitrary angles, so the worst case shows as a genuine V-shaped notch at
+// the joint. On a 3ft torso and a 2ft thigh that was nearly half a foot of apparent gap.
+// Raising it is the single cheapest fix for the whole class of "the leg does not meet
+// the body" problem, and it rounds every body in both worlds as a side effect.
+// Small details still pass an explicit low count -- a 0.3ft dendrite gains nothing here.
+export function taperedTube(points, radii, { tubularSegments = 26, radialSegments = 14 } = {}) {
   const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(p[0], p[1], p[2])));
   const frames = curve.computeFrenetFrames(tubularSegments, false);
 

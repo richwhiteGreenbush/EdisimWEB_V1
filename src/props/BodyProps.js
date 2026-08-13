@@ -68,6 +68,25 @@ function ellipsoid(radius, [sx, sy, sz], detail = 20) {
   return geometry;
 }
 
+// A rounded stump closing the open end of a swept tube.
+//
+// taperedTube() does not cap its ends -- it is a sleeve, and a sleeve that stops in mid
+// air shows the hole straight through it. That is what made every great vessel on the
+// heart look broken: the aorta's branches, both venae cavae and the pulmonary arteries
+// all end where the model ends, and each one was a flat ring with nothing behind it.
+// A sphere of the tube's own end radius closes it and reads as a cut vessel, which is
+// exactly what an anatomical specimen has.
+//
+// Tubes that end INSIDE another mass do not need this -- and neither do tails, fronds or
+// dendrites, which taper to a genuine point by ending at radius 0.
+function capEnd(parts, position, radius, color, detail = 14) {
+  parts.push({
+    geometry: new THREE.SphereGeometry(radius, detail, Math.max(8, detail >> 1)),
+    position,
+    color,
+  });
+}
+
 // A specimen stand: a weighted base plate and a rod up to `top`. Every organ model here
 // is a shape that would not stand up on its own, exactly as a real museum specimen is.
 function standParts(parts, { top, x = 0, z = 0, rod = 0.18, plate = 1.5, color = STEEL }) {
@@ -185,8 +204,8 @@ export function lungsModel({ height = 16 } = {}) {
     color: 0xd07f89,
     roughness: 0.6,
     transparent: true,
-    opacity: 0.68,
-    side: THREE.DoubleSide,
+    opacity: 0.72,
+    side: THREE.FrontSide,
   });
 
   // --- Airway: trachea, cartilage rings, bronchi, segmental branches -------
@@ -200,7 +219,7 @@ export function lungsModel({ height = 16 } = {}) {
   // widely spaced: at a fatter tube radius they swallowed the trachea entirely and the
   // whole assembly read as a spring balanced on a wishbone.
   for (let i = 0; i < 7; i++) {
-    const ring = new THREE.TorusGeometry(0.88, 0.085, 6, 22);
+    const ring = new THREE.TorusGeometry(0.85, 0.075, 10, 28);
     ring.rotateX(Math.PI / 2);
     airway.push({ geometry: ring, position: [0, 11.5 + i * 0.62, 0], color: 0xcfc094 });
   }
@@ -209,6 +228,9 @@ export function lungsModel({ height = 16 } = {}) {
   // inhaled object almost always ends up in the right lung.
   airway.push(tube([[0, 11.2, 0], [-1.6, 10.2, 0.1], [-3.4, 9.0, 0.2]], [0.72, 0.62, 0.5], AIRWAY));
   airway.push(tube([[0, 11.2, 0], [1.4, 10.3, 0.1], [3.2, 9.4, 0.2]], [0.72, 0.58, 0.46], AIRWAY));
+  capEnd(airway, [0, 11.2, 0], 0.74, AIRWAY);
+  capEnd(airway, [-3.4, 9.0, 0.2], 0.5, AIRWAY);
+  capEnd(airway, [3.2, 9.4, 0.2], 0.46, AIRWAY);
 
   const branches = [
     [[-3.4, 9.0, 0.2], [-4.4, 9.8, 0.4], [-5.2, 10.2, 0.8]],
@@ -217,7 +239,13 @@ export function lungsModel({ height = 16 } = {}) {
     [[3.2, 9.4, 0.2], [4.2, 10.2, 0.5], [5.0, 10.6, 0.9]],
     [[3.2, 9.4, 0.2], [4.2, 7.2, 0.1], [5.0, 5.0, -0.3]],
   ];
-  for (const points of branches) airway.push(tube(points, [0.42, 0.3, 0.16], AIRWAY, { tubularSegments: 16 }));
+  // A rounded stub, not a point. Ending at radius 0 closes the hole but turns the last
+  // segment into a cone, and inside a translucent lobe that reads as a pale blade stuck
+  // through the tissue. A small capped end is both closed and still recognisably a tube.
+  for (const points of branches) {
+    airway.push(tube(points, [0.42, 0.3, 0.14], AIRWAY, { tubularSegments: 16 }));
+    capEnd(airway, points[points.length - 1], 0.14, AIRWAY, 10);
+  }
 
   g.add(mergedMesh(airway, { roughness: 0.7 }));
 
@@ -232,8 +260,8 @@ export function lungsModel({ height = 16 } = {}) {
     [4.9, 4.6, -0.2, 2.7, 2.5, 2.5, 27],
   ];
   for (const [x, y, z, sx, sy, sz, phase] of lobes) {
-    const geometry = ellipsoid(1, [sx, sy, sz], 22);
-    roughenSphere(geometry, { amount: 0.1, phase });
+    const geometry = ellipsoid(1, [sx, sy, sz], 34);
+    roughenSphere(geometry, { amount: 0.07, phase });
     const lobe = mesh(geometry, lobeMaterial, x, y, z);
     lobe.castShadow = false;
     g.add(lobe);
@@ -476,11 +504,11 @@ export function heartModel() {
   const leftRed = 0xb8362f;
   const rightBlue = 0x455f95;
 
-  const lv = ellipsoid(1, [2.4, 3.2, 2.4], 22);
+  const lv = ellipsoid(1, [2.4, 3.2, 2.4], 32);
   roughenSphere(lv, { amount: 0.08, phase: 1 });
   parts.push({ geometry: lv, position: [1.3, 5.0, 0], color: leftRed });
 
-  const rv = ellipsoid(1, [2.3, 2.9, 2.4], 22);
+  const rv = ellipsoid(1, [2.3, 2.9, 2.4], 32);
   roughenSphere(rv, { amount: 0.08, phase: 4 });
   parts.push({ geometry: rv, position: [-1.4, 4.7, 0.3], color: rightBlue });
 
@@ -489,8 +517,8 @@ export function heartModel() {
   apex.rotateX(Math.PI);
   parts.push({ geometry: apex, position: [0.8, 2.4, 0.1], color: leftRed });
 
-  parts.push({ geometry: ellipsoid(1, [1.7, 1.4, 1.6], 18), position: [1.5, 8.3, -0.4], color: 0xa0362f });
-  parts.push({ geometry: ellipsoid(1, [1.8, 1.5, 1.7], 18), position: [-1.5, 8.1, 0.2], color: 0x3d5488 });
+  parts.push({ geometry: ellipsoid(1, [1.7, 1.4, 1.6], 26), position: [1.5, 8.3, -0.4], color: 0xa0362f });
+  parts.push({ geometry: ellipsoid(1, [1.8, 1.5, 1.7], 26), position: [-1.5, 8.1, 0.2], color: 0x3d5488 });
 
   // Aortic arch, with the three head-and-arm branches coming off the top of it.
   parts.push(
@@ -503,6 +531,7 @@ export function heartModel() {
   );
   for (const [x, z] of [[0.2, -0.9], [-0.7, -1.05], [-1.5, -1.1]]) {
     parts.push(tube([[x, 11.3, z], [x, 12.2, z - 0.1], [x, 13.0, z - 0.2]], [0.3, 0.26, 0.22], ARTERY, { tubularSegments: 10 }));
+    capEnd(parts, [x, 13.0, z - 0.2], 0.22, ARTERY, 10);
   }
 
   // Pulmonary trunk, splitting to both lungs.
@@ -513,29 +542,38 @@ export function heartModel() {
         tubularSegments: 12,
       })
     );
+    capEnd(parts, [side * 3.0, 11.2, 0], 0.36, rightBlue, 12);
   }
+  capEnd(parts, [-0.2, 11.2, 0.2], 0.52, rightBlue);
 
   // Superior and inferior vena cava -- the two big veins delivering blood back.
   parts.push(tube([[-2.6, 12.4, 0.4], [-2.5, 10.6, 0.4], [-2.2, 9.0, 0.3]], [0.62, 0.66, 0.7], VEIN));
+  capEnd(parts, [-2.6, 12.4, 0.4], 0.62, VEIN);
   parts.push(tube([[-2.0, 2.4, 0.6], [-2.2, 4.4, 0.6], [-2.3, 6.6, 0.5]], [0.6, 0.64, 0.68], VEIN));
+  capEnd(parts, [-2.0, 2.4, 0.6], 0.6, VEIN);
 
   // Coronary arteries: the heart is a pump that has to pump to itself.
+  // Both ends of each coronary lie ON the ventricle wall rather than inside it, so both
+  // showed as little open pipes. They taper away to nothing at the far end -- a coronary
+  // really does branch down to invisibility -- and get a stump where they emerge.
   parts.push(
     tube(
       [[0.1, 7.8, 1.9], [1.6, 6.6, 2.0], [2.4, 4.8, 1.5], [2.0, 3.4, 0.9]],
-      [0.2, 0.18, 0.15, 0.11],
+      [0.2, 0.18, 0.15, 0.02],
       0xd9534f,
-      { tubularSegments: 22, radialSegments: 6 }
+      { tubularSegments: 22, radialSegments: 9 }
     )
   );
+  capEnd(parts, [0.1, 7.8, 1.9], 0.2, 0xd9534f, 10);
   parts.push(
     tube(
       [[-0.2, 7.8, 1.8], [-1.6, 6.8, 1.6], [-2.4, 5.2, 0.9]],
-      [0.18, 0.15, 0.11],
+      [0.18, 0.15, 0.02],
       0xd9534f,
-      { tubularSegments: 16, radialSegments: 6 }
+      { tubularSegments: 16, radialSegments: 9 }
     )
   );
+  capEnd(parts, [-0.2, 7.8, 1.8], 0.18, 0xd9534f, 10);
 
   standParts(parts, { top: 2.2, x: -2.6, z: -2.0, plate: 1.3 });
   standParts(parts, { top: 2.6, x: 2.6, z: -2.0, plate: 1.3 });
