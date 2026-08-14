@@ -16,6 +16,7 @@ import {
   roughenSphere,
   relief,
   taperedTube,
+  scaleAbout,
 } from '../PropKit.js';
 
 // "The Park" -- the default world, laid out like a large Olmsted-style city park in
@@ -1482,6 +1483,342 @@ export function pondGeese({ spread = 6.6 } = {}) {
     gooseParts(lists, { pose: 'swim', headTurn: bird.headTurn, seed: bird.seed, base });
   }
   return group(...gooseMeshes(lists, 3));
+}
+
+// ---------------------------------------------------------------------------
+// Great Blue Heron
+// ---------------------------------------------------------------------------
+
+// Colours read off the reference photograph rather than invented. A Great Blue Heron is
+// mostly ONE colour -- a soft blue-grey -- and everything that makes it recognisable is
+// the handful of accents against it: the white face split by a black eye-stripe running
+// back into two long trailing plumes, the orange dagger of a bill, the black patch at the
+// bend of the wing, the rufous thigh, and the shaggy cream plumes down the breast.
+const HERON = {
+  slate: 0x96a1ae, // back and folded wing
+  slateDark: 0x66717f, // primaries and the shaded flank
+  neck: 0xb3aa9e, // the neck is warmer and paler than the body
+  throat: 0xdbd5c8,
+  plume: 0xece6d8, // breast and scapular plumes
+  face: 0xf5f3ed,
+  cap: 0x1b2230, // crown stripe and occipital plumes -- near-black, faintly blue
+  bill: 0xe9a83c,
+  billRidge: 0xb07f2c, // the culmen is duller than the rest of the bill
+  iris: 0xf6cb45,
+  pupil: 0x14140f,
+  leg: 0x63564b,
+  legDark: 0x453a32,
+  thigh: 0x8c6752,
+  shoulder: 0x1d2430,
+};
+
+// A Great Blue Heron standing at the water's edge in the hunched, S-necked posture they
+// hold while hunting -- not the neck-extended stance, which is what a heron does in
+// flight or in alarm.
+//
+// Built the same way as the Dinosaur Island animals: a couple of dozen swept tapered
+// tubes and spheres merged down into ONE vertex-coloured mesh, because the taper IS the
+// shape of a neck, a leg or a bill and three.js's own constant-radius TubeGeometry
+// cannot express it. Three things here are specific to a bird:
+//
+//  * TWO merged meshes, not one. Feathers and bare skin are genuinely different
+//    materials -- a bill and a leg are smooth and faintly glossy, plumage is matte with
+//    a fine grain -- and a heron's bill catching the light differently from its back is
+//    most of what stops the model reading as a painted ornament. Two draw calls is a
+//    price worth paying for ONE object placed once; it is not a licence for the props
+//    that get placed by the dozen.
+//  * Smooth shading, not the flat shading the dinosaurs use. Flat facets read as scaled
+//    hide on a 40ft animal and as cheap polygons on a 3ft bird.
+//  * The relief is 'wood', whose grain runs the LONG way along a swept tube's UVs.
+//    'soil' (the dinosaurs' pebbled hide) is clumped and directionless; feather barbs
+//    run along the feather, and that direction is most of what makes plumage look like
+//    plumage.
+//
+// Authored against a large bird measured off the photograph and then normalised to
+// `height`, so the caller gets exactly the standing height it asked for no matter how
+// the proportions are later tweaked. Everything is proportioned from that: at the
+// default 3ft this is a life-sized heron next to a 5ft student, which is the whole
+// point -- it comes up past their waist.
+export function heron({ height = 3 } = {}) {
+  const C = HERON;
+  const soft = []; // plumage -- matte, fine feather grain
+  const bare = []; // bill, legs, feet, eyes -- smooth and slightly glossy
+
+  const tube = (points, radii, color, options) => ({ geometry: taperedTube(points, radii, options), color });
+  const blob = (radius, color, position, detail = 12) => ({
+    geometry: new THREE.SphereGeometry(radius, detail, Math.max(6, detail >> 1)),
+    position,
+    color,
+  });
+  const lerp3 = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+
+  // --- Legs ---------------------------------------------------------------
+  // The feet straddle the body, one planted ahead and one behind, exactly as in the
+  // photograph. A symmetrical stance reads as a museum mount; a staggered one reads as
+  // an animal that stopped mid-step.
+  //
+  // What looks like a backwards knee halfway up the leg is the ANKLE -- a heron walks
+  // on its toes, and the long "shin" below that joint is the foot bone. The real knee
+  // is the one tucked up inside the body feathers.
+  for (const [z, footX, ankleX, ankleY, kneeX, kneeY] of [
+    [-0.19, -0.53, -0.27, 0.97, 0.16, 1.62],
+    [0.19, 0.53, 0.36, 0.88, 0.38, 1.6],
+  ]) {
+    const ankle = [ankleX, ankleY, z * 0.95];
+    const knee = [kneeX, kneeY, z * 1.1];
+
+    bare.push(tube([[footX, 0.07, z], ankle], [0.058, 0.05], C.leg, { tubularSegments: 8 }));
+    bare.push(blob(0.072, C.leg, ankle, 10)); // the ankle knob, and it hides the tube seam
+    bare.push(tube([ankle, lerp3(ankle, knee, 0.58)], [0.05, 0.062], C.leg, { tubularSegments: 8 }));
+    // The feathered thigh overlaps the bare shank rather than butting against it, and is
+    // rufous -- the one warm colour on an otherwise cold-coloured bird.
+    soft.push(tube([lerp3(ankle, knee, 0.42), knee], [0.085, 0.19], C.thigh, { tubularSegments: 8 }));
+
+    // Foot: three long forward toes and one reversed hallux, splayed flat. This is a
+    // wading bird's foot -- long and spread, for standing on soft mud without sinking.
+    bare.push(blob(0.062, C.legDark, [footX, 0.065, z], 10));
+    for (const [yaw, len] of [[-0.46, 0.4], [-0.04, 0.44], [0.4, 0.4], [Math.PI, 0.24]]) {
+      const dx = Math.cos(yaw) * len;
+      const dz = Math.sin(yaw) * len;
+      bare.push(
+        tube(
+          [[footX, 0.062, z], [footX + dx * 0.5, 0.048, z + dz * 0.5], [footX + dx, 0.03, z + dz]],
+          [0.045, 0.03, 0.014],
+          C.legDark,
+          { tubularSegments: 6, radialSegments: 8 }
+        )
+      );
+    }
+  }
+
+  // --- Torso --------------------------------------------------------------
+  // Laterally compressed, as every bird is. The front control points climb toward the
+  // shoulder so the neck emerges from inside the mass rather than butting onto its face.
+  const torso = tube(
+    [[-0.78, 1.7, 0], [-0.48, 1.84, 0], [-0.08, 1.9, 0], [0.36, 1.88, 0], [0.7, 1.98, 0], [0.88, 2.1, 0]],
+    [0.15, 0.29, 0.35, 0.34, 0.27, 0.2],
+    C.slate
+  );
+  scaleAbout(torso.geometry, [0, 1.87, 0], [1, 1, 0.82]);
+  soft.push(torso);
+  soft.push(blob(0.14, C.slate, [-0.78, 1.7, 0], 10)); // taperedTube is a sleeve: cap the tail end
+
+  // The pale belly. Following the same rule the dinosaurs' countershading had to learn:
+  // a wide flattened mass whose axis sits INSIDE the torso and clears its underside by a
+  // couple of inches -- not a narrow tube slung below it, which reads as a plank.
+  const belly = tube([[-0.35, 1.68, 0], [0.1, 1.63, 0], [0.55, 1.68, 0]], [0.17, 0.22, 0.17], C.plume);
+  scaleAbout(belly.geometry, [0.1, 1.65, 0], [1, 0.72, 0.82]);
+  soft.push(belly);
+
+  // --- Folded wings, primaries, tail --------------------------------------
+  for (const side of [-1, 1]) {
+    // The folded wing is a flattened shell laid over the flank, standing a little proud
+    // of the body -- built at z = 0 and squashed there, then moved out, so the squash
+    // does not also drag it back toward the midline.
+    const wing = tube(
+      [[-0.98, 1.72, 0], [-0.42, 1.9, 0], [0.1, 1.94, 0], [0.52, 1.96, 0], [0.78, 2.0, 0]],
+      [0.07, 0.3, 0.35, 0.3, 0.16],
+      C.slate
+    );
+    scaleAbout(wing.geometry, [0, 1.9, 0], [1, 1, 0.46]);
+    wing.position = [0, 0, side * 0.235];
+    soft.push(wing);
+
+    // The primaries are darker than the rest of the wing, and they cross past the tail
+    // and droop -- a LONG shallow taper, not a short one. Stopped short they read as a
+    // blunt stub, and the swept point behind the bird is half of a heron's outline.
+    const primaries = tube(
+      [[-0.45, 1.86, 0], [-0.8, 1.73, 0], [-1.05, 1.6, 0], [-1.24, 1.5, 0]],
+      [0.19, 0.145, 0.075, 0.018],
+      C.slateDark
+    );
+    scaleAbout(primaries.geometry, [-0.7, 1.75, 0], [1, 1, 0.42]);
+    primaries.position = [0, 0, side * 0.13];
+    soft.push(primaries);
+
+    // Black patch at the bend of the wing -- small, but it is one of the few hard marks
+    // on the bird and the eye goes straight to it.
+    const patch = new THREE.SphereGeometry(0.15, 12, 8);
+    scaleAbout(patch, [0, 0, 0], [1.5, 0.62, 0.5]);
+    soft.push({ geometry: patch, position: [0.72, 2.06, side * 0.26], color: C.shoulder });
+
+    const flank = tube([[-0.3, 1.62, 0], [0.2, 1.6, 0], [0.6, 1.66, 0]], [0.1, 0.11, 0.07], C.slateDark);
+    scaleAbout(flank.geometry, [0.15, 1.62, 0], [1, 0.8, 0.5]);
+    flank.position = [0, 0, side * 0.24];
+    soft.push(flank);
+  }
+
+  const tail = tube([[-0.55, 1.78, 0], [-0.82, 1.71, 0], [-1.04, 1.65, 0]], [0.17, 0.12, 0.045], C.slate);
+  scaleAbout(tail.geometry, [-0.75, 1.73, 0], [1, 0.75, 1.5]); // a tail is wide and thin
+  soft.push(tail);
+
+  // --- Scapular plumes ----------------------------------------------------
+  // The long pale filaments that lie over the back and trail past the tail. They ride
+  // just proud of the wing's top surface and then leave it entirely at the rear, which
+  // is the point: their tips break the silhouette, and a silhouette with loose ends on
+  // it is most of the difference between a bird and a decoy.
+  for (const side of [-1, 1]) {
+    for (let i = 0; i < 5; i++) {
+      const f = i / 4; // 0 = beside the spine, 1 = out over the flank
+      // Uneven lengths, alternating. Cut to one length they comb into parallel stripes,
+      // which reads as a painted pattern rather than as loose feathers lying over each
+      // other -- and it is the ragged ends that make plumage look like plumage.
+      const reach = -0.94 - (i % 2) * 0.2;
+      soft.push(
+        tube(
+          [
+            [0.62, 2.25, side * (0.03 + f * 0.08)],
+            [0.1, 2.32, side * (0.07 + f * 0.13)],
+            [-0.5, 2.19 - f * 0.06, side * (0.11 + f * 0.2)],
+            [reach, 1.98 - f * 0.09, side * (0.13 + f * 0.26)],
+          ],
+          [0.031, 0.029, 0.019, 0.009],
+          C.plume,
+          { tubularSegments: 16, radialSegments: 7 }
+        )
+      );
+    }
+  }
+
+  // --- Neck ---------------------------------------------------------------
+  // The heron S: up and forward out of the shoulders, a forward bulge at the throat,
+  // then a slight reverse at the top so the head sits back over it with the bill level.
+  // The first control point is buried inside the torso so there is no seam at the base.
+  const neckPath = [
+    [0.62, 1.94, 0],
+    [1.05, 2.24, 0],
+    [1.42, 2.66, 0],
+    [1.56, 3.06, 0],
+    [1.58, 3.42, 0],
+    [1.5, 3.64, 0],
+  ];
+  soft.push(tube(neckPath, [0.25, 0.2, 0.175, 0.155, 0.145, 0.14], C.neck, { tubularSegments: 30 }));
+
+  // The pale throat, as a thin tube riding half-buried in the neck's front face.
+  soft.push(
+    tube(
+      [[1.22, 2.24, 0], [1.565, 2.66, 0], [1.685, 3.06, 0], [1.695, 3.42, 0], [1.61, 3.64, 0]],
+      [0.085, 0.075, 0.065, 0.058, 0.052],
+      C.throat,
+      { tubularSegments: 22 }
+    )
+  );
+
+  // --- Head ---------------------------------------------------------------
+  const head = new THREE.SphereGeometry(0.21, 18, 12);
+  scaleAbout(head, [0, 0, 0], [1.24, 1.0, 0.82]);
+  soft.push({ geometry: head, position: [1.53, 3.7, 0], color: C.face });
+
+  // The black crown stripes, one either side, running from above the eye back over the
+  // head. They are PROJECTED onto the head's ellipsoid rather than placed by eye: laid
+  // out on the instinctive centre line they sit entirely inside the skull and vanish.
+  // The white crown the bird is named for is the gap the two of them leave between.
+  for (const side of [-1, 1]) {
+    soft.push(
+      tube(
+        [[1.727, 3.791, side * 0.084], [1.443, 3.862, side * 0.093], [1.3, 3.78, side * 0.07]],
+        [0.04, 0.052, 0.04],
+        C.cap,
+        { tubularSegments: 10, radialSegments: 9 }
+      )
+    );
+  }
+
+  // The two long occipital plumes, trailing back and down behind the head into open air
+  // well clear of the neck. Unlike a fern frond, these SHOULD taper to a fine point --
+  // that is exactly what they are, two bare black feather shafts.
+  for (let k = 0; k < 2; k++) {
+    soft.push(
+      tube(
+        [
+          [1.3, 3.79 - k * 0.03, -0.015 - k * 0.045],
+          [1.06, 3.68 - k * 0.06, -0.02 - k * 0.05],
+          [0.82, 3.42 - k * 0.09, -0.025 - k * 0.055],
+          [0.64, 3.12 - k * 0.1, -0.03 - k * 0.06],
+        ],
+        [0.03, 0.023, 0.016, 0.011],
+        C.cap,
+        { tubularSegments: 18, radialSegments: 7 }
+      )
+    );
+  }
+
+  // --- Breast plumes ------------------------------------------------------
+  // The shaggy cream fringe hanging off the lower neck and down over the chest -- the
+  // single most distinctive thing about the bird in the photograph. They hang from the
+  // FRONT of the neck and drape backward over the breast; hung straight down they look
+  // like something caught on the bird rather than part of it.
+  // They have to be LONG -- the centre ones hang past the belly and over the tops of the
+  // legs. A short fringe just reads as a pale smudge under the throat and throws away the
+  // one feature that most says "heron in breeding plumage" rather than "grey wading bird".
+  for (let i = 0; i < 13; i++) {
+    const u = i / 12;
+    const bulge = Math.cos((u - 0.5) * Math.PI); // longest at the centre of the chest
+    const zz = (u - 0.5) * 0.46;
+    const x0 = 1.1 + bulge * 0.1;
+    const len = 0.62 + bulge * 0.34;
+    const sway = 0.05 - (i % 3) * 0.05; // stops them hanging as a comb
+    soft.push(
+      tube(
+        [
+          [x0, 2.3, zz * 0.55],
+          [x0 - 0.05, 2.3 - len * 0.45, zz * 0.82],
+          [x0 - 0.14 + sway, 2.3 - len, zz * 1.06],
+        ],
+        [0.034, 0.026, 0.009],
+        C.plume,
+        { tubularSegments: 12, radialSegments: 7 }
+      )
+    );
+  }
+
+  // --- Eyes and bill ------------------------------------------------------
+  // The eye is set forward and high, and it is the one saturated warm note on the head.
+  // A bird with no visible eye reads as a model of a bird.
+  for (const side of [-1, 1]) {
+    bare.push(blob(0.047, C.iris, [1.66, 3.745, side * 0.125], 10));
+    bare.push(blob(0.022, C.pupil, [1.685, 3.742, side * 0.152], 8));
+  }
+
+  // The bill is a dagger: long, laterally compressed, and rooted well inside the skull.
+  // Ending it at radius zero is right here -- a heron's bill really does come to a point,
+  // which is the whole tool. (The fern-frond rule is the opposite case: a leaf that
+  // narrows to nothing reads as a needle.)
+  const bill = tube([[1.7, 3.645, 0], [2.06, 3.59, 0], [2.44, 3.53, 0]], [0.1, 0.062, 0.01], C.bill, {
+    tubularSegments: 14,
+    radialSegments: 10,
+  });
+  scaleAbout(bill.geometry, [2.06, 3.59, 0], [1, 1.06, 0.58]);
+  bare.push(bill);
+
+  const culmen = tube([[1.72, 3.715, 0], [2.06, 3.646, 0], [2.42, 3.556, 0]], [0.032, 0.02, 0.007], C.billRidge, {
+    tubularSegments: 12,
+    radialSegments: 8,
+  });
+  scaleAbout(culmen.geometry, [2.06, 3.65, 0], [1, 1, 0.58]);
+  bare.push(culmen);
+
+  // --- Assemble -----------------------------------------------------------
+  const plumage = mergedMesh(soft, { roughness: 0.9, ...relief('wood', { seed: 41, repeat: 14, strength: 0.18 }) });
+  const skin = mergedMesh(bare, { roughness: 0.38, metalness: 0.08, ...relief('metal', { seed: 43, repeat: 8 }) });
+
+  // Normalise to exactly `height` feet with the toes on y = 0.
+  //
+  // Measured rather than assumed, and measured across BOTH meshes at once so they stay
+  // in register. Every other builder here is authored directly at its finished size, but
+  // this one is asked for a specific standing height, and hard-coding the scale factor
+  // would quietly drift the moment a control point moves. It also guarantees the house
+  // rule the layouts depend on -- origin at the base centre -- rather than hoping for it.
+  plumage.geometry.computeBoundingBox();
+  skin.geometry.computeBoundingBox();
+  const bounds = plumage.geometry.boundingBox.clone().union(skin.geometry.boundingBox);
+  const scale = height / (bounds.max.y - bounds.min.y);
+  for (const part of [plumage, skin]) {
+    part.geometry.translate(0, -bounds.min.y, 0);
+    part.geometry.scale(scale, scale, scale);
+  }
+
+  return group(plumage, skin);
 }
 
 // Tiered stone fountain. The falling water is a pair of thin translucent cones --

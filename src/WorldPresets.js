@@ -283,6 +283,17 @@ function parkLayout() {
   // cattails came up through the floor of the Overlook shelter 25ft away.
   items.push(prop('park-pond', -52, -40, { options: { radius: 15, seed: 23, geese: false } }));
   items.push(prop('pond-geese', -52, -40, { rotY: 0.4, options: { spread: 4.5 } }));
+  // A Great Blue Heron at the water's edge, 16.6ft out from the pond's centre. That
+  // radius is chosen, not rounded: the reed margin runs to ~1.06x the pond's radius and
+  // the cattails stand 2-4ft, so anything closer stands a 3ft bird in cover it cannot be
+  // seen from. Just outside them it is on open bank with the reeds behind it.
+  //
+  // It faces along the shore rather than square at the water, which puts it in near
+  // profile to a student arriving down the west path -- the view the reference
+  // photograph is taken from, and the only one in which a heron is unmistakably a heron.
+  // It also makes the pond placard opposite literally true: that text already promised
+  // "the heron at the far bank", and until now there was not one.
+  items.push(prop('heron', -36.5, -46, { rotY: -2.16, options: { height: 3 } }));
   items.push(prop('bench', -33, -31, { rotY: -2.4 }));
   items.push(
     prop('info-placard', -24, -28, {

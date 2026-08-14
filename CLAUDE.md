@@ -499,7 +499,9 @@ world. Two things to know when editing `DinoProps.js`:
 
 - `scaleAbout(geometry, centre, scale)` exists because a plain `geometry.scale()` also
   multiplies position. Deepening a skull 14ft up an animal with a bare `.scale(1,1.28,1)`
-  quietly relocates it to 18ft.
+  quietly relocates it to 18ft. It lives in `PropKit.js` — it was local to `DinoProps.js`
+  until the Park's heron needed exactly the same thing, and two copies of a helper this
+  fiddly is precisely the drift this project's dedup rules exist to prevent.
 - The `scale` option on each animal multiplies **coordinates**, never `Object3D.scale`.
   `WorldStore.applyTransform()` replaces an object's scale from its record, so a builder
   that scaled its own Group would have that silently discarded on the next reload —
@@ -1050,6 +1052,56 @@ pair, against 11.5k before a pass over every sweep and sphere. These are read fr
 a pond on a school Chromebook, where an 18-segment sweep and a 26-segment one are the same
 goose. The Park is 752 draw calls / 592k triangles / 3.5ms with the new pair in it, against
 748 / 578k before: two extra draw calls for the whole flock.
+
+### The heron: a bird built the way the dinosaurs are
+
+`ParkProps.heron()` stands a Great Blue Heron on the Park pond's east bank, in the
+hunched S-necked posture a heron holds while hunting rather than the neck-extended one
+it uses in flight. It is its own `preset-prop` record for the `pondGeese()` reason above
+— clickable, resizable, programmable and saveable like anything else — and it makes the
+pond placard opposite literally true, since that text already promised "the heron at the
+far bank" before there was one.
+
+Construction is Dinosaur Island's: a couple of dozen `taperedTube()` sweeps and spheres
+merged down by `mergeColored()`. Four things depart from `DinoProps.js`, each for a
+reason:
+
+- **Two merged meshes, not one.** Feathers and bare skin are genuinely different
+  materials, and a bill and a leg catching the light differently from a wing is most of
+  what stops a bird reading as a painted ornament. Two draw calls is fine for one object
+  placed once; it is *not* a licence for the props placed by the dozen.
+- **Smooth shading, not flat.** Flat facets read as scaled hide on a 40ft animal and as
+  cheap polygons on a 3ft bird.
+- **`relief('wood')`, not `'soil'`.** Wood's grain runs the long way along a swept tube's
+  UVs; soil is clumped and directionless. Feather barbs run *along* the feather, and that
+  direction is most of what makes plumage look like plumage.
+- **It measures itself and normalises to an exact `height`** instead of being authored
+  directly at its finished size like every other builder here. It is the one prop asked
+  for a specific standing height, and a hard-coded scale factor would drift silently the
+  moment a control point moved. Measuring also *guarantees* the house rule the layouts
+  depend on — origin at the base centre, feet at y = 0 — rather than hoping for it. The
+  measurement spans **both** meshes at once, or they come apart.
+
+Three things it got wrong first, all of them about how much a feature has to be
+overstated before it reads at all:
+
+- **The shaggy breast plumes have to be LONG** — the centre ones hang past the belly and
+  over the tops of the legs. Built at a "sensible" length they came out as a pale smudge
+  under the throat, throwing away the single most distinctive thing in the reference
+  photograph.
+- **Plumes cut to one length comb into parallel stripes**, which reads as a painted
+  pattern rather than as loose feathers lying over each other. The scapulars alternate
+  their reach; it is the ragged ends that sell them.
+- **The primaries need a long shallow taper.** Stopped short they read as a blunt stub,
+  and the swept point behind the bird is half of a heron's outline.
+
+Two placement rules, both the reed margin's fault. `parkPond`'s cattails sit at
+0.9–1.06× the pond radius and stand 2–4ft, so **anything inside ~1.1× the radius puts a
+3ft bird in cover it cannot be seen from** — the heron sits at 16.6ft on a 15ft pond,
+just outside them, with the reeds behind it. And it faces **along** the shore rather than
+square at the water, which is what puts it in near profile to a student arriving down the
+west path. A heron seen head-on is a vertical line; the profile is the only view in which
+it is unmistakably a heron, which is exactly why the reference photograph is one.
 
 ### Startup assets always re-fetch, never store bytes
 

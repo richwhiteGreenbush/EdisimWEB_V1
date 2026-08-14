@@ -475,6 +475,20 @@ export function randomIn(rng, min, max) {
   return min + rng() * (max - min);
 }
 
+// Scales a geometry about a chosen point rather than about the world origin.
+//
+// Needed constantly when shaping an animal out of swept tubes and spheres: a plain
+// geometry.scale() also multiplies POSITION, so deepening a skull 14ft up an animal with
+// a bare .scale(1, 1.28, 1) quietly relocates it to 18ft. Flattening a wing against a
+// flank, squashing a belly, or making a bill laterally compressed all need the part to
+// stay exactly where it was put.
+export function scaleAbout(geometry, [cx, cy, cz], [sx, sy, sz]) {
+  geometry.translate(-cx, -cy, -cz);
+  geometry.scale(sx, sy, sz);
+  geometry.translate(cx, cy, cz);
+  return geometry;
+}
+
 // Roughens a sphere-like geometry into a natural boulder shape.
 //
 // **The displacement must be a smooth function of DIRECTION, never a fresh random

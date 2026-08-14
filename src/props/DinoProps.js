@@ -13,6 +13,7 @@ import {
   randomIn,
   roughenSphere,
   relief,
+  scaleAbout,
 } from '../PropKit.js';
 import { moonRocks } from './MoonProps.js';
 import { dustDevil } from './MarsProps.js';
@@ -51,15 +52,10 @@ function tube(points, radii, color, s = 1, options) {
   };
 }
 
-// Scales a geometry about a chosen point rather than the world origin. Scaling a skull
-// in place needs this: a plain geometry.scale() also multiplies its position, so a head
-// 14ft up the animal quietly relocates to 17ft when you make it 20% deeper.
-function scaleAbout(geometry, [cx, cy, cz], [sx, sy, sz]) {
-  geometry.translate(-cx, -cy, -cz);
-  geometry.scale(sx, sy, sz);
-  geometry.translate(cx, cy, cz);
-  return geometry;
-}
+// scaleAbout() moved to PropKit.js when the Park's heron needed the same thing -- see
+// the note there. Scaling a skull in place is what it exists for: a plain
+// geometry.scale() also multiplies its position, so a head 14ft up the animal quietly
+// relocates to 17ft when you make it 20% deeper.
 
 function blob(radius, color, [x, y, z], s = 1, detail = 10) {
   return {
