@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-3DCoder is a single-user, browser-based 3D sandbox (Second Life-inspired): walk a
+Edusim: Web Edition is a single-user, browser-based 3D sandbox (Second Life-inspired): walk a
 rolling-terrain world with the arrow keys / on-screen D-pad, import glTF/OBJ models
 and images, freehand-draw shapes that inflate into 3D balloons, drop glowing light
 orbs, place live interactive web browser panels, and save/load the world. New visitors
@@ -101,6 +101,13 @@ animated-GIF canvas redraws); `remove()`/`clear()` dispose geometry/material/tex
 and call each item's `tick.dispose()`.
 
 ### Two independent persistence systems — don't conflate them
+
+**`config.js`'s `DB_NAME` is still `'3dcoder-world'` and must stay that way.** The project
+was renamed to Edusim everywhere a person can see it — the tab title, the world-file
+downloads, the error messages — but that string is the IndexedDB database every student's
+saved work lives in. Renaming it migrates nothing; it silently opens a new empty database
+and every world anyone has built disappears. The same goes for the `startup-*` and
+`preset-prop` record kinds and the prop-builder keys: they are persisted, not cosmetic.
 
 - **`WorldStore`** (`WorldStore.js`) — automatic, silent, IndexedDB-backed. Every
   placement or edit calls `onPlaced`/`persistTransform` → `worldStore.saveObject()`.

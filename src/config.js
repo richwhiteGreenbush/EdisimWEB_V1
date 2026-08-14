@@ -273,6 +273,11 @@ export const WEB_BROWSER_DEFAULT_URL = 'https://richwhitegreenbush.github.io/Edi
 export const EDIT_ICON_SIZE = 0.7; // feet, billboard sprite size
 export const EDIT_ICON_MARGIN = 0.6; // feet above the panel's bounding-box top
 
+// Deliberately still the old project name, and it has to stay that way. This is the
+// IndexedDB database every student's saved world lives in -- renaming it does not migrate
+// anything, it silently opens a NEW empty database and every world anyone has ever built
+// disappears. The app is called Edusim everywhere a person can see; this string is not
+// one of those places.
 export const DB_NAME = '3dcoder-world';
 export const DB_VERSION = 1;
 export const STORE_NAME = 'placedObjects';

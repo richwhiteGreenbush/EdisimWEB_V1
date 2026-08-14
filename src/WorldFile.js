@@ -34,14 +34,14 @@ function deserializeRecord(record) {
 
 export async function exportWorldToFile(records) {
   const serialized = await Promise.all(records.map(serializeRecord));
-  const payload = { format: '3dcoder-world', version: 1, exportedAt: Date.now(), records: serialized };
+  const payload = { format: 'edusim-world', version: 1, exportedAt: Date.now(), records: serialized };
   const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   try {
     const a = document.createElement('a');
     a.href = url;
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-    a.download = `3dcoder-world-${stamp}.json`;
+    a.download = `edusim-world-${stamp}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -59,7 +59,7 @@ export async function readWorldFile(file) {
     throw new Error('That file is not valid JSON.');
   }
   if (!payload || !Array.isArray(payload.records)) {
-    throw new Error('That file is not a 3DCoder world save.');
+    throw new Error('That file is not an Edusim world save.');
   }
   return payload.records.map(deserializeRecord);
 }
