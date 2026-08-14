@@ -4,17 +4,26 @@ import { STRETCH_HANDLE_RADIUS, STRETCH_MIN_SIZE, STRETCH_LIFT_GAP } from './con
 const HANDLE_CORNERS = [];
 for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1]) HANDLE_CORNERS.push([sx, sy, sz]);
 
+// Pixels of pointer travel before the green handle commits to lifting or to sliding.
+// Small enough that the piece starts following almost immediately, large enough that the
+// jitter of a finger landing on a tablet doesn't decide the axis.
+const MOVE_AXIS_THRESHOLD = 8;
+
 // "Stretch to shape": a blue semi-transparent box with grabbable corners around one
 // construction piece. It carries all three ways of positioning a piece, deliberately, so
 // that shaping and arranging are one mode rather than three:
 //
 //   corner handle (pale blue)  -- stretch, holding the opposite corner still
-//   the box body               -- slide along the ground
-//   lift handle (green, above) -- raise and lower
+//   the box body               -- slide, keeping whatever height the piece is at
+//   move handle (green, above) -- raise/lower AND slide, in mid-air
 //
-// The lift handle is not optional polish. Body-drag re-seats the piece on the terrain
-// every frame, so without a separate vertical grab nothing could ever be stacked on top
-// of anything else -- no head on a body, no snowman, no second storey.
+// The green handle is not optional polish. A piece that can only travel along the ground
+// can never be stacked on anything -- no head on a body, no snowman, no second storey --
+// and a piece that can only go straight up and down can be lifted to the right height and
+// still not be lined up over the piece it is meant to sit on. It therefore carries all
+// three axes: the first few pixels of a drag decide whether this is a lift (mostly
+// vertical pointer travel) or a slide (mostly sideways), and that choice holds for the
+// rest of the drag. One handle, one gesture, no modifier key for a tablet to not have.
 export class StretchGizmo {
   constructor({ scene, camera, canvas, registry, worldStore, groundHeightAt, constructionManager }) {
     this.scene = scene;
@@ -105,19 +114,18 @@ export class StretchGizmo {
       this.group.add(handle);
     }
 
-    // The lift handle, floating clear above the box in a different colour. Without it a
-    // piece can only ever slide about on the ground, and a model whose parts sit ON one
-    // another -- a head on a body, a snowman, anything stacked -- simply cannot be built.
-    // Dragging the box body is deliberately kept flat (it re-seats on the terrain each
-    // frame), so raising a piece needs its own grab point rather than a hidden modifier
-    // key nobody would find on a tablet.
-    this.liftHandle = new THREE.Mesh(
-      new THREE.SphereGeometry(STRETCH_HANDLE_RADIUS * 1.25, 16, 12),
+    // The move handle, floating clear above the box in a different colour. It is the only
+    // grab that works in mid-air: it raises and lowers a piece, and slides it about at
+    // whatever height it has been raised to, which is what lining one piece up over
+    // another actually needs. Deliberately a little larger than a corner handle -- it is
+    // the one control a student reaches for on every single piece.
+    this.moveHandle = new THREE.Mesh(
+      new THREE.SphereGeometry(STRETCH_HANDLE_RADIUS * 1.45, 16, 12),
       new THREE.MeshBasicMaterial({ color: 0x3fb37f, depthTest: false })
     );
-    this.liftHandle.renderOrder = 998;
-    this.liftHandle.userData.lift = true;
-    this.group.add(this.liftHandle);
+    this.moveHandle.renderOrder = 998;
+    this.moveHandle.userData.move = true;
+    this.group.add(this.moveHandle);
 
     this.liftStem = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 1, 0)]),
@@ -147,9 +155,17 @@ export class StretchGizmo {
     this.group = null;
     this.bodyMesh = null;
     this.edges = null;
-    this.liftHandle = null;
+    this.moveHandle = null;
     this.liftStem = null;
     this.handles = [];
+  }
+
+  // How far the piece's base floats above the terrain directly under its origin. Both
+  // drag modes carry this rather than an absolute Y, so a piece keeps the height it was
+  // given while still following the hills it is dragged over -- and a piece sitting on
+  // the ground (elevation 0) stays sitting on it.
+  elevationOf(object3D, box) {
+    return box.min.y - this.groundHeightAt(object3D.position.x, object3D.position.z);
   }
 
   currentBox() {
@@ -185,7 +201,7 @@ export class StretchGizmo {
       );
     }
 
-    this.liftHandle.position.set(centre.x, box.max.y + STRETCH_LIFT_GAP, centre.z);
+    this.moveHandle.position.set(centre.x, box.max.y + STRETCH_LIFT_GAP, centre.z);
     this.liftStem.position.set(centre.x, box.max.y, centre.z);
     this.liftStem.scale.set(1, STRETCH_LIFT_GAP, 1);
   }
@@ -216,24 +232,22 @@ export class StretchGizmo {
     const centre = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
 
-    // The lift handle floats clear of everything else, so nothing can be behind it.
-    if (this.raycaster.intersectObject(this.liftHandle, false)[0]) {
+    // The move handle floats clear of everything else, so nothing can be behind it.
+    if (this.raycaster.intersectObject(this.moveHandle, false)[0]) {
       this.drag = {
-        mode: 'lift',
+        mode: 'handle',
+        // Which axis this drag turned out to be is not known yet: it is decided by the
+        // direction of the first MOVE_AXIS_THRESHOLD pixels of travel, in
+        // resolveHandleAxis() below.
+        axis: null,
         pointerId: e.pointerId,
-        startY: item.object3D.position.y,
+        downX: e.clientX,
+        downY: e.clientY,
         // How far the piece's own base sits below its origin, so it can be stopped at
         // the ground rather than sinking into it.
         baseDrop: item.object3D.position.y - box.min.y,
+        elevation: this.elevationOf(item.object3D, box),
       };
-      // A vertical plane facing the camera: only the Y of the hit is used, so its exact
-      // depth does not matter, but it must not be edge-on to the view.
-      const flat = this.camera.getWorldDirection(new THREE.Vector3());
-      flat.y = 0;
-      if (flat.lengthSq() < 1e-6) flat.set(0, 0, -1);
-      this.plane.setFromNormalAndCoplanarPoint(flat.normalize().negate(), this.liftHandle.position);
-      this.raycaster.ray.intersectPlane(this.plane, this.hit);
-      this.drag.grabY = this.hit.y;
       e.stopPropagation();
       return;
     }
@@ -278,13 +292,46 @@ export class StretchGizmo {
         mode: 'move',
         pointerId: e.pointerId,
         // Where the piece's own origin sits relative to the grab point, so it doesn't
-        // jump under the cursor, and how far its origin sits above its base, so it can
-        // be re-seated on whatever ground it is dragged over.
+        // jump under the cursor; how far its origin sits above its base; and how high
+        // that base is floating, so a piece already raised onto another one slides
+        // across at that height instead of dropping back to the grass.
         grabOffset: item.object3D.position.clone().sub(bodyHit.point),
-        lift: item.object3D.position.y - box.min.y,
+        baseDrop: item.object3D.position.y - box.min.y,
+        elevation: this.elevationOf(item.object3D, box),
       };
       this.plane.set(new THREE.Vector3(0, 1, 0), -bodyHit.point.y);
       e.stopPropagation();
+    }
+  }
+
+  // Commits the green handle's drag to raising/lowering or to sliding, and sets up the
+  // plane that drag will be measured against. Called once, on the first pointer move that
+  // clears MOVE_AXIS_THRESHOLD -- so the piece absorbs those few pixels and then follows
+  // the pointer exactly, with no jump at the moment the mode is picked.
+  resolveHandleAxis(axis, object3D) {
+    this.drag.axis = axis;
+
+    if (axis === 'y') {
+      // A vertical plane facing the camera: only the Y of the hit is used, so its exact
+      // depth does not matter, but it must not be edge-on to the view.
+      const flat = this.camera.getWorldDirection(new THREE.Vector3());
+      flat.y = 0;
+      if (flat.lengthSq() < 1e-6) flat.set(0, 0, -1);
+      this.plane.setFromNormalAndCoplanarPoint(flat.normalize().negate(), this.moveHandle.position);
+      this.drag.startY = object3D.position.y;
+      if (this.raycaster.ray.intersectPlane(this.plane, this.hit)) this.drag.grabY = this.hit.y;
+      return;
+    }
+
+    // Sliding runs on a horizontal plane at the handle's own height, so the piece tracks
+    // the pointer across the ground plane in BOTH flat directions at once: sideways
+    // pointer travel walks it left and right, up-and-down travel pushes it away and pulls
+    // it back. That is the whole reason this mode exists -- a piece raised onto another
+    // one still has to be lined up over it in X and Z.
+    this.plane.set(new THREE.Vector3(0, 1, 0), -this.moveHandle.position.y);
+    if (this.raycaster.ray.intersectPlane(this.plane, this.hit)) {
+      this.drag.grabPoint = this.hit.clone();
+      this.drag.startPos = object3D.position.clone();
     }
   }
 
@@ -298,18 +345,24 @@ export class StretchGizmo {
     e.stopPropagation();
 
     this.setPointer(e);
-    if (!this.raycaster.ray.intersectPlane(this.plane, this.hit)) return;
 
-    if (this.drag.mode === 'lift') {
-      const { startY, grabY, baseDrop } = this.drag;
-      const object3D = item.object3D;
-      // Never below the ground it is standing on -- a buried piece looks like a bug and
-      // there is no way to get it back except by guessing where it went.
-      const floor = this.groundHeightAt(object3D.position.x, object3D.position.z) + baseDrop;
-      object3D.position.y = Math.max(floor, startY + (this.hit.y - grabY));
+    if (this.drag.mode === 'handle') {
+      if (!this.drag.axis) {
+        const dx = e.clientX - this.drag.downX;
+        const dy = e.clientY - this.drag.downY;
+        if (Math.hypot(dx, dy) < MOVE_AXIS_THRESHOLD) return;
+        // Mostly-vertical pointer travel means "lift"; anything else means "slide".
+        // Dragging up the screen to raise something is the gesture everybody tries
+        // first, so it gets the tie.
+        this.resolveHandleAxis(Math.abs(dy) >= Math.abs(dx) ? 'y' : 'xz', item.object3D);
+      }
+      if (!this.raycaster.ray.intersectPlane(this.plane, this.hit)) return;
+      this.moveByHandle(item.object3D);
       this.sync();
       return;
     }
+
+    if (!this.raycaster.ray.intersectPlane(this.plane, this.hit)) return;
 
     if (this.drag.mode === 'stretch') {
       const { corner, anchor, startSize, startScale } = this.drag;
@@ -325,10 +378,38 @@ export class StretchGizmo {
       }
     } else {
       const target = this.hit.clone().add(this.drag.grabOffset);
-      item.object3D.position.set(target.x, this.groundHeightAt(target.x, target.z) + this.drag.lift, target.z);
+      this.seat(item.object3D, target.x, target.z);
     }
 
     this.sync();
+  }
+
+  // Puts a piece down at (x, z) at the height it was already floating at. Everything that
+  // moves a piece horizontally goes through here, so "keeps its height, follows the
+  // hills" is one rule rather than a property of whichever handle was grabbed.
+  seat(object3D, x, z) {
+    const { elevation, baseDrop } = this.drag;
+    object3D.position.set(x, this.groundHeightAt(x, z) + elevation + baseDrop, z);
+  }
+
+  moveByHandle(object3D) {
+    if (this.drag.axis === 'y') {
+      const { startY, grabY, baseDrop } = this.drag;
+      if (grabY === undefined) return;
+      // Never below the ground it is standing on -- a buried piece looks like a bug and
+      // there is no way to get it back except by guessing where it went.
+      const floor = this.groundHeightAt(object3D.position.x, object3D.position.z) + baseDrop;
+      object3D.position.y = Math.max(floor, startY + (this.hit.y - grabY));
+      // Lifting sets the height every later slide will preserve, so it has to be
+      // recorded here too -- otherwise raising a piece and then sliding it would put it
+      // straight back down to wherever it was when the drag started.
+      this.drag.elevation = Math.max(0, object3D.position.y - baseDrop - this.groundHeightAt(object3D.position.x, object3D.position.z));
+      return;
+    }
+
+    const { grabPoint, startPos } = this.drag;
+    if (!grabPoint) return;
+    this.seat(object3D, startPos.x + (this.hit.x - grabPoint.x), startPos.z + (this.hit.z - grabPoint.z));
   }
 
   handlePointerUp(e) {

@@ -63,7 +63,9 @@
           <h3><span class="bi">2</span> Click the hammer</h3>
           <p>Every unfinished piece has an orange <span class="key">🔨</span> floating over
             it. Click it and you get the <strong>Build Piece</strong> menu:
-            Apply Texture, Stretch to Shape, Connect to Primitive, Render Model, Close.</p>
+            Apply Texture, Stretch to Shape, Connect to Primitive, Remove Shape, Render Model,
+            Close. <strong>Remove Shape</strong> is the undo button — it takes that one piece
+            back out of the world and leaves everything else alone.</p>
         </li>
         <li>
           <h3><span class="bi">3</span> Shape it and move it</h3>
@@ -73,9 +75,10 @@
             <li><span class="dot blue"></span> <b>A corner handle</b> — drag to stretch. The
               opposite corner stays put.</li>
             <li><span class="dot box"></span> <b>The middle of the box</b> — drag to slide the
-              piece across the ground.</li>
-            <li><span class="dot green"></span> <b>The green ball above</b> — drag to lift the
-              piece up or set it down.</li>
+              piece about. It keeps whatever height it is at.</li>
+            <li><span class="dot green"></span> <b>The green ball above</b> — drag to move the
+              piece anywhere. Up and down to raise and lower it, sideways to slide it around
+              in mid-air until it lines up with the piece underneath.</li>
           </ul>
           <p class="tiny">Press <span class="key">✓ Done stretching</span> or
             <span class="key">Esc</span> when the piece looks right.</p>
@@ -138,8 +141,9 @@
             <li><b>Stack the middle ball.</b> Hammer on the medium sphere →
               <span class="key">Stretch to Shape</span>. Drag the <em>middle of the blue box</em>
               until it is right beside the big one, then drag the <em>green ball</em> upwards
-              until it sits on top. Let it sink in a little — a snowman with a gap looks wrong,
-              and pieces have to touch to be joined.</li>
+              until it sits on top. It will not be centred — nudge the same green ball
+              <em>sideways</em> until it is. Let it sink in a little too: a snowman with a gap
+              looks wrong, and pieces have to touch to be joined.</li>
             <li><b>Stack the head</b> the same way, on top of the middle ball.</li>
             <li><b>Paint them white.</b> Hammer → <span class="key">Apply Texture</span> → the
               white swatch, on all three.</li>

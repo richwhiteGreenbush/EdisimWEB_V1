@@ -1,6 +1,12 @@
 import * as THREE from 'three';
 import { loadImageElement } from './MediaLoader.js';
-import { touchingPrimitives, renderModelFromCluster, clusterIds, SHAPE_LABELS } from './Primitives.js';
+import {
+  touchingPrimitives,
+  renderModelFromCluster,
+  removePrimitive,
+  clusterIds,
+  SHAPE_LABELS,
+} from './Primitives.js';
 import { PALETTE_SWATCHES, PRIMITIVE_DEFAULT_COLOR, IMAGE_MAX_BYTES } from './config.js';
 
 const TEXTURE_EXTENSIONS = ['png', 'jpg', 'jpeg'];
@@ -108,10 +114,11 @@ export class PrimitiveMenu {
         // panel would be floating.
         this.close();
         this.stretchGizmo.activate(item.record.id);
-        this.menu?.toast('Drag a corner to stretch, or the blue box to slide it around.');
+        this.menu?.toast('Drag a corner to stretch. Drag the green ball to move the piece anywhere.');
       })
     );
     this.panel.appendChild(this.button('Connect to Primitive', () => this.renderConnect()));
+    this.panel.appendChild(this.button('Remove Shape', () => this.removeShape(), 'pm-remove'));
     this.panel.appendChild(this.button('Render Model', () => this.renderModel(), 'pm-render'));
     this.panel.appendChild(this.button('Close Menu', () => this.close(), 'om-close'));
   }
@@ -272,6 +279,31 @@ export class PrimitiveMenu {
     this.worldStore.saveObject(item.record);
     this.menu?.toast('Pieces joined!', { tone: 'success' });
     this.renderConnect();
+  }
+
+  // --- Remove --------------------------------------------------------------------
+
+  // Deliberately unconfirmed. A construction piece is two clicks from existing again,
+  // nothing else in this app asks "are you sure", and a confirm step on the one button a
+  // student presses when they have put a shape down by mistake would be in the way far
+  // more often than it saved anybody.
+  async removeShape() {
+    const item = this.activeItem();
+    if (!item) return;
+    const id = item.record.id;
+    const label = (SHAPE_LABELS[item.record.shape] || 'Shape').toLowerCase();
+
+    this.close();
+    // The gizmo holds this id and draws a box around a mesh that is about to be gone.
+    if (this.stretchGizmo?.activeId === id) this.stretchGizmo.deactivate();
+
+    try {
+      await removePrimitive({ id, registry: this.registry, worldStore: this.worldStore });
+      this.menu?.toast(`Removed the ${label}.`, { tone: 'success' });
+    } catch (err) {
+      console.error('Failed to remove a build piece:', err);
+      this.menu?.toast('Could not remove that shape.', { tone: 'error' });
+    }
   }
 
   // --- Render --------------------------------------------------------------------

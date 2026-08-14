@@ -58,7 +58,7 @@
     </div>
 
     <h2 class="sec">The hammer menu</h2>
-    <p class="sec-note">Click the 🔨 above any unfinished piece and these five appear.</p>
+    <p class="sec-note">Click the 🔨 above any unfinished piece and these six appear.</p>
 
     <section class="qs">
       <div class="qs-head"><span class="qs-num">1</span>
@@ -77,10 +77,12 @@
       <ul class="handles">
         <li><span class="dot blue"></span> <b>A corner handle</b> — stretch. The corner diagonally opposite
           stays exactly where it is, so a piece never wanders off while you resize it.</li>
-        <li><span class="dot box"></span> <b>The middle of the box</b> — slide the piece across the ground.
-          It follows the hills, so it always stays standing on something.</li>
-        <li><span class="dot green"></span> <b>The green ball above the box</b> — lift the piece up or set it
-          down. It stops at ground level, so nothing can be buried.</li>
+        <li><span class="dot box"></span> <b>The middle of the box</b> — slide the piece about. It keeps
+          whatever height it is at and follows the hills, so a piece on the grass stays on the grass and a
+          piece up in the air stays up in the air.</li>
+        <li><span class="dot green"></span> <b>The green ball above the box</b> — move the piece anywhere.
+          Start the drag <em>up or down</em> to raise and lower it; start it <em>sideways</em> to slide it
+          around in mid-air. It stops at ground level, so nothing can be buried.</li>
       </ul>
       <p class="qs-tip">💡 The axis pointing straight away from you is the hardest one to stretch — walk
         around to the side and it becomes easy. Press <span class="key">✓ Done stretching</span> or
@@ -101,6 +103,17 @@
 
     <section class="qs">
       <div class="qs-head"><span class="qs-num">4</span>
+        <div><h3>Remove Shape</h3><p class="qs-target">Take a piece back out of the world</p></div>
+      </div>
+      <p>Deletes just that one piece. Nothing else moves, and any piece that was joined to it simply forgets
+        it — the rest of your model is untouched. There is no "are you sure": putting the shape back is two
+        clicks, and a warning you have to dismiss every time is worse than the mistake it prevents.</p>
+      <p class="qs-tip">💡 This is the fix for "I meant to add a cylinder and clicked cube". It only works on
+        pieces that are still being built — once you press Render Model there are no pieces left to remove.</p>
+    </section>
+
+    <section class="qs">
+      <div class="qs-head"><span class="qs-num">5</span>
         <div><h3>Render Model</h3><p class="qs-target">Turn the whole chain into one object</p></div>
       </div>
       <p>The hammers disappear and the pieces become a single model. From then on it behaves like everything
@@ -140,8 +153,8 @@
     <section class="legend">
       <h4>Two rules that catch everybody</h4>
       <ul>
-        <li><span class="dot green"></span> <strong>Stacking needs the green ball</strong> — dragging the box
-          only ever slides a piece along the ground.</li>
+        <li><span class="dot green"></span> <strong>Stacking needs the green ball</strong> — and so does
+          lining a lifted piece up over the one below it. Raise it, then slide it until it sits square.</li>
         <li><span class="dot blue"></span> <strong>Touching, then joining</strong> — Connect will not list a
           piece that is floating a hair's breadth away.</li>
       </ul>

@@ -2069,6 +2069,58 @@ function voyageLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// The Empty World -- somewhere to build
+// ---------------------------------------------------------------------------
+
+// The Park's own three tree builders, with the height range each one looks right at
+// there. Reused rather than re-tuned: these are the trees a student already knows from
+// the world they landed in, and an empty field planted with something else would read as
+// a different place rather than as the same place with nothing in it yet.
+const EMPTY_WORLD_TREES = [
+  { kind: 'shade-tree', minHeight: 20, maxHeight: 26 },
+  { kind: 'conifer-tree', minHeight: 22, maxHeight: 28 },
+  { kind: 'flowering-tree', minHeight: 14, maxHeight: 18 },
+];
+
+const EMPTY_WORLD_SPAWN = { x: 0, z: 16, yaw: 0 };
+
+// A blank green field. This is the one preset with no buildings, no placards, no activity
+// boards and -- unlike every other world -- no browser station either: it exists so that
+// Create Model has somewhere with an empty horizon, and anything standing in it would be
+// something a student has to walk around while they build.
+//
+// Five trees rather than none because a truly featureless plane has no landmarks at all,
+// so walking any distance in it stops feeling like moving. They are also the only thing
+// giving the ground a sense of scale.
+function emptyLayout() {
+  const items = [];
+
+  // Randomised at BUILD time and then baked into the records, so every fresh load of
+  // this world is a different field while reloading a saved one gives back exactly the
+  // field the student left. That is why Math.random() is fine here and is not fine in a
+  // prop builder, where a rebuild has to reproduce the geometry it produced last time.
+  const count = 5;
+  for (let i = 0; i < count; i++) {
+    // An even sweep with jitter rather than a free-for-all: five independent random
+    // bearings leave a 3% chance of every tree landing behind the student, who then
+    // arrives facing the emptiest possible view of an already empty world.
+    const angle = ((i + Math.random() * 0.7) / count) * Math.PI * 2;
+    const radius = 34 + Math.random() * 46; // far enough back that none frames the spawn
+    const { kind, minHeight, maxHeight } = EMPTY_WORLD_TREES[Math.floor(Math.random() * EMPTY_WORLD_TREES.length)];
+    items.push(
+      prop(kind, EMPTY_WORLD_SPAWN.x + Math.cos(angle) * radius, EMPTY_WORLD_SPAWN.z + Math.sin(angle) * radius, {
+        options: {
+          height: minHeight + Math.random() * (maxHeight - minHeight),
+          seed: Math.floor(Math.random() * 1000),
+        },
+      })
+    );
+  }
+
+  return { theme: 'default', spawn: { ...EMPTY_WORLD_SPAWN }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + materialization
 // ---------------------------------------------------------------------------
 
@@ -2087,6 +2139,11 @@ export const PRESET_WORLDS = {
     label: 'Fantastic Voyage',
     hint: 'Miniaturised inside the human body — walk around the lungs, stomach, liver and kidneys',
     build: voyageLayout,
+  },
+  empty: {
+    label: 'Empty World',
+    hint: 'An open green field with a few trees — nothing built yet, so everything is yours to build',
+    build: emptyLayout,
   },
 };
 

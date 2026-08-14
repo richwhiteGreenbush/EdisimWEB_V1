@@ -312,6 +312,18 @@ html, body {
   max-width: 230px;
 }
 
+/* Removing a piece is destructive, so it is tinted away from the ordinary steps -- and
+   it sits directly above Render Model, which is the other button on this panel you
+   cannot take back. Two commitments in a row, each coloured as one. */
+.pm-remove {
+  background: rgba(224, 69, 95, 0.18);
+  border-color: rgba(224, 69, 95, 0.5);
+}
+
+.pm-remove:hover {
+  background: rgba(224, 69, 95, 0.3);
+}
+
 /* Render Model is the one irreversible action on the panel, so it is the one that looks
    like a commitment rather than another step. */
 .pm-render {

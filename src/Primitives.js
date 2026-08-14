@@ -196,6 +196,25 @@ export function clusterIds(rootId, registry) {
   return [...seen];
 }
 
+// Takes one construction piece out of the world for good.
+//
+// It also strips the removed id out of every OTHER piece's connections. clusterIds()
+// already skips links it cannot resolve, so a dangling link breaks nothing today -- but a
+// record that keeps claiming to be joined to something that no longer exists is a lie
+// that gets saved to IndexedDB, exported into world files, and read by whatever "Edit
+// Model" eventually re-splits a built model. Cheaper to keep the graph honest.
+export async function removePrimitive({ id, registry, worldStore }) {
+  registry.remove(id);
+  await worldStore?.deleteObject(id);
+
+  for (const entry of livePrimitives(registry)) {
+    const links = entry.record.connections || [];
+    if (!links.includes(id)) continue;
+    entry.record.connections = links.filter((other) => other !== id);
+    worldStore?.saveObject(entry.record);
+  }
+}
+
 // Fuses a connected cluster of construction pieces into ONE placed object.
 //
 // There is no CSG here and deliberately so: the pieces overlap where they touch, and a

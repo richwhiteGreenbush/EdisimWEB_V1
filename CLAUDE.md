@@ -145,7 +145,7 @@ has applied an uploaded image to a surface.
 rehydrating anything, so a world file with no theme of its own resets a leftover moon
 sky back to daylight instead of inheriting it.
 
-### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage
+### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / Empty
 
 The menu's top level is just two expanding groups plus **Clear World**: **Load Object**
 (Import / Draw / Light Orb / Web Browser — the things you put *into* a world) and
@@ -197,8 +197,8 @@ presets need no loading path of their own, and once loaded every object in them 
 clickable, resizable, movable, **programmable** and saveable like anything else the
 user placed. Nothing stores geometry or image bytes.
 
-**Every world puts a live web browser panel by its spawn point**, via
-`WorldPresets.browserStation()`. It emits **two** records, not one: the panel (a
+**Every world except the Empty World puts a live web browser panel by its spawn point**,
+via `WorldPresets.browserStation()`. It emits **two** records, not one: the panel (a
 `web-browser`, carrying nothing but its URL) and a `browser-kiosk` prop under it. They
 stay separate objects deliberately — a browser panel is one bezel mesh that the whole
 Size/Move/Program and persistence machinery already understands, and folding scenery into
@@ -213,6 +213,20 @@ Two placement details:
   off — outside the frame on any screen, so a student arrived with the panel behind their
   shoulder. Note the camera's `fov: 70` is **vertical**; a 16:9 screen actually sees about
   51° either side, which is what makes 39° comfortable rather than marginal.
+
+**The Empty World is the deliberate exception to almost everything above.** No buildings,
+no placards, no activity boards and no browser station: it exists so Create Model has
+somewhere with an empty horizon, and every one of those would be an obstacle to walk round
+while building. It runs the `default` theme — the one whose numbers are exactly the old
+pre-theme constants — and holds nothing but five of the Park's own trees. They are not
+decoration either: a genuinely featureless plane has no landmarks, so walking any distance
+across it stops registering as movement, and nothing else gives the ground a sense of
+scale. Their positions are randomised with `Math.random()` at **build** time and then baked
+into records, which is why that is safe here and is not safe inside a prop builder — a
+fresh load gives a different field, a reload of a saved one gives back exactly the field
+the student left. The bearings are an even sweep with jitter rather than five free
+draws: independent bearings leave a 3% chance of all five landing behind the student, who
+then arrives facing the emptiest possible view of an already empty world.
 
 `buildPresetWorldRecords(name, { groundHeightAt })` (`WorldPresets.js`) **applies the
 theme first, then reads each object's Y off the freshly reshaped terrain.** That order
@@ -812,9 +826,11 @@ surfaced).
 Menu ▸ **Create Model** is its own top-level group (`_group()` does not nest, so it could
 not go under Load Object) with one button per shape. Each drops a 2ft yellow construction
 piece on the ground ahead of the student, carrying a floating amber **hammer** icon that
-opens `PrimitiveMenu`: Apply Texture / Stretch to Shape / Connect to Primitive / Render
-Model / Close. Render Model fuses a connected cluster into one ordinary placed object,
-after which Size/Move/Program, saving and duplicating all work on it like anything else.
+opens `PrimitiveMenu`: Apply Texture / Stretch to Shape / Connect to Primitive / Remove
+Shape / Render Model / Close. Render Model fuses a connected cluster into one ordinary
+placed object, after which Size/Move/Program, saving and duplicating all work on it like
+anything else. Remove Shape sits directly above it, because those two are the panel's only
+irreversible buttons and both are coloured as commitments rather than as steps.
 
 **There is no CSG, and "seam the pieces together" does not need any.** Connecting is a
 recorded link, and rendering builds a `THREE.Group` of the same overlapping solids
@@ -863,13 +879,28 @@ Things worth knowing before editing this:
   grab can be claimed away from the camera. It only stops propagation when the raycast
   actually hits, so a drag on empty ground still turns the view.
 - **The gizmo carries THREE grabs, and the third one is load-bearing.** Corner handles
-  stretch, the box body slides along the ground, and a green **lift handle** floating above
-  the box raises and lowers. Body-drag re-seats the piece on the terrain every frame — that
-  is what makes it follow hills — so without a separate vertical grab *nothing could ever be
-  stacked on anything else*: no head on a body, no snowman, no roof on walls. It was added
-  the moment the tutorials tried to describe building one. It clamps at ground level, since
-  a piece dragged below the terrain is invisible and unrecoverable.
-- **The lift handle and the hammer icon occupy the same airspace**, and a sprite with
+  stretch, the box body slides, and a green **move handle** floating above the box does all
+  three axes in mid-air. Without a grab that leaves the ground *nothing could ever be
+  stacked on anything else* — no head on a body, no snowman, no roof on walls — which is
+  what the tutorials ran into the moment they tried to describe building one.
+- **Every horizontal move preserves ELEVATION ABOVE THE TERRAIN, not absolute Y**
+  (`StretchGizmo.elevationOf()` / `seat()`). This is what makes stacking usable rather than
+  merely possible. Re-seating a dragged piece flat on the ground is what makes it follow
+  hills, but it also means a piece lifted onto another one drops straight back to the grass
+  the instant it is slid an inch sideways — so it could be raised to the right height and
+  never lined up over the thing it was meant to sit on. Carrying elevation keeps both:
+  a grounded piece has elevation 0 and stays grounded, a raised one rides the hills at its
+  own height. Lifting rewrites `drag.elevation` mid-drag, or raising and then sliding within
+  one grab would undo the raise.
+- **The green handle picks lift-vs-slide from the first 8px of pointer travel, and then
+  holds it.** One drag is 2 degrees of freedom and the handle needs 3, so something has to
+  choose; the alternatives were a modifier key (no such thing on a tablet) or a fourth
+  handle. Mostly-vertical travel wins ties and means lift, because dragging up the screen to
+  raise something is what everyone tries first. Consequence worth knowing: *pure* forward/back
+  through this handle needs the drag to start sideways, so the box body — which is a much
+  bigger target and slides freely in both flat axes — stays the primary way to move a piece
+  horizontally.
+- **The move handle and the hammer icon occupy the same airspace**, and a sprite with
   `depthTest: false` draws straight over a mesh. `ConstructionManager.suppressId` is set by
   the gizmo while a piece is active, so that piece loses its hammer until Done — which costs
   nothing, since its menu is closed and the gizmo owns the pointer anyway.
@@ -878,11 +909,19 @@ Things worth knowing before editing this:
   rotate affordance) — so the world `Box3` centre *is* `mesh.position`, and holding the
   opposite corner fixed is `position_i = anchor_i + sign(corner_i) · newSize/2`. Add
   rotation to construction mode and this all has to be redone in the object's local frame.
-- **Dragging the blue box body is the move affordance**, and the only one: pieces have to
-  be brought into contact before they can be connected, and folding that into the same
-  mode as stretching avoids a second menu screen for it. It re-seats on the terrain each
-  frame (`groundHeightAt` + the lift captured at grab), so a piece dragged across hills
-  follows them.
+- **Dragging the blue box body is the primary move affordance**: pieces have to be brought
+  into contact before they can be connected, and folding that into the same mode as
+  stretching avoids a second menu screen for it. It re-seats on the terrain each frame
+  (`groundHeightAt` + the elevation and base offset captured at grab), so a piece dragged
+  across hills follows them at whatever height it is already at.
+- **`Remove Shape` is `removePrimitive()` in `Primitives.js`, not a call to
+  `registry.remove()` at the menu.** It lives next to the connection code because deleting a
+  piece is a graph edit: every OTHER piece's `connections` has to stop naming the id.
+  `clusterIds()` already skips links it cannot resolve, so a dangling link breaks nothing at
+  runtime — but the record is persisted, exported into world files, and read by whatever
+  eventually re-splits a built model, so it must not keep claiming a partner that is gone.
+  It is deliberately unconfirmed: nothing else in this app asks "are you sure", and the
+  button exists precisely for the student who put down the wrong shape.
 - **`PRIMITIVE_SPAWN_DISTANCE` is a framing number, not a reach number.** Eyes are at 5ft
   and a fresh piece is 2ft tall, so its base sits 5ft below the sightline; at the 8ft this
   started at that is 32° down against a **vertical** 70° fov (35° either side), and the
@@ -890,9 +929,9 @@ Things worth knowing before editing this:
 - **The placement spiral counts LIVE PRIMITIVES, not `registry.count`.** In a preset world
   the registry is already in the hundreds, and `SPACING·√n` would put the first piece
   ~28ft off to one side of a 10ft drop point.
-- **`WorldStore.deleteObject(id)` exists only for Render Model.** It is the one place a
-  single record is removed rather than the world wiped; without it the consumed pieces come
-  back on the next refresh alongside the model built from them.
+- **`WorldStore.deleteObject(id)` is the only path that removes ONE record** rather than
+  wiping the world; Render Model and Remove Shape are its two callers. Without it the
+  consumed pieces come back on the next refresh alongside the model built from them.
 - The gizmo's Done chip clears the toast band (`bottom: 76px`, not 22) — `#toast-host` is
   also bottom-centred and entering stretch mode fires a toast, so at the same offset the
   hint covers the only exit button. `main.js`'s VR toggle deactivates the gizmo for the
