@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Edusim: Web Edition — Build It, Then Bring It To Life</title>
-<meta name="description" content="Edusim: Web Edition is a free 3D world that runs in your browser. Build your own models out of cubes, spheres, cylinders and pyramids, then teach them to move with drag-and-drop code. Walk into a park, a museum, a library, the Moon, a Mars base, an island of full-size dinosaurs or the inside of the human body. No downloads, no accounts, no ads." />
+<title>Edusim: Web Edition — Build It. Code It. Explore It.</title>
+<meta name="description" content="Edusim: Web Edition is a free 3D world that runs in your browser. Build your own models out of cubes, spheres, cylinders and pyramids, code them to move with drag-and-drop blocks, then explore ready-made worlds that already have things waiting to be programmed — a park, a museum, a library, the Moon, a Mars base, full-size dinosaurs and the inside of the human body. No downloads, no accounts, no ads." />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,32 +21,37 @@
         <small>Web Edition</small>
       </span>
     </a>
+
+    <!-- Checkbox, list, button, label — in that DOM order, because the CSS drives both
+         the open panel and the burger's X animation off `.nav-toggle:checked ~ …`. -->
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Show or hide the menu" />
     <ul class="nav-links">
-      <li><a href="#build">Model Builder</a></li>
-      <li><a href="#code">Coding Blocks</a></li>
-      <li><a href="#worlds">The Worlds</a></li>
+      <li><a href="#build">1 · Build it</a></li>
+      <li><a href="#code">2 · Code it</a></li>
+      <li><a href="#worlds">3 · Explore it</a></li>
       <li><a href="guide/tutorials.html">Tutorials</a></li>
       <li><a href="guide/index.html">Hands-On Guide</a></li>
       <li><a href="#parents">Parents &amp; Teachers</a></li>
     </ul>
     <a class="btn btn-primary nav-cta" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">Play Now</a>
+    <label class="nav-burger" for="nav-toggle"><span class="burger-box" aria-hidden="true"></span>Menu</label>
   </div>
 </nav>
 
 <header class="hero" id="top">
   <div class="wrap">
-    <span class="eyebrow hero-eyebrow">✨ Build it yourself. Then bring it to life.</span>
+    <span class="eyebrow hero-eyebrow">✨ Build it. Code it. Explore it.</span>
     <h1>Imagine, <span class="pop-orange">Create</span>, <span class="pop-red">Share</span> your world!</h1>
     <p class="hero-sub">
       A 3D world that runs in your browser — nothing to download, nothing to sign up
-      for. Snap together cubes, spheres, cylinders and pyramids to build anything you
-      can picture, then drag coding blocks together to teach it to move. There are
-      seven ready-made worlds waiting to build in, from a city park to the surface of
-      Mars — plus an empty green field if you would rather start from nothing — and you
-      can change every last thing in them.
+      for. <strong>Build</strong> anything you can picture out of four simple shapes,
+      <strong>code</strong> it to move by dragging blocks together, then go and
+      <strong>explore</strong> ready-made worlds that already have plenty in them worth
+      programming — a city park, a museum, the Moon, a base on Mars, an island of
+      full-size dinosaurs.
     </p>
     <div class="hero-cta-row">
-      <a class="btn btn-primary" href="#build">See the Model Builder ↓</a>
+      <a class="btn btn-primary" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">▶ Launch Edusim — it's free</a>
       <a class="btn btn-ghost" href="guide/tutorials.html">Start a tutorial</a>
     </div>
 
@@ -61,67 +66,84 @@
     </div>
 
     <div class="hero-stats">
-      <span class="hero-stat">🔨 Build your own models</span>
-      <span class="hero-stat">🧩 Code with blocks</span>
-      <span class="hero-stat">🗺️ Seven worlds + an empty one</span>
-      <span class="hero-stat">🚫 No ads, ever</span>
+      <a class="hero-stat" href="#build" style="--accent: var(--orange);"><b>1</b> 🔨 Build it</a>
+      <a class="hero-stat" href="#code" style="--accent: var(--purple);"><b>2</b> 🧩 Code it</a>
+      <a class="hero-stat" href="#worlds" style="--accent: var(--green);"><b>3</b> 🗺️ Explore it</a>
     </div>
+    <p class="hero-fine">Free · no download · no account · no ads</p>
   </div>
 </header>
 
 <main>
 
-  <!-- The two flagship features, side by side and above everything else. These are the
-       two things a visitor should understand before they scroll anywhere: you make a
-       thing, then you make it move. -->
-  <section class="section flagship-section">
+  <!-- The three pillars, above everything else. The whole page below is these three in
+       order, and each one is reintroduced by a numbered badge when its own section
+       arrives, so a visitor always knows where they are. -->
+  <section class="section pillars">
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow" style="background: var(--red); color: #fff;">⭐ The two big ones</span>
-        <h2>Make something. Then make it move.</h2>
+        <span class="eyebrow" style="background: var(--red); color: #fff;">⭐ The three big ones</span>
+        <h2>Build it. Code it. Explore it.</h2>
         <p>
-          Everything else in Edusim hangs off these two. One lets you build a model out
-          of simple shapes; the other lets you write what it does — by dragging blocks
-          together, with nothing to type and nothing to spell wrong. They are designed
-          to be used one after the other, and the picture at the top of this page is
-          exactly that: one robot, built by hand, then told to copy itself three times.
+          Everything in Edusim is one of these three, and they're meant to be done in
+          order. Make a model out of simple shapes. Teach it what to do by dragging
+          blocks together. Then take it somewhere worth standing — into worlds that
+          already have plenty in them waiting to be programmed.
         </p>
       </div>
 
-      <div class="flagship-grid">
-        <a class="flagship-card reveal" href="#build" style="--accent: var(--orange);">
-          <div class="flagship-shot">
+      <div class="pillar-grid">
+        <a class="pillar-card reveal" href="#build" style="--accent: var(--orange);">
+          <div class="pillar-shot">
             <img src="assets/screenshots/build_gallery.jpg" width="1600" height="1000" loading="lazy"
                  alt="A robot and a rocket standing on grass, both built out of simple coloured shapes." />
-            <span class="flagship-pin">🔨</span>
+            <span class="pillar-num">1</span>
           </div>
-          <div class="flagship-body">
-            <span class="flagship-kicker">Feature one</span>
-            <h3>The Model Builder</h3>
+          <div class="pillar-body">
+            <span class="pillar-kicker">🔨 Build it</span>
+            <h3>Your own idea, in 3D</h3>
             <p>
-              Four shapes — cube, sphere, cylinder, pyramid. Stretch them, paint them,
-              push them together, and press <strong>Render Model</strong> to fuse the
-              whole pile into one solid thing you can pick up and use.
+              Four shapes — cube, sphere, cylinder, pyramid. Stretch them, turn them,
+              paint them, push them together, and press <strong>Render Model</strong>
+              to fuse the whole pile into one solid thing.
             </p>
-            <span class="flagship-more">How it works ↓</span>
+            <span class="pillar-more">See the builder ↓</span>
           </div>
         </a>
 
-        <a class="flagship-card reveal" href="#code" style="--accent: var(--purple);">
-          <div class="flagship-shot">
+        <a class="pillar-card reveal" href="#code" style="--accent: var(--purple);">
+          <div class="pillar-shot">
             <img src="assets/screenshots/07_program_editor.png" width="1600" height="1000" loading="lazy"
                  alt="A Scratch-style drag-and-drop block editor with a repeat block containing a rotate block and a change-colour block." />
-            <span class="flagship-pin">🧩</span>
+            <span class="pillar-num">2</span>
           </div>
-          <div class="flagship-body">
-            <span class="flagship-kicker">Feature two</span>
-            <h3>Drag-and-Drop Coding</h3>
+          <div class="pillar-body">
+            <span class="pillar-kicker">🧩 Code it</span>
+            <h3>Bring it to life</h3>
             <p>
-              Click anything, choose <strong>Program</strong>, and snap blocks together:
-              repeat, wait, move, turn, resize, recolour, and a duplicate block that
-              turns one of something into a row of them.
+              Click what you built, choose <strong>Program</strong>, and snap blocks
+              together: repeat, wait, move, turn, resize, recolour — and a duplicate
+              block that turns one of something into a row of them.
             </p>
-            <span class="flagship-more">How it works ↓</span>
+            <span class="pillar-more">See the blocks ↓</span>
+          </div>
+        </a>
+
+        <a class="pillar-card reveal" href="#worlds" style="--accent: var(--green);">
+          <div class="pillar-shot">
+            <img src="assets/screenshots/world_dinosaur.jpg" width="1600" height="1000" loading="lazy"
+                 alt="A full-size Tyrannosaurus rex standing among conifers and tree ferns on Dinosaur Island, with a nest of eggs in the foreground and a volcano on the horizon." />
+            <span class="pillar-num">3</span>
+          </div>
+          <div class="pillar-body">
+            <span class="pillar-kicker">🗺️ Explore it</span>
+            <h3>Worlds that teach you something</h3>
+            <p>
+              Walk into a park, a museum, the Moon, Mars, or an island of full-size
+              dinosaurs. Every one is dotted with signs worth stopping for — and with
+              things already built and waiting for you to program.
+            </p>
+            <span class="pillar-more">See the worlds ↓</span>
           </div>
         </a>
       </div>
@@ -129,17 +151,18 @@
   </section>
 
   <!-- ============================ MODEL BUILDER ============================ -->
-  <section class="section builder" id="build">
+  <section class="section builder" id="build" style="--accent: var(--orange);">
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow" style="background: var(--orange); color: #402200;">🔨 The Model Builder</span>
+        <span class="pillar-badge"><b>1</b> 🔨 Build it — the Model Builder</span>
         <h2>Four shapes is all it takes</h2>
         <p>
           Open <strong>Menu → Create Model</strong> and pick a shape. It lands on the
           ground a few steps in front of you, bright yellow, with a little
           <strong>🔨 hammer</strong> floating over it. That hammer is the way in to
-          everything else — click it and you can stretch the piece, paint it, join it
-          to its neighbours, and finally turn the whole assembly into one solid model.
+          everything else — click it and you can stretch the piece, turn it, paint it,
+          join it to its neighbours, and finally turn the whole assembly into one solid
+          model.
         </p>
       </div>
 
@@ -341,16 +364,18 @@
   </section>
 
   <!-- ============================ PROGRAMMING ============================ -->
-  <section class="section coding" id="code">
+  <section class="section coding" id="code" style="--accent: var(--purple);">
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow" style="background: var(--purple); color: #fff;">🧩 Coding Blocks</span>
-        <h2>Coding, without the typing</h2>
+        <span class="pillar-badge"><b>2</b> 🧩 Code it — the block editor</span>
+        <h2>Now bring it to life</h2>
         <p>
-          Click any object — one you built, or a park bench, or a Tyrannosaurus — and
-          choose <strong>Program</strong>. A drag-and-drop block editor opens: the same
+          The model you just built is an object like any other. Click it and choose
+          <strong>Program</strong>, and a drag-and-drop block editor opens: the same
           idea as Scratch, and just as hard to get wrong. Snap the blocks into a stack,
           press Save, and it starts doing it right there in the world while you watch.
+          The same thing works on anything else you can see, too — a park bench, a
+          light orb, a Tyrannosaurus.
         </p>
       </div>
 
@@ -410,56 +435,55 @@
     </div>
   </section>
 
-  <!-- Tutorials callout: the bridge from "that looks good" to "I'm doing it". -->
-  <section class="section tutorial-callout-section">
-    <div class="wrap">
-      <div class="tutorial-callout reveal">
-        <div class="tc-text">
-          <span class="eyebrow" style="background: var(--green); color: #fff;">📘 Free step-by-step tutorials</span>
-          <h3>Build the robot on this page, one step at a time</h3>
-          <p>
-            Six build-along tutorials that start with a four-ball snowman and end with a
-            robot that copies itself. Every step says exactly which shape to add, which
-            handle to drag and where to put it — and every one finishes with a "now
-            change something" challenge, so it never stays a copying exercise.
-          </p>
-          <div class="tc-cta">
-            <a class="btn btn-primary" href="guide/tutorials.html">Open the tutorials →</a>
-            <a class="btn btn-ghost" href="guide/index.html">Printable cards</a>
-          </div>
-        </div>
-        <ol class="tc-list" aria-hidden="true">
-          <li><span>1</span> Build a Snowman</li>
-          <li><span>2</span> Build a Rocket</li>
-          <li><span>3</span> Build a Robot</li>
-          <li><span>4</span> Build a House</li>
-          <li><span>5</span> Teach it to move</li>
-          <li><span>6</span> Build an army</li>
-        </ol>
-      </div>
-    </div>
-  </section>
-
   <!-- The prebuilt worlds. Deliberately no count anywhere in the copy or markup, so
        adding or retiring a world never leaves the page contradicting itself. -->
-  <section class="section worlds" id="worlds">
+  <section class="section worlds" id="worlds" style="--accent: var(--green);">
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow" style="background: var(--green); color: #fff;">🗺️ Worlds Ready to Explore</span>
-        <h2>Somewhere to build. And plenty to look at.</h2>
+        <span class="pillar-badge"><b>3</b> 🗺️ Explore it — worlds to learn in</span>
+        <h2>Worlds that come with something to program</h2>
         <p>
           You don't have to start on an empty field. Open <strong>Menu → Load World</strong>
           and you're standing in a park, a museum, a library, the Moon, a base on Mars,
           an island of full-size dinosaurs, or a walk-through tour of the human body
-          <em>(with more on the way)</em>. Signs dotted through each one tell you what
-          you're looking at — and none of it is fixed in place. Anything you can see,
-          you can move somewhere better, resize, or teach to move on its own. Anything
-          you build lands right alongside it.
+          <em>(with more on the way)</em>. Every one is dotted with signs worth stopping
+          for — and none of it is fixed in place. Anything you can see, you can move,
+          resize, or teach to move on its own.
         </p>
-        <p>
-          And when you would rather have the horizon to yourself, <strong>Empty World</strong>
-          is exactly that: open grass, a few trees for scale, and nothing else in your way.
-        </p>
+      </div>
+
+      <!-- The point of the whole section, so it goes ABOVE the world grid: these worlds
+           are not scenery to look at, they are stocked with objects already built and
+           waiting to be programmed, with the challenge printed on a sign next to them. -->
+      <div class="activity-strip reveal">
+        <div class="browser-frame">
+          <div class="chrome">
+            <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
+            <span class="addr">⚡ Activity 1 · The Park</span>
+          </div>
+          <img src="guide/shots/park_2.jpg" width="1100" height="707" loading="lazy"
+               alt="A green ACTIVITY board standing beside the pond in the park, headed Send the geese out for a paddle, with the exact coding blocks printed on it — forever, repeat 20 times, move X by 0.3 feet — and a tip at the bottom." />
+        </div>
+        <div class="as-text">
+          <span class="eyebrow" style="background: var(--green); color: #fff;">⚡ Already built, ready to program</span>
+          <h3>The challenge is standing right there in the world</h3>
+          <p>
+            Every world has <strong>two activity boards</strong> in it. Each one names a
+            real object nearby — the geese on the pond, the mobile hanging in the
+            museum, the Moon buggy, a Triceratops — sets it a job, and prints the exact
+            blocks to snap together to do it.
+          </p>
+          <p>
+            The blocks on the sign are the same colours as the blocks in the editor, so
+            an orange <span class="as-chip ctrl">repeat 20 times</span> on the board is
+            the orange one you go and drag. Nothing to look up, nothing to guess at.
+          </p>
+          <ul class="as-points">
+            <li><span>✓</span> Fourteen challenges waiting across the worlds, no setup needed</li>
+            <li><span>✓</span> Every sequence has been run — the boards don't promise anything the blocks can't do</li>
+            <li><span>✓</span> Finish one, then change the numbers and see what breaks. That's the lesson.</li>
+          </ul>
+        </div>
       </div>
 
       <div class="world-grid">
@@ -664,6 +688,12 @@
             <strong>Load World</strong> is where you go. Opening one group closes the
             others, so it never turns into a wall of buttons.
           </p>
+          <p>
+            🌾 And when you would rather have the horizon to yourself,
+            <strong>Empty World</strong> is exactly that: open grass, a few trees for
+            scale, and nothing else in your way. It's the one to pick when the model
+            you're building is the whole point.
+          </p>
           <p class="world-switch-note">
             💾 Your changes save themselves as you go, so a world is exactly how you
             left it when you come back. Choosing it from the menu again hands you a
@@ -689,6 +719,39 @@
         </div>
         <img src="guide/shots/dinosaur_2.jpg" width="1100" height="707" loading="lazy"
              alt="An ACTIVITY board standing on Dinosaur Island, headed Set the Triceratops grazing, with the coding blocks to use printed on it in orange and blue." />
+      </div>
+    </div>
+  </section>
+
+  <!-- Tutorials callout: the bridge from "that looks good" to "I'm doing it". It sits
+       after all three pillars rather than between two of them, so the numbered set
+       runs 1 → 2 → 3 without an interruption in the middle. -->
+  <section class="section tutorial-callout-section">
+    <div class="wrap">
+      <div class="tutorial-callout reveal">
+        <div class="tc-text">
+          <span class="eyebrow" style="background: var(--green); color: #fff;">📘 Free step-by-step tutorials</span>
+          <h3>All three, one step at a time</h3>
+          <p>
+            Six build-along tutorials that start with a four-ball snowman and end with a
+            robot that copies itself in a world of your choosing. Every step says exactly
+            which shape to add, which handle to drag and where to put it — and every one
+            finishes with a "now change something" challenge, so it never stays a copying
+            exercise.
+          </p>
+          <div class="tc-cta">
+            <a class="btn btn-primary" href="guide/tutorials.html">Open the tutorials →</a>
+            <a class="btn btn-ghost" href="guide/index.html">Printable cards</a>
+          </div>
+        </div>
+        <ol class="tc-list" aria-hidden="true">
+          <li><span>1</span> Build a Snowman</li>
+          <li><span>2</span> Build a Rocket</li>
+          <li><span>3</span> Build a Robot</li>
+          <li><span>4</span> Build a House</li>
+          <li><span>5</span> Teach it to move</li>
+          <li><span>6</span> Build an army</li>
+        </ol>
       </div>
     </div>
   </section>
@@ -755,17 +818,17 @@
     </div>
   </section>
 
-  <!-- Everything else you can add. Grouped tighter than the two flagship features
-       above, because that is honestly how they rank. -->
+  <!-- Everything else you can add. Grouped tighter than the three pillars above,
+       because that is honestly how they rank. -->
   <section class="section tint-cream" id="features">
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow" style="background: var(--blue); color: #fff;">🧰 And plenty more</span>
+        <span class="eyebrow" style="background: var(--blue); color: #fff;">🧰 Beyond the big three</span>
         <h2>Other things to put in your world</h2>
         <p>
-          The Model Builder is not the only way to make something. There's a paint pad
-          that turns drawings into 3D, real lights you can drop anywhere, a file
-          importer, and a working web browser you can hang on a wall.
+          Build, code, explore is the whole of it — but there is more to put in a world
+          than models. A paint pad that turns drawings into 3D, real lights you can drop
+          anywhere, a file importer, and a working web browser you can hang on a wall.
         </p>
       </div>
 
@@ -1075,9 +1138,9 @@ npm run dev   <span class="c"># then open the printed URL</span></code></pre>
         Edusim: Web Edition
       </div>
       <ul class="footer-links">
-        <li><a href="#build">Model Builder</a></li>
-        <li><a href="#code">Coding Blocks</a></li>
-        <li><a href="#worlds">The Worlds</a></li>
+        <li><a href="#build">1 · Build it</a></li>
+        <li><a href="#code">2 · Code it</a></li>
+        <li><a href="#worlds">3 · Explore it</a></li>
         <li><a href="#vr">View in VR</a></li>
         <li><a href="guide/tutorials.html">Tutorials</a></li>
         <li><a href="guide/index.html">Hands-On Guide</a></li>
@@ -1091,6 +1154,25 @@ npm run dev   <span class="c"># then open the printed URL</span></code></pre>
     <p class="footer-fine">A 3D sandbox that runs in a browser, for building, coding and imagining. No accounts. No ads. Just your world.</p>
   </div>
 </footer>
+
+<script>
+  /* Polish only. The menu itself is a CSS checkbox and opens and closes with no
+     JavaScript at all -- this just closes it again after a link is chosen, which
+     matters because every link here jumps down the same page and the open panel
+     would otherwise be left sitting over the section it just scrolled to. */
+  (function () {
+    var toggle = document.getElementById('nav-toggle');
+    if (!toggle) return;
+
+    document.querySelectorAll('.nav-links a').forEach(function (link) {
+      link.addEventListener('click', function () { toggle.checked = false; });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') toggle.checked = false;
+    });
+  })();
+</script>
 
 </body>
 </html>

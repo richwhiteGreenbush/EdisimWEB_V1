@@ -61,8 +61,15 @@ p {
   line-height: 1.6;
 }
 
+/* `height: auto` is load-bearing, not boilerplate. Every screenshot on this page
+   carries width/height attributes (they reserve layout space so nothing jumps as the
+   images load), and HTML maps those attributes to CSS *presentation hints* -- so
+   without this the hero shot rendered 960px wide by a literal 1000px tall, stretching
+   a 16:10 screenshot to 0.96:1. Only .world-shot and .vr-shot looked right, because
+   those two rules happened to set height: auto themselves. */
 img {
   max-width: 100%;
+  height: auto;
   display: block;
 }
 
@@ -109,6 +116,19 @@ a {
   white-space: nowrap;
 }
 
+/* A button label is `nowrap` so a phrase never breaks mid-sentence -- but the longest
+   ones here ("Open the Hands-On Guide →") are wider than the content column of a
+   320px handset, and neither a grid nor a flex item can shrink below its own
+   min-content width. The whole panel was therefore pushed past the screen edge and
+   silently clipped by `body { overflow-x: hidden }`. On the narrowest phones, a
+   wrapped label beats a cut-off one. */
+@media (max-width: 380px) {
+  .btn {
+    white-space: normal;
+    text-align: center;
+  }
+}
+
 .btn:hover {
   transform: translateY(-3px);
 }
@@ -141,13 +161,23 @@ a {
   background: rgba(255, 255, 255, 0.28);
 }
 
-/* ---------- nav ---------- */
+/* ---------- nav ----------
+   One set of markup, three layouts: a full bar on a desktop, the same bar tightened
+   on a landscape tablet, and a drop-down panel on anything narrower. The old version
+   tried to fit every link on one line at every width and hid the third one on a
+   phone -- which still overflowed, and `body { overflow-x: hidden }` then CLIPPED the
+   rest rather than letting them be scrolled to, so half the menu was unreachable on a
+   handset. A panel is the only layout that holds an arbitrary number of links.
+
+   The toggle is a checkbox because this page ships no JavaScript of its own: a hidden
+   checkbox is the one way to keep open/closed state in CSS alone, and unlike a bare
+   label it stays keyboard-reachable (Tab to it, Space to open). */
 
 .site-nav {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(255, 253, 247, 0.9);
+  background: rgba(255, 253, 247, 0.94);
   backdrop-filter: blur(8px);
   border-bottom: 3px solid #ffe1a8;
 }
@@ -155,16 +185,16 @@ a {
 .site-nav .wrap {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding-top: 12px;
   padding-bottom: 12px;
-  gap: 16px;
+  gap: 12px;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-right: auto;
   font-family: "Fredoka", sans-serif;
   font-weight: 600;
   font-size: 1.3rem;
@@ -194,53 +224,173 @@ a {
   color: var(--green);
 }
 
+/* Base = the phone/tablet-portrait panel. The desktop bar is the override below. */
 .nav-links {
-  display: flex;
-  align-items: center;
-  gap: 28px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 8px 24px 18px;
+  display: grid;
+  gap: 4px;
   font-family: "Fredoka", sans-serif;
   font-weight: 500;
-  font-size: 0.98rem;
+  font-size: 1.02rem;
+  background: var(--paper);
+  border-bottom: 3px solid #ffe1a8;
+  box-shadow: 0 20px 34px -16px rgba(30, 42, 58, 0.42);
+
+  /* visibility, not just max-height: a clipped-but-present link is still in the tab
+     order, so a keyboard user would tab into a menu they cannot see.
+
+     The 0s-with-a-delay timing is the whole trick. visibility is a DISCRETE property,
+     so a plain `transition: visibility 0.26s` flips it at the END of the duration in
+     both directions -- which means the links stay invisible for the entire opening
+     animation and the panel appears to unroll empty. Opening switches it at 0s;
+     closing delays the switch until the collapse has finished. */
+  max-height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  transition: max-height 0.26s ease, visibility 0s linear 0.26s;
+}
+
+.nav-toggle:checked ~ .nav-links {
+  max-height: min(70vh, 460px);
+  overflow-y: auto;
+  visibility: visible;
+  transition: max-height 0.26s ease, visibility 0s linear 0s;
 }
 
 .nav-links a {
+  display: block;
   text-decoration: none;
   color: var(--ink-soft);
-  padding: 6px 2px;
+  padding: 11px 12px;
+  border-radius: 12px;
   border-bottom: 3px solid transparent;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 
-.nav-links a:hover {
+.nav-links a:hover,
+.nav-links a:focus-visible {
   color: var(--ink);
-  border-color: var(--orange);
+  background: #fff3dc;
 }
 
-.nav-cta {
-  display: none;
+/* The toggle itself is never seen -- but it must stay focusable, so it is moved out of
+   the way rather than `display: none`d, which would drop it from the tab order. */
+.nav-toggle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
-@media (min-width: 720px) {
-  .nav-cta {
-    display: inline-flex;
-  }
-  .nav-cta.btn {
-    padding: 10px 20px;
-    font-size: 0.92rem;
-  }
+.nav-burger {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+  padding: 9px 15px;
+  border-radius: 999px;
+  border: 2px solid rgba(30, 42, 58, 0.2);
+  background: #fff;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
 }
 
-@media (max-width: 719px) {
+.nav-toggle:focus-visible ~ .nav-burger {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.burger-box,
+.burger-box::before,
+.burger-box::after {
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ink);
+}
+
+.burger-box {
+  position: relative;
+  transition: background 0.18s ease;
+}
+
+.burger-box::before,
+.burger-box::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  transition: transform 0.18s ease;
+}
+
+.burger-box::before { top: -6px; }
+.burger-box::after { top: 6px; }
+
+.nav-toggle:checked ~ .nav-burger .burger-box { background: transparent; }
+.nav-toggle:checked ~ .nav-burger .burger-box::before { transform: translateY(6px) rotate(45deg); }
+.nav-toggle:checked ~ .nav-burger .burger-box::after { transform: translateY(-6px) rotate(-45deg); }
+
+.nav-cta.btn {
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  flex: none;
+}
+
+/* A 360px handset cannot hold brand + "Play Now" + burger, and the launch button is
+   the one thing on this bar that must never be dropped -- so the wordmark goes first. */
+@media (max-width: 430px) {
+  .brand span:not(.brand-mark) { display: none; }
+  .nav-cta.btn { padding: 10px 14px; }
+}
+
+/* Landscape tablet and up: back to one horizontal row. */
+@media (min-width: 900px) {
+  .nav-burger { display: none; }
+
   .nav-links {
-    gap: 16px;
-    font-size: 0.85rem;
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    padding: 0;
+    max-height: none;
+    overflow: visible;
+    visibility: visible;
+    background: none;
+    border: none;
+    box-shadow: none;
+    font-size: 0.98rem;
   }
-  .nav-links li:nth-child(3) {
-    display: none;
+
+  .nav-links a {
+    padding: 6px 2px;
+    border-radius: 0;
   }
+
+  .nav-links a:hover,
+  .nav-links a:focus-visible {
+    background: none;
+    border-color: var(--orange);
+  }
+}
+
+/* The row fits at 900px only if it is tightened -- six links at desktop spacing plus
+   the brand and the button come to about 1000px. */
+@media (min-width: 900px) and (max-width: 1099px) {
+  .nav-links { gap: 17px; font-size: 0.88rem; }
+  .brand { font-size: 1.12rem; }
+  .nav-cta.btn { padding: 9px 15px; font-size: 0.85rem; }
 }
 
 /* ---------- hero ---------- */
@@ -1214,31 +1364,55 @@ a {
 
 /* ==========================================================================
    MODEL BUILDER + CODING BLOCKS
-   The two flagship features. Everything below is new for the Model Builder
+   Pillars one and two. Everything below is new for the Model Builder
    release; the app-mock family is the same trick .menu-mock already uses —
    a CSS replica of a panel in the app, so it stays crisp at any size and
    never goes stale against a screenshot when a button gets renamed.
    ========================================================================== */
 
-/* ---------- flagship pair ---------- */
+/* ---------- the three pillars ----------
+   Build it, code it, explore it -- the whole page is now organised around these, so
+   the set appears twice: as three cards here, and as a numbered badge at the head of
+   each of the three deep sections further down. Each pillar owns ONE colour
+   (orange / purple / green) and keeps it in both places, which is what makes the
+   badge halfway down the page read as "this is still pillar two". */
 
-.flagship-section {
-  background: linear-gradient(180deg, #fff 0%, #fff5e0 100%);
+.pillars {
+  background: linear-gradient(180deg, #fff 0%, #fdf3e2 100%);
 }
 
-.flagship-grid {
+.pillar-grid {
   display: grid;
   gap: 26px;
   grid-template-columns: 1fr;
-  margin-top: 40px;
+  margin-top: 44px;
 }
 
-@media (min-width: 860px) {
-  .flagship-grid { grid-template-columns: 1fr 1fr; }
+/* Tablet portrait: three stacked full-width cards is a lot of scrolling for what is
+   meant to be one glance, so each card turns side-on instead. */
+@media (min-width: 620px) and (max-width: 959px) {
+  .pillar-card {
+    display: grid;
+    grid-template-columns: 0.95fr 1.15fr;
+    align-items: stretch;
+  }
+
+  .pillar-shot img {
+    height: 100%;
+    aspect-ratio: auto;
+    border-bottom: none;
+    border-right: 3px solid var(--ink);
+  }
+
+  .pillar-num { bottom: auto; top: 14px; }
 }
 
-.flagship-card {
-  display: block;
+@media (min-width: 960px) {
+  .pillar-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.pillar-card {
+  position: relative;
   text-decoration: none;
   color: inherit;
   background: var(--paper);
@@ -1249,66 +1423,108 @@ a {
   transition: transform 0.16s ease, box-shadow 0.16s ease;
 }
 
-.flagship-card:hover {
+.pillar-card::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 9px;
+  background: var(--accent, var(--orange));
+  z-index: 2;
+}
+
+.pillar-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 26px 50px -14px rgba(30, 42, 58, 0.36);
 }
 
-.flagship-shot {
+.pillar-shot {
   position: relative;
   background: #dceaf6;
+  line-height: 0;
 }
 
-.flagship-shot img {
+.pillar-shot img {
   display: block;
   width: 100%;
+  height: auto;
   aspect-ratio: 16 / 10;
   object-fit: cover;
   border-bottom: 3px solid var(--ink);
 }
 
-.flagship-pin {
+.pillar-num {
   position: absolute;
-  right: 16px;
-  bottom: -22px;
+  left: 14px;
+  bottom: -24px;
   width: 52px;
   height: 52px;
   display: grid;
   place-items: center;
+  font-family: "Fredoka", sans-serif;
   font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
   border-radius: 50%;
   background: var(--accent, var(--orange));
   border: 3px solid var(--ink);
   box-shadow: var(--shadow-pop);
+  z-index: 3;
 }
 
-.flagship-body {
-  padding: 26px 24px 24px;
+.pillar-body {
+  padding: 34px 24px 24px;
 }
 
-.flagship-kicker {
+.pillar-kicker {
   display: inline-block;
   font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--accent, var(--orange)) 70%, var(--ink));
+  color: color-mix(in srgb, var(--accent, var(--orange)) 42%, var(--ink));
   margin-bottom: 6px;
 }
 
-.flagship-body h3 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
+.pillar-body h3 {
+  font-size: clamp(1.4rem, 2.6vw, 1.85rem);
   margin: 0 0 0.5rem;
 }
 
-.flagship-body p {
+.pillar-body p {
   color: var(--ink-soft);
   margin-bottom: 0.9rem;
 }
 
-.flagship-more {
+.pillar-more {
   font-weight: 800;
-  color: color-mix(in srgb, var(--accent, var(--orange)) 68%, var(--ink));
+  color: color-mix(in srgb, var(--accent, var(--orange)) 42%, var(--ink));
+}
+
+/* The badge that re-introduces a pillar at the head of its own deep section. */
+.pillar-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 5px 18px 5px 5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent, var(--orange)) 15%, #fff);
+  border: 2px solid color-mix(in srgb, var(--accent, var(--orange)) 40%, #fff);
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: color-mix(in srgb, var(--accent, var(--orange)) 40%, var(--ink));
+}
+
+.pillar-badge b {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent, var(--orange));
+  color: #fff;
+  font-size: 0.98rem;
 }
 
 /* ---------- model builder ---------- */
@@ -1724,3 +1940,111 @@ a {
 .tc-cta .btn-ghost:hover {
   background: rgba(30, 42, 58, 0.12);
 }
+
+/* ==========================================================================
+   Pillar-three support: the worlds arrive with things already wired to program
+   ========================================================================== */
+
+/* The hero's three chips are anchors now, not captions -- they are the first place
+   the three pillars are named, so they have to be clickable. */
+.hero-stat {
+  text-decoration: none;
+  border: 3px solid transparent;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+a.hero-stat:hover {
+  transform: translateY(-3px);
+  border-color: var(--ink);
+}
+
+.hero-stat b {
+  font-family: "Fredoka", sans-serif;
+  color: var(--accent, var(--orange));
+}
+
+.hero-fine {
+  margin: -14px 0 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.activity-strip {
+  display: grid;
+  gap: 30px;
+  grid-template-columns: 1fr;
+  align-items: center;
+  margin: 0 0 52px;
+  padding: 28px;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+@media (min-width: 880px) {
+  .activity-strip {
+    grid-template-columns: 1.05fr 1fr;
+    padding: 34px 38px;
+    gap: 40px;
+  }
+}
+
+.activity-strip .browser-frame {
+  transform: none;
+  max-width: none;
+}
+
+.as-text h3 {
+  font-size: clamp(1.35rem, 2.8vw, 1.9rem);
+  margin: 0.5rem 0 0.6rem;
+}
+
+.as-text p { color: var(--ink-soft); }
+
+.as-points {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.as-points li {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 0.98rem;
+}
+
+.as-points li span {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.8rem;
+}
+
+/* The blocks a board actually prints, in the app's own category colours. Same trick
+   as .code-blocks, but inline so it can sit in a sentence. */
+.as-chip {
+  display: inline-block;
+  border-radius: 8px;
+  padding: 0.08em 0.5em;
+  font-weight: 700;
+  font-size: 0.9em;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.as-chip.ctrl { background: #ffab19; color: #3d2600; }
+.as-chip.motion { background: #4c97ff; }
+.as-chip.look { background: #9966ff; }
