@@ -395,9 +395,13 @@ a {
 
 /* ---------- hero ---------- */
 
+/* The vertical rhythm here is tuned so the screenshot below the buttons CLEARS the
+   fold on a 720px laptop. At the original 64px/40px it began 7px below it, so the
+   entire first screen was empty sky and a visitor had no reason to think there was
+   anything under it. A visible slice of the picture is the thing that says scroll. */
 .hero {
   position: relative;
-  padding: 64px 0 120px;
+  padding: 48px 0 110px;
   background:
     radial-gradient(ellipse 90% 60% at 20% -10%, rgba(255,255,255,0.5), transparent),
     linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 55%, var(--grass-top) 55%, var(--grass-bottom) 100%);
@@ -433,7 +437,7 @@ a {
   position: relative;
   z-index: 2;
   display: grid;
-  gap: 40px;
+  gap: 30px;
   text-align: center;
   justify-items: center;
 }
