@@ -195,6 +195,49 @@ export const WORLD_THEMES = {
     sunPosition: [60, 115, 50],
     stars: false,
   },
+  newyork: {
+    // Broadway at Times Square on a hazy summer afternoon in 1949.
+    //
+    // Two things here are not the usual choices, and both are because this is the only
+    // world whose ground is a MAN-MADE surface rather than landscape:
+    //
+    //  * The relief is effectively switched off (a low amplitude over a flat radius that
+    //    swallows the whole block). Every building, sidewalk slab and curb in this world
+    //    is a rigid box tens of feet long, and rolling ground puts one end of each of them
+    //    underground and floats the other -- the same reason the museum and library
+    //    widened their flat zones, taken to its conclusion.
+    //  * The ground ramp is a narrow grey-brown, not a two-tone ramp. The street prop lays
+    //    its own asphalt and concrete on top, so this colour is only ever glimpsed past
+    //    the ends of the block, where it needs to read as more city and not as a meadow.
+    groundDetail: 'ground-regolith.jpg',
+    sky: 0xa8bfd2,
+    // Close haze. Manhattan in July genuinely looks like this, and it is also what makes
+    // a 400ft ground plane read as one block of an endless city instead of as an island:
+    // the far end of the avenue fades before the edge of the world can be seen.
+    fogNear: 70,
+    fogFar: 250,
+    groundLow: 0x4b4842,
+    groundHigh: 0x6b675e,
+    groundRoughness: 1,
+    amplitude: 2.0,
+    flatRadius: 165,
+    blendRadius: 198,
+    hemiSky: 0xd8e6f2,
+    // Deliberately much lighter than any other outdoor world's ground bounce, and for the
+    // same reason Dinosaur Island needed it: this world is a canyon. The sun can only ever
+    // light ONE side of a street, and the hemisphere fill is the entire lighting budget for
+    // the other -- at the usual 0x3d3933 the whole east frontage, marquees included, came
+    // out as a black silhouette.
+    hemiGround: 0x6b6459,
+    hemiIntensity: 1.8,
+    sunColor: 0xffeed2,
+    sunIntensity: 2.45,
+    // High and off to the +X side, so the west-facing shopfronts across the street are the
+    // lit ones and the near sidewalk is in shade -- which is the light in the photograph,
+    // and which is what makes the marquees read as lit rather than as painted panels.
+    sunPosition: [95, 130, 55],
+    stars: false,
+  },
   dinosaur: {
     groundDetail: 'ground-soil.jpg',
     // Late Cretaceous: hot, humid and far more carbon dioxide than today, with no ice

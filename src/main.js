@@ -215,7 +215,19 @@ const drawTool = new DrawTool({
 
 const programEditor = new ProgramEditor({ registry, worldStore, programManager, menu, playIconManager });
 
-const objectMenu = new ObjectMenu({ scene, camera, domElement: canvas, registry, menu, worldStore, programEditor });
+const objectMenu = new ObjectMenu({
+  scene,
+  camera,
+  domElement: canvas,
+  registry,
+  menu,
+  worldStore,
+  programEditor,
+  // Clicking a world-portal billboard runs the same action Load World does. It is the
+  // only way to reach a preset marked `hidden` -- 1940's New York is reachable from the
+  // billboard behind the Library and from nowhere else.
+  onPortalClick: (name) => menuActions.loadPreset(name),
+});
 
 const buildGizmo = new BuildGizmo({
   scene,

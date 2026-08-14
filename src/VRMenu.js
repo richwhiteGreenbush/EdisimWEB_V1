@@ -166,7 +166,10 @@ export class VRMenu {
     // of its own.
     rows.push({ id: 'group:world', label: 'Load World', group: 'world' });
     if (this.openGroup === 'world') {
+      // `hidden` presets are skipped here for the same reason as in the DOM menu: their
+      // only way in is a portal inside another world.
       for (const [name, preset] of Object.entries(PRESET_WORLDS)) {
+        if (preset.hidden) continue;
         rows.push({ id: `preset:${name}`, label: preset.label, indent: true });
       }
       rows.push({ id: 'saveWorld', label: 'Save World', indent: true, leavesVR: true });

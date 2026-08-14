@@ -10,7 +10,9 @@ and images, freehand-draw shapes that inflate into 3D balloons, build your own m
 out of stretchable primitives, drop glowing light
 orbs, place live interactive web browser panels, and save/load the world. New visitors
 land in a prebuilt Park; The Museum, The Library, The Moon, On Mars, Dinosaur Island
-and Fantastic Voyage (human anatomy) are loadable from the menu. Pure client-side Three.js app — no backend, ships as a static `dist/` bundle.
+and Fantastic Voyage (human anatomy) are loadable from the menu. One more world —
+1940's New York — is deliberately **not** in the menu and is reached only by clicking a
+billboard behind the library building. Pure client-side Three.js app — no backend, ships as a static `dist/` bundle.
 
 ## Commands
 
@@ -145,7 +147,7 @@ has applied an uploaded image to a surface.
 rehydrating anything, so a world file with no theme of its own resets a leftover moon
 sky back to daylight instead of inheriting it.
 
-### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / Empty
+### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / Empty / (New York)
 
 The menu's top level is just two expanding groups plus **Clear World**: **Load Object**
 (Import / Draw / Light Orb / Web Browser — the things you put *into* a world) and
@@ -237,7 +239,7 @@ replaced.
 
 **Everything is generated in code** — `PropKit.js` (shared helpers) plus `src/props/`
 (`CommonProps` / `ParkProps` / `MuseumProps` / `LibraryProps` / `MoonProps` /
-`MarsProps` / `DinoProps` / `BodyProps` / `Earth`), with `props/index.js`'s
+`MarsProps` / `DinoProps` / `BodyProps` / `CityProps` / `Earth`), with `props/index.js`'s
 `PROP_BUILDERS` as the name→builder table. **Those keys are
 persisted**, so renaming one silently breaks every already-saved world using it; add a
 new key instead. `buildProp()` throws on an unknown name rather than silently dropping
@@ -545,6 +547,101 @@ from older records:
 Note that sizing by *height* means a wide, low model gets a big footprint: the little
 library normalized to a 15ft ridge is 45ft square, and the Edusim banner at 6ft tall is
 24ft wide. Both are held smaller in the Park layout for exactly that reason.
+
+### 1940's New York, and world portals
+
+Broadway at Times Square in the summer of 1949, modelled from a colour photograph, in
+`src/props/CityProps.js` + `newYorkLayout()`. It is the only world **not listed in either
+menu**: `PRESET_WORLDS.newyork` carries `hidden: true`, and both `Menu.js` and
+`VRMenu.js` skip any preset with that flag. Everything else about it is an ordinary
+preset — `buildPresetWorldRecords` looks it up by name like any other.
+
+**A world portal is a door, and it is four lines of plumbing.** `CommonProps.worldPortal()`
+stamps `object3D.userData.portalWorld` on the billboard it builds; `ObjectMenu.tryPick()`
+reads that off the picked object and calls `onPortalClick` instead of opening
+Size/Move/Program; `main.js` wires that to the same `menuActions.loadPreset` the Load
+World menu uses. Nothing else in the app knows portals exist — a portal is a plain
+`preset-prop` record, so it saves, exports to a world file, rehydrates and duplicates with
+no per-kind code, and the flag comes back on every rebuild because the builder always sets
+it. The cost is that a portal cannot itself be resized, moved or programmed, since this is
+the only path to that panel for a prop. That is the right trade for a door.
+
+Two placement decisions that are the feature, not decoration:
+
+- The billboard is **behind** the Library hall, in the 20ft slot between its rear wall and
+  the sign, and it faces **back toward the building**. A student rounding either rear
+  corner walks into that slot and meets the face square on; turned the other way it shows
+  them its blank back. A `standing-sign` out on the approach ("TIME TRAVEL EXHIBIT ·
+  BEHIND THE LIBRARY") is the only signpost to it — a portal nobody finds is a portal
+  nobody has.
+- **The door goes both ways.** New York carries a return portal on the corner plaza under
+  BOND. It is deliberately not beside the spawn: a way home where you arrive is one most
+  students press before they have seen anything.
+
+The board says `CLICK THIS SIGN TO GO` in as many words. Every other object in this app
+opens a menu when clicked, so a sign that silently replaces the entire world would be a
+nasty surprise; the call-to-action strip is what makes it a door rather than a trapdoor.
+
+**The street's coordinate system**, which every number in the layout hangs off: the
+roadway is `x = -17..17`, the sidewalks `x = ±17..27`, the building faces `x = ±27`.
+Every building and vehicle in `CityProps.js` is authored **facing +Z**, so a west-side
+building is placed at `x = -(27 + depth/2)` with `rotY = +PI/2` and an east-side one
+mirrors it. Anything standing ON the sidewalk takes `y = 0.5`, because the sidewalk is a
+6in slab of its own and the terrain is underneath it; vehicles take `y = 0.12`.
+
+**54ft between facades is narrower than the real Broadway, deliberately.** The camera's
+70° fov is *vertical*, so a 16:9 screen sees about 51° either side; at the true street
+width the marquee across the road sits outside the frame and a student arrives looking at
+empty asphalt. The spawn is also turned 14° west rather than straight up the sidewalk,
+which swings the marquee into the view, puts BOND almost dead ahead, and takes the nearest
+lamp post off the exact centre of the screen where it was standing like a bollard.
+
+Traps this world hit, several of which generalise:
+
+- **`Raycaster` does not update `matrixWorld`, and the ground's is the identity until the
+  first rendered frame.** `PlaneGeometry` is authored upright in XY and the ground mesh is
+  laid down by a -90° rotation — so a ground-height probe before that first frame does not
+  *miss* (harmless, it returns 0), it **hits the plane still standing up** and returns a
+  vertex row's local Y as a height. That put a 96ft theatre 157ft underground. `SceneSetup`
+  now calls `ground.updateMatrixWorld()` at build time; the ground never moves again
+  (`applyWorldTheme` rewrites its vertices in place, never its transform), so once is enough.
+- **A partial `CylinderGeometry` is CAPPED at its flat ends.** Wheel arches built as half
+  cylinders came out with a solid half-disc exactly where the wheel should be visible, and
+  every car in the world read as a bulldozer. They are seven small blocks stepped round the
+  axle instead — the same voussoir trick the stone arches use.
+- **A cabin built as one solid box hides its own glass.** At any body width the window
+  panels end up inside the box and the greenhouse reads as a painted black slab. It is a
+  *frame* — belt rail, three pillars a side, roof panel — with the glass hung outside it and
+  a dark interior filler within.
+- **A swept tube is as deep as it is wide.** A statue torso sized to look right from the
+  front is a 5ft-deep barrel from the side; the Bond figures are `geometry.scale(1.3, 1, 0.72)`
+  after sweeping, which moves nothing (every control point is on x = 0) and is the whole
+  difference between a figure and a snowman.
+- **`metalness: 0.9` with no environment map renders BLACK.** There is no env map anywhere
+  in this app, so chrome sits at 0.55 and headlight lenses are their own low-metalness,
+  slightly emissive merge — at 0.9 every bumper looked like cast iron and every headlight
+  was a dark blob stuck to a fender.
+- **The hemisphere fill is the entire lighting budget for one side of a street.** A city
+  block is a canyon and the sun can only ever light one face of it, so `hemiGround` is
+  `0x6b6459` at 1.8 — far lighter than any other outdoor world, for the same reason
+  Dinosaur Island needed it under a closed canopy.
+- **Nothing tall stands between z = -20 and z = 23.** That band is the two theatre
+  marquees, which project 8-9ft over the sidewalk at 11-19ft up; a 21ft lamp post inside
+  one grows through the roof of it. Lamps also sit at `x = ±20`, three feet in from the
+  kerb, because the shop awnings reach out to 22.
+- **Clear of a box is not the same as readable.** A traffic signal ten feet in front of the
+  return portal passed every overlap sweep and hid half the sign — found only by standing
+  where a student stands and looking, the same lesson as the activity boards.
+
+**Performance, measured rather than assumed** (this app has to run on school Chromebooks):
+394 draw calls, 235k triangles, 21 transparent meshes, **4 point lights**, 102 textures,
+~2.1ms of CPU render — the lightest-rendering populated world in the app, against the Park's
+748 calls / 578k tris / 4.6ms. Three choices bought that: every prop merges to one or a few
+vertex-coloured meshes, marquee bulbs are *painted* on the sign canvas everywhere except
+the one marquee a student stands directly under, and the lamps' lit glass is **opaque and
+merged into a single mesh per lamp**. A dozen lamps at three translucent glass meshes apiece
+was 36 transparent draws — the largest block of transparency in any world here — for glass
+at opacity 0.92 that was visually indistinguishable from solid.
 
 ### Photo textures, but only on the big flat surfaces
 

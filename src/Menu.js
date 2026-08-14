@@ -80,8 +80,14 @@ export class Menu {
     // The ready-made worlds are built from PRESET_WORLDS rather than hardcoded here, so
     // adding another world is a one-line change in WorldPresets.js and shows up in the
     // menu for free.
+    //
+    // A preset marked `hidden` is skipped. That is not a half-built world being kept back
+    // -- it is a world whose only door is somewhere inside another world (1940's New York
+    // hangs off the billboard behind the Library), and listing it here would give away the
+    // one thing that makes finding it worth anything.
     const worldButtons = [];
     for (const [name, preset] of Object.entries(PRESET_WORLDS)) {
+      if (preset.hidden) continue;
       const btn = this._button(preset.label, `${preset.hint} — replaces everything currently placed`);
       btn.addEventListener('click', () => {
         this.closeGroups();

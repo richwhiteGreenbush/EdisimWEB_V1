@@ -13,6 +13,7 @@ import {
   randomIn,
   relief,
   wrapText,
+  wrapLines,
 } from '../PropKit.js';
 import { CATEGORIES } from '../BlockDefs.js';
 
@@ -397,6 +398,105 @@ export function browserKiosk({ width = 4, panelHeight = 2.6, centreY = 4 } = {})
   }
   g.add(box(width + 0.36, 0.22, 0.32, steel, 0, centreY + panelHeight / 2 + 0.15, -0.1));
 
+  return g;
+}
+
+// A billboard that is a DOOR to another world: clicking it loads the world named in
+// `world` instead of opening the usual Size/Move/Program panel.
+//
+// The travelling itself is not done here. This builder only stamps `portalWorld` onto the
+// group it returns; ObjectMenu reads that off the picked object and reroutes the click.
+// That split is deliberate -- a prop builder has no business knowing what a world store
+// is, and putting the flag in userData means the whole existing pipeline (records,
+// IndexedDB, world files, the duplicate block) carries a portal with no special cases at
+// all, since the flag is rebuilt from the record's options on every load like everything
+// else about a preset prop.
+//
+// It is deliberately LOUD and it deliberately says what it does. Every other object in
+// this app opens a menu when you click it, so a sign that silently replaces the entire
+// world would be a nasty surprise; the call-to-action strip along the bottom is what
+// makes it a door rather than a trapdoor.
+export function worldPortal({
+  title = 'ANOTHER WORLD',
+  subtitle = '',
+  world = '',
+  accent = '#c1272d',
+  face = '#141c2e',
+  width = 15,
+  height = 8.5,
+  postHeight = 14,
+} = {}) {
+  const post = standard({ color: 0x33383d, roughness: 0.6, metalness: 0.45, ...relief('metal', { seed: 67, repeat: 3 }) });
+  const g = group();
+
+  // Posts outside the panel, for activityBoard's reason: this artwork is edge-to-edge,
+  // and an inset post stands in front of it.
+  const inset = width / 2 + 0.4;
+  g.add(cyl(0.22, 0.3, postHeight, post, -inset, postHeight / 2, 0, 12));
+  g.add(cyl(0.22, 0.3, postHeight, post, inset, postHeight / 2, 0, 12));
+  g.add(box(width + 1.6, 0.3, 0.5, post, 0, postHeight - 0.2, 0));
+
+  const texture = canvasTexture(1024, Math.round((1024 * height) / width), (ctx, w, h) => {
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, face);
+    grad.addColorStop(1, '#2a3550');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 14;
+    ctx.strokeRect(10, 10, w - 20, h - 20);
+
+    ctx.fillStyle = accent;
+    ctx.fillRect(20, 20, w - 40, h * 0.16);
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.font = `bold ${h * 0.1}px "Helvetica Neue", Arial, sans-serif`;
+    ctx.fillText('✦  TRAVEL TO  ✦', w / 2, h * 0.135);
+
+    ctx.fillStyle = '#f7f1de';
+    let size = h * 0.26;
+    ctx.font = `bold ${size}px Georgia, "Times New Roman", serif`;
+    while (size > 12 && ctx.measureText(title).width > w * 0.88) {
+      size -= 2;
+      ctx.font = `bold ${size}px Georgia, "Times New Roman", serif`;
+    }
+    ctx.fillText(title, w / 2, h * 0.5);
+
+    // Fitted to the gap between the title and the call-to-action strip, the same way
+    // cardTexture sizes its body: how many lines a subtitle wraps to is not something the
+    // caller can predict, and a sentence running under the yellow bar and off the bottom
+    // of the board is worse than one set a point smaller.
+    if (subtitle) {
+      ctx.fillStyle = '#c8d3e8';
+      const top = h * 0.61;
+      const room = h * 0.77 - top;
+      let lines = [];
+      let lineHeight = h * 0.095;
+      for (const size of [0.075, 0.068, 0.061, 0.054, 0.048]) {
+        ctx.font = `${h * size}px "Helvetica Neue", Arial, sans-serif`;
+        lineHeight = h * size * 1.28;
+        lines = wrapLines(ctx, subtitle, w * 0.84);
+        if (lines.length * lineHeight <= room) break;
+      }
+      lines.forEach((line, i) => ctx.fillText(line, w / 2, top + lineHeight * (i + 0.85)));
+    }
+
+    ctx.fillStyle = '#ffd766';
+    ctx.fillRect(w * 0.16, h * 0.79, w * 0.68, h * 0.14);
+    ctx.fillStyle = '#241f1a';
+    ctx.font = `bold ${h * 0.085}px "Helvetica Neue", Arial, sans-serif`;
+    ctx.fillText('👆  CLICK THIS SIGN TO GO', w / 2, h * 0.885);
+  });
+
+  const panelY = postHeight - height / 2 - 0.6;
+  // Self-lit for activityBoard's reason: this one has to be legible from whichever side
+  // of it a student happens to walk up on, and it is often standing in a building's shade.
+  const panel = signPanel(width, height, texture, { emissive: '#ffffff', emissiveIntensity: 0.55 });
+  panel.position.set(0, panelY, 0.001);
+  g.add(box(width + 0.3, height + 0.3, 0.16, post, 0, panelY, -0.09), panel);
+
+  g.userData.portalWorld = world;
   return g;
 }
 

@@ -163,6 +163,18 @@ export function buildWorld(scene) {
   ground.receiveShadow = true;
   ground.name = 'ground';
   scene.add(ground);
+  // Bake the -90° rotation into matrixWorld NOW, before anything can raycast against it.
+  //
+  // three.js only refreshes matrixWorld as a side effect of a render traversal, and
+  // Raycaster does not force one -- so between this line and the first rendered frame the
+  // ground's world matrix is the IDENTITY, which means the plane is still standing UPRIGHT
+  // in the XY plane as PlaneGeometry authored it. A ground-height probe in that window
+  // does not miss (which would be harmless, it returns 0); it HITS the vertical plane and
+  // comes back with a vertex row's local Y as a height. That put a 96ft theatre 157ft
+  // underground in a preset world built before the first frame. The ground never moves
+  // afterwards -- applyWorldTheme rewrites its vertices in place, never its transform --
+  // so one call here is all it ever needs.
+  ground.updateMatrixWorld();
 
   const hemi = new THREE.HemisphereLight(0xbfd9ff, 0x3a3a2a, 1.1);
   scene.add(hemi);
