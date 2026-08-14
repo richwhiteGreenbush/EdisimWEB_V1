@@ -16,6 +16,21 @@ for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1]) HA
 // jitter of a finger landing on a tablet doesn't decide the axis.
 const MOVE_AXIS_THRESHOLD = 8;
 
+// How steeply a grab ray must meet a horizontal plane (sine of the angle) for a flat
+// slide to be measured on that plane directly. Below this the plane is close to
+// edge-on to the ray and tracking it is hopeless -- see beginFlatDrag().
+const FLAT_DRAG_MIN_SIN = Math.sin((15 * Math.PI) / 180);
+
+// A ring seen nearly edge-on is unusable -- its plane is parallel to the view, so the
+// pointer's angle around the axis is numerical noise -- AND it projects as a hairline
+// lying right across the piece, exactly where a student clicks meaning to grab the
+// body. Below this dot between the view ray and the ring's axis, the ring is skipped
+// in picking entirely: the drag it would give is dead, and the click falls through to
+// the body slide the student almost certainly wanted. A fresh piece placed straight
+// ahead has one upright ring edge-on BY CONSTRUCTION, so this is the common case, not
+// a corner case.
+const RING_PICK_MIN_DOT = 0.15;
+
 const ROTATE_SNAP = (ROTATE_SNAP_DEGREES * Math.PI) / 180;
 
 // The three rotation rings, in WORLD orientation -- they do not turn with the piece.
@@ -47,10 +62,10 @@ const AXIS_BASIS = {
   z: [AXIS_VECTORS.x, AXIS_VECTORS.y],
 };
 
-// The build gizmo: the overlay behind both "Stretch to Shape" and "Rotate Shape". One
-// class, two modes, because everything around the grabs -- the capture-phase listeners,
-// the Done chip, hiding the hammer, writing the transform back -- is identical and only
-// the handles differ.
+// The build gizmo: the overlay behind both "Stretch to Shape" and "Rotate/Move Shape".
+// One class, two modes, because everything around the grabs -- the capture-phase
+// listeners, the Done chip, hiding the hammer, writing the transform back -- is
+// identical and only the handles differ.
 //
 //   stretch mode                       rotate mode
 //   ------------                       -----------
@@ -185,7 +200,7 @@ export class BuildGizmo {
 
     this.scene.add(this.group);
     if (this.constructionManager) this.constructionManager.suppressId = id;
-    this.chip.textContent = mode === 'rotate' ? '✓ Done rotating' : '✓ Done stretching';
+    this.chip.textContent = mode === 'rotate' ? '✓ Done rotating & moving' : '✓ Done stretching';
     this.chip.hidden = false;
     this.sync();
   }
@@ -374,7 +389,14 @@ export class BuildGizmo {
       return;
     }
 
-    const ringHit = this.rings.length && this.raycaster.intersectObjects(this.rings, false)[0];
+    const ringHit =
+      this.rings.length &&
+      this.raycaster
+        .intersectObjects(this.rings, false)
+        .find(
+          (h) =>
+            Math.abs(this.raycaster.ray.direction.dot(AXIS_VECTORS[h.object.userData.ringAxis])) >= RING_PICK_MIN_DOT
+        );
     if (ringHit) {
       const axis = ringHit.object.userData.ringAxis;
       // The drag is measured on the ring's OWN plane, so the pointer's angle round the
@@ -433,15 +455,17 @@ export class BuildGizmo {
       this.drag = {
         mode: 'move',
         pointerId: e.pointerId,
-        // Where the piece's own origin sits relative to the grab point, so it doesn't
-        // jump under the cursor; how far its origin sits above its base; and how high
-        // that base is floating, so a piece already raised onto another one slides
-        // across at that height instead of dropping back to the grass.
-        grabOffset: item.object3D.position.clone().sub(bodyHit.point),
+        // How far its origin sits above its base, and how high that base is floating,
+        // so a piece already raised onto another one slides across at that height
+        // instead of dropping back to the grass.
         baseDrop: item.object3D.position.y - box.min.y,
         elevation: this.elevationOf(item.object3D, box),
       };
-      this.plane.set(new THREE.Vector3(0, 1, 0), -bodyHit.point.y);
+      // A body grab is usually a steep ray (the piece sits well below the eye), so this
+      // normally keeps the piece glued under the pointer -- but a grab near the top of
+      // a tall stretched piece is the same shallow-ray trap as the rotate handle, and
+      // gets the same protection.
+      this.beginFlatDrag(bodyHit.point, item.object3D);
       e.stopPropagation();
     }
   }
@@ -472,16 +496,68 @@ export class BuildGizmo {
       return;
     }
 
-    // Sliding runs on a horizontal plane at the handle's own height, so the piece tracks
-    // the pointer across the ground plane in BOTH flat directions at once: sideways
-    // pointer travel walks it left and right, up-and-down travel pushes it away and pulls
-    // it back. That is the whole reason this mode exists -- a piece raised onto another
-    // one still has to be lined up over it in X and Z.
-    this.plane.set(new THREE.Vector3(0, 1, 0), -this.moveHandle.position.y);
+    // Sliding moves the piece in BOTH flat directions at once: sideways pointer travel
+    // walks it left and right, up-and-down travel pushes it away and pulls it back.
+    // That is the whole reason this mode exists -- a piece raised onto another one
+    // still has to be lined up over it in X and Z.
+    this.beginFlatDrag(this.moveHandle.position, object3D);
+  }
+
+  // Sets up a flat (X/Z) drag measured from refPoint, choosing HOW to measure it by how
+  // steeply the grab ray meets a horizontal plane. A steep ray -- the normal case for a
+  // grab on the piece's body, which sits well below a 5ft eye line -- tracks a
+  // horizontal plane through the grab directly, so the piece stays glued under the
+  // pointer, which is the best possible feel.
+  //
+  // A SHALLOW ray cannot do that, and no choice of plane height rescues it: the
+  // intersection just slides out to wherever the near-horizontal ray finally comes
+  // down, and tiny pointer movements throw it metres across the ground -- until the
+  // pointer crosses the plane's horizon, where the intersection stops existing and the
+  // piece freezes mid-drag. Rotate mode is where this bit in practice: its rings push
+  // the green handle up to ~4ft, within a foot of the eye line, so every ray through it
+  // grazes at ~5°. Below the angle threshold the drag is instead measured on a
+  // camera-facing VERTICAL plane through the grab -- well-conditioned from every
+  // standing viewpoint -- and decomposed: sideways travel slides the piece laterally,
+  // up/down travel pushes it away and pulls it back, 1:1 at the grab's own distance.
+  beginFlatDrag(refPoint, object3D) {
+    if (Math.abs(this.raycaster.ray.direction.y) >= FLAT_DRAG_MIN_SIN) {
+      this.plane.set(new THREE.Vector3(0, 1, 0), -refPoint.y);
+      this.drag.flat = 'plane';
+    } else {
+      const fwd = this.camera.getWorldDirection(new THREE.Vector3());
+      fwd.y = 0;
+      if (fwd.lengthSq() < 1e-6) fwd.set(0, 0, -1);
+      fwd.normalize();
+      this.plane.setFromNormalAndCoplanarPoint(fwd.clone().negate(), refPoint);
+      this.drag.flat = 'decompose';
+      this.drag.fwd = fwd;
+      // fwd turned a quarter turn about +Y: the camera's right, flattened to the ground.
+      this.drag.right = new THREE.Vector3(-fwd.z, 0, fwd.x);
+    }
     if (this.raycaster.ray.intersectPlane(this.plane, this.hit)) {
       this.drag.grabPoint = this.hit.clone();
       this.drag.startPos = object3D.position.clone();
     }
+  }
+
+  applyFlatDrag(object3D) {
+    const { grabPoint, startPos } = this.drag;
+    if (!grabPoint) return;
+    const dx = this.hit.x - grabPoint.x;
+    const dy = this.hit.y - grabPoint.y;
+    const dz = this.hit.z - grabPoint.z;
+    if (this.drag.flat === 'decompose') {
+      const { right, fwd } = this.drag;
+      const lateral = dx * right.x + dz * right.z;
+      // Up the screen pushes the piece away, down the screen pulls it back.
+      this.seat(
+        object3D,
+        startPos.x + right.x * lateral + fwd.x * dy,
+        startPos.z + right.z * lateral + fwd.z * dy
+      );
+      return;
+    }
+    this.seat(object3D, startPos.x + dx, startPos.z + dz);
   }
 
   handlePointerMove(e) {
@@ -518,8 +594,7 @@ export class BuildGizmo {
     } else if (this.drag.mode === 'stretch') {
       this.stretchByCorner(item.object3D);
     } else {
-      const target = this.hit.clone().add(this.drag.grabOffset);
-      this.seat(item.object3D, target.x, target.z);
+      this.applyFlatDrag(item.object3D);
     }
 
     this.sync();
@@ -608,9 +683,7 @@ export class BuildGizmo {
       return;
     }
 
-    const { grabPoint, startPos } = this.drag;
-    if (!grabPoint) return;
-    this.seat(object3D, startPos.x + (this.hit.x - grabPoint.x), startPos.z + (this.hit.z - grabPoint.z));
+    this.applyFlatDrag(object3D);
   }
 
   handlePointerUp(e) {

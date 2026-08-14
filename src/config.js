@@ -298,9 +298,9 @@ export const STRETCH_HANDLE_RADIUS = 0.13; // feet, corner grab spheres
 export const STRETCH_MIN_SIZE = 0.2; // feet, per-axis floor so a piece can't be squashed to nothing
 export const STRETCH_LIFT_GAP = 0.75; // feet the lift handle floats above the box's top face
 
-// Rotate Shape. The snap is what makes turning a piece useful for building rather than
-// merely possible: square corners and 45° braces are most of what a model needs, and
-// hitting either by eye is hopeless on a trackpad. 15° still leaves 24 positions.
+// Rotate/Move Shape. The snap is what makes turning a piece useful for building rather
+// than merely possible: square corners and 45° braces are most of what a model needs,
+// and hitting either by eye is hopeless on a trackpad. 15° still leaves 24 positions.
 export const ROTATE_SNAP_DEGREES = 15;
 export const ROTATE_RING_GAP = 0.6; // feet the rings clear the piece's furthest corner by
 export const ROTATE_RING_TUBE = 0.11; // feet, ring thickness -- also its grab target

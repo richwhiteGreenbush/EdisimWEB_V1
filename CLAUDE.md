@@ -826,7 +826,7 @@ surfaced).
 Menu ▸ **Create Model** is its own top-level group (`_group()` does not nest, so it could
 not go under Load Object) with one button per shape. Each drops a 2ft yellow construction
 piece on the ground ahead of the student, carrying a floating amber **hammer** icon that
-opens `PrimitiveMenu`: Apply Texture / Stretch to Shape / Rotate Shape / Connect to
+opens `PrimitiveMenu`: Apply Texture / Stretch to Shape / Rotate/Move Shape / Connect to
 Primitive / Remove Shape / Render Model / Close. Render Model fuses a connected cluster
 into one ordinary placed object, after which Size/Move/Program, saving and duplicating all
 work on it like anything else. Remove Shape sits directly above it, because those two are
@@ -901,12 +901,34 @@ Things worth knowing before editing this:
   through this handle needs the drag to start sideways, so the box body — which is a much
   bigger target and slides freely in both flat axes — stays the primary way to move a piece
   horizontally.
+- **A flat slide must not be measured on a horizontal plane the grab ray only grazes.**
+  `beginFlatDrag()` exists because of rotate mode: the rings push the green handle up to
+  ~4ft, within a foot of the 5ft eye line, so every ray through it meets a horizontal
+  plane at ~5° — and no choice of plane HEIGHT rescues that, since the intersection just
+  slides out to wherever the near-horizontal ray finally comes down (~44ft out for a
+  plane at ground level). Measured there, pixels of vertical pointer wobble threw the
+  piece 20ft in Z, and a pointer drifting above the plane's horizon lost the
+  intersection entirely and froze the piece — which presented as "the gizmo can't move
+  things sideways". Steep grabs (a body grab on a knee-high piece) still track a
+  horizontal plane directly, keeping the piece glued under the pointer; below
+  `FLAT_DRAG_MIN_SIN` (15°) the drag is measured on a camera-facing VERTICAL plane and
+  decomposed — sideways travel slides laterally, up/down pushes away and pulls back, 1:1
+  at the grab's own distance.
+- **A ring seen edge-on is skipped in picking (`RING_PICK_MIN_DOT`), and a fresh piece
+  always has one edge-on.** A piece placed straight ahead puts one upright ring's plane
+  through the camera by construction, so it projects as a hairline straight down the
+  middle of the piece — exactly where a student clicks meaning to grab the body — and a
+  grab on it is dead anyway, since the pointer's angle around an axis parallel to the
+  view is numerical noise (the drag accumulated nothing and the piece simply froze).
+  Skipping it lets the click fall through to the body slide that was almost certainly
+  meant. The guide's "walk two steps sideways" tip for edge-on rings still applies to
+  *using* one; this is about not letting the unusable ring eat clicks.
 - **The move handle and the hammer icon occupy the same airspace**, and a sprite with
   `depthTest: false` draws straight over a mesh. `ConstructionManager.suppressId` is set by
   the gizmo while a piece is active, so that piece loses its hammer until Done — which costs
   nothing, since its menu is closed and the gizmo owns the pointer anyway.
 - **Everything the gizmo measures works in the piece's OWN frame, not in its world AABB**
-  (`BuildGizmo.frame()`). Rotate Shape is why. The AABB of a turned box is bigger than the
+  (`BuildGizmo.frame()`). Rotate/Move Shape is why. The AABB of a turned box is bigger than the
   box and its sides do not line up with it, so an overlay or a stretch sized from it pulls
   the piece along the wrong directions entirely. `frame()` returns centre + half-extents
   along the object's own axes + its quaternion; `stretchByCorner()` then projects the drag
@@ -915,7 +937,7 @@ Things worth knowing before editing this:
   under the existing behaviour rather than beside it. The **one remaining invariant** is
   that every primitive geometry is authored centred on its own origin — that is what makes
   `object3D.position` the centre of its own box at any rotation.
-- **Rotate Shape turns about the WORLD axis the ring is drawn on, and the rings do not
+- **Rotate/Move Shape turns about the WORLD axis the ring is drawn on, and the rings do not
   turn with the piece.** Rings that follow the object are the CAD convention and they are
   wrong here: the control a student is holding slides out from under them as they use it.
   Fixed rings mean the flat amber one always spins the piece on the spot and the upright

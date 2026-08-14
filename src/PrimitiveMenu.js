@@ -123,10 +123,12 @@ export class PrimitiveMenu {
       })
     );
     this.panel.appendChild(
-      this.button('Rotate Shape', () => {
+      this.button('Rotate/Move Shape', () => {
         this.close();
         this.buildGizmo.activate(item.record.id, 'rotate');
-        this.menu?.toast(`Drag a coloured ring to turn the piece. It snaps every ${ROTATE_SNAP_DEGREES}°.`);
+        this.menu?.toast(
+          `Drag a coloured ring to turn the piece — it snaps every ${ROTATE_SNAP_DEGREES}°. Drag the blue box to slide it, or the green ball to lift it.`
+        );
       })
     );
     this.panel.appendChild(this.button('Connect to Primitive', () => this.renderConnect()));
