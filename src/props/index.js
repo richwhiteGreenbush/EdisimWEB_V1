@@ -6,6 +6,7 @@ import * as Mars from './MarsProps.js';
 import * as Dino from './DinoProps.js';
 import * as Park from './ParkProps.js';
 import * as Body from './BodyProps.js';
+import * as City from './CityProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -25,6 +26,7 @@ export const PROP_BUILDERS = {
   'shade-tree': Common.shadeTree,
   'activity-board': Common.activityBoard,
   'browser-kiosk': Common.browserKiosk,
+  'world-portal': Common.worldPortal,
 
   // Museum
   'museum-hall': Museum.museumHall,
@@ -148,6 +150,24 @@ export const PROP_BUILDERS = {
   wildflowers: Park.wildflowers,
   'conifer-tree': Park.coniferTree,
   'flowering-tree': Park.floweringTree,
+
+  // 1940's New York
+  'city-street': City.cityStreet,
+  'city-building': City.cityBuilding,
+  'broadway-theatre': City.broadwayTheatre,
+  'bond-building': City.bondBuilding,
+  'theatre-front': City.theatreFront,
+  'storefront-row': City.storefrontRow,
+  'bishop-crook-lamp': City.bishopCrookLamp,
+  'taxi-cab': City.taxiCab,
+  'sedan-car': City.sedanCar,
+  'city-bus': City.cityBus,
+  'traffic-signal': City.trafficSignal,
+  'street-sign': City.streetSign,
+  'fire-hydrant': City.fireHydrant,
+  newsstand: City.newsstand,
+  'subway-entrance': City.subwayEntrance,
+  'wall-sign': City.wallSign,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

@@ -7,7 +7,7 @@ const CLICK_MOVE_THRESHOLD = 6; // px -- beyond this, a mousedown->mouseup is a 
 const CLICK_TIME_THRESHOLD = 500; // ms
 
 export class ObjectMenu {
-  constructor({ scene, camera, domElement, registry, menu, worldStore, programEditor }) {
+  constructor({ scene, camera, domElement, registry, menu, worldStore, programEditor, onPortalClick }) {
     this.scene = scene;
     this.camera = camera;
     this.domElement = domElement;
@@ -15,6 +15,7 @@ export class ObjectMenu {
     this.menu = menu;
     this.worldStore = worldStore;
     this.programEditor = programEditor;
+    this.onPortalClick = onPortalClick;
 
     this.raycaster = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
@@ -94,6 +95,24 @@ export class ObjectMenu {
     const id = this.registry.resolveRoot(hits[0].object);
     if (!id) {
       this.close();
+      return;
+    }
+
+    // A world portal is a DOOR, not an object: clicking it travels to the world it names
+    // rather than opening Size/Move/Program on the signboard.
+    //
+    // The flag is read off the live object3D, which CommonProps.worldPortal() stamps when
+    // it builds -- not off the record. That keeps the whole thing free of per-kind code:
+    // a portal is an ordinary `preset-prop` record everywhere else in the app, so it
+    // saves, exports to a world file, rehydrates and duplicates with nothing added, and
+    // the flag comes back on every rebuild because the builder always sets it.
+    //
+    // The cost is that a portal cannot be resized, moved or programmed, since this is the
+    // only path to that panel for a prop. That is the right trade for a door.
+    const portalWorld = this.registry.get(id)?.object3D?.userData?.portalWorld;
+    if (portalWorld) {
+      this.close();
+      this.onPortalClick?.(portalWorld);
       return;
     }
 

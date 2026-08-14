@@ -88,13 +88,15 @@ const BROWSER_CENTRE_Y = 4;
 // `faceX`/`faceZ` is what the panel turns to face, normally the world's spawn point.
 // Both the panel and the stand take that same yaw, since the stand's surround is built
 // around the panel's own plane.
-function browserStation(x, z, { faceX = 0, faceZ = 0, url = WEB_BROWSER_DEFAULT_URL } = {}) {
+// `y` lifts the whole station onto a raised deck -- New York's sidewalk is a 6in slab of
+// its own, and a kiosk seated on the terrain under it stands half-buried in concrete.
+function browserStation(x, z, { faceX = 0, faceZ = 0, url = WEB_BROWSER_DEFAULT_URL, y = 0 } = {}) {
   // atan2(dx, dz), not atan2(dz, dx): a plain Object3D's +Z is its facing direction,
   // and the bezel's PlaneGeometry is authored in the XY plane looking down +Z.
   const rotY = Math.atan2(faceX - x, faceZ - z);
   return [
-    prop('browser-kiosk', x, z, { rotY, options: { centreY: BROWSER_CENTRE_Y } }),
-    { kind: 'web-browser', x, z, y: BROWSER_CENTRE_Y, rotY, url },
+    prop('browser-kiosk', x, z, { y, rotY, options: { centreY: BROWSER_CENTRE_Y } }),
+    { kind: 'web-browser', x, z, y: BROWSER_CENTRE_Y + y, rotY, url },
   ];
 }
 
@@ -855,6 +857,52 @@ function libraryLayout() {
   items.push(prop('shade-tree', 34, -2, { options: { seed: 33, height: 20 } }));
   items.push(prop('shade-tree', -40, -26, { options: { seed: 41, height: 26 } }));
   items.push(prop('shade-tree', 40, -30, { options: { seed: 52, height: 22 } }));
+
+  // --- the way into 1940's New York ---------------------------------------------------
+  //
+  // The billboard behind the building is the ONLY route to that world: it is deliberately
+  // absent from Load World (`hidden` in PRESET_WORLDS below), so this sign is its door.
+  // Clicking it loads the world -- see worldPortal() in CommonProps.js and the reroute in
+  // ObjectMenu.tryPick().
+  //
+  // The hall is 40ft deep centred on z = -34, on a stylobate that reaches z = -57, so the
+  // sign stands at -78 and faces BACK toward the building. That is the orientation that
+  // works: a student rounding either rear corner walks into the 20ft slot between the two
+  // and meets the face square on, where a sign facing away from the building would show
+  // them its blank back and nothing else.
+  items.push(
+    prop('world-portal', 0, -78, {
+      options: {
+        title: "1940's NEW YORK",
+        subtitle: 'Broadway at Times Square, summer 1949 — walk the street, ride under the marquees, look up at BOND',
+        world: 'newyork',
+        accent: '#c1272d',
+      },
+    })
+  );
+  items.push(prop('lamp-post', -17, -70, { options: { height: 10 } }));
+  items.push(prop('lamp-post', 17, -70, { options: { height: 10 } }));
+  items.push(prop('bench', -11, -68, { rotY: Math.PI }));
+  items.push(prop('bench', 11, -68, { rotY: Math.PI }));
+  items.push(prop('planter', -20, -62));
+  items.push(prop('planter', 20, -62));
+
+  // A portal nobody finds is a portal nobody has. This is the only signpost to it, out
+  // on the approach where every visitor to this world already walks.
+  items.push(
+    prop('standing-sign', 19, 5, {
+      rotY: -0.5,
+      options: {
+        lines: ['TIME TRAVEL EXHIBIT'],
+        subtitle: 'BEHIND THE LIBRARY · WALK AROUND THE BUILDING',
+        width: 9,
+        height: 2.6,
+        postHeight: 7,
+        face: '#5c1f22',
+        accent: '#e0b64c',
+      },
+    })
+  );
 
   return { theme: 'library', spawn: { x: 0, z: 16, yaw: 0 }, items };
 }
@@ -2121,6 +2169,327 @@ function emptyLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// 1940's New York -- Broadway at Times Square, summer 1949
+// ---------------------------------------------------------------------------
+
+// Modelled from a colour photograph of Times Square looking north, taken while "The
+// Barkleys of Broadway" was on at Loew's State -- which dates it to the summer of 1949.
+//
+// The whole layout is one avenue running north (-Z) with a single cross street, and every
+// number below hangs off three lines:
+//
+//   * the ROADWAY is x = -17..17, the SIDEWALKS x = +/-17..27, the BUILDING FACES x = +/-27.
+//   * a west-side building faces east, so it is placed at x = -(27 + depth/2) with
+//     rotY = +PI/2; an east-side one mirrors that with -PI/2. CityProps authors every
+//     building and vehicle facing +Z.
+//   * anything standing ON the sidewalk is placed at y = WALK, because the sidewalk is a
+//     6in slab of its own and the terrain is underneath it. Vehicles get y = ROAD.
+//
+// A 54ft gap between facades is narrower than the real Broadway and that is deliberate.
+// The camera's 70 degree fov is VERTICAL -- a 16:9 screen sees about 51 degrees either
+// side -- so at the true width the marquee across the street sits outside the frame and a
+// student arrives looking at empty road. At 54ft it fills the left of the view on arrival,
+// which is what the photograph does.
+//
+// The scale reference throughout is the crowd in that photograph, per the brief: no people
+// are modelled anywhere in this world, but every height here is set against the ones in
+// the picture. The cab roof is chest-high, the marquee clears the sidewalk by two of them,
+// and the Bond statues stand four storeys up.
+const NY_WALK = 0.5; // top of the sidewalk slab -- see cityStreet()
+const NY_ROAD = 0.12; // top of the asphalt slab
+// Two feet off the kerb rather than back against the shopfronts, and the reason is the
+// awnings: they reach 6.4ft out from the wall at 11ft up, so a spawn tucked against the
+// building puts the whole sky behind a canvas roof and the student arrives in a dark box.
+// Turned 14 degrees west rather than straight up the sidewalk, and that small angle does
+// three things at once: it swings the marquee across the street from the edge of the frame
+// into it, puts BOND almost dead ahead at the end of the view, and takes the nearest lamp
+// post off the exact centre of the screen, where it was standing in front of the activity
+// board like a bollard.
+const NY_SPAWN = { x: 19, z: 48, yaw: 0.25 };
+
+// The lamp line: three feet in from the kerb, which clears the shop awnings overhead and
+// still lets the crook hang its lamp four feet out over the roadway.
+const NY_WEST_WALK = -20;
+const NY_EAST_WALK = 20;
+
+function newYorkLayout() {
+  const items = [];
+  const west = (depth) => -(27 + depth / 2);
+  const east = (depth) => 27 + depth / 2;
+  const W = Math.PI / 2; // a west-side building turns its face east
+  const E = -Math.PI / 2;
+
+  // --- the street ------------------------------------------------------------------------
+  // Offset to z = 10 so the single cross street lands at world z = -42 and the block the
+  // student spawns in is the long one. `crossings` are in the prop's own frame.
+  items.push(
+    prop('city-street', 0, 10, {
+      options: { length: 190, roadWidth: 34, walkWidth: 10, crossings: [-52], seed: 5 },
+    })
+  );
+
+  // --- primary model 2: the Barkleys of Broadway theatre --------------------------------
+  // Straight across the street and 46ft up the block, which puts its marquee 40 degrees
+  // off the arrival sightline at 60ft -- the same framing rule the browser stations use.
+  items.push(prop('broadway-theatre', west(30), 0, { rotY: W, options: { width: 48, depth: 30, height: 96, seed: 15 } }));
+
+  // --- primary model 3: BOND ---------------------------------------------------------------
+  // Squarely at the head of the avenue, across the cross street, so the whole view
+  // terminates on it. Its face lands at z = -70; the roadway and the sidewalk behind that
+  // line run on under the building, which costs nothing and saves cutting the slab.
+  items.push(prop('bond-building', 0, -86, { options: { width: 54, depth: 32, seed: 27 } }));
+
+  // --- the rest of the west side ------------------------------------------------------------
+  items.push(prop('storefront-row', west(18), 42, {
+    rotY: W,
+    options: { length: 32, depth: 18, height: 24, shops: ['DRUGS', 'HABERDASHER', 'LUNCHEONETTE'], seed: 33 },
+  }));
+  items.push(prop('city-building', west(28), 78, {
+    rotY: W,
+    options: { width: 36, depth: 28, height: 62, style: 'brick', seed: 44 },
+  }));
+  // The Hotel Astor's copper mansard, showing past BOND's left shoulder.
+  items.push(prop('city-building', -45, -84, {
+    rotY: W,
+    options: { width: 46, depth: 36, height: 74, style: 'mansard', seed: 51 },
+  }));
+  items.push(prop('city-building', -66, -44, {
+    rotY: W,
+    options: { width: 36, depth: 30, height: 68, style: 'stone', seed: 58 },
+  }));
+
+  // --- the east side --------------------------------------------------------------------------
+  items.push(prop('theatre-front', east(26), 4, {
+    rotY: E,
+    options: {
+      width: 44, depth: 26, height: 52, wallColor: 0xa4906f,
+      marqueeFace: '#a8202b',
+      marqueeLines: [
+        { text: 'HOME OF THE BRAVE', size: 0.34, color: '#f7f1de' },
+        { text: 'PRODUCED BY STANLEY KRAMER  ·  RELEASED THRU UNITED ARTISTS', size: 0.12, color: '#ffd766' },
+      ],
+      bladeText: 'ASTOR',
+      bladeFace: '#123a6b',
+      bladeHeight: 22,
+      seed: 19,
+    },
+  }));
+  items.push(prop('storefront-row', east(18), 44, {
+    rotY: E,
+    options: { length: 30, depth: 18, height: 26, shops: ['CAFETERIA', 'HATS', 'SHOE REPAIR'], seed: 62 },
+  }));
+  items.push(prop('city-building', east(30), 80, {
+    rotY: E,
+    options: { width: 34, depth: 30, height: 70, style: 'stone', seed: 66 },
+  }));
+  // The distant setback tower, showing past BOND's right shoulder.
+  items.push(prop('city-building', 47, -82, {
+    rotY: E,
+    options: { width: 40, depth: 40, height: 124, style: 'setback', seed: 71 },
+  }));
+  items.push(prop('city-building', 62, -44, {
+    rotY: E,
+    options: { width: 36, depth: 30, height: 66, style: 'brick', seed: 74 },
+  }));
+
+  // --- background skyline ------------------------------------------------------------------------
+  // Taller than everything on the block, and set well back, so they read as the next
+  // streets over rather than as this one. Without them the sky comes down to the rooftops
+  // and a 400ft ground plane reads as a film set.
+  for (const [x, z, w, d, h, style, seed] of [
+    [-80, 26, 44, 44, 118, 'setback', 81],
+    [-76, -14, 40, 40, 96, 'stone', 84],
+    [-94, 84, 48, 48, 128, 'setback', 87],
+    [80, 22, 42, 42, 104, 'stone', 90],
+    [88, -14, 38, 38, 88, 'brick', 93],
+    [92, 82, 44, 44, 112, 'setback', 96],
+    [-30, 128, 46, 40, 92, 'stone', 99],
+    [34, 132, 42, 40, 84, 'brick', 102],
+  ]) {
+    items.push(prop('city-building', x, z, { options: { width: w, depth: d, height: h, style, seed } }));
+  }
+
+  // --- primary model 4: the street lights -----------------------------------------------------
+  // The crook reaches along the prop's +X, so a west-side lamp needs no rotation and an
+  // east-side one is turned through 180 degrees to hang its lamp over the roadway.
+  //
+  // Two placement rules, both found by an overlap sweep rather than by eye:
+  //
+  //  * They stand at x = +/-20, three feet in from the kerb, NOT at 22. The shop awnings
+  //    reach out to x = 22 at 11ft up, so a lamp on the 22 line grows straight through
+  //    one -- and the awning hides the crook, which is the whole point of the object.
+  //  * NOTHING between z = -20 and z = 23. That band is the two theatre marquees, which
+  //    project 8-9ft over the sidewalk at 11-19ft up; a 21ft lamp post inside one goes
+  //    through the roof of it. The block is well lit by the marquees themselves anyway.
+  //
+  // Only three carry a real PointLight -- see the note in bishopCrookLamp(). The rest are
+  // lit glass, which is all that reads from 60ft in daylight, and it keeps this world off
+  // a dozen point lights on a machine that has to pay for each one per fragment.
+  for (const [z, lit] of [[88, false], [60, true], [32, true], [-22, true], [-72, false]]) {
+    items.push(prop('bishop-crook-lamp', NY_WEST_WALK, z, { y: NY_WALK, options: { light: lit } }));
+    items.push(prop('bishop-crook-lamp', NY_EAST_WALK, z, { y: NY_WALK, rotY: Math.PI, options: { light: lit && z === 32 } }));
+  }
+
+  // --- primary model 1: the yellow taxi, and the traffic around it -----------------------------
+  // Northbound traffic keeps to x < 0 and faces -Z (rotY = PI); southbound mirrors it.
+  // The hero cab is stopped mid-block 24ft from the spawn, FACING the student, so the
+  // grille, the headlights, the whitewalls and the roof flag are all the first thing seen.
+  items.push(prop('taxi-cab', 12, 24, { y: NY_ROAD, options: { fleetNumber: '2-B-71', seed: 7 } }));
+  items.push(prop('taxi-cab', -13, 6, { y: NY_ROAD, rotY: Math.PI, options: { fleetNumber: '4-A-19', seed: 11 } }));
+  items.push(prop('taxi-cab', 13, -26, { y: NY_ROAD, options: { fleetNumber: '1-C-08', seed: 13 } }));
+  items.push(prop('taxi-cab', -13, 66, { y: NY_ROAD, rotY: Math.PI, options: { fleetNumber: '3-B-44', seed: 17 } }));
+  items.push(prop('taxi-cab', 5, -60, { y: NY_ROAD, options: { fleetNumber: '5-D-62', seed: 23 } }));
+
+  // The two-tone sedan in the foreground of the photograph -- cream over red.
+  items.push(prop('sedan-car', 5, 38, { y: NY_ROAD, options: { bodyColor: 0xb8342a, topColor: 0xe6dcc2, seed: 5 } }));
+  items.push(prop('sedan-car', -5, -6, { y: NY_ROAD, rotY: Math.PI, options: { bodyColor: 0x232a38, seed: 9 } }));
+  items.push(prop('sedan-car', 5, 4, { y: NY_ROAD, options: { bodyColor: 0x1c1b19, seed: 21 } }));
+  items.push(prop('sedan-car', -5, 40, { y: NY_ROAD, rotY: Math.PI, options: { bodyColor: 0x5a2836, coupe: true, seed: 29 } }));
+  items.push(prop('sedan-car', 13, 74, { y: NY_ROAD, options: { bodyColor: 0x2f4436, seed: 31 } }));
+  items.push(prop('city-bus', -13, -44, { y: NY_ROAD, rotY: Math.PI, options: { route: '7  BROADWAY', seed: 4 } }));
+
+  // --- street furniture ---------------------------------------------------------------------------
+  // ONE signal, on the east corner of the crossing. The south side of this block is
+  // theatre frontage end to end, and a 17ft signal head standing on it ends up inside the
+  // Barkleys marquee; the west corner is where the way home stands, and a signal post ten
+  // feet in front of that billboard hid half of it. Neither of those shows up as a box
+  // overlap -- the second one only turned up by standing where a student stands and
+  // looking, which is the same lesson the activity boards taught in the other worlds.
+  items.push(prop('traffic-signal', 20, -62, { y: NY_WALK }));
+  items.push(prop('street-sign', 20.5, -18, { y: NY_WALK, rotY: -0.3, options: { street: 'W 45 ST', notice: 'NO STANDING' } }));
+  items.push(prop('street-sign', -20.5, -83, { y: NY_WALK, rotY: 2.9, options: { street: 'BROADWAY', notice: 'ONE WAY' } }));
+  items.push(prop('fire-hydrant', 24, 56, { y: NY_WALK }));
+  items.push(prop('fire-hydrant', -24, 80, { y: NY_WALK }));
+  items.push(prop('newsstand', -24, 68, { y: NY_WALK, rotY: W }));
+  items.push(prop('subway-entrance', -22.5, 48, { y: NY_WALK, rotY: Math.PI, options: { label: 'SUBWAY' } }));
+
+  // Painted wall advertising, hung on the facades either side. Mounted just clear of the
+  // face line (x = +/-26.6) and turned to match the wall it hangs on.
+  items.push(prop('wall-sign', 26.6, 6, {
+    y: 34, rotY: E,
+    options: { width: 22, height: 7, face: '#7d1c26', lines: [
+      { text: 'ASTORIA', size: 0.42, color: '#ffd766' },
+      { text: '4 BIG ACTS  ·  DANCING NIGHTLY', size: 0.16, color: '#f7f1de' },
+    ] },
+  }));
+  items.push(prop('wall-sign', -26.6, 78, {
+    y: 32, rotY: W,
+    options: { width: 20, height: 6.5, face: '#14355e', lines: [
+      { text: 'TWO TROUSER SUITS', size: 0.28, color: '#f7f1de' },
+      { text: '$38.50', size: 0.36, color: '#ffd766' },
+    ] },
+  }));
+  items.push(prop('wall-sign', 26.6, 80, {
+    y: 30, rotY: E,
+    options: { width: 20, height: 6, face: '#1d4a2e', lines: [
+      { text: 'TIMES SQ. CAFETERIA', size: 0.3, color: '#f7f1de' },
+      { text: 'OPEN ALL NIGHT', size: 0.2, color: '#ffd766' },
+    ] },
+  }));
+
+  // --- the way home -----------------------------------------------------------------------------------
+  // The return half of the pair in the Library. A one-way door would strand a student here
+  // with only the menu to get out, and the menu is exactly what this world is not in.
+  // On the corner plaza under BOND, not beside the spawn. Two reasons: a door home right
+  // where you arrive is a door most students press before they have seen anything, and the
+  // whole 45ft of sidewalk in front of the theatre is under its marquee, which is the one
+  // stretch of this world where a 12ft billboard has nowhere to stand.
+  items.push(prop('world-portal', -24, -67, {
+    y: NY_WALK,
+    rotY: 0.12,
+    options: {
+      title: 'THE LIBRARY',
+      subtitle: 'Back to the reading room — the billboard behind the building brings you here again',
+      world: 'library',
+      accent: '#1f6b8a',
+      width: 11,
+      height: 6.4,
+      postHeight: 11.5,
+    },
+  }));
+
+  // --- placards ---------------------------------------------------------------------------------------
+  items.push(prop('info-placard', 24, 4, {
+    y: NY_WALK, rotY: 0.5,
+    options: {
+      eyebrow: 'At the curb',
+      title: 'Why the cabs are yellow',
+      body: 'A Chicago cab owner read a study saying yellow was the easiest colour to pick out at a distance, and painted his whole fleet. New York followed. This one is about 17 feet long — a foot longer than a modern taxi, and a foot taller.',
+    },
+  }));
+  items.push(prop('info-placard', -24, 40, {
+    y: NY_WALK, rotY: -0.5,
+    options: {
+      eyebrow: 'Look up',
+      title: "The bishop's crook",
+      body: 'Cast iron, twenty-one feet to the curl, with the lamp hung out over the roadway so the light lands on the street and not on the sidewalk. New York put up thousands of them from the 1890s; a few hundred are still standing.',
+    },
+  }));
+  items.push(prop('info-placard', -24, -78, {
+    y: NY_WALK, rotY: 0.15,
+    options: {
+      eyebrow: 'Straight ahead',
+      title: 'The BOND sign',
+      body: 'Two stone figures four storeys up, a lit disc between them, and letters you could read from six blocks away. Times Square was already the brightest place in America — the signs were lit in broad daylight, which is why they are lit here too.',
+    },
+  }));
+  items.push(prop('info-placard', 24, 72, {
+    y: NY_WALK, rotY: 0.2,
+    options: {
+      eyebrow: 'Summer 1949',
+      title: 'What is playing',
+      body: '"The Barkleys of Broadway" put Fred Astaire and Ginger Rogers back together after ten years apart, and it was the only film they made in colour. Across the street, "Home of the Brave" had opened three weeks earlier.',
+    },
+  }));
+
+  // --- the two programming activities ---------------------------------------------------------------
+  // Both target objects a student can actually PICK. That is a placement rule, not a
+  // detail: the cabs are separate records from the street they stand on, which is exactly
+  // why the Park's geese had to be split out of the pond.
+  items.push(
+    activity(24, 12, {
+      number: 1,
+      y: NY_WALK,
+      rotY: 0.45,
+      accent: '#e0a022',
+      title: 'Send the yellow cab down Broadway and back',
+      target: 'Click the taxi stopped in the road → Program.',
+      steps: [
+        ctrlStep('forever'),
+        ctrlStep('repeat 20 times', 1),
+        moveStep('move Z by 1 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+        ctrlStep('repeat 20 times', 1),
+        moveStep('move Z by -1 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+      ],
+      tip: 'The cab is facing you, so the FIRST leg is a plus. Turning it round does not change which way move Z pushes it — that is why the second loop uses minus one. Try wait 0.05 seconds inside a loop to slow it to a crawl.',
+    })
+  );
+  items.push(
+    activity(-24, 26, {
+      number: 2,
+      y: NY_WALK,
+      rotY: -0.45,
+      accent: '#c1272d',
+      title: 'Fill the avenue with cabs',
+      target: 'Click the taxi coming up the near lane → Program.',
+      steps: [
+        ctrlStep('repeat 3 times'),
+        ctrlStep('duplicate 9 ft away', 1),
+        ctrlStep('wait 0.5 seconds', 1),
+      ],
+      tip: 'Duplicate always drops the copy to the EAST, so the rank marches across the road toward you. Each copy comes out a little further along, which is why three of them do not land in a heap. The copies do not duplicate themselves — that is on purpose.',
+    })
+  );
+
+  // --- the browser station -----------------------------------------------------------------------------
+  items.push(...browserStation(24, 34, { faceX: NY_SPAWN.x, faceZ: NY_SPAWN.z, y: NY_WALK }));
+
+  return { theme: 'newyork', spawn: { ...NY_SPAWN }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + materialization
 // ---------------------------------------------------------------------------
 
@@ -2144,6 +2513,17 @@ export const PRESET_WORLDS = {
     label: 'Empty World',
     hint: 'An open green field with a few trees — nothing built yet, so everything is yours to build',
     build: emptyLayout,
+  },
+  // HIDDEN from both menus (Menu.js and VRMenu.js skip any preset with this flag), and
+  // deliberately so: the only way in is the billboard behind the Library, which is what
+  // makes finding it worth something. It still lives in this table because everything
+  // else about it is an ordinary preset -- buildPresetWorldRecords looks it up here by
+  // name, and that is exactly what the portal calls.
+  newyork: {
+    label: "1940's New York",
+    hint: 'Broadway at Times Square in the summer of 1949 — reached from the billboard behind the Library',
+    build: newYorkLayout,
+    hidden: true,
   },
 };
 
