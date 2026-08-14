@@ -4,6 +4,7 @@ import { loadImagePlane, loadImageElement } from './MediaLoader.js';
 import { inflateFromCanvas } from './BalloonInflator.js';
 import { loadLibraryModel, loadTreeModel, loadBillboardImage } from './StartupAssets.js';
 import { createLightOrb } from './LightOrb.js';
+import { createPrimitiveMesh, buildBuiltModel } from './Primitives.js';
 import { applyWorldTheme, createThemeMarker } from './SceneSetup.js';
 import { buildProp } from './props/index.js';
 import { DEFAULT_THEME } from './config.js';
@@ -78,6 +79,18 @@ export class WorldStore {
   async clearAll() {
     const db = await this.dbPromise;
     await runTx(db, 'readwrite', (store) => store.clear());
+  }
+
+  // Removing one record, as opposed to wiping the world. Rendering a model is the only
+  // thing that needs it: the construction pieces it consumed have to stop coming back on
+  // the next refresh, or the student gets their model AND a ghost copy of its parts.
+  async deleteObject(id) {
+    try {
+      const db = await this.dbPromise;
+      await runTx(db, 'readwrite', (store) => store.delete(id));
+    } catch {
+      this.menu?.toast('Could not tidy up an old piece.', { tone: 'error' });
+    }
   }
 
   // Replaces the entire live world with a set of records loaded from a saved world
@@ -186,6 +199,26 @@ export class WorldStore {
       applyTransform(bezelMesh, record.transform);
       this.scene.add(bezelMesh);
       this.addAndRun(record, bezelMesh);
+      return;
+    }
+
+    // Create Model's two kinds. Both rebuild their geometry from the record's parameters,
+    // and both must be handled BEFORE the gltf/obj fall-through below -- that branch
+    // assumes everything in `files` is a model file, so a primitive carrying a texture
+    // PNG would be handed to the glTF parser.
+    if (record.kind === 'primitive') {
+      const mesh = await createPrimitiveMesh(record);
+      applyTransform(mesh, record.transform);
+      this.scene.add(mesh);
+      this.addAndRun(record, mesh);
+      return;
+    }
+
+    if (record.kind === 'built-model') {
+      const group = await buildBuiltModel(record);
+      applyTransform(group, record.transform);
+      this.scene.add(group);
+      this.addAndRun(record, group);
       return;
     }
 

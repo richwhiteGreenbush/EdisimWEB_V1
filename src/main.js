@@ -17,6 +17,10 @@ import { WebBrowserManager, placeWebBrowser } from './WebBrowserPanel.js';
 import { buildPresetWorldRecords } from './WorldPresets.js';
 import { duplicatePlacedObject } from './Duplicator.js';
 import { VRView } from './VRView.js';
+import { placePrimitive } from './Primitives.js';
+import { ConstructionManager } from './ConstructionManager.js';
+import { PrimitiveMenu } from './PrimitiveMenu.js';
+import { StretchGizmo } from './StretchGizmo.js';
 import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD } from './config.js';
 
 const canvas = document.getElementById('scene');
@@ -42,6 +46,20 @@ const webBrowserManager = new WebBrowserManager({
   camera,
   canvas,
   onEditClick: (id, clientX, clientY) => objectMenu.open(id, clientX, clientY),
+});
+
+// Constructed HERE, ahead of PlayIconManager and ObjectMenu, and the order is
+// load-bearing: all three register their own pointerdown/pointerup pair on this same
+// canvas/window, and they run in registration order within a single event dispatch. A
+// hammer click has to be able to stopImmediatePropagation() away from the two later
+// listeners, or ObjectMenu's raycast finds nothing where the icon floats and closes the
+// panel this one just opened. (Same story as the web browser panel's edit icon.)
+const constructionManager = new ConstructionManager({
+  scene,
+  camera,
+  canvas,
+  registry,
+  onHammerClick: (id, clientX, clientY) => primitiveMenu.open(id, clientX, clientY),
 });
 
 // Shared by the Load World menu and by the first-visit boot below.
@@ -93,6 +111,16 @@ const menuActions = {
     worldStore.saveObject(record);
     menu.toast('Web browser placed — some sites block being embedded.', { tone: 'success' });
   },
+  createPrimitive: async (shape) => {
+    try {
+      const { record } = await placePrimitive({ shape, scene, camera, registry, groundHeightAt });
+      worldStore.saveObject(record);
+      menu.toast('Shape added — click the hammer above it to build.', { tone: 'success' });
+    } catch (err) {
+      console.error('Failed to place a build shape:', err);
+      menu.toast('Could not add that shape.', { tone: 'error' });
+    }
+  },
   saveWorld: async () => {
     if (registry.count === 0) {
       menu.toast('Nothing to save yet.');
@@ -126,6 +154,7 @@ const menuActions = {
     registry.clear();
     playIconManager.clear();
     webBrowserManager.clear();
+    stretchGizmo.deactivate();
     await worldStore.clearAll();
     // The theme is carried by a record, and clearing removed it -- so put the sky,
     // terrain and lighting back to the default world rather than leaving the player
@@ -140,14 +169,18 @@ const menu = new Menu({
   onDrawClick: menuActions.draw,
   onLightOrbClick: menuActions.lightOrb,
   onWebBrowserClick: menuActions.webBrowser,
+  onCreatePrimitiveClick: menuActions.createPrimitive,
   onSaveWorldClick: menuActions.saveWorld,
   onLoadWorldClick: menuActions.loadWorldFile,
   onLoadPresetClick: menuActions.loadPreset,
   onClearClick: menuActions.clear,
   onVRClick: async () => {
     // Collapse first: the menu is hidden while VR is on, and leaving it open means it
-    // reappears mid-panel the moment the student comes back out.
+    // reappears mid-panel the moment the student comes back out. The stretch gizmo goes
+    // for a stronger reason -- its Done chip is a DOM overlay and is hidden in VR, so a
+    // gizmo left running would strand a blue box in the world with no way to dismiss it.
     menu.setCollapsed(true);
+    stretchGizmo.deactivate();
     try {
       await vrView.toggle();
     } catch (err) {
@@ -183,6 +216,10 @@ const drawTool = new DrawTool({
 const programEditor = new ProgramEditor({ registry, worldStore, programManager, menu, playIconManager });
 
 const objectMenu = new ObjectMenu({ scene, camera, domElement: canvas, registry, menu, worldStore, programEditor });
+
+const stretchGizmo = new StretchGizmo({ scene, camera, canvas, registry, worldStore, groundHeightAt });
+
+const primitiveMenu = new PrimitiveMenu({ registry, menu, worldStore, stretchGizmo });
 
 // The "duplicate" block's effect, handed over now that both the registry and the world
 // store exist. ProgramManager is built at the top of this file because PlacedRegistry
@@ -244,7 +281,7 @@ if (import.meta.env.DEV) {
   window.__debug = {
     camera, player, renderer, scene, THREE, menu, registry, importManager, drawTool,
     worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager,
-    webBrowserManager, vrView,
+    webBrowserManager, vrView, constructionManager, primitiveMenu, stretchGizmo,
   };
 }
 
@@ -260,6 +297,8 @@ function animate(timestamp) {
   programManager.tick();
   playIconManager.tick();
   webBrowserManager.tick();
+  constructionManager.tick();
+  stretchGizmo.tick();
   // vrView draws the frame itself when a headset or stereo view is running.
   if (!vrView.render()) renderer.render(scene, camera);
 }

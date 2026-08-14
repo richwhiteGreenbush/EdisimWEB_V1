@@ -158,6 +158,12 @@ export class VRMenu {
       rows.push({ id: 'webBrowser', label: 'Web Browser', indent: true, leavesVR: true });
     }
 
+    // Create Model is deliberately absent. Placing a shape would work in here, but every
+    // way of then editing it -- the hammer icon's panel, the file picker, the stretch
+    // gizmo's Done chip -- is flat-screen DOM, so a student would be left with pieces
+    // they could not build with. Adding it means either rows marked leavesVR (a Load
+    // Object-style compromise) or in-scene versions of those three, which is a feature
+    // of its own.
     rows.push({ id: 'group:world', label: 'Load World', group: 'world' });
     if (this.openGroup === 'world') {
       for (const [name, preset] of Object.entries(PRESET_WORLDS)) {

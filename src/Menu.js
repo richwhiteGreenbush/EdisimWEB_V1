@@ -1,4 +1,5 @@
 import { PRESET_WORLDS } from './WorldPresets.js';
+import { PRIMITIVE_SHAPES, SHAPE_LABELS } from './Primitives.js';
 
 export class Menu {
   constructor({
@@ -6,6 +7,7 @@ export class Menu {
     onDrawClick,
     onLightOrbClick,
     onWebBrowserClick,
+    onCreatePrimitiveClick,
     onClearClick,
     onSaveWorldClick,
     onLoadWorldClick,
@@ -26,10 +28,10 @@ export class Menu {
     this.panel.id = 'menu-panel';
     this.panel.hidden = true;
 
-    // The top level is now just two expanding groups plus Clear World: "Load Object"
-    // for the things you put INTO a world, "Load World" for the worlds themselves.
-    // Both are built by _group(), and opening either closes the other, so the panel
-    // never shows two trees of options at once.
+    // The top level is three expanding groups plus Clear World: "Load Object" for the
+    // things you put INTO a world, "Create Model" for building one out of shapes, and
+    // "Load World" for the worlds themselves. All are built by _group(), and opening any
+    // one closes the others, so the panel never shows two trees of options at once.
     this.groups = [];
 
     // Kept as a field: main.js flips it via setImportEnabled() while a load is running.
@@ -57,6 +59,23 @@ export class Menu {
       lightOrbBtn,
       webBrowserBtn,
     ]);
+
+    // Create Model: each button drops one construction piece in front of the student.
+    // Built from PRIMITIVE_SHAPES so the shape list lives in exactly one place.
+    const shapeButtons = PRIMITIVE_SHAPES.map((shape) => {
+      const btn = this._button(
+        SHAPE_LABELS[shape],
+        `Add a ${SHAPE_LABELS[shape].toLowerCase()} to build with — click the hammer above it to change it`
+      );
+      btn.addEventListener('click', () => onCreatePrimitiveClick?.(shape));
+      return btn;
+    });
+
+    const createModel = this._group(
+      'Create Model',
+      'Build your own model out of simple shapes, then render it into one object',
+      shapeButtons
+    );
 
     // The ready-made worlds are built from PRESET_WORLDS rather than hardcoded here, so
     // adding another world is a one-line change in WorldPresets.js and shows up in the
@@ -121,6 +140,8 @@ export class Menu {
     this.panel.append(
       loadObject.toggle,
       loadObject.panel,
+      createModel.toggle,
+      createModel.panel,
       loadWorld.toggle,
       loadWorld.panel,
       this.clearBtn,

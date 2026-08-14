@@ -76,7 +76,15 @@ export class ObjectMenu {
     // quirk away from misfiring (iframes are notorious for inconsistent hit-testing
     // under CSS 3D transforms). Excluding the bezel from the pickable set here means
     // a stray hit can never open the menu, regardless of what the DOM layer does.
-    const pickable = this.registry.getRootObjects().filter((obj) => !obj.userData.isWebBrowser);
+    //
+    // Create Model's construction pieces are excluded for a related reason: until the
+    // student renders them into a finished model they are parts, not objects, and this
+    // menu's Size/Move/Program apply to whole objects. They are reachable only through
+    // their own floating hammer icon (ConstructionManager) -- and once rendered, the
+    // model that replaces them carries no such flag and picks up normally.
+    const pickable = this.registry
+      .getRootObjects()
+      .filter((obj) => !obj.userData.isWebBrowser && !obj.userData.isConstruction);
     const hits = this.raycaster.intersectObjects(pickable, true);
     if (!hits.length) {
       this.close();

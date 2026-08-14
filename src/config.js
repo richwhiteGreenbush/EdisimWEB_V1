@@ -273,6 +273,30 @@ export const WEB_BROWSER_DEFAULT_URL = 'https://richwhitegreenbush.github.io/Edi
 export const EDIT_ICON_SIZE = 0.7; // feet, billboard sprite size
 export const EDIT_ICON_MARGIN = 0.6; // feet above the panel's bounding-box top
 
+// --- Create Model: build-your-own from primitives ---
+export const PRIMITIVE_SIZE = 2; // feet -- every primitive is authored to this size before stretching
+// The palette has no true yellow (#f2a541 is amber), and the brief asks for yellow
+// specifically, so this is its own constant rather than a bent palette entry. The
+// Apply Texture swatch row still offers PALETTE_SWATCHES alongside it.
+export const PRIMITIVE_DEFAULT_COLOR = '#f2c94c';
+// Construction pieces land much closer than an import ("a few feet in front of you"),
+// and their spiral is counted over the LIVE PRIMITIVES only -- not registry.count, which
+// in a preset world is already in the hundreds and would fling the first piece off the
+// spiral's far edge. Keep SPACING*sqrt(pieces) under DISTANCE for a realistic build.
+//
+// 10ft, not the 8 this started at, and the reason is framing rather than reach. Eyes are
+// at 5ft and a fresh piece is 2ft tall, so its base sits 5ft below the sightline: at 8ft
+// away that is 32 degrees down, and the camera's 70 degree fov is VERTICAL, giving only
+// 35 either side -- the piece a student just asked for arrived half off the bottom of
+// the screen. At 10ft the whole shape and its hammer sit comfortably inside the frame.
+export const PRIMITIVE_SPAWN_DISTANCE = 10; // feet in front of the camera
+export const PRIMITIVE_SPAWN_SPACING = 2.5; // feet, golden-angle spiral between pieces
+export const HAMMER_ICON_SIZE = 0.7; // feet, billboard sprite size
+export const HAMMER_ICON_MARGIN = 0.6; // feet above the piece's bounding-box top
+export const CONNECT_TOUCH_EPSILON = 0.05; // feet of slack when testing "are these touching?"
+export const STRETCH_HANDLE_RADIUS = 0.13; // feet, corner grab spheres
+export const STRETCH_MIN_SIZE = 0.2; // feet, per-axis floor so a piece can't be squashed to nothing
+
 // Deliberately still the old project name, and it has to stay that way. This is the
 // IndexedDB database every student's saved world lives in -- renaming it does not migrate
 // anything, it silently opens a NEW empty database and every world anyone has ever built

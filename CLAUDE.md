@@ -6,7 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Edusim: Web Edition is a single-user, browser-based 3D sandbox (Second Life-inspired): walk a
 rolling-terrain world with the arrow keys / on-screen D-pad, import glTF/OBJ models
-and images, freehand-draw shapes that inflate into 3D balloons, drop glowing light
+and images, freehand-draw shapes that inflate into 3D balloons, build your own models
+out of stretchable primitives, drop glowing light
 orbs, place live interactive web browser panels, and save/load the world. New visitors
 land in a prebuilt Park; The Museum, The Library, The Moon, On Mars, Dinosaur Island
 and Fantastic Voyage (human anatomy) are loadable from the menu. Pure client-side Three.js app — no backend, ships as a static `dist/` bundle.
@@ -28,14 +29,16 @@ There is no lint or test setup in this project.
 
 `src/main.js` is where everything is wired up: it creates the renderer/scene/camera,
 then `PlayerController`, `ProgramManager`, `PlacedRegistry`, `Menu`, `PlayIconManager`,
-`WebBrowserManager`, `WorldStore`, `ImportManager`, `DrawTool`, `ProgramEditor`,
-`ObjectMenu`, and `TouchNav`. Boot sequence: `worldStore.rehydrateAll()` restores
+`WebBrowserManager`, `ConstructionManager`, `WorldStore`, `ImportManager`, `DrawTool`,
+`ProgramEditor`, `ObjectMenu`, `StretchGizmo`, `PrimitiveMenu`, and `TouchNav`.
+`ConstructionManager` sits **before** `PlayIconManager` and `ObjectMenu` on purpose — see
+the Create Model notes for why that ordering is load-bearing. Boot sequence: `worldStore.rehydrateAll()` restores
 whatever's in IndexedDB, and only if that leaves the registry **completely empty** does
 it build the Park (`loadPresetWorld(BOOT_WORLD)`) — so a first visit gets a world, a
 refresh keeps the student's own edits, and a loaded preset is never overwritten.
 The animate loop ticks `registry`,
-`programManager`, `playIconManager`, and `webBrowserManager`, in that order, before
-`renderer.render()`.
+`programManager`, `playIconManager`, `webBrowserManager`, `constructionManager` and
+`stretchGizmo`, in that order, before `renderer.render()`.
 
 ### Units: everything is feet
 
@@ -122,8 +125,8 @@ and every world anyone has built disappears. The same goes for the `startup-*` a
 
 Both funnel through the same `record.kind` dispatch in `WorldStore.rehydrateOne()`:
 `'gltf' | 'obj' | 'image' | 'gif' | 'balloon' | 'light-orb' | 'web-browser' |
-'preset-prop' | 'world-theme' | 'startup-library' | 'startup-tree' |
-'startup-billboard'`. gltf/obj/image/gif/balloon all carry
+'preset-prop' | 'primitive' | 'built-model' | 'world-theme' | 'startup-library' |
+'startup-tree' | 'startup-billboard'`. gltf/obj/image/gif/balloon all carry
 `files: [{name, type, data: Blob}]` (balloon's file is the painted canvas as
 a PNG — geometry is *regenerated* via `BalloonInflator.inflateFromCanvas()`, never
 stored); `light-orb`, `web-browser`, `preset-prop`, `world-theme`, and the three
@@ -133,7 +136,9 @@ stored); `light-orb`, `web-browser`, `preset-prop`, `world-theme`, and the three
 `LightOrb.createLightOrb(color)`, `WebBrowserManager.createPanel(record, worldStore)`
 and `props/index.js`'s `buildProp(name, options)` all rebuild everything procedurally
 every time, same philosophy as the balloon regenerating its geometry instead of
-storing it.
+storing it. Create Model's `primitive`/`built-model` sit in between: they rebuild their
+geometry from named parameters like the above, and carry `files` **only** when the student
+has applied an uploaded image to a surface.
 
 `loadFromRecords()` settles the theme up front from
 `records.find(r => r.kind === 'world-theme')?.theme || DEFAULT_THEME` **before**
@@ -802,6 +807,93 @@ identical edit-icon sprite, which shares this exact click-to-open pattern — se
 file's notes for the full story, including a second, unrelated bug this same testing
 surfaced).
 
+### Create Model: building a model out of primitives
+
+Menu ▸ **Create Model** is its own top-level group (`_group()` does not nest, so it could
+not go under Load Object) with one button per shape. Each drops a 2ft yellow construction
+piece on the ground ahead of the student, carrying a floating amber **hammer** icon that
+opens `PrimitiveMenu`: Apply Texture / Stretch to Shape / Connect to Primitive / Render
+Model / Close. Render Model fuses a connected cluster into one ordinary placed object,
+after which Size/Move/Program, saving and duplicating all work on it like anything else.
+
+**There is no CSG, and "seam the pieces together" does not need any.** Connecting is a
+recorded link, and rendering builds a `THREE.Group` of the same overlapping solids
+registered as ONE root — which is all "one solid model" has to mean here, since
+`resolveRoot()` already maps a click on any child back to the single id. A real boolean
+union would mean a dependency this project doesn't carry (`three@0.185` only, no
+`three-bvh-csg`) and would throw away the per-part data that keeps the record small and
+rebuildable.
+
+Two record kinds, both in `rehydrateOne()`'s dispatch and both storing parameters rather
+than geometry, exactly like `light-orb` and `preset-prop`:
+
+- `primitive` — `{ shape, color, files?: [texture], connections: [ids], transform }`
+- `built-model` — `{ parts: [{shape, color, fileIndex, position, rotation, scale}], files, transform }`
+
+They must be handled **before the gltf/obj fall-through**, which assumes everything in
+`files` is a model file and would hand a texture PNG to the glTF parser. Because both
+rebuild from their record, world-file export (`WorldFile` base64s anything under `files`
+unprompted), IndexedDB rehydration and the `duplicate` block all work with no per-kind
+code — a duplicated model comes back with its own materials and its own decoded texture,
+which matters because `disposeObject3D()` destroys a removed object's `map` outright.
+
+Things worth knowing before editing this:
+
+- **Construction pieces are excluded from `ObjectMenu`'s raycast** (`userData.isConstruction`,
+  alongside the existing `isWebBrowser` exclusion). Until it is rendered a piece is a
+  *part*, not an object, and Size/Move/Program are whole-object actions. The model that
+  replaces the pieces carries no such flag and picks up normally.
+- **`ConstructionManager` must be constructed before `PlayIconManager` and `ObjectMenu`.**
+  All three register their own pointerdown/pointerup pair on the same canvas/window and run
+  in registration order within one dispatch, so a hammer hit calls
+  `e.stopImmediatePropagation()` to stop ObjectMenu raycasting the same click, finding
+  nothing where the icon floats, and `close()`ing the panel that was just opened. Same
+  arbitration, same reason, as the web browser panel's edit icon — and the sprite raycast
+  needs the same explicit `modelViewMatrix` refresh.
+- **Hammer icons self-sync from the registry every frame** instead of being pushed at from
+  `WorldStore`/clear paths the way play icons are. Whether a piece has a hammer is a pure
+  function of "is there a live record of kind `primitive` with this id" — unlike a play
+  icon, which tracks a program being written or cleared — so deriving it in `tick()` means
+  there is no `refresh()` call a future bulk-removal path can forget.
+- **`StretchGizmo` listens on `window` in the CAPTURE phase, and has to.**
+  `PlayerController` registers its look-drag `pointerdown` on the canvas at boot, long
+  before this class exists, and `stopImmediatePropagation` from a later listener on the
+  same element cannot suppress an earlier one. A capture-phase window listener runs before
+  every target-phase canvas listener regardless of order, which is the only way a corner
+  grab can be claimed away from the camera. It only stops propagation when the raycast
+  actually hits, so a drag on empty ground still turns the view.
+- **The corner maths relies on two invariants.** Every primitive geometry is authored
+  centred on its own origin, and construction pieces are never rotated (nothing offers a
+  rotate affordance) — so the world `Box3` centre *is* `mesh.position`, and holding the
+  opposite corner fixed is `position_i = anchor_i + sign(corner_i) · newSize/2`. Add
+  rotation to construction mode and this all has to be redone in the object's local frame.
+- **Dragging the blue box body is the move affordance**, and the only one: pieces have to
+  be brought into contact before they can be connected, and folding that into the same
+  mode as stretching avoids a second menu screen for it. It re-seats on the terrain each
+  frame (`groundHeightAt` + the lift captured at grab), so a piece dragged across hills
+  follows them.
+- **`PRIMITIVE_SPAWN_DISTANCE` is a framing number, not a reach number.** Eyes are at 5ft
+  and a fresh piece is 2ft tall, so its base sits 5ft below the sightline; at the 8ft this
+  started at that is 32° down against a **vertical** 70° fov (35° either side), and the
+  shape a student just asked for arrived half off the bottom of the screen. 10ft fixes it.
+- **The placement spiral counts LIVE PRIMITIVES, not `registry.count`.** In a preset world
+  the registry is already in the hundreds, and `SPACING·√n` would put the first piece
+  ~28ft off to one side of a 10ft drop point.
+- **`WorldStore.deleteObject(id)` exists only for Render Model.** It is the one place a
+  single record is removed rather than the world wiped; without it the consumed pieces come
+  back on the next refresh alongside the model built from them.
+- The gizmo's Done chip clears the toast band (`bottom: 76px`, not 22) — `#toast-host` is
+  also bottom-centred and entering stretch mode fires a toast, so at the same offset the
+  hint covers the only exit button. `main.js`'s VR toggle deactivates the gizmo for the
+  related reason that the chip is hidden in VR.
+- **Colour and an uploaded image are mutually exclusive on a piece**, and applying either
+  clears the other: a material carrying both multiplies them, so a "yellow" photo-textured
+  cube comes out muddy with nothing on screen to explain why. The same multiply trap as
+  `map` × `vertexColors` in the props.
+- Create Model is deliberately **absent from `VRMenu`**: placing a shape would work, but
+  the hammer panel, the file picker and the Done chip are all flat-screen DOM, so a student
+  in a headset would be left with pieces they could not build with.
+
 ### Light orbs: a Group, not a special case
 
 `LightOrb.js`'s `createLightOrb(color)` returns a plain `THREE.Group` containing a
@@ -1255,6 +1347,7 @@ a frame later just adds a visible jump when opening near a screen edge.
   `public/`, not the project root.
 - `main.js` exposes `window.__debug` (camera, player, renderer, scene, THREE, menu,
   registry, importManager, drawTool, worldStore, objectMenu, touchNav, programManager,
-  programEditor, playIconManager, webBrowserManager) gated behind `import.meta.env.DEV`
+  programEditor, playIconManager, webBrowserManager, vrView, constructionManager,
+  primitiveMenu, stretchGizmo) gated behind `import.meta.env.DEV`
   and stripped from production builds — useful for console-driven testing during
   development.

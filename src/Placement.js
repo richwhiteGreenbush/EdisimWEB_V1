@@ -3,16 +3,18 @@ import { SPAWN_DISTANCE, SPAWN_SPACING, GOLDEN_ANGLE } from './config.js';
 
 // Golden-angle spiral around a drop point in front of the camera, so sequential
 // placements (models, images, balloons — anything) fan out evenly instead of stacking.
-export function nextPlacementXZ(camera, n) {
+// `distance`/`spacing` default to the import-sized values; Create Model's construction
+// pieces pass a tighter pair so they land within arm's reach of each other.
+export function nextPlacementXZ(camera, n, { distance = SPAWN_DISTANCE, spacing = SPAWN_SPACING } = {}) {
   const dir = new THREE.Vector3();
   camera.getWorldDirection(dir);
   dir.y = 0;
   if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
   dir.normalize();
 
-  const dropX = camera.position.x + dir.x * SPAWN_DISTANCE;
-  const dropZ = camera.position.z + dir.z * SPAWN_DISTANCE;
-  const radius = SPAWN_SPACING * Math.sqrt(n);
+  const dropX = camera.position.x + dir.x * distance;
+  const dropZ = camera.position.z + dir.z * distance;
+  const radius = spacing * Math.sqrt(n);
   const angle = n * GOLDEN_ANGLE;
 
   return { x: dropX + Math.cos(angle) * radius, z: dropZ + Math.sin(angle) * radius };
