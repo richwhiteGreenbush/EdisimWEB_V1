@@ -155,9 +155,12 @@ export async function placePrimitive({ shape, scene, camera, registry, groundHei
 
 // --- Connecting and rendering ---------------------------------------------------
 
-// "Touching" is an axis-aligned box overlap with a little slack. Construction pieces are
-// never rotated (nothing offers a rotate affordance), so their world boxes are exact
-// rather than the loose approximation a Box3 usually is for a rotated object.
+// "Touching" is an axis-aligned box overlap with a little slack. For an unturned piece
+// that box is exact; for one the student has rotated it is the enclosing AABB, which is
+// bigger than the piece, so the test errs toward listing a near-miss as touching. That is
+// the right direction to err in: the cost is a joint between two pieces with a hair's gap
+// between them, which nobody can see, against a student being told nothing is touching a
+// piece that visibly is.
 export function touchingPrimitives(id, registry) {
   const mine = registry.get(id);
   if (!mine) return [];

@@ -7,7 +7,12 @@ import {
   clusterIds,
   SHAPE_LABELS,
 } from './Primitives.js';
-import { PALETTE_SWATCHES, PRIMITIVE_DEFAULT_COLOR, IMAGE_MAX_BYTES } from './config.js';
+import {
+  PALETTE_SWATCHES,
+  PRIMITIVE_DEFAULT_COLOR,
+  IMAGE_MAX_BYTES,
+  ROTATE_SNAP_DEGREES,
+} from './config.js';
 
 const TEXTURE_EXTENSIONS = ['png', 'jpg', 'jpeg'];
 
@@ -16,11 +21,11 @@ const TEXTURE_EXTENSIONS = ['png', 'jpg', 'jpeg'];
 // button, same synchronous edge clamp -- but a different set of actions, because a piece
 // under construction is a part rather than a finished object.
 export class PrimitiveMenu {
-  constructor({ registry, menu, worldStore, stretchGizmo }) {
+  constructor({ registry, menu, worldStore, buildGizmo }) {
     this.registry = registry;
     this.menu = menu;
     this.worldStore = worldStore;
-    this.stretchGizmo = stretchGizmo;
+    this.buildGizmo = buildGizmo;
     this.activeId = null;
 
     this.panel = document.createElement('div');
@@ -113,8 +118,15 @@ export class PrimitiveMenu {
         // The gizmo needs the screen to itself: its handles live exactly where this
         // panel would be floating.
         this.close();
-        this.stretchGizmo.activate(item.record.id);
+        this.buildGizmo.activate(item.record.id, 'stretch');
         this.menu?.toast('Drag a corner to stretch. Drag the green ball to move the piece anywhere.');
+      })
+    );
+    this.panel.appendChild(
+      this.button('Rotate Shape', () => {
+        this.close();
+        this.buildGizmo.activate(item.record.id, 'rotate');
+        this.menu?.toast(`Drag a coloured ring to turn the piece. It snaps every ${ROTATE_SNAP_DEGREES}°.`);
       })
     );
     this.panel.appendChild(this.button('Connect to Primitive', () => this.renderConnect()));
@@ -295,7 +307,7 @@ export class PrimitiveMenu {
 
     this.close();
     // The gizmo holds this id and draws a box around a mesh that is about to be gone.
-    if (this.stretchGizmo?.activeId === id) this.stretchGizmo.deactivate();
+    if (this.buildGizmo?.activeId === id) this.buildGizmo.deactivate();
 
     try {
       await removePrimitive({ id, registry: this.registry, worldStore: this.worldStore });
@@ -311,7 +323,7 @@ export class PrimitiveMenu {
   async renderModel() {
     const id = this.activeId;
     this.close();
-    this.stretchGizmo.deactivate();
+    this.buildGizmo.deactivate();
     try {
       await renderModelFromCluster({ rootId: id, registry: this.registry, worldStore: this.worldStore, menu: this.menu });
     } catch (err) {

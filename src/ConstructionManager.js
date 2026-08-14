@@ -62,7 +62,7 @@ export class ConstructionManager {
 
     this.texture = buildHammerIconTexture();
     this.icons = new Map(); // id -> Sprite
-    // Set by StretchGizmo while it owns a piece. The gizmo's lift handle floats in the
+    // Set by BuildGizmo while it owns a piece. The gizmo's lift handle floats in the
     // same place a hammer does, and a sprite with depthTest off draws straight over it --
     // so the piece being stretched loses its hammer until the student is done with it.
     // Nothing is lost: its menu is closed and the gizmo has the pointer either way.

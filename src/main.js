@@ -20,7 +20,7 @@ import { VRView } from './VRView.js';
 import { placePrimitive } from './Primitives.js';
 import { ConstructionManager } from './ConstructionManager.js';
 import { PrimitiveMenu } from './PrimitiveMenu.js';
-import { StretchGizmo } from './StretchGizmo.js';
+import { BuildGizmo } from './BuildGizmo.js';
 import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD } from './config.js';
 
 const canvas = document.getElementById('scene');
@@ -154,7 +154,7 @@ const menuActions = {
     registry.clear();
     playIconManager.clear();
     webBrowserManager.clear();
-    stretchGizmo.deactivate();
+    buildGizmo.deactivate();
     await worldStore.clearAll();
     // The theme is carried by a record, and clearing removed it -- so put the sky,
     // terrain and lighting back to the default world rather than leaving the player
@@ -180,7 +180,7 @@ const menu = new Menu({
     // for a stronger reason -- its Done chip is a DOM overlay and is hidden in VR, so a
     // gizmo left running would strand a blue box in the world with no way to dismiss it.
     menu.setCollapsed(true);
-    stretchGizmo.deactivate();
+    buildGizmo.deactivate();
     try {
       await vrView.toggle();
     } catch (err) {
@@ -217,7 +217,7 @@ const programEditor = new ProgramEditor({ registry, worldStore, programManager, 
 
 const objectMenu = new ObjectMenu({ scene, camera, domElement: canvas, registry, menu, worldStore, programEditor });
 
-const stretchGizmo = new StretchGizmo({
+const buildGizmo = new BuildGizmo({
   scene,
   camera,
   canvas,
@@ -227,7 +227,7 @@ const stretchGizmo = new StretchGizmo({
   constructionManager,
 });
 
-const primitiveMenu = new PrimitiveMenu({ registry, menu, worldStore, stretchGizmo });
+const primitiveMenu = new PrimitiveMenu({ registry, menu, worldStore, buildGizmo });
 
 // The "duplicate" block's effect, handed over now that both the registry and the world
 // store exist. ProgramManager is built at the top of this file because PlacedRegistry
@@ -289,7 +289,7 @@ if (import.meta.env.DEV) {
   window.__debug = {
     camera, player, renderer, scene, THREE, menu, registry, importManager, drawTool,
     worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager,
-    webBrowserManager, vrView, constructionManager, primitiveMenu, stretchGizmo,
+    webBrowserManager, vrView, constructionManager, primitiveMenu, buildGizmo,
   };
 }
 
@@ -306,7 +306,7 @@ function animate(timestamp) {
   playIconManager.tick();
   webBrowserManager.tick();
   constructionManager.tick();
-  stretchGizmo.tick();
+  buildGizmo.tick();
   // vrView draws the frame itself when a headset or stereo view is running.
   if (!vrView.render()) renderer.render(scene, camera);
 }

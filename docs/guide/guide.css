@@ -218,6 +218,11 @@ a { color: #1f6b8a; }
 .dot.blue { background: #9ecbff; }
 .dot.green { background: #3fb37f; }
 .dot.box { background: rgba(61,139,242,0.3); border-radius: 3px; }
+/* The three rotation rings. These are the exact colours the app draws them in, so the
+   card can say "the amber one" and mean something. */
+.dot.amber { background: #f2a541; }
+.dot.red { background: #f2545b; }
+.dot.violet { background: #b98cf5; }
 .tiny { font-size: 0.85rem; color: var(--muted); margin-bottom: 0; }
 
 .warnbox { background: #fff3f3; border: 2px solid #f0c4c4; border-left: 6px solid #b8324a; border-radius: 0 12px 12px 0; padding: 0.8rem 1.1rem; margin: 1.2rem 0 0; font-size: 0.95rem; }

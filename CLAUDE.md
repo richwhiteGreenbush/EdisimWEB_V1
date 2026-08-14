@@ -30,7 +30,7 @@ There is no lint or test setup in this project.
 `src/main.js` is where everything is wired up: it creates the renderer/scene/camera,
 then `PlayerController`, `ProgramManager`, `PlacedRegistry`, `Menu`, `PlayIconManager`,
 `WebBrowserManager`, `ConstructionManager`, `WorldStore`, `ImportManager`, `DrawTool`,
-`ProgramEditor`, `ObjectMenu`, `StretchGizmo`, `PrimitiveMenu`, and `TouchNav`.
+`ProgramEditor`, `ObjectMenu`, `BuildGizmo`, `PrimitiveMenu`, and `TouchNav`.
 `ConstructionManager` sits **before** `PlayIconManager` and `ObjectMenu` on purpose — see
 the Create Model notes for why that ordering is load-bearing. Boot sequence: `worldStore.rehydrateAll()` restores
 whatever's in IndexedDB, and only if that leaves the registry **completely empty** does
@@ -38,7 +38,7 @@ it build the Park (`loadPresetWorld(BOOT_WORLD)`) — so a first visit gets a wo
 refresh keeps the student's own edits, and a loaded preset is never overwritten.
 The animate loop ticks `registry`,
 `programManager`, `playIconManager`, `webBrowserManager`, `constructionManager` and
-`stretchGizmo`, in that order, before `renderer.render()`.
+`buildGizmo`, in that order, before `renderer.render()`.
 
 ### Units: everything is feet
 
@@ -826,11 +826,12 @@ surfaced).
 Menu ▸ **Create Model** is its own top-level group (`_group()` does not nest, so it could
 not go under Load Object) with one button per shape. Each drops a 2ft yellow construction
 piece on the ground ahead of the student, carrying a floating amber **hammer** icon that
-opens `PrimitiveMenu`: Apply Texture / Stretch to Shape / Connect to Primitive / Remove
-Shape / Render Model / Close. Render Model fuses a connected cluster into one ordinary
-placed object, after which Size/Move/Program, saving and duplicating all work on it like
-anything else. Remove Shape sits directly above it, because those two are the panel's only
-irreversible buttons and both are coloured as commitments rather than as steps.
+opens `PrimitiveMenu`: Apply Texture / Stretch to Shape / Rotate Shape / Connect to
+Primitive / Remove Shape / Render Model / Close. Render Model fuses a connected cluster
+into one ordinary placed object, after which Size/Move/Program, saving and duplicating all
+work on it like anything else. Remove Shape sits directly above it, because those two are
+the panel's only irreversible buttons and both are coloured as commitments rather than as
+steps.
 
 **There is no CSG, and "seam the pieces together" does not need any.** Connecting is a
 recorded link, and rendering builds a `THREE.Group` of the same overlapping solids
@@ -871,7 +872,7 @@ Things worth knowing before editing this:
   function of "is there a live record of kind `primitive` with this id" — unlike a play
   icon, which tracks a program being written or cleared — so deriving it in `tick()` means
   there is no `refresh()` call a future bulk-removal path can forget.
-- **`StretchGizmo` listens on `window` in the CAPTURE phase, and has to.**
+- **`BuildGizmo` listens on `window` in the CAPTURE phase, and has to.**
   `PlayerController` registers its look-drag `pointerdown` on the canvas at boot, long
   before this class exists, and `stopImmediatePropagation` from a later listener on the
   same element cannot suppress an earlier one. A capture-phase window listener runs before
@@ -884,7 +885,7 @@ Things worth knowing before editing this:
   stacked on anything else* — no head on a body, no snowman, no roof on walls — which is
   what the tutorials ran into the moment they tried to describe building one.
 - **Every horizontal move preserves ELEVATION ABOVE THE TERRAIN, not absolute Y**
-  (`StretchGizmo.elevationOf()` / `seat()`). This is what makes stacking usable rather than
+  (`BuildGizmo.elevationOf()` / `seat()`). This is what makes stacking usable rather than
   merely possible. Re-seating a dragged piece flat on the ground is what makes it follow
   hills, but it also means a piece lifted onto another one drops straight back to the grass
   the instant it is slid an inch sideways — so it could be raised to the right height and
@@ -904,11 +905,41 @@ Things worth knowing before editing this:
   `depthTest: false` draws straight over a mesh. `ConstructionManager.suppressId` is set by
   the gizmo while a piece is active, so that piece loses its hammer until Done — which costs
   nothing, since its menu is closed and the gizmo owns the pointer anyway.
-- **The corner maths relies on two invariants.** Every primitive geometry is authored
-  centred on its own origin, and construction pieces are never rotated (nothing offers a
-  rotate affordance) — so the world `Box3` centre *is* `mesh.position`, and holding the
-  opposite corner fixed is `position_i = anchor_i + sign(corner_i) · newSize/2`. Add
-  rotation to construction mode and this all has to be redone in the object's local frame.
+- **Everything the gizmo measures works in the piece's OWN frame, not in its world AABB**
+  (`BuildGizmo.frame()`). Rotate Shape is why. The AABB of a turned box is bigger than the
+  box and its sides do not line up with it, so an overlay or a stretch sized from it pulls
+  the piece along the wrong directions entirely. `frame()` returns centre + half-extents
+  along the object's own axes + its quaternion; `stretchByCorner()` then projects the drag
+  onto those axes (`reach.dot(axes[i])`) instead of reading `hit[key] - anchor[key]`. With
+  an unturned piece the two are identical arithmetic, which is why this could be swapped in
+  under the existing behaviour rather than beside it. The **one remaining invariant** is
+  that every primitive geometry is authored centred on its own origin — that is what makes
+  `object3D.position` the centre of its own box at any rotation.
+- **Rotate Shape turns about the WORLD axis the ring is drawn on, and the rings do not
+  turn with the piece.** Rings that follow the object are the CAD convention and they are
+  wrong here: the control a student is holding slides out from under them as they use it.
+  Fixed rings mean the flat amber one always spins the piece on the spot and the upright
+  ones always tip it, whatever state it is already in. Implementation follows from that —
+  `q_new = axisAngle(delta) · q_start`, pre-multiplied. Post-multiplying would turn about
+  the piece's own axis, which is not the ring being held.
+- **A rotate drag accumulates wrapped increments; it does not diff against the start
+  angle.** A raw difference reads the ±180° crossing as a near-full turn the other way, so
+  a drag could never wind past a half turn.
+- **Rotation snaps to `ROTATE_SNAP_DEGREES` (15°)**, which is what makes it useful for
+  building rather than merely possible: square corners and 45° braces are most of what a
+  model needs and neither is hittable by eye on a trackpad.
+- **A turn has to HOLD the piece's elevation, not clamp it out of the ground.** Turning
+  swings the corners about, so the lowest point moves without the piece being dragged
+  anywhere — a 2ft cube on the grass reaches 0.41ft below itself at 45°. The obvious
+  version of this is a one-way "push it up if it is underground" clamp, and it is wrong:
+  it lifts the piece at 45° and has nothing to bring it back down at 90°, so every quarter
+  turn leaves it hovering a few inches in the air. `rotateByRing()` instead recomputes the
+  origin-to-base offset each frame (the rotation is what just changed it) and re-seats at
+  the elevation captured when the drag began.
+- **`touchingPrimitives()` is no longer exact.** It is an AABB test, and the AABB of a
+  turned piece is bigger than the piece, so Connect now errs toward listing a near-miss.
+  That is the right direction to err in: an invisible hair of a gap in a joint costs
+  nothing, against telling a student nothing is touching a piece that visibly is.
 - **Dragging the blue box body is the primary move affordance**: pieces have to be brought
   into contact before they can be connected, and folding that into the same mode as
   stretching avoids a second menu screen for it. It re-seats on the terrain each frame
@@ -1398,6 +1429,6 @@ a frame later just adds a visible jump when opening near a screen edge.
 - `main.js` exposes `window.__debug` (camera, player, renderer, scene, THREE, menu,
   registry, importManager, drawTool, worldStore, objectMenu, touchNav, programManager,
   programEditor, playIconManager, webBrowserManager, vrView, constructionManager,
-  primitiveMenu, stretchGizmo) gated behind `import.meta.env.DEV`
+  primitiveMenu, buildGizmo) gated behind `import.meta.env.DEV`
   and stripped from production builds — useful for console-driven testing during
   development.

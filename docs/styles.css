@@ -303,11 +303,16 @@ a {
 .hero h1 .pop-orange { color: var(--orange); }
 .hero h1 .pop-red { color: #ffe082; }
 
+/* Dark ink, not white. This paragraph sits low in the sky gradient, over --sky-bottom
+   (#bfe8ff), where white text runs at about 1.2:1 against the background and is barely
+   there. The h1 above it can stay white because it carries a heavy shadow and is three
+   times the size; a body paragraph has neither, so it takes the page's own ink colour --
+   11:1 over the pale end of the sky and still 7:1 over the deepest blue at the top. */
 .hero-sub {
   max-width: 56ch;
   font-size: 1.15rem;
-  color: #ffffff;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.15);
+  color: var(--ink);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .hero-cta-row {
@@ -315,6 +320,19 @@ a {
   flex-wrap: wrap;
   gap: 16px;
   justify-content: center;
+}
+
+/* .btn-ghost is authored white-on-transparent for dark sections, and the hero's sky is
+   not one -- white on it runs at 1.5:1, which is a button you can only find by knowing
+   it is there. Same override the tutorial callout already needed. */
+.hero-cta-row .btn-ghost {
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  border-color: rgba(30, 42, 58, 0.35);
+}
+
+.hero-cta-row .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .browser-frame {

@@ -427,22 +427,26 @@ html, body {
   z-index: 15;
 }
 
+/* Every measurement here is 70% of what it was, written out rather than done with a
+   transform: scale(). The pad's layout box is its own hit area, and a scaled-down pad
+   leaves the full-size box behind as an invisible region that still swallows the
+   look-drags a student aims at the sky just above it. */
 #touch-nav-pad {
   position: relative;
   display: grid;
-  grid-template-columns: 42px 42px 42px;
-  grid-template-rows: 42px 42px 42px;
+  grid-template-columns: 29.4px 29.4px 29.4px;
+  grid-template-rows: 29.4px 29.4px 29.4px;
   grid-template-areas:
     '.    up    .'
     'left hub   right'
     '.    down  .';
-  gap: 3px;
-  padding: 6px;
+  gap: 2.1px;
+  padding: 4.2px;
   background: rgba(20, 24, 28, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 15px;
+  border-radius: 10.5px;
   backdrop-filter: blur(6px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
   touch-action: none;
 }
 
@@ -467,9 +471,9 @@ html, body {
 
 .touch-nav-shape {
   position: absolute;
-  inset: 3px;
+  inset: 2.1px;
   background: #f2f5f7;
-  border: 1.5px solid rgba(15, 18, 21, 0.55);
+  border: 1.2px solid rgba(15, 18, 21, 0.55);
   pointer-events: none;
   transition: background 0.1s ease, border-color 0.1s ease;
 }
@@ -491,7 +495,7 @@ html, body {
   width: 60%;
   height: 60%;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border: 1.2px solid rgba(255, 255, 255, 0.4);
   pointer-events: none;
 }
 
