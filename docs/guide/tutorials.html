@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Build-Along Tutorials — Edusim: Web Edition</title>
+<meta name="description" content="Six step-by-step tutorials for the Edusim Model Builder: build a snowman, a rocket, a robot and a house out of simple shapes, then teach them to move with drag-and-drop coding blocks." />
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+<nav class="gnav no-print">
+  <div class="wrap">
+    <a class="gbrand" href="index.html"><span>🌎</span> Hands-On Guide</a>
+    <div class="gnav-links">
+      <a href="index.html">All cards</a>
+      <a href="tutorials.html">Tutorials</a>
+      <a href="teachers.html">For teachers</a>
+      <a href="../index.html">Main site</a>
+      <a class="gbtn" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">Open Edusim</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hub-hero tuts">
+  <div class="wrap">
+    <span class="hub-eyebrow">🔨 Build along, one step at a time</span>
+    <h1>Build-Along Tutorials</h1>
+    <p>Six projects that start with four snowballs and finish with a robot that copies itself.
+      Open Edusim in one window, keep this in another, and work down the list. Nothing here needs
+      anything you have to buy, download or sign up for.</p>
+    <div class="hub-cta">
+      <a class="gbtn big" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">Open Edusim in a new tab</a>
+      <a class="gbtn ghost big" href="index.html">Printable cards</a>
+    </div>
+  </div>
+</header>
+
+<main class="tuts-main">
+  <div class="wrap">
+
+    <!-- ------------------------------------------------------------------ basics -->
+    <section class="basics">
+      <h2>Before you start: the five things that do everything</h2>
+      <p class="basics-lead">
+        Every tutorial below is made of these five moves and nothing else. Read this once
+        and you can skip straight to whichever project you like the look of.
+      </p>
+
+      <ol class="basics-list">
+        <li>
+          <h3><span class="bi">1</span> Add a shape</h3>
+          <p><span class="key">☰ Menu</span> → <span class="key">Create Model</span> →
+            <span class="key">Cube</span>, <span class="key">Sphere</span>,
+            <span class="key">Cylinder</span> or <span class="key">Tetrahedron</span>.
+            It lands on the grass a few steps in front of you, bright yellow, about knee
+            high. Yellow means "still being built".</p>
+        </li>
+        <li>
+          <h3><span class="bi">2</span> Click the hammer</h3>
+          <p>Every unfinished piece has an orange <span class="key">🔨</span> floating over
+            it. Click it and you get the <strong>Build Piece</strong> menu:
+            Apply Texture, Stretch to Shape, Connect to Primitive, Render Model, Close.</p>
+        </li>
+        <li>
+          <h3><span class="bi">3</span> Shape it and move it</h3>
+          <p><strong>Stretch to Shape</strong> wraps the piece in a see-through blue box.
+            That one box does three jobs:</p>
+          <ul class="handles">
+            <li><span class="dot blue"></span> <b>A corner handle</b> — drag to stretch. The
+              opposite corner stays put.</li>
+            <li><span class="dot box"></span> <b>The middle of the box</b> — drag to slide the
+              piece across the ground.</li>
+            <li><span class="dot green"></span> <b>The green ball above</b> — drag to lift the
+              piece up or set it down.</li>
+          </ul>
+          <p class="tiny">Press <span class="key">✓ Done stretching</span> or
+            <span class="key">Esc</span> when the piece looks right.</p>
+        </li>
+        <li>
+          <h3><span class="bi">4</span> Paint it</h3>
+          <p><strong>Apply Texture</strong> — tap a colour, mix your own, or
+            <strong>Upload an Image</strong> to wrap a picture from your computer right
+            around the shape.</p>
+        </li>
+        <li>
+          <h3><span class="bi">5</span> Join and render</h3>
+          <p><strong>Connect to Primitive</strong> lists only the pieces this one is actually
+            <em>touching</em>. Join them all up, then press <strong>Render Model</strong> on
+            any one of them and the whole chain becomes a single solid model — one you can
+            click, resize, move and program like anything else in the world.</p>
+        </li>
+      </ol>
+
+      <p class="warnbox">
+        ⚠️ <strong>Render Model is a one-way door.</strong> Once you press it the pieces
+        become one object and the hammers disappear, so leave it until the very end. If two
+        pieces are floating slightly apart, push them together <em>before</em> you render —
+        <strong>Connect</strong> will not list a piece that isn't touching.
+      </p>
+    </section>
+
+    <!-- ---------------------------------------------------------------- contents -->
+    <nav class="tut-toc">
+      <h2>The six projects</h2>
+      <ol>
+        <li><a href="#snowman"><b>Snowman</b><span>Easy · 15 min · stacking and painting</span></a></li>
+        <li><a href="#rocket"><b>Rocket</b><span>Easy · 20 min · stretching and fins</span></a></li>
+        <li><a href="#robot"><b>Robot</b><span>Medium · 30 min · twelve pieces, one model</span></a></li>
+        <li><a href="#house"><b>House</b><span>Medium · 30 min · walls, roof, and a door you walk to</span></a></li>
+        <li><a href="#move"><b>Teach it to move</b><span>Coding · 15 min · repeat, wait, rotate</span></a></li>
+        <li><a href="#army"><b>Build an army</b><span>Coding · 10 min · the duplicate block</span></a></li>
+      </ol>
+    </nav>
+
+    <!-- ==================================================== 1. SNOWMAN ========= -->
+    <article class="tut" id="snowman" style="--accent: #2f6bd6;">
+      <header class="tut-head">
+        <span class="tut-kicker">Tutorial 1 · Easy · about 15 minutes</span>
+        <h2>⛄ Build a Snowman</h2>
+        <p class="tut-tag">Four balls, a hat and a carrot. The best first build there is —
+          you learn stacking, painting and joining without stretching anything at all.</p>
+        <button class="printbtn no-print" onclick="window.print()">🖨️ Print</button>
+      </header>
+
+      <div class="tut-body">
+        <div class="tut-steps">
+          <ol class="stepsn">
+            <li><b>Add three spheres.</b> <span class="key">Menu → Create Model → Sphere</span>,
+              three times. They fan out in front of you.</li>
+            <li><b>Make them three different sizes.</b> Hammer → <span class="key">Stretch to
+              Shape</span> on the second one, then drag a <em>corner</em> handle inwards until
+              it is about three-quarters the size of the first. Do the same to the third, but
+              smaller again. Press <span class="key">✓ Done</span> each time.</li>
+            <li><b>Stack the middle ball.</b> Hammer on the medium sphere →
+              <span class="key">Stretch to Shape</span>. Drag the <em>middle of the blue box</em>
+              until it is right beside the big one, then drag the <em>green ball</em> upwards
+              until it sits on top. Let it sink in a little — a snowman with a gap looks wrong,
+              and pieces have to touch to be joined.</li>
+            <li><b>Stack the head</b> the same way, on top of the middle ball.</li>
+            <li><b>Paint them white.</b> Hammer → <span class="key">Apply Texture</span> → the
+              white swatch, on all three.</li>
+            <li><b>Add a hat.</b> Two cylinders: squash one flat with a top corner handle for
+              the brim, leave the other taller for the crown. Lift both onto the head, paint
+              them black.</li>
+            <li><b>Face and buttons.</b> Two tiny spheres for eyes, small ones down the front
+              for buttons — shrink them right down with a corner handle, lift them into place
+              and paint them black. For the nose, take a cube, squash it thin and long, paint
+              it orange.</li>
+            <li><b>Arms.</b> Two more cubes, squashed into long thin sticks, painted brown, one
+              each side.</li>
+            <li><b>Join everything.</b> Hammer on the middle ball →
+              <span class="key">Connect to Primitive</span>. It lists everything touching it —
+              join them. Work outwards until every piece is connected to a neighbour.</li>
+            <li><b>Render.</b> Hammer on any piece → <span class="key">Render Model</span>.
+              The hammers vanish and you have a snowman.</li>
+          </ol>
+
+          <p class="challenge"><b>🎯 Now change something:</b> click your finished snowman and
+            choose <span class="key">Size</span> → 300%. A snowman three times the size of a
+            person is a very different thing to stand next to. Then try 40%.</p>
+        </div>
+
+        <div class="tut-media">
+          <figure>
+            <img src="shots/build_snow_parts.jpg" alt="A snowman made of separate coloured pieces, each with an orange hammer icon floating over it, standing on grass." loading="lazy" />
+            <figcaption>Before rendering: twelve separate pieces, each with its own hammer.</figcaption>
+          </figure>
+          <figure>
+            <img src="shots/build_snowman.jpg" alt="The finished snowman: three white balls stacked up, a black top hat, coal eyes and buttons, an orange nose and two brown stick arms." loading="lazy" />
+            <figcaption>After <b>Render Model</b>: one object, ready to move, resize or program.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </article>
+
+    <!-- ==================================================== 2. ROCKET ========== -->
+    <article class="tut" id="rocket" style="--accent: #c2521f;">
+      <header class="tut-head">
+        <span class="tut-kicker">Tutorial 2 · Easy · about 20 minutes</span>
+        <h2>🚀 Build a Rocket</h2>
+        <p class="tut-tag">Eight pieces. This is the one that teaches stretching properly —
+          a rocket is nothing but a cylinder pulled tall and some cubes squashed flat.</p>
+        <button class="printbtn no-print" onclick="window.print()">🖨️ Print</button>
+      </header>
+
+      <div class="tut-body">
+        <div class="tut-steps">
+          <ol class="stepsn">
+            <li><b>The body.</b> Add a <span class="key">Cylinder</span>. Stretch to Shape, then
+              drag a <em>top</em> corner handle straight up until it is about three times as
+              tall as it is wide. Because the opposite corner stays still, the bottom never
+              leaves the ground. Paint it white.</li>
+            <li><b>The nose.</b> Add a <span class="key">Sphere</span>. Stretch it taller than
+              it is wide so it becomes an egg, then use the green ball to lift it onto the top
+              of the body until it overlaps a little. Paint it red.</li>
+            <li><b>The engine.</b> Add a <span class="key">Cylinder</span>, squash it short and
+              make it slightly wider than the body, and leave it at the bottom. Paint it dark
+              grey.</li>
+            <li><b>Four fins.</b> Add a <span class="key">Cube</span>. Squash it thin in one
+              direction so it becomes a flat plate, then stretch it into a fin shape. Slide it
+              against the bottom of the body. Repeat three more times, one on each side —
+              front, back, left, right. Paint them all red.</li>
+            <li><b>A porthole.</b> A small sphere pushed halfway into the body, painted blue.</li>
+            <li><b>Connect everything to the body</b>, then <span class="key">Render Model</span>.</li>
+          </ol>
+
+          <p class="tip"><b>💡 Stuck on a fin?</b> Fins are fiddly because you're stretching in
+            one direction and sliding in another. Walk around to the other side of the rocket
+            before you drag — the corner nearest the camera is always the easiest one to grab,
+            and the axis pointing away from you is the hardest to stretch.</p>
+
+          <p class="challenge"><b>🎯 Now change something:</b> build a second, smaller rocket
+            beside the first, then give the big one
+            <span class="blk ctrl mini">repeat 30 times</span> →
+            <span class="blk motion mini">move Y by 0.4 feet</span> and watch it launch.</p>
+        </div>
+
+        <div class="tut-media">
+          <figure>
+            <img src="shots/build_gallery.jpg" alt="A red-and-white rocket with four fins standing on grass beside a robot, both built out of simple shapes." loading="lazy" />
+            <figcaption>The finished rocket, next to the robot from Tutorial 3.</figcaption>
+          </figure>
+          <figure>
+            <img src="shots/build_stretch.jpg" alt="A yellow cube stretched tall inside a see-through blue box with pale handles on all eight corners." loading="lazy" />
+            <figcaption>Stretching: drag a corner, and the opposite corner holds still.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </article>
+
+    <!-- ==================================================== 3. ROBOT =========== -->
+    <article class="tut" id="robot" style="--accent: #b8324a;">
+      <header class="tut-head">
+        <span class="tut-kicker">Tutorial 3 · Medium · about 30 minutes</span>
+        <h2>🤖 Build a Robot</h2>
+        <p class="tut-tag">Twelve pieces, and the model on the front page of this site. Take
+          it slowly — the trick is to build from the ground up, so every new piece has
+          something underneath it to line up against.</p>
+        <button class="printbtn no-print" onclick="window.print()">🖨️ Print</button>
+      </header>
+
+      <div class="tut-body">
+        <div class="tut-steps">
+          <ol class="stepsn">
+            <li><b>Two legs.</b> Two cylinders, each squashed thin and stretched to about knee
+              height. Slide them side by side, about a foot apart. Paint them dark grey.</li>
+            <li><b>The body.</b> A cube stretched a bit wider than the two legs together and
+              squashed shallow front-to-back, then lifted with the green ball until it rests on
+              top of them. Paint it red.</li>
+            <li><b>The head.</b> A smaller cube lifted onto the body. Paint it white.</li>
+            <li><b>Two eyes.</b> Small spheres pushed into the front of the head. Paint them
+              blue.</li>
+            <li><b>A mouth.</b> A cube squashed into a thin bar, pushed into the head just
+              below the eyes. Paint it black.</li>
+            <li><b>Two arms.</b> Cylinders like the legs but shorter, slid against the sides of
+              the body. <b>Check they touch</b> — this is the step everybody gets wrong, and a
+              floating arm will not appear in the Connect list.</li>
+            <li><b>A chest panel.</b> A flat cube pressed onto the front of the body, painted
+              yellow.</li>
+            <li><b>An antenna.</b> A very thin cylinder standing on the head, with a small
+              sphere on top. Paint the sphere green.</li>
+            <li><b>Connect everything.</b> Legs and arms and chest to the body; eyes, mouth and
+              antenna to the head; head to the body; the ball to the antenna. Open
+              <span class="key">Connect to Primitive</span> on the body and it should say the
+              model is a dozen pieces.</li>
+            <li><b>Render Model.</b></li>
+          </ol>
+
+          <p class="tip"><b>💡 Check your work before you render.</b> Open
+            <span class="key">Connect to Primitive</span> on any piece. The note at the bottom
+            tells you how many pieces are in the model so far. If it says fewer than you built,
+            something isn't joined — find it, slide it until it touches, and connect it.</p>
+
+          <p class="challenge"><b>🎯 Now change something:</b> give your robot a face of its own.
+            <span class="key">Apply Texture</span> → <span class="key">Upload an Image</span> on
+            the head, and pick a photo. Do it <em>before</em> you render.</p>
+        </div>
+
+        <div class="tut-media">
+          <figure>
+            <img src="shots/build_painted.jpg" alt="A robot made of separate painted pieces — red body, white head, blue eyes, grey arms and legs — each with an orange hammer icon above it." loading="lazy" />
+            <figcaption>Painted, positioned, joined — and still twelve separate pieces.</figcaption>
+          </figure>
+          <figure>
+            <img src="shots/build_robot.jpg" alt="The finished robot: red body with a yellow chest panel, white head with blue eyes, dark grey arms and legs, and a green ball on a thin antenna." loading="lazy" />
+            <figcaption>One press of <b>Render Model</b> later.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </article>
+
+    <!-- ==================================================== 4. HOUSE =========== -->
+    <article class="tut" id="house" style="--accent: #8a5a1e;">
+      <header class="tut-head">
+        <span class="tut-kicker">Tutorial 4 · Medium · about 30 minutes</span>
+        <h2>🏚️ Build a House</h2>
+        <p class="tut-tag">Almost all cubes, and the first build that is bigger than you are.
+          Remember that you are five feet tall in this world — use yourself as the tape measure.</p>
+        <button class="printbtn no-print" onclick="window.print()">🖨️ Print</button>
+      </header>
+
+      <div class="tut-body">
+        <div class="tut-steps">
+          <ol class="stepsn">
+            <li><b>The floor.</b> A cube stretched wide and long and squashed almost flat. Make
+              it about four times your own width across. Paint it grey.</li>
+            <li><b>The back wall.</b> A cube stretched to the same width, squashed thin
+              front-to-back, and stretched up to about twice your height. Slide it to the back
+              edge of the floor. Paint it a wall colour.</li>
+            <li><b>Two side walls.</b> The same idea turned ninety degrees — thin the other way.
+              Slide one to each end.</li>
+            <li><b>The front, with a doorway.</b> Don't make one big wall. Make
+              <em>three</em>: a narrow one on the left, a narrow one on the right, and a short
+              one across the top between them. The gap you leave is the door — walk through it
+              and check it is wide enough before you go any further.</li>
+            <li><b>A roof.</b> A cube stretched wider and longer than the walls, squashed flat,
+              and lifted with the green ball until it sits on top. Paint it dark.</li>
+            <li><b>Windows.</b> Flat cubes pressed onto the outside of the walls, painted pale
+              blue. Push them into the wall face so they sit proud of it, not inside it.</li>
+            <li><b>Connect everything to the floor</b>, then <span class="key">Render Model</span>.</li>
+          </ol>
+
+          <p class="tip"><b>💡 A window has to be on the <em>outside</em> of a wall.</b> Your
+            walls are solid blocks, so a window pushed too far in disappears inside the wood
+            and can never be seen from anywhere you can stand. Push it just far enough to
+            overlap.</p>
+
+          <p class="challenge"><b>🎯 Now change something:</b> put a light inside.
+            <span class="key">Menu → Load Object → Light Orb</span>, then click the orb and use
+            <span class="key">Move</span> to walk it in through your door. Hang it about head
+            height — down low it lights the floor and nothing else.</p>
+        </div>
+
+        <div class="tut-media">
+          <figure>
+            <img src="shots/build_shapes.jpg" alt="A cube, a sphere, a cylinder and a pyramid, all bright yellow, standing in a row on grass." loading="lazy" />
+            <figcaption>Nearly the whole house is the first shape in this row, stretched different ways.</figcaption>
+          </figure>
+          <figure>
+            <img src="shots/build_lift.jpg" alt="One yellow sphere lifted on top of a larger one inside the see-through blue box, with a green ball floating above it on a short stem." loading="lazy" />
+            <figcaption>The green ball is how a roof gets onto walls.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </article>
+
+    <!-- ==================================================== 5. MOVE ============ -->
+    <article class="tut" id="move" style="--accent: #6b3fa0;">
+      <header class="tut-head">
+        <span class="tut-kicker">Tutorial 5 · Coding · about 15 minutes</span>
+        <h2>🧩 Teach it to move</h2>
+        <p class="tut-tag">You have a model. Now make it do something. This works on anything
+          at all — your robot, a park bench, or a Tyrannosaurus.</p>
+        <button class="printbtn no-print" onclick="window.print()">🖨️ Print</button>
+      </header>
+
+      <div class="tut-body">
+        <div class="tut-steps">
+          <ol class="stepsn">
+            <li><b>Click your model</b> and choose <span class="key">Program</span>. The block
+              editor opens: a palette of blocks on the left, empty space on the right.</li>
+            <li><b>Drag <span class="blk ctrl mini">forever</span> across.</b> It has a mouth —
+              anything you drop inside it repeats for good.</li>
+            <li><b>Drop <span class="blk motion mini">rotate 15 degrees</span> inside it</b>,
+              then <span class="blk ctrl mini">wait 0.1 seconds</span> underneath that, still
+              inside.</li>
+            <li><b>Press Save.</b> It starts turning immediately.</li>
+            <li><b>Change the numbers.</b> Try 2 degrees. Try 90. Try taking the wait out
+              altogether and see how much faster it goes.</li>
+          </ol>
+
+          <ol class="blocks">
+            <li class="blk ctrl d0">forever</li>
+            <li class="blk motion d1">rotate 15 degrees</li>
+            <li class="blk ctrl d1">wait 0.1 seconds</li>
+          </ol>
+
+          <p class="warnbox">
+            ⚠️ <strong>The one rule that catches everybody:</strong>
+            <span class="key">move X</span>, <span class="key">move Y</span> and
+            <span class="key">move Z</span> slide an object along the <em>world's</em>
+            directions, not the way it happens to be facing. Turning something does not change
+            which way it will then travel. That is why a patrol is written as "out, turn round,
+            back" rather than as a circle.
+          </p>
+
+          <p class="challenge"><b>🎯 Now change something:</b> make your model patrol.
+            <span class="blk ctrl mini">forever</span> holding
+            <span class="blk ctrl mini">repeat 20 times</span> →
+            <span class="blk motion mini">move X by 0.3 feet</span>, then
+            <span class="blk motion mini">rotate 180 degrees</span>, then the same pair again.
+            Out, about-turn, back, about-turn, forever.</p>
+        </div>
+
+        <div class="tut-media">
+          <figure>
+            <img src="../assets/screenshots/07_program_editor.png" alt="The drag-and-drop block editor with a repeat block containing a rotate block and a change-colour block." loading="lazy" />
+            <figcaption>Drag from the palette, drop into a block's mouth, press Save.</figcaption>
+          </figure>
+          <figure class="legend-figure">
+            <h4>Block colours</h4>
+            <ul class="legendlist">
+              <li><span class="swatch ctrl"></span> <b>Control</b> — repeat, forever, wait, duplicate</li>
+              <li><span class="swatch motion"></span> <b>Motion</b> — move X / Y / Z, rotate</li>
+              <li><span class="swatch look"></span> <b>Looks</b> — change size, change colour</li>
+            </ul>
+            <p class="tiny">A green ▶ floats above anything you have programmed. Tap it to run
+              the script again from the top.</p>
+          </figure>
+        </div>
+      </div>
+    </article>
+
+    <!-- ==================================================== 6. ARMY ============ -->
+    <article class="tut" id="army" style="--accent: #2f8f5b;">
+      <header class="tut-head">
+        <span class="tut-kicker">Tutorial 6 · Coding · about 10 minutes</span>
+        <h2>👥 Build an army</h2>
+        <p class="tut-tag">One block, and the thing you spent half an hour building becomes a
+          crowd. This is the payoff for making a proper model instead of a pile of shapes.</p>
+        <button class="printbtn no-print" onclick="window.print()">🖨️ Print</button>
+      </header>
+
+      <div class="tut-body">
+        <div class="tut-steps">
+          <ol class="stepsn">
+            <li><b>Click your robot</b> → <span class="key">Program</span>.</li>
+            <li><b>Drag <span class="blk ctrl mini">repeat 3 times</span> across</b>, and drop
+              <span class="blk ctrl mini">duplicate 4 ft away</span> inside it.</li>
+            <li><b>Save.</b> Three copies appear in a neat line, each one four feet further
+              along than the last.</li>
+            <li><b>Look closely.</b> The copies are complete, separate models — click one and
+              you can resize it, move it or program it on its own.</li>
+          </ol>
+
+          <ol class="blocks">
+            <li class="blk ctrl d0">repeat 3 times</li>
+            <li class="blk ctrl d1">duplicate 4 ft away</li>
+          </ol>
+
+          <p class="tip"><b>💡 Why don't the copies keep copying?</b> Because a copy is handed
+            everything <em>except</em> the duplicate block. A spinning robot makes spinning
+            copies, but they do not breed — otherwise
+            <span class="blk ctrl mini">forever</span> +
+            <span class="blk ctrl mini">duplicate</span> would fill the world in about four
+            seconds.</p>
+
+          <p class="challenge"><b>🎯 Now change something:</b> before you duplicate, give the
+            robot <span class="blk ctrl mini">forever</span> →
+            <span class="blk motion mini">rotate 4 degrees</span>. Save. <em>Then</em> add the
+            duplicate program. Now you have a whole row of spinning robots — and only the
+            first one you have to think about.</p>
+        </div>
+
+        <div class="tut-media">
+          <figure>
+            <img src="shots/build_army.jpg" alt="Four identical robots standing in a row on grass, with a green play button floating above the first one." loading="lazy" />
+            <figcaption>Two blocks. One robot became four.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </article>
+
+    <!-- ------------------------------------------------------------------ next -->
+    <section class="whatnext">
+      <h2>What next?</h2>
+      <div class="wn-grid">
+        <a class="wn-card" href="index.html">
+          <span>🖨️</span>
+          <h3>Printable training cards</h3>
+          <p>One card per world, each with two ready-made coding activities and three more challenges.</p>
+        </a>
+        <a class="wn-card" href="builder.html">
+          <span>🔨</span>
+          <h3>The Model Builder card</h3>
+          <p>The whole builder on one printable sheet — every button, every handle, and what it does.</p>
+        </a>
+        <a class="wn-card" href="teachers.html">
+          <span>🍎</span>
+          <h3>For teachers</h3>
+          <p>Lesson plans for the Model Builder and for all seven worlds, written for middle school.</p>
+        </a>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="gfoot">
+  <div class="wrap">
+    <p><strong>Edusim: Web Edition</strong> — Hands-On Guide. Print as many as you like.</p>
+    <p class="fine">Open the app at <span class="mono">edisimwebv1-production.up.railway.app</span> · No account needed.</p>
+  </div>
+</footer>
+</body>
+</html>

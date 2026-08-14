@@ -296,6 +296,7 @@ export const HAMMER_ICON_MARGIN = 0.6; // feet above the piece's bounding-box to
 export const CONNECT_TOUCH_EPSILON = 0.05; // feet of slack when testing "are these touching?"
 export const STRETCH_HANDLE_RADIUS = 0.13; // feet, corner grab spheres
 export const STRETCH_MIN_SIZE = 0.2; // feet, per-axis floor so a piece can't be squashed to nothing
+export const STRETCH_LIFT_GAP = 0.75; // feet the lift handle floats above the box's top face
 
 // Deliberately still the old project name, and it has to stay that way. This is the
 // IndexedDB database every student's saved world lives in -- renaming it does not migrate

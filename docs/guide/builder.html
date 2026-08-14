@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Model Builder — Edusim Hands-On Guide</title>
+<meta name="description" content="A printable reference card for the Edusim Model Builder: the four shapes, the hammer menu, the stretch handles, and how to turn a pile of pieces into one solid model." />
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+<nav class="gnav no-print">
+  <div class="wrap">
+    <a class="gbrand" href="index.html"><span>🌎</span> Hands-On Guide</a>
+    <div class="gnav-links">
+      <a href="index.html">All cards</a>
+      <a href="tutorials.html">Tutorials</a>
+      <a href="teachers.html">For teachers</a>
+      <a href="../index.html">Main site</a>
+      <a class="gbtn" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">Open Edusim</a>
+    </div>
+  </div>
+</nav>
+
+<main class="card" style="--accent: #c2521f;">
+  <div class="wrap">
+
+    <header class="card-head">
+      <div class="ch-left">
+        <span class="ch-kicker">Skill Card A</span>
+        <h1><span class="ch-emoji">🔨</span> The Model Builder</h1>
+        <p class="ch-tag">Build anything you can picture out of four simple shapes — then turn the pile into one solid model.</p>
+      </div>
+      <button class="printbtn no-print" onclick="window.print()">🖨️ Print this card</button>
+    </header>
+
+    <p class="howto"><strong>Getting there:</strong> open Edusim, tap <span class="key">☰ Menu</span> →
+      <span class="key">Create Model</span> → pick a shape. It lands on the grass a few steps in front of
+      you, bright yellow, with an orange <span class="key">🔨</span> floating over it. Yellow and a hammer
+      mean <em>still being built</em>.</p>
+
+    <div class="shots">
+      <figure class="shot">
+        <img src="shots/build_shapes.jpg" alt="A cube, a sphere, a cylinder and a pyramid, all yellow, in a row on grass." loading="lazy" />
+        <figcaption>Your whole toolkit: cube, sphere, cylinder, tetrahedron (a pyramid).</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="shots/build_stretch.jpg" alt="A yellow cube stretched tall inside a see-through blue box with handles on all eight corners." loading="lazy" />
+        <figcaption>Stretch to Shape: a blue box with a handle on every corner.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="shots/build_robot.jpg" alt="A finished robot with a red body, white head, blue eyes and a green antenna ball." loading="lazy" />
+        <figcaption>Twelve pieces after <b>Render Model</b>: one object.</figcaption>
+      </figure>
+    </div>
+
+    <h2 class="sec">The hammer menu</h2>
+    <p class="sec-note">Click the 🔨 above any unfinished piece and these five appear.</p>
+
+    <section class="qs">
+      <div class="qs-head"><span class="qs-num">1</span>
+        <div><h3>Apply Texture</h3><p class="qs-target">Colour it, or wrap a picture round it</p></div>
+      </div>
+      <p>Seven colour swatches, a full colour picker if none of them is right, and
+        <b>Upload an Image</b> for a photo from your own computer. Colour and picture are
+        either/or — choosing one clears the other, because a colour laid over a photo just
+        makes mud.</p>
+    </section>
+
+    <section class="qs">
+      <div class="qs-head"><span class="qs-num">2</span>
+        <div><h3>Stretch to Shape</h3><p class="qs-target">One blue box, three different drags</p></div>
+      </div>
+      <ul class="handles">
+        <li><span class="dot blue"></span> <b>A corner handle</b> — stretch. The corner diagonally opposite
+          stays exactly where it is, so a piece never wanders off while you resize it.</li>
+        <li><span class="dot box"></span> <b>The middle of the box</b> — slide the piece across the ground.
+          It follows the hills, so it always stays standing on something.</li>
+        <li><span class="dot green"></span> <b>The green ball above the box</b> — lift the piece up or set it
+          down. It stops at ground level, so nothing can be buried.</li>
+      </ul>
+      <p class="qs-tip">💡 The axis pointing straight away from you is the hardest one to stretch — walk
+        around to the side and it becomes easy. Press <span class="key">✓ Done stretching</span> or
+        <span class="key">Esc</span> to finish.</p>
+    </section>
+
+    <section class="qs">
+      <div class="qs-head"><span class="qs-num">3</span>
+        <div><h3>Connect to Primitive</h3><p class="qs-target">Join this piece to one it is touching</p></div>
+      </div>
+      <p>The list only ever shows pieces that are <b>actually touching this one</b>. That is the safety net:
+        you cannot accidentally weld an arm to something across the field. Join outwards from the middle of
+        your model until everything is in one chain — the note at the bottom tells you how many pieces the
+        model is up to.</p>
+      <p class="qs-tip">💡 "Nothing is touching this piece" means exactly that. Go back to Stretch to Shape
+        and slide the two together until they overlap a little.</p>
+    </section>
+
+    <section class="qs">
+      <div class="qs-head"><span class="qs-num">4</span>
+        <div><h3>Render Model</h3><p class="qs-target">Turn the whole chain into one object</p></div>
+      </div>
+      <p>The hammers disappear and the pieces become a single model. From then on it behaves like everything
+        else in the world: click it for <span class="key">Size</span>, <span class="key">Move</span> and
+        <span class="key">Program</span>, it saves itself, it travels inside a saved world file, and the
+        <b>duplicate</b> block will copy the whole thing.</p>
+      <p class="qs-tip">⚠️ Render is a one-way door. Do it last, and check your piece count first.</p>
+    </section>
+
+    <h2 class="sec">Try these three</h2>
+    <ol class="more">
+      <li>
+        <h4>Four shapes, one creature</h4>
+        <p>Give yourself exactly four pieces — no more — and make something recognisable. A duck, a lamp, a
+          chair. Constraints make better models than unlimited pieces do.</p>
+      </li>
+      <li>
+        <h4>Photograph something real</h4>
+        <p>Take a photo of a brick wall, some grass or your own front door. Upload it onto a stretched cube
+          and see how much more real one texture makes a whole building look.</p>
+      </li>
+      <li>
+        <h4>Build to scale</h4>
+        <p>You are five feet tall in this world. Build a chair you could actually sit in, then a door you
+          could actually walk through, then stand next to both and check.</p>
+      </li>
+    </ol>
+
+    <aside class="fact">
+      <h4>🤯 Worth knowing</h4>
+      <p>Building big things out of a few simple solids is called <b>primitive modelling</b>, and it is how
+        an enormous amount of real 3D work still starts — game characters, film props, architectural
+        mock-ups. The shapes are the same four you have here. Nothing is being dumbed down for you; there is
+        just nothing else you need.</p>
+    </aside>
+
+    <section class="legend">
+      <h4>Two rules that catch everybody</h4>
+      <ul>
+        <li><span class="dot green"></span> <strong>Stacking needs the green ball</strong> — dragging the box
+          only ever slides a piece along the ground.</li>
+        <li><span class="dot blue"></span> <strong>Touching, then joining</strong> — Connect will not list a
+          piece that is floating a hair's breadth away.</li>
+      </ul>
+      <p class="legend-note">The Model Builder needs a normal screen — the hammer menu and the handles are
+        not available inside a VR headset, so choosing it from the VR menu is not offered. Build on a laptop
+        or tablet, then put the headset on to go and stand next to what you made.</p>
+    </section>
+
+    <nav class="cardnav no-print">
+      <a href="index.html">← all cards</a>
+      <a href="tutorials.html">build-along tutorials</a>
+      <a href="coding.html">next: the coding blocks →</a>
+    </nav>
+
+  </div>
+</main>
+
+<footer class="gfoot">
+  <div class="wrap">
+    <p><strong>Edusim: Web Edition</strong> — Hands-On Guide. Print as many as you like.</p>
+    <p class="fine">Open the app at <span class="mono">edisimwebv1-production.up.railway.app</span> · No account needed.</p>
+  </div>
+</footer>
+</body>
+</html>

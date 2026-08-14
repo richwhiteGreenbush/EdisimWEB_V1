@@ -16,6 +16,7 @@
     <a class="gbrand" href="index.html"><span>🌎</span> Hands-On Guide</a>
     <div class="gnav-links">
       <a href="index.html">All cards</a>
+      <a href="tutorials.html">Tutorials</a>
       <a href="teachers.html">For teachers</a>
       <a href="../index.html">Main site</a>
       <a class="gbtn" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">Open Edusim</a>
@@ -27,10 +28,11 @@
   <div class="wrap">
     <span class="hub-eyebrow">🍎 For teachers</span>
     <h1>Lesson plan ideas</h1>
-    <p>One per world, written for a single middle-school period. Each is a shape rather than a script — a hook,
-      time to explore, one thing built in code, and a way to end that is not "pack up". Pair each with the matching
-      student training card.</p>
-    <button class="printbtn no-print" onclick="window.print()">🖨️ Print all seven plans</button>
+    <p>Nine plans, each written for a single middle-school period: two on the core skills — building a model out of
+      primitives, and programming it with blocks — then one per world. Each is a shape rather than a script: a hook,
+      time to explore, one thing built, and a way to end that is not "pack up". Pair each with the matching student
+      card.</p>
+    <button class="printbtn no-print" onclick="window.print()">🖨️ Print all nine plans</button>
   </div>
 </header>
 
@@ -44,11 +46,78 @@
         <li><strong>Work saves itself</strong> in the browser on that device. Re-loading a world from the menu gives a clean copy — useful between classes.</li>
         <li><strong>Save World</strong> exports a file. Students can hand one in, or take one home to carry on.</li>
         <li><strong>Everything is editable.</strong> If a class wrecks a world, load it again from the menu; nothing is permanent.</li>
+        <li><strong>The Model Builder needs no files and no accounts.</strong> Four shapes under
+          <span class="key">Menu → Create Model</span>, a hammer icon on each piece, and one irreversible button
+          (<span class="key">Render Model</span>) at the end. Worth demonstrating that button once, on the board,
+          before anybody presses it themselves.</li>
+        <li><strong>Uploading a picture is optional but powerful.</strong> Apply Texture can wrap any .png or .jpg
+          from the device around a shape. If your setting restricts what students may upload, say so up front — the
+          colour swatches do the same job without it.</li>
         <li><strong>The blocks are Control, Motion and Looks</strong> — nine of them, no typing. A student who has met Scratch will be running in two minutes.</li>
         <li><strong>One gotcha worth teaching directly:</strong> <span class="key">move X/Y/Z</span> move along the world's
           axes, not the object's facing. Rotating something does not change where it will travel. It is a genuinely
           useful idea — the difference between turning and moving — and every quick start is built around it.</li>
       </ul>
+    </section>
+
+    <section class="lesson" style="--accent: #c2521f;">
+      <header class="lesson-head">
+        <h2><span>🔨</span> The Model Builder</h2>
+        <span class="subjects">Design &amp; Technology · Maths · Art</span>
+      </header>
+
+      <p class="objective"><strong>Objective.</strong> Students decompose a familiar object into simple solids, rebuild it to a stated scale, and explain the choices they made.</p>
+
+      <div class="lesson-grid">
+        <div><h4>1 · Hook <span class="mins">5 min</span></h4><p>Hold up a real object — a chair, a lamp, a water bottle. Ask the class to describe it using only the words cube, sphere, cylinder and pyramid. Write the parts list on the board. Nobody touches a computer yet.</p></div>
+        <div><h4>2 · Explore <span class="mins">10 min</span></h4><p>Everyone adds one of each of the four shapes and plays with the three drags — corner to stretch, middle to slide, green ball to lift. Set one task: make a cube into something a metre long and a hand thick.</p></div>
+        <div><h4>3 · Build <span class="mins">20 min</span></h4><p>Tutorial 1, the snowman, together to the end of stacking; then students build the object from the board on their own. Rule: fewest pieces that still reads as the thing.</p></div>
+        <div><h4>4 · Share <span class="mins">5–10 min</span></h4><p>Everyone renders. Walk the room: can you tell what each one is without being told? That is the whole assessment.</p></div>
+      </div>
+
+      <div class="lesson-cols">
+        <div>
+          <h4>Discussion questions</h4>
+          <ol class="qlist"><li>Which of your pieces is doing the most work — the one that makes it recognisable? Could you delete any others?</li><li>You are five feet tall in this world. How did you check your model was the right size, and how sure are you?</li><li>Render Model can't be undone. When should you press it, and what would you check first?</li></ol>
+        </div>
+        <div>
+          <h4>Skills used</h4>
+          <ul class="qslist"><li>Decomposition into primitives</li><li>Scale and proportion against a known reference</li><li>Sequencing an irreversible step last</li></ul>
+          <h4>Extension</h4>
+          <p>Give pairs the same five-piece budget and the same object. Compare results — identical constraints, different solutions, which is the point.</p>
+          <p class="cardlink no-print"><a href="builder.html">Student card: The Model Builder →</a> · <a href="tutorials.html">Tutorials 1–4 →</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="lesson" style="--accent: #6b3fa0;">
+      <header class="lesson-head">
+        <h2><span>🧩</span> The Coding Blocks</h2>
+        <span class="subjects">Computing · Maths</span>
+      </header>
+
+      <p class="objective"><strong>Objective.</strong> Students write and debug a looping sequence, predict the effect of changing one parameter, and explain why turning an object does not change where it travels.</p>
+
+      <div class="lesson-grid">
+        <div><h4>1 · Hook <span class="mins">5 min</span></h4><p>Program one object on the board with <span class="key">forever → rotate 15 degrees</span>. Then ask the class to predict what <span class="key">rotate 90</span> will look like before you run it. Take a vote.</p></div>
+        <div><h4>2 · Explore <span class="mins">10 min</span></h4><p>Everyone programs anything they like — a bench, a dinosaur, a model of their own — using only Control and Motion. Nothing to hand in; the point is to find the palette.</p></div>
+        <div><h4>3 · Build <span class="mins">20 min</span></h4><p>The patrol problem: make something go out and come back, facing the right way. Let them discover that a square route is impossible with these blocks, then unpack why.</p></div>
+        <div><h4>4 · Share <span class="mins">5–10 min</span></h4><p>Two or three demonstrations, then the duplicate block as a finale — one model becomes a row of them in front of the class.</p></div>
+      </div>
+
+      <div class="lesson-cols">
+        <div>
+          <h4>Discussion questions</h4>
+          <ol class="qlist"><li>Why can't you drive something round a square with these blocks? What single new block would fix it?</li><li>+10% twenty times is not +200%. Work out what it actually is, and explain why to someone who guessed 200.</li><li>A copy inherits everything except the duplicate block. What would happen if it didn't?</li></ol>
+        </div>
+        <div>
+          <h4>Coding used</h4>
+          <ul class="qslist"><li>forever · repeat · wait</li><li>move X/Y/Z · rotate</li><li>change size · change colour · duplicate</li></ul>
+          <h4>Extension</h4>
+          <p>Give the class a target — "make it look like it is breathing" — and no blocks. Let them work out the sequence themselves, then compare approaches.</p>
+          <p class="cardlink no-print"><a href="coding.html">Student card: The Coding Blocks →</a> · <a href="tutorials.html">Tutorials 5–6 →</a></p>
+        </div>
+      </div>
     </section>
 
     <section class="lesson" style="--accent: #2f8f5b;">

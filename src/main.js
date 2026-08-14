@@ -217,7 +217,15 @@ const programEditor = new ProgramEditor({ registry, worldStore, programManager, 
 
 const objectMenu = new ObjectMenu({ scene, camera, domElement: canvas, registry, menu, worldStore, programEditor });
 
-const stretchGizmo = new StretchGizmo({ scene, camera, canvas, registry, worldStore, groundHeightAt });
+const stretchGizmo = new StretchGizmo({
+  scene,
+  camera,
+  canvas,
+  registry,
+  worldStore,
+  groundHeightAt,
+  constructionManager,
+});
 
 const primitiveMenu = new PrimitiveMenu({ registry, menu, worldStore, stretchGizmo });
 

@@ -862,6 +862,17 @@ Things worth knowing before editing this:
   every target-phase canvas listener regardless of order, which is the only way a corner
   grab can be claimed away from the camera. It only stops propagation when the raycast
   actually hits, so a drag on empty ground still turns the view.
+- **The gizmo carries THREE grabs, and the third one is load-bearing.** Corner handles
+  stretch, the box body slides along the ground, and a green **lift handle** floating above
+  the box raises and lowers. Body-drag re-seats the piece on the terrain every frame — that
+  is what makes it follow hills — so without a separate vertical grab *nothing could ever be
+  stacked on anything else*: no head on a body, no snowman, no roof on walls. It was added
+  the moment the tutorials tried to describe building one. It clamps at ground level, since
+  a piece dragged below the terrain is invisible and unrecoverable.
+- **The lift handle and the hammer icon occupy the same airspace**, and a sprite with
+  `depthTest: false` draws straight over a mesh. `ConstructionManager.suppressId` is set by
+  the gizmo while a piece is active, so that piece loses its hammer until Done — which costs
+  nothing, since its menu is closed and the gizmo owns the pointer anyway.
 - **The corner maths relies on two invariants.** Every primitive geometry is authored
   centred on its own origin, and construction pieces are never rotated (nothing offers a
   rotate affordance) — so the world `Box3` centre *is* `mesh.position`, and holding the

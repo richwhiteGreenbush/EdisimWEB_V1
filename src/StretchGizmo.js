@@ -1,22 +1,29 @@
 import * as THREE from 'three';
-import { STRETCH_HANDLE_RADIUS, STRETCH_MIN_SIZE } from './config.js';
+import { STRETCH_HANDLE_RADIUS, STRETCH_MIN_SIZE, STRETCH_LIFT_GAP } from './config.js';
 
 const HANDLE_CORNERS = [];
 for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1]) HANDLE_CORNERS.push([sx, sy, sz]);
 
 // "Stretch to shape": a blue semi-transparent box with grabbable corners around one
-// construction piece. Dragging a corner stretches the piece; dragging the box itself
-// slides it along the ground, which is how two pieces are brought together to be
-// connected -- there is no other move affordance in construction mode, deliberately, so
-// arranging and shaping are one mode rather than two.
+// construction piece. It carries all three ways of positioning a piece, deliberately, so
+// that shaping and arranging are one mode rather than three:
+//
+//   corner handle (pale blue)  -- stretch, holding the opposite corner still
+//   the box body               -- slide along the ground
+//   lift handle (green, above) -- raise and lower
+//
+// The lift handle is not optional polish. Body-drag re-seats the piece on the terrain
+// every frame, so without a separate vertical grab nothing could ever be stacked on top
+// of anything else -- no head on a body, no snowman, no second storey.
 export class StretchGizmo {
-  constructor({ scene, camera, canvas, registry, worldStore, groundHeightAt }) {
+  constructor({ scene, camera, canvas, registry, worldStore, groundHeightAt, constructionManager }) {
     this.scene = scene;
     this.camera = camera;
     this.canvas = canvas;
     this.registry = registry;
     this.worldStore = worldStore;
     this.groundHeightAt = groundHeightAt;
+    this.constructionManager = constructionManager;
 
     this.activeId = null;
     this.group = null;
@@ -98,7 +105,29 @@ export class StretchGizmo {
       this.group.add(handle);
     }
 
+    // The lift handle, floating clear above the box in a different colour. Without it a
+    // piece can only ever slide about on the ground, and a model whose parts sit ON one
+    // another -- a head on a body, a snowman, anything stacked -- simply cannot be built.
+    // Dragging the box body is deliberately kept flat (it re-seats on the terrain each
+    // frame), so raising a piece needs its own grab point rather than a hidden modifier
+    // key nobody would find on a tablet.
+    this.liftHandle = new THREE.Mesh(
+      new THREE.SphereGeometry(STRETCH_HANDLE_RADIUS * 1.25, 16, 12),
+      new THREE.MeshBasicMaterial({ color: 0x3fb37f, depthTest: false })
+    );
+    this.liftHandle.renderOrder = 998;
+    this.liftHandle.userData.lift = true;
+    this.group.add(this.liftHandle);
+
+    this.liftStem = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 1, 0)]),
+      new THREE.LineBasicMaterial({ color: 0x3fb37f, depthTest: false, transparent: true, opacity: 0.8 })
+    );
+    this.liftStem.renderOrder = 997;
+    this.group.add(this.liftStem);
+
     this.scene.add(this.group);
+    if (this.constructionManager) this.constructionManager.suppressId = id;
     this.chip.hidden = false;
     this.sync();
   }
@@ -107,6 +136,7 @@ export class StretchGizmo {
     this.drag = null;
     this.activeId = null;
     this.chip.hidden = true;
+    if (this.constructionManager) this.constructionManager.suppressId = null;
     if (!this.group) return;
     // These overlay objects are not in the registry, so nothing else will dispose them.
     this.group.traverse((node) => {
@@ -117,6 +147,8 @@ export class StretchGizmo {
     this.group = null;
     this.bodyMesh = null;
     this.edges = null;
+    this.liftHandle = null;
+    this.liftStem = null;
     this.handles = [];
   }
 
@@ -152,6 +184,10 @@ export class StretchGizmo {
         centre.z + (sz * size.z) / 2
       );
     }
+
+    this.liftHandle.position.set(centre.x, box.max.y + STRETCH_LIFT_GAP, centre.z);
+    this.liftStem.position.set(centre.x, box.max.y, centre.z);
+    this.liftStem.scale.set(1, STRETCH_LIFT_GAP, 1);
   }
 
   tick() {
@@ -179,6 +215,28 @@ export class StretchGizmo {
     if (!box) return;
     const centre = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
+
+    // The lift handle floats clear of everything else, so nothing can be behind it.
+    if (this.raycaster.intersectObject(this.liftHandle, false)[0]) {
+      this.drag = {
+        mode: 'lift',
+        pointerId: e.pointerId,
+        startY: item.object3D.position.y,
+        // How far the piece's own base sits below its origin, so it can be stopped at
+        // the ground rather than sinking into it.
+        baseDrop: item.object3D.position.y - box.min.y,
+      };
+      // A vertical plane facing the camera: only the Y of the hit is used, so its exact
+      // depth does not matter, but it must not be edge-on to the view.
+      const flat = this.camera.getWorldDirection(new THREE.Vector3());
+      flat.y = 0;
+      if (flat.lengthSq() < 1e-6) flat.set(0, 0, -1);
+      this.plane.setFromNormalAndCoplanarPoint(flat.normalize().negate(), this.liftHandle.position);
+      this.raycaster.ray.intersectPlane(this.plane, this.hit);
+      this.drag.grabY = this.hit.y;
+      e.stopPropagation();
+      return;
+    }
 
     // Handles first: they sit ON the box's corners, so a hit on both is always meant
     // for the handle.
@@ -241,6 +299,17 @@ export class StretchGizmo {
 
     this.setPointer(e);
     if (!this.raycaster.ray.intersectPlane(this.plane, this.hit)) return;
+
+    if (this.drag.mode === 'lift') {
+      const { startY, grabY, baseDrop } = this.drag;
+      const object3D = item.object3D;
+      // Never below the ground it is standing on -- a buried piece looks like a bug and
+      // there is no way to get it back except by guessing where it went.
+      const floor = this.groundHeightAt(object3D.position.x, object3D.position.z) + baseDrop;
+      object3D.position.y = Math.max(floor, startY + (this.hit.y - grabY));
+      this.sync();
+      return;
+    }
 
     if (this.drag.mode === 'stretch') {
       const { corner, anchor, startSize, startScale } = this.drag;

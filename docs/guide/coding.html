@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Coding Blocks — Edusim Hands-On Guide</title>
+<meta name="description" content="A printable reference card for Edusim's drag-and-drop coding blocks: all nine blocks in three colours, what each one does, and the world-axis rule that catches everybody." />
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+<nav class="gnav no-print">
+  <div class="wrap">
+    <a class="gbrand" href="index.html"><span>🌎</span> Hands-On Guide</a>
+    <div class="gnav-links">
+      <a href="index.html">All cards</a>
+      <a href="tutorials.html">Tutorials</a>
+      <a href="teachers.html">For teachers</a>
+      <a href="../index.html">Main site</a>
+      <a class="gbtn" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">Open Edusim</a>
+    </div>
+  </div>
+</nav>
+
+<main class="card" style="--accent: #6b3fa0;">
+  <div class="wrap">
+
+    <header class="card-head">
+      <div class="ch-left">
+        <span class="ch-kicker">Skill Card B</span>
+        <h1><span class="ch-emoji">🧩</span> The Coding Blocks</h1>
+        <p class="ch-tag">Nine blocks, three colours, no typing. Works on anything in any world — including whatever you just built.</p>
+      </div>
+      <button class="printbtn no-print" onclick="window.print()">🖨️ Print this card</button>
+    </header>
+
+    <p class="howto"><strong>Getting there:</strong> click any object and choose
+      <span class="key">Program</span>. The palette is on the left, your stack goes on the right. Drag a
+      block across, drop it into the mouth of another block to nest it, and press
+      <span class="key">Save</span>. It starts immediately.</p>
+
+    <div class="shots">
+      <figure class="shot">
+        <img src="../assets/screenshots/07_program_editor.png" alt="The drag-and-drop block editor showing a repeat block containing a rotate block and a change-colour block." loading="lazy" />
+        <figcaption>Drag from the palette. Blocks with a mouth hold other blocks.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="shots/build_army.jpg" alt="Four identical robots in a row on grass with a green play button above the first." loading="lazy" />
+        <figcaption><b>repeat 3 → duplicate</b>: one robot became four.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="../assets/screenshots/06_object_menu.png" alt="Clicking an object opens a small floating menu with Size, Move, Program and Close." loading="lazy" />
+        <figcaption>Every object opens the same little menu. Program is the third one.</figcaption>
+      </figure>
+    </div>
+
+    <h2 class="sec">All nine blocks</h2>
+    <p class="sec-note">Three families, three colours. The colour on this card is the colour in the app.</p>
+
+    <section class="qs">
+      <div class="qs-head"><span class="qs-num" style="background:#ffab19">C</span>
+        <div><h3>Control <span class="swatch ctrl"></span></h3><p class="qs-target">When and how often things happen</p></div>
+      </div>
+      <ol class="blocks">
+        <li class="blk ctrl d0">repeat 10 times</li>
+        <li class="blk ctrl d0">forever</li>
+        <li class="blk ctrl d0">wait 1 seconds</li>
+        <li class="blk ctrl d0">duplicate 4 ft away</li>
+      </ol>
+      <p class="qs-tip">💡 <b>repeat</b> and <b>forever</b> have a mouth — whatever you drop inside is what
+        gets repeated. <b>duplicate</b> is the odd one out: it is the only block whose effect leaves the
+        object it is written on.</p>
+    </section>
+
+    <section class="qs">
+      <div class="qs-head"><span class="qs-num" style="background:#4c97ff">M</span>
+        <div><h3>Motion <span class="swatch motion"></span></h3><p class="qs-target">Where things go</p></div>
+      </div>
+      <ol class="blocks">
+        <li class="blk motion d0">move X by 1 feet</li>
+        <li class="blk motion d0">move Y by 1 feet</li>
+        <li class="blk motion d0">move Z by 1 feet</li>
+        <li class="blk motion d0">rotate 15 degrees</li>
+      </ol>
+      <p class="qs-tip">💡 <b>Y is up.</b> X and Z are the two flat directions. Negative numbers go the other
+        way — <b>move Y by -0.5</b> sinks something into the ground.</p>
+    </section>
+
+    <section class="qs">
+      <div class="qs-head"><span class="qs-num" style="background:#9966ff">L</span>
+        <div><h3>Looks <span class="swatch look"></span></h3><p class="qs-target">What things look like</p></div>
+      </div>
+      <ol class="blocks">
+        <li class="blk look d0">change size by 10 %</li>
+        <li class="blk look d0">change color to ▦</li>
+      </ol>
+      <p class="qs-tip">💡 Percentages <b>compound</b>. +10% twenty times over is not double — it is about
+        6.7 times bigger. And +10% followed by −10% does not take you back where you started. Try it.</p>
+    </section>
+
+    <h2 class="sec">Try these three</h2>
+    <ol class="more">
+      <li>
+        <h4>A proper patrol</h4>
+        <p>Out and back, forever, with an about-turn at each end so it always faces the way it is going.</p>
+        <ol class="blocks mini">
+          <li class="blk ctrl d0">forever</li>
+          <li class="blk ctrl d1">repeat 20 times</li>
+          <li class="blk motion d2">move X by 0.3 feet</li>
+          <li class="blk motion d1">rotate 180 degrees</li>
+          <li class="blk ctrl d1">repeat 20 times</li>
+          <li class="blk motion d2">move X by 0.3 feet</li>
+          <li class="blk motion d1">rotate 180 degrees</li>
+        </ol>
+      </li>
+      <li>
+        <h4>A slow heartbeat</h4>
+        <p>Grow a little, shrink a little, pause. Watch what the compounding does over a few minutes.</p>
+        <ol class="blocks mini">
+          <li class="blk ctrl d0">forever</li>
+          <li class="blk look d1">change size by 6 %</li>
+          <li class="blk ctrl d1">wait 0.4 seconds</li>
+          <li class="blk look d1">change size by -6 %</li>
+          <li class="blk ctrl d1">wait 0.4 seconds</li>
+        </ol>
+      </li>
+      <li>
+        <h4>A crowd of one thing</h4>
+        <p>Build a model, then let it copy itself into a row. Each copy lands one step further out.</p>
+        <ol class="blocks mini">
+          <li class="blk ctrl d0">repeat 5 times</li>
+          <li class="blk ctrl d1">duplicate 5 ft away</li>
+        </ol>
+      </li>
+    </ol>
+
+    <aside class="fact">
+      <h4>🤯 Worth knowing</h4>
+      <p>A copy made by <b>duplicate</b> inherits the whole program <em>except the duplicate block itself</em>.
+        That is on purpose: without it, <b>forever → duplicate</b> would double the world every few frames and
+        fill it in about four seconds. A spinning robot still makes spinning copies — they simply do not breed.</p>
+    </aside>
+
+    <section class="legend">
+      <h4>Block colours</h4>
+      <ul>
+        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, duplicate</li>
+        <li><span class="swatch motion"></span> <strong>Motion</strong> — move X / Y / Z, rotate</li>
+        <li><span class="swatch look"></span> <strong>Looks</strong> — change size, change colour</li>
+      </ul>
+      <p class="legend-note"><strong>One rule that catches everybody:</strong> <span class="key">move X</span>,
+        <span class="key">move Y</span> and <span class="key">move Z</span> slide an object along the
+        <em>world's</em> directions, not the direction it happens to be facing. Turning something does not
+        change which way it will then travel — which is why every patrol on these cards goes out and comes
+        back rather than driving in a circle. It is a real idea, not a limitation to apologise for: the
+        difference between <em>turning</em> and <em>moving</em> is exactly the thing that trips people up in
+        every robotics club in the world.</p>
+    </section>
+
+    <nav class="cardnav no-print">
+      <a href="builder.html">← the model builder</a>
+      <a href="index.html">all cards</a>
+      <a href="tutorials.html">build-along tutorials →</a>
+    </nav>
+
+  </div>
+</main>
+
+<footer class="gfoot">
+  <div class="wrap">
+    <p><strong>Edusim: Web Edition</strong> — Hands-On Guide. Print as many as you like.</p>
+    <p class="fine">Open the app at <span class="mono">edisimwebv1-production.up.railway.app</span> · No account needed.</p>
+  </div>
+</footer>
+</body>
+</html>
