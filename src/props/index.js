@@ -135,6 +135,7 @@ export const PROP_BUILDERS = {
   'park-pavilion': Park.parkPavilion,
   'park-pond': Park.parkPond,
   'pond-geese': Park.pondGeese,
+  'canada-goose': Park.canadaGoose,
   'stone-fountain': Park.stoneFountain,
   'stone-arch-bridge': Park.stoneArchBridge,
   'stone-steps': Park.stoneSteps,

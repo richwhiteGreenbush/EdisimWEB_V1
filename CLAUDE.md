@@ -759,6 +759,50 @@ to be a thing they can pick**, which is a placement decision as much as a modell
 saved with a pond is untouched; the Park asks for `geese: false` and places the pair
 separately on top.
 
+### The Canada goose, and how a small animal is built here
+
+`canadaGoose()` in `ParkProps.js` is the app's one detailed bird, modelled from a
+photograph, and `pondGeese()` is now just a pair of them swimming. It is registered as
+`canada-goose` too, so a single one can be placed anywhere. Both poses come out of the
+same builder: `pose: 'swim'` sinks the bird to its waterline and drops the legs, which is
+the one deliberate break from "origin is the base centre" — a floating bird has no base.
+
+**A species is a list of field marks, not a silhouette.** The first version was three
+spheres and it was unmistakably a duck-ish blob; what makes this one a Canada goose is,
+in order of how much each one buys: the **white chinstrap** (a strap, narrow at the eye
+and broadening to meet its twin under the throat — not a white disc on the cheek), a
+**long** black neck carrying the head a full body-depth clear of the back, a **pale**
+greyish breast that is nearly as light as the belly, and pale-edged feathers over a brown
+wing. Get the chinstrap and the neck length and it reads at fifty feet.
+
+Four things this hit that generalise to any small animal here:
+
+- **Feathers need something underneath them.** Rows of blocks on a bare flank read as
+  planks stacked on a goose. A solid wing *shell* supplies the mass and silhouette, and
+  the rows are laid over it purely for the barring — neither does the other's job.
+- **They have to OVERLAP.** The step along a row is half a feather, not a whole one;
+  spaced feather-to-feather the shell shows between them and it becomes a fence.
+- **A row sunk inside the shell is invisible**, and the shell is a flattened tube, so it
+  is widest at its middle and narrows toward the spine and the flank. Each row's lateral
+  offset is set to its own height, which is why they are not a straight line.
+- **The wing must start behind the shoulder.** The pale breast in front of it is a third
+  of what you see from the side; buried, the bird is a dark lump.
+
+Two mechanical notes. `gooseSolid()` bakes a full `Matrix4` into each geometry rather than
+using `mergeColored`'s per-part Euler+translate, because nearly every piece is a squashed
+sphere or a feather rolled about its own long axis — and because it lets a whole pair
+merge into **three** meshes total (matte underparts, matte plumage, glossy head) instead
+of three per bird. Its `about` argument is the pivot for that rotation and scale, and it
+is not optional decoration: the swept tubes are authored in absolute bird coordinates, so
+flattening the belly by 0.6 around the default origin does not squash the belly, it drops
+it half a foot through the floor.
+
+**Segment counts are deliberately low** — 4.4k triangles a bird, ~7.8k for the Park's
+pair, against 11.5k before a pass over every sweep and sphere. These are read from across
+a pond on a school Chromebook, where an 18-segment sweep and a 26-segment one are the same
+goose. The Park is 752 draw calls / 592k triangles / 3.5ms with the new pair in it, against
+748 / 578k before: two extra draw calls for the whole flock.
+
 ### Startup assets always re-fetch, never store bytes
 
 `StartupAssets.js`'s `loadLibraryModel()` / `loadTreeModel()` / `loadBillboardImage()`

@@ -14,6 +14,7 @@ import {
   randomIn,
   roughenSphere,
   relief,
+  taperedTube,
 } from '../PropKit.js';
 
 // "The Park" -- the default world, laid out like a large Olmsted-style city park in
@@ -929,13 +930,302 @@ export function parkPond({ radius = 22, seed = 23, geese = true } = {}) {
   }
   g.add(mergedMesh(reedParts, { roughness: 0.9, flatShading: true }));
 
-  // The geese are an option rather than a fixture -- see pondGeese() below.
-  if (geese) g.add(pondGeese({ spread: radius * 0.3 }).children[0]);
+  // The geese are an option rather than a fixture -- see pondGeese() below. The whole
+  // group goes in, not `.children[0]`: a goose is three merged meshes now (matte
+  // underparts, matte plumage, glossy head), not the single blob it used to be.
+  if (geese) g.add(pondGeese({ spread: radius * 0.3 }));
 
   return g;
 }
 
-// A pair of Canada geese, as their OWN placed object rather than part of the pond.
+// ---------------------------------------------------------------------------
+// Canada goose (Branta canadensis)
+// ---------------------------------------------------------------------------
+
+// Modelled from a photograph of a bird standing on grass, and the plumage below is
+// really a list of the field marks that photograph shows -- because those marks, not the
+// overall blob, are what makes a goose read as a goose:
+//
+//   * a GLOSSY BLACK head and neck, held tall, on a body that is not black at all
+//   * the white CHINSTRAP sweeping up the cheek from under the throat -- the single
+//     diagnostic mark of the species, and the first thing to get right
+//   * a barred brown back and folded wing, every feather edged in pale buff, tiled like
+//     roof slates so the whole flank reads as scalloped rather than as one brown patch
+//   * a pale greyish breast that is much lighter than instinct suggests
+//   * a WHITE undertail band under a short black tail, with the dark primaries crossing
+//     back over it
+//   * black webbed feet on short legs set well back under the body
+//
+// Sizes are real: 2.8ft to the crown of a standing bird, 2.7ft bill to tail. Against a
+// 5ft player that is a bird a child could look in the eye if it stood on a bench, which
+// is exactly the impression a real Canada goose makes and the old three-sphere version
+// (2.1ft, no wing, no chinstrap) entirely missed.
+const GOOSE = {
+  black: 0x17171c, // head and neck
+  bill: 0x121114,
+  chin: 0xf4f1e8, // chinstrap and cheek
+  back: 0x7d6a50, // mantle and wing coverts
+  backDark: 0x584a35, // secondaries and the folded primaries
+  edge: 0xd8c9ad, // the pale feather edging that makes the barring
+  edgeDark: 0xa8977c,
+  // Much paler than instinct says. On a real Canada goose the breast is a light greyish
+  // buff, not a mid brown -- it is nearly as light as the belly, and darkening it is the
+  // fastest way to turn the bird into an anonymous dark lump.
+  breast: 0xd4cbb7,
+  belly: 0xefeade, // belly and the undertail band
+  tail: 0x252220,
+  leg: 0x35332e,
+};
+
+// Pushes one solid into `list` with a full position/rotation/scale baked into the
+// geometry, so a whole flock can share one merge.
+//
+// mergeColored() applies only a Euler rotation and a translation per part, and a bird
+// needs neither of those things on their own: nearly every piece here is a squashed
+// sphere or a feather rolled about its own long axis, and a pair of geese wants to come
+// out as three draw calls TOTAL rather than three per bird. Baking a Matrix4 into a
+// geometry we already own costs nothing and buys both.
+// `about` is the point the rotation and scale happen around, and it is not optional
+// decoration: the swept tubes here are authored in ABSOLUTE bird coordinates, so
+// flattening the belly by 0.6 with the default origin pivot does not squash the belly,
+// it drops it half a foot through the floor. Solids built at the origin (every sphere and
+// every feather) need no pivot and pass `pos` instead.
+function gooseSolid(list, geometry, color, { pos = [0, 0, 0], rot = [0, 0, 0], scale = [1, 1, 1], about = null } = {}, base = null) {
+  let m = new THREE.Matrix4().compose(
+    new THREE.Vector3(pos[0], pos[1], pos[2]),
+    new THREE.Quaternion().setFromEuler(new THREE.Euler(rot[0], rot[1], rot[2])),
+    new THREE.Vector3(scale[0], scale[1], scale[2])
+  );
+  if (about) {
+    m = new THREE.Matrix4()
+      .makeTranslation(pos[0] + about[0], pos[1] + about[1], pos[2] + about[2])
+      .multiply(new THREE.Matrix4().compose(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Quaternion().setFromEuler(new THREE.Euler(rot[0], rot[1], rot[2])),
+        new THREE.Vector3(scale[0], scale[1], scale[2])
+      ))
+      .multiply(new THREE.Matrix4().makeTranslation(-about[0], -about[1], -about[2]));
+  }
+  geometry.applyMatrix4(base ? base.clone().multiply(m) : m);
+  list.push({ geometry, color });
+}
+
+// Builds one goose into the three shared part lists.
+//
+// THREE merges, not one, and not ten: matte plumage, matte pale underparts and a glossy
+// near-black head all need genuinely different roughness, and mergedMesh takes one
+// material per merge. Everything else -- every feather, the legs, the bill -- is sorted
+// into whichever of the three it belongs to.
+function gooseParts({ pale, plumage, dark }, { pose = 'stand', headTurn = 0, seed = 3, base = null } = {}) {
+  const rng = seededRandom(seed);
+  // A swimming bird is the same bird sunk to its waterline with its legs out of sight.
+  // The waterline is local y = 0 in that pose, which is the one deliberate break from the
+  // "origin is the base centre" house rule -- a floating bird has no base.
+  const lift = pose === 'swim' ? -1.28 : 0;
+  const put = (list, geometry, color, t = {}) =>
+    gooseSolid(list, geometry, color, { ...t, pos: [t.pos?.[0] ?? 0, (t.pos?.[1] ?? 0) + lift, t.pos?.[2] ?? 0] }, base);
+
+  // Low segment counts on purpose. These birds are read from across a pond on a school
+  // Chromebook, and at that distance a 26-segment sweep and an 18-segment one are the same
+  // goose -- the barring and the chinstrap carry the identification, not the smoothness of
+  // the belly. Trimming every sweep and sphere here took the pair from 11.5k triangles to
+  // under 8k for no visible change at any distance a student actually stands.
+  const tube = (points, radii, segments = 16) =>
+    taperedTube(points, radii, { tubularSegments: segments, radialSegments: 10 });
+
+  // --- body ------------------------------------------------------------------------
+  // One swept tube from the tail to the breast. A goose body is a teardrop with the fat
+  // end forward, which is a taper, so this is exactly what taperedTube is for -- a pair
+  // of spheres cannot make the long fall from breast to tail that gives the bird its line.
+  put(pale, tube(
+    [[0, 1.24, -1.28], [0, 1.22, -0.92], [0, 1.26, -0.45], [0, 1.32, 0.05], [0, 1.40, 0.52], [0, 1.52, 0.86], [0, 1.62, 1.04]],
+    [0.16, 0.35, 0.54, 0.60, 0.55, 0.40, 0.20], 18
+  ), GOOSE.breast, { scale: [0.96, 1.02, 1], about: [0, 1.32, 0] });
+
+  // Belly and undertail, both distinctly whiter than the flanks.
+  put(pale, tube(
+    [[0, 1.00, -0.80], [0, 0.96, -0.30], [0, 0.98, 0.20], [0, 1.06, 0.66]],
+    [0.24, 0.35, 0.37, 0.30], 12
+  ), GOOSE.belly, { scale: [1.12, 0.58, 1], about: [0, 1.00, 0] });
+  put(pale, new THREE.SphereGeometry(0.30, 10, 8), GOOSE.belly, {
+    pos: [0, 1.16, -1.14], scale: [0.86, 0.60, 1.20],
+  });
+
+  // --- folded wing and mantle ---------------------------------------------------------
+  // A SOLID wing shell first, feather rows laid over it second -- and that order is the
+  // fix for the first version of this bird, which had rows and nothing under them. Widely
+  // spaced blocks floating on a bare flank do not read as a wing; they read as planks
+  // stacked on a goose. The shell supplies the mass and the silhouette, the rows supply
+  // the barring, and neither does the other's job.
+  //
+  // The shell starts BEHIND the shoulder (z = 0.56) so the pale breast in front of it
+  // stays exposed. On the real bird that pale breast is a third of what you see from the
+  // side, and burying it under the wing is what made the first pass read as a dark lump.
+  for (const side of [-1, 1]) {
+    put(plumage, tube(
+      [[side * 0.30, 1.72, 0.56], [side * 0.42, 1.64, 0.16], [side * 0.45, 1.50, -0.32],
+        [side * 0.41, 1.36, -0.78], [side * 0.33, 1.28, -1.20]],
+      [0.20, 0.28, 0.29, 0.23, 0.13], 12
+    ), GOOSE.back, { scale: [0.62, 1, 1], about: [side * 0.40, 1.52, -0.3] });
+  }
+  // Mantle: a flattened cap along the spine, closing the gap between the two wings.
+  put(plumage, tube(
+    [[0, 1.80, 0.42], [0, 1.86, 0], [0, 1.82, -0.45], [0, 1.72, -0.85]],
+    [0.22, 0.26, 0.24, 0.18], 12
+  ), GOOSE.back, { scale: [1.5, 0.5, 1], about: [0, 1.82, 0] });
+
+  // Feather rows tiled over the shell like roof slates, each one a shallow ridge with a
+  // PALE BLOCK ON ITS TRAILING TIP. That pale tip is the whole trick: a Canada goose's
+  // back is not brown, it is brown feathers with buff edges, and painting it one flat
+  // brown loses the bird completely.
+  //
+  // They OVERLAP -- the step down the row is half a feather, not a whole one. Spaced
+  // feather-to-feather they came out as a row of separate slats with the shell showing
+  // between them, which is a fence and not plumage.
+  //
+  // The pale tip is translated in the feather's own space BEFORE the placement matrix, so
+  // it orbits into position with the feather instead of needing its own trigonometry.
+  // Each row's `x` is set to land just OUTSIDE the shell at that row's own height, which
+  // is why they are not a straight line: the shell is a flattened tube, so it is widest at
+  // its middle (y ~1.5) and narrows toward the spine and the flank. Set to a constant the
+  // rows sink inside the shell and the barring vanishes entirely -- the wing goes back to
+  // being one flat brown mass, which is the exact thing the rows exist to prevent.
+  const rows = [
+    { y: 1.80, x: 0.36, roll: 0.20, len: 0.34, w: 0.15, n: 6, z: 0.42, dz: -0.20, color: GOOSE.back, edge: GOOSE.edge },
+    { y: 1.66, x: 0.50, roll: 0.55, len: 0.38, w: 0.16, n: 6, z: 0.36, dz: -0.22, color: GOOSE.back, edge: GOOSE.edge },
+    { y: 1.50, x: 0.56, roll: 0.90, len: 0.42, w: 0.16, n: 6, z: 0.26, dz: -0.24, color: GOOSE.backDark, edge: GOOSE.edge },
+    { y: 1.35, x: 0.52, roll: 1.15, len: 0.46, w: 0.16, n: 5, z: 0.10, dz: -0.26, color: GOOSE.backDark, edge: GOOSE.edgeDark },
+  ];
+  for (const side of [-1, 1]) {
+    for (const row of rows) {
+      for (let i = 0; i < row.n; i++) {
+        const len = row.len * (1 + i * 0.05);
+        const t = {
+          pos: [side * row.x, row.y - i * 0.012, row.z + row.dz * i],
+          rot: [0.20, side * -0.06, side * row.roll],
+        };
+        put(plumage, new THREE.BoxGeometry(row.w, 0.04, len), row.color, t);
+        const tip = new THREE.BoxGeometry(row.w * 0.94, 0.05, len * 0.30);
+        tip.translate(0, 0, -len * 0.35);
+        put(plumage, tip, row.edge, t);
+      }
+    }
+
+    // The folded primaries: three long dark quills crossing back OVER the tail, which is
+    // what gives a standing goose its pointed stern. Without them the bird ends bluntly.
+    for (let i = 0; i < 3; i++) {
+      put(plumage, new THREE.BoxGeometry(0.09, 0.038, 0.95), GOOSE.backDark, {
+        pos: [side * (0.26 - i * 0.05), 1.40 - i * 0.06, -1.03 - i * 0.04],
+        rot: [0.28, side * -0.04, side * (1.35 + i * 0.08)],
+      });
+    }
+  }
+
+  // Short black tail, fanned and dropping away at the rear.
+  for (let i = 0; i < 5; i++) {
+    const t = (i - 2) / 2;
+    put(plumage, new THREE.BoxGeometry(0.13, 0.04, 0.50), GOOSE.tail, {
+      pos: [t * 0.22, 1.16 - Math.abs(t) * 0.02, -1.42],
+      rot: [0.30, t * 0.20, t * 0.14],
+    });
+  }
+
+  // --- neck, head, bill --------------------------------------------------------------
+  // A LONG neck, and long is the point. A Canada goose carries its head a full body-depth
+  // clear of its back; shortened to something that looks reasonable on paper the bird
+  // reads as hunched, which is a sick goose or a duck and not this one.
+  put(dark, tube(
+    [[0, 1.50, 0.68], [0, 1.78, 0.76], [0, 2.10, 0.84], [0, 2.44, 0.90], [0, 2.66, 0.96]],
+    [0.30, 0.22, 0.175, 0.155, 0.155], 16
+  ), GOOSE.black);
+
+  // Head turn pivots at the TOP of the neck, not at the shoulders -- a goose swivels its
+  // head on the neck it is already holding, and pivoting lower swings the whole bird.
+  const pivot = new THREE.Vector3(0, 2.66 + lift, 0.96);
+  const headBase = new THREE.Matrix4()
+    .makeTranslation(pivot.x, pivot.y, pivot.z)
+    .multiply(new THREE.Matrix4().makeRotationY(headTurn))
+    .multiply(new THREE.Matrix4().makeTranslation(-pivot.x, -pivot.y, -pivot.z));
+  const headM = base ? base.clone().multiply(headBase) : headBase;
+  const head = (list, geometry, color, t = {}) =>
+    gooseSolid(list, geometry, color, { ...t, pos: [t.pos?.[0] ?? 0, (t.pos?.[1] ?? 0) + lift, t.pos?.[2] ?? 0] }, headM);
+
+  head(dark, new THREE.SphereGeometry(0.25, 12, 9), GOOSE.black, {
+    pos: [0, 2.82, 1.05], scale: [0.84, 0.92, 1.16],
+  });
+
+  // THE CHINSTRAP. Not a white disc on the cheek: it is a strap, narrow up by the eye and
+  // broadening down to meet its opposite number under the throat, and getting that sweep
+  // is most of what makes the species identifiable at fifty feet.
+  //
+  // It goes in the PALE merge, not the dark one -- it is the same matte white as the
+  // belly, and a glossy chinstrap reads as wet plastic.
+  for (const side of [-1, 1]) {
+    head(pale, new THREE.SphereGeometry(0.22, 10, 8), GOOSE.chin, {
+      pos: [side * 0.163, 2.70, 1.02], rot: [0, 0, side * 0.34], scale: [0.26, 0.54, 0.66],
+    });
+  }
+  head(pale, new THREE.SphereGeometry(0.20, 10, 8), GOOSE.chin, {
+    pos: [0, 2.62, 1.01], scale: [0.78, 0.28, 0.78],
+  });
+
+  head(dark, tube(
+    [[0, 2.80, 1.26], [0, 2.79, 1.38], [0, 2.77, 1.49], [0, 2.76, 1.545]],
+    [0.10, 0.088, 0.062, 0.028], 8
+  ), GOOSE.bill, { scale: [1.3, 0.72, 1], about: [0, 2.78, 1.4] });
+
+  // Eyes, in the glossy merge so they catch a highlight. A dark eye on a black head is
+  // almost invisible as diffuse colour and entirely present as a specular glint, which is
+  // exactly how it looks on the real bird.
+  for (const side of [-1, 1]) {
+    head(dark, new THREE.SphereGeometry(0.034, 6, 5), 0x241c14, { pos: [side * 0.192, 2.86, 1.16] });
+  }
+
+  // --- legs -----------------------------------------------------------------------------
+  if (pose !== 'swim') {
+    for (const side of [-1, 1]) {
+      const splay = side * randomIn(rng, 0.9, 1.06);
+      put(dark, tube(
+        [[splay * 0.21, 1.05, -0.02], [splay * 0.20, 0.72, 0.02], [splay * 0.19, 0.36, 0.06], [splay * 0.185, 0.09, 0.09]],
+        [0.085, 0.070, 0.060, 0.055], 8
+      ), GOOSE.leg);
+      // Webbed foot: one flattened paddle with three toes laid over it. A goose's foot is
+      // most of what it stands on and reads clearly from a child's eye height.
+      put(dark, new THREE.SphereGeometry(0.22, 8, 6), GOOSE.leg, {
+        pos: [splay * 0.19, 0.045, 0.20], rot: [0, side * 0.12, 0], scale: [0.62, 0.20, 1.02],
+      });
+      for (const toe of [-1, 0, 1]) {
+        put(dark, new THREE.BoxGeometry(0.05, 0.05, 0.40), GOOSE.leg, {
+          pos: [splay * 0.19 + toe * 0.085, 0.062, 0.24],
+          rot: [0, side * 0.12 + toe * 0.26, 0],
+        });
+      }
+    }
+  }
+}
+
+// A single Canada goose, standing or swimming, as its own placed object.
+export function canadaGoose({ pose = 'stand', headTurn = 0, seed = 3 } = {}) {
+  const lists = { pale: [], plumage: [], dark: [] };
+  gooseParts(lists, { pose, headTurn, seed });
+  return group(...gooseMeshes(lists, seed));
+}
+
+// The three merges every goose (or flock of them) comes out as.
+function gooseMeshes({ pale, plumage, dark }, seed) {
+  return [
+    // A fine crosshatch bump on both matte merges. Down is not smooth, and a goose lit by
+    // one sun with a perfectly smooth breast reads as a porcelain ornament.
+    mergedMesh(pale, { roughness: 0.84, ...relief('weave', { seed: seed + 11, repeat: 9, strength: 0.16 }) }),
+    mergedMesh(plumage, { roughness: 0.74, ...relief('weave', { seed: seed + 5, repeat: 7, strength: 0.24 }) }),
+    // The head and neck are the one genuinely SHINY part of this bird -- black plumage
+    // with a visible sheen, plus the bill and the eyes.
+    mergedMesh(dark, { roughness: 0.40, metalness: 0.14 }),
+  ];
+}
+
+// A pair of Canada geese on the water, as their OWN placed object rather than part of
+// the pond.
 //
 // They were built into parkPond(), which meant clicking one selected the entire pond --
 // so "program the geese to paddle about" moved the water, the bank and the cattails with
@@ -943,29 +1233,25 @@ export function parkPond({ radius = 22, seed = 23, geese = true } = {}) {
 // pick, and that is a placement decision, not a modelling one. parkPond keeps drawing
 // its own pair by default so every world already saved with a pond is unchanged; the
 // Park now asks for `geese: false` and places this separately on top.
+//
+// Both birds are built into ONE set of three merges rather than being two groups of
+// three, which is why gooseParts() takes a matrix -- a pair costs the same three draw
+// calls a single bird does.
 export function pondGeese({ spread = 6.6 } = {}) {
-  const parts = [];
-  for (const [gx, gz, turn] of [[0, spread * 0.6, 0.6], [spread * 0.53, -spread * 0.33, -1.1]]) {
-    const bodyLength = 2.0;
-    parts.push({
-      geometry: new THREE.SphereGeometry(0.62, 12, 9),
-      rotation: [0, turn, 0],
-      position: [gx, 0.35, gz],
-      color: 0x6b625a,
-    });
-    parts.push({
-      geometry: new THREE.CylinderGeometry(0.13, 0.17, 1.5, 9),
-      rotation: [0.25, turn, 0],
-      position: [gx + Math.sin(turn) * bodyLength * 0.35, 1.15, gz + Math.cos(turn) * bodyLength * 0.35],
-      color: 0x1d1d1d,
-    });
-    parts.push({
-      geometry: new THREE.SphereGeometry(0.26, 10, 7),
-      position: [gx + Math.sin(turn) * bodyLength * 0.5, 1.85, gz + Math.cos(turn) * bodyLength * 0.5],
-      color: 0x1d1d1d,
-    });
+  const lists = { pale: [], plumage: [], dark: [] };
+  // Kept at the offsets and headings the old pair used, so a saved world's geese are
+  // where the student left them; only the bird itself has changed.
+  const birds = [
+    { x: 0, z: spread * 0.6, turn: 0.6, headTurn: -0.5, seed: 3 },
+    { x: spread * 0.53, z: -spread * 0.33, turn: -1.1, headTurn: 0.35, seed: 8 },
+  ];
+  for (const bird of birds) {
+    const base = new THREE.Matrix4()
+      .makeTranslation(bird.x, -0.15, bird.z)
+      .multiply(new THREE.Matrix4().makeRotationY(bird.turn));
+    gooseParts(lists, { pose: 'swim', headTurn: bird.headTurn, seed: bird.seed, base });
   }
-  return group(mergedMesh(parts, { roughness: 0.9 }));
+  return group(...gooseMeshes(lists, 3));
 }
 
 // Tiered stone fountain. The falling water is a pair of thin translucent cones --
