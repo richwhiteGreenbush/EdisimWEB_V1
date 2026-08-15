@@ -7,6 +7,7 @@ import {
   sphere,
   group,
   mergedMesh,
+  mergeColored,
   canvasTexture,
   signPanel,
   pediment,
@@ -147,20 +148,254 @@ export function floweringTree({ height = 16, seed = 5, blossomColor = 0xf2a8c4 }
   return g;
 }
 
-// A planted bed: low soil mound, clipped edging, and a scatter of flower heads on
-// stems. Everything merges to one geometry, so a bed of 120 blooms costs one call.
+// ---------------------------------------------------------------------------
+// Flowers
+// ---------------------------------------------------------------------------
+
+// Balloon flower (Platycodon grandiflorus), modelled from a photograph: a five-pointed
+// star of fused petals, veined with darker radiating lines, a paler throat, and five
+// stamens round a short style in the middle.
+//
+// The whole design turns on ONE idea -- the shape is geometry and everything else is a
+// texture, MULTIPLIED by a per-flower vertex colour. That is normally the trap this
+// codebase warns about (a material carrying both `map` and `vertexColors` multiplies the
+// two, which is what turned the bear dens black), and here it is the entire point:
+//
+//   * the map is a near-WHITE veined disc, so it carries pattern and no colour of its own
+//   * the vertex colour carries the hue, and it is different on every single flower
+//
+// So one 256px canvas and one merge give a whole drift where no two blooms are the same
+// colour, each with correct veining, at ten triangles a head. Painting the veins as
+// geometry instead would be fifteen extra solids per flower across ~740 of them.
+const FLOWER_PALETTE = [
+  0x7a63d8, // the reference violet-blue
+  0x5f4fc4, // deeper violet
+  0x9a86e8, // pale lilac
+  0x4560c8, // blue
+  0xdcd6f0, // near white
+  0xe2aede, // blush pink
+  0xd76aa6, // magenta
+  0xf0e4a0, // cream
+];
+
+// A flower head: a five-pointed star dished into a shallow cup, with UVs recomputed from
+// the final outline so the veins run straight down each petal.
+//
+// Built by pushing the rim vertices of a 10-segment CircleGeometry alternately out to the
+// tips and in to the notches -- which is 10 triangles, FEWER than the 5x4 sphere this
+// replaces, so a more detailed flower is also a cheaper one. The UVs have to be rewritten
+// afterwards: CircleGeometry lays them out for the circle it started as, and leaving them
+// alone squeezes the vein texture into the notches.
+// `notch` is how far in the gaps between the petals cut. 0.66, not the 0.58 this started
+// at: a balloon flower's petals are FUSED for half their length, so a deep notch turns the
+// bloom into a starfish. The shallower cut is also what gives each petal enough width to
+// show its veins.
+function flowerHeadGeometry({ points = 5, notch = 0.66, dish = 0.30 } = {}) {
+  const segments = points * 2;
+  const geometry = new THREE.CircleGeometry(1, segments);
+  const pos = geometry.attributes.position;
+  const uv = geometry.attributes.uv;
+
+  for (let i = 1; i < pos.count; i++) {
+    const s = (i - 1) % segments;
+    const tip = s % 2 === 0;
+    const r = tip ? 1 : notch;
+    const a = (s / segments) * Math.PI * 2;
+    const x = Math.cos(a) * r;
+    const y = Math.sin(a) * r;
+    // The rim lifts as it goes out, so the flower is a shallow bowl and not a paper cut-out
+    // -- it is what catches a different amount of light on each petal as the sun moves.
+    pos.setXYZ(i, x, y, tip ? 0 : -dish * 0.35);
+    uv.setXY(i, x * 0.5 + 0.5, y * 0.5 + 0.5);
+  }
+  pos.setZ(0, -dish);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+// The veined disc every flower head is painted with. Greyscale and deliberately averaging
+// near white, so it multiplies a vertex colour without shifting its hue -- the same
+// reasoning as SurfaceTextures.neutralized(), reached from the other direction.
+function flowerFaceTexture(seed = 5) {
+  return canvasTexture(256, 256, (ctx, w, h) => {
+    const cx = w / 2;
+    const cy = h / 2;
+    const R = w / 2;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+
+    // Throat: deeper toward the middle, then a pale ring where the petals fuse. The
+    // photograph's flowers are visibly darker down the funnel and lighter round the eye.
+    const throat = ctx.createRadialGradient(cx, cy, R * 0.04, cx, cy, R * 0.55);
+    throat.addColorStop(0, 'rgba(112,104,142,0.78)');
+    throat.addColorStop(0.4, 'rgba(165,160,190,0.44)');
+    throat.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = throat;
+    ctx.fillRect(0, 0, w, h);
+
+    // Veins: one strong midrib down each petal plus a fan of finer ones either side, all
+    // radiating from the centre. This is the single most identifying thing about the
+    // flower after its outline.
+    const rng = seededRandom(seed);
+    const petals = 5;
+    for (let p = 0; p < petals; p++) {
+      const mid = (p / petals) * Math.PI * 2 - Math.PI / 2;
+      // Deliberately FAT in texture space. A bloom is about thirty screen pixels across
+      // when a student is standing over it, so a vein drawn three pixels wide on a 256px
+      // canvas lands at well under one screen pixel and mips away to nothing -- which is
+      // exactly what happened on the first pass: the flowers came out as flat coloured
+      // stars with no veining at all. On the real flower these lines are bold.
+      const vein = (angle, width, alpha, reach) => {
+        ctx.strokeStyle = `rgba(74,68,112,${alpha})`;
+        ctx.lineWidth = width;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(angle) * R * 0.12, cy + Math.sin(angle) * R * 0.12);
+        // A slight bow, so the veins splay toward the petal edge instead of running as
+        // spokes -- spokes read as a dartboard.
+        const bow = randomIn(rng, -0.09, 0.09);
+        ctx.quadraticCurveTo(
+          cx + Math.cos(angle + bow) * R * reach * 0.6,
+          cy + Math.sin(angle + bow) * R * reach * 0.6,
+          cx + Math.cos(angle + bow * 2.2) * R * reach,
+          cy + Math.sin(angle + bow * 2.2) * R * reach
+        );
+        ctx.stroke();
+      };
+      vein(mid, 12, 0.62, 0.98);
+      for (const off of [-0.30, -0.16, 0.16, 0.30]) vein(mid + off, 7, 0.46, 0.9);
+      for (const off of [-0.44, 0.44]) vein(mid + off, 4.5, 0.30, 0.72);
+    }
+
+    // Five stamens round a short style. Drawn very light so that whatever hue multiplies
+    // through them, the centre still comes out as the palest part of the flower -- which
+    // is what the eye reads as "stamens" at any distance where the shape is not resolvable.
+    // Small. Five filaments reaching a quarter of the way out, not the fat white star the
+    // first pass drew -- at 6px wide and 30% reach they merged into one white eye that was
+    // the loudest thing on every bloom in the meadow.
+    for (let s = 0; s < 5; s++) {
+      const a = (s / 5) * Math.PI * 2 + 0.6;
+      ctx.strokeStyle = 'rgba(255,252,238,0.8)';
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a) * R * 0.05, cy + Math.sin(a) * R * 0.05);
+      ctx.lineTo(cx + Math.cos(a) * R * 0.23, cy + Math.sin(a) * R * 0.23);
+      ctx.stroke();
+    }
+    ctx.fillStyle = 'rgba(228,234,250,0.9)';
+    ctx.beginPath();
+    ctx.arc(cx, cy, R * 0.055, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+// The material a merge of flower heads wants. DoubleSide because half the flowers in a
+// drift are tilted away from wherever the student is standing, and a one-sided petal seen
+// from behind is a hole.
+function flowerHeadMaterial(seed) {
+  return {
+    map: flowerFaceTexture(seed),
+    vertexColors: true,
+    side: THREE.DoubleSide,
+    roughness: 0.72,
+  };
+}
+
+// Pre-builds the handful of plant shapes a drift is assembled from.
+//
+// A drift is ~170 plants and the Park holds five drifts and beds, so the FIRST version of
+// this -- a fresh stem, two fresh leaves and a fresh head per plant -- allocated about
+// 3,700 geometries and handed mergeColored 2,960 parts to clone. It looked right and it
+// tripled the Park's load time to three seconds, which on the machines this has to run on
+// is closer to ten.
+//
+// Two changes fix it without touching a single visible thing:
+//
+//  1. Eight SIZE BUCKETS instead of a continuous range. Nobody can tell 170 continuously
+//     varied stem heights from 170 drawn out of eight, once each one also has its own
+//     random lean, yaw and colour.
+//  2. The stem and its two leaves are merged into ONE stalk geometry up front, so every
+//     plant costs mergeColored exactly two parts -- a stalk and a head -- which is what
+//     the old sphere-on-a-stick cost. Load time comes back to where it was.
+function flowerTemplates({ minStem, maxStem, headScale = 1, steps = 8 }) {
+  const stalks = [];
+  const heads = [];
+  for (let i = 0; i < steps; i++) {
+    const v = i / (steps - 1);
+    const stem = minStem + v * (maxStem - minStem);
+    const leaf = (a, at) => ({
+      geometry: new THREE.PlaneGeometry(0.13, 0.30),
+      rotation: [-1.15, a, 0],
+      position: [Math.cos(a) * 0.09, stem * at, Math.sin(a) * 0.09],
+      color: 0xffffff,
+    });
+    stalks.push(mergeColored([
+      {
+        geometry: new THREE.CylinderGeometry(0.022, 0.032, stem, 3, 1, true),
+        position: [0, stem / 2, 0],
+        color: 0xffffff,
+      },
+      leaf(0.9 + i * 0.4, 0.30),
+      leaf(3.6 + i * 0.4, 0.62),
+    ]));
+    const head = flowerHeadGeometry();
+    const r = (0.15 + v * 0.13) * headScale;
+    head.scale(r, r, r * 0.9);
+    heads.push(head);
+    stalks[i].userData = { stem };
+  }
+  return { stalks, heads, steps };
+}
+
+// Pushes one whole plant -- stalk and tilted head -- into the two part lists.
+//
+// Size and colour are both randomised, and size and vigour are the SAME roll on purpose: a
+// taller stem carries a bigger bloom. Rolled independently the drift comes out as big
+// flowers on stubby stems next to pinheads on tall ones, which reads as broken rather than
+// as varied.
+function flowerPlant({ heads, stems }, { x, y = 0, z, rng, palette, templates }) {
+  const i = Math.floor(rng() * templates.steps);
+  const stalk = templates.stalks[i];
+
+  const green = new THREE.Color(0x4a8040).offsetHSL(randomIn(rng, -0.03, 0.03), 0, randomIn(rng, -0.06, 0.08));
+  stems.push({
+    geometry: stalk,
+    rotation: [0, rng() * Math.PI * 2, 0],
+    position: [x, y, z],
+    color: green.getHex(),
+  });
+
+  // Per-flower hue jitter on top of the palette pick. Eight flat colours across 170
+  // flowers still reads as eight kinds of plastic; nudging hue, saturation and lightness a
+  // little on each one is what turns a palette into a meadow.
+  const base = new THREE.Color(palette[Math.floor(rng() * palette.length)]);
+  base.offsetHSL(randomIn(rng, -0.035, 0.035), randomIn(rng, -0.10, 0.06), randomIn(rng, -0.07, 0.07));
+
+  heads.push({
+    geometry: templates.heads[i],
+    // -PI/2 lays the star flat; the extra tilt leans it over, and the yaw that follows
+    // swings the lean to a random compass point. Balloon flowers face up and out, never
+    // all the same way.
+    rotation: [-Math.PI / 2 + randomIn(rng, 0.05, 0.62), rng() * Math.PI * 2, 0],
+    position: [x, y + stalk.userData.stem, z],
+    color: base.getHex(),
+  });
+}
+
+// A planted bed: low soil mound, clipped edging, and a scatter of balloon flowers.
 export function flowerBed({ width = 10, depth = 6, seed = 7, palette } = {}) {
   const rng = seededRandom(seed);
-  const colors = palette || [0xe0455f, 0xf2a541, 0xf5f5f5, 0x8a5cf5, 0xf2d541, 0xe8709a];
-  const parts = [];
+  const colors = palette || FLOWER_PALETTE;
+  const stems = [];
+  const heads = [];
 
-  parts.push({ geometry: new THREE.BoxGeometry(width, 0.5, depth), position: [0, 0.25, 0], color: 0x3d2f22 });
-  // Stone edging blocks.
+  stems.push({ geometry: new THREE.BoxGeometry(width, 0.5, depth), position: [0, 0.25, 0], color: 0x3d2f22 });
   const edging = Math.round(width / 1.2);
   for (let i = 0; i < edging; i++) {
     const x = -width / 2 + (width / edging) * (i + 0.5);
     for (const sz of [-1, 1]) {
-      parts.push({
+      stems.push({
         geometry: new THREE.BoxGeometry(width / edging - 0.06, 0.7, 0.5),
         position: [x, 0.35, (sz * depth) / 2],
         color: 0x8a8073,
@@ -168,52 +403,47 @@ export function flowerBed({ width = 10, depth = 6, seed = 7, palette } = {}) {
     }
   }
 
+  const templates = flowerTemplates({ minStem: 0.8, maxStem: 1.7, headScale: 1.15 });
   const blooms = Math.round(width * depth * 2.6);
   for (let i = 0; i < blooms; i++) {
-    const x = randomIn(rng, -width / 2 + 0.7, width / 2 - 0.7);
-    const z = randomIn(rng, -depth / 2 + 0.7, depth / 2 - 0.7);
-    const stem = randomIn(rng, 0.8, 1.7);
-    parts.push({
-      geometry: new THREE.CylinderGeometry(0.03, 0.04, stem, 4),
-      position: [x, 0.5 + stem / 2, z],
-      color: 0x3f7a3a,
-    });
-    parts.push({
-      geometry: new THREE.SphereGeometry(randomIn(rng, 0.16, 0.26), 6, 5),
-      position: [x, 0.5 + stem, z],
-      color: colors[Math.floor(rng() * colors.length)],
+    flowerPlant({ heads, stems }, {
+      x: randomIn(rng, -width / 2 + 0.7, width / 2 - 0.7),
+      y: 0.5,
+      z: randomIn(rng, -depth / 2 + 0.7, depth / 2 - 0.7),
+      rng, palette: colors, templates,
     });
   }
 
-  return group(mergedMesh(parts, { roughness: 0.9, flatShading: true }));
+  return group(
+    mergedMesh(stems, { roughness: 0.9, flatShading: true }),
+    mergedMesh(heads, flowerHeadMaterial(seed))
+  );
 }
 
-// A loose drift of meadow wildflowers with no bed around it -- for the edges of the
-// great lawn, where a formal bed would look wrong.
+// A loose drift of meadow flowers with no bed around it -- for the edges of the great
+// lawn, where a formal bed would look wrong.
 export function wildflowers({ radius = 7, count = 150, seed = 11, palette } = {}) {
   const rng = seededRandom(seed);
-  const colors = palette || [0xf2d541, 0xf5f5f5, 0x8a5cf5, 0xe0455f, 0xf2a541];
-  const parts = [];
+  const colors = palette || FLOWER_PALETTE;
+  const stems = [];
+  const heads = [];
 
+  const templates = flowerTemplates({ minStem: 0.6, maxStem: 1.4 });
   for (let i = 0; i < count; i++) {
     const angle = rng() * Math.PI * 2;
+    // sqrt keeps the scatter even across the disc instead of piling up in the middle.
     const distance = Math.sqrt(rng()) * radius;
-    const x = Math.cos(angle) * distance;
-    const z = Math.sin(angle) * distance;
-    const stem = randomIn(rng, 0.6, 1.4);
-    parts.push({
-      geometry: new THREE.CylinderGeometry(0.025, 0.03, stem, 4),
-      position: [x, stem / 2, z],
-      color: 0x4a8040,
-    });
-    parts.push({
-      geometry: new THREE.SphereGeometry(randomIn(rng, 0.11, 0.2), 5, 4),
-      position: [x, stem, z],
-      color: colors[Math.floor(rng() * colors.length)],
+    flowerPlant({ heads, stems }, {
+      x: Math.cos(angle) * distance,
+      z: Math.sin(angle) * distance,
+      rng, palette: colors, templates,
     });
   }
 
-  return group(mergedMesh(parts, { roughness: 0.9, flatShading: true }));
+  return group(
+    mergedMesh(stems, { roughness: 0.9, flatShading: true }),
+    mergedMesh(heads, flowerHeadMaterial(seed))
+  );
 }
 
 // ---------------------------------------------------------------------------

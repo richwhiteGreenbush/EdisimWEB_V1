@@ -759,6 +759,54 @@ to be a thing they can pick**, which is a placement decision as much as a modell
 saved with a pond is untouched; the Park asks for `geese: false` and places the pair
 separately on top.
 
+### Flowers: geometry for the shape, a texture for everything else
+
+`flowerBed()` and `wildflowers()` both plant the same thing — a balloon flower
+(*Platycodon grandiflorus*) modelled from a photograph: a five-pointed star of fused
+petals with darker radiating veins, a deeper throat, and five pale stamens round a short
+style. They were spheres on sticks.
+
+**The whole design turns on one idea: the shape is geometry and everything else is a
+texture MULTIPLIED by a per-flower vertex colour.** That is normally the trap this file
+warns about — a material carrying both `map` and `vertexColors` multiplies the two, which
+is what turned the bear dens black — and here it is the entire point. The map is a
+near-*white* veined disc, so it carries pattern and no colour of its own; the vertex
+colour carries the hue and is different on every bloom. One 256px canvas and one merge
+therefore give a drift where no two flowers share a colour, each correctly veined. Painting
+veins as geometry would be fifteen extra solids on each of ~740 flowers.
+
+Four things worth keeping:
+
+- **A more detailed flower is a CHEAPER one here.** The head is a 10-segment
+  `CircleGeometry` with alternate rim vertices pushed out to the tips — ten triangles,
+  against roughly forty for the 5×4 sphere it replaces. The Park's triangle count went
+  *down* by ~48k. Its UVs must be rewritten from the final outline, though: `CircleGeometry`
+  lays them out for the circle it started as, and leaving them squeezes the veins into the
+  notches.
+- **Draw the veins FAT in texture space.** A bloom is ~30 screen pixels across with a
+  student standing over it, so a 3px line on a 256px canvas lands under one screen pixel
+  and mips to nothing — the first pass came out as flat coloured stars with no veining at
+  all.
+- **`notch: 0.66`, not 0.58.** A balloon flower's petals are fused for half their length;
+  a deep notch makes a starfish, and narrow petals have no room to show veins.
+- **Size and colour are randomised, but height and bloom size are the SAME roll.** Rolled
+  independently a drift is big flowers on stubby stems beside pinheads on tall ones, which
+  reads as broken rather than varied. Hue, saturation and lightness are then jittered per
+  flower on top of the palette pick — eight flat colours across 170 flowers still reads as
+  eight kinds of plastic.
+
+`flowerTemplates()` pre-builds eight size buckets, each with its stem and two leaves
+already merged into one stalk geometry, so **every plant costs `mergeColored` exactly two
+parts** — a stalk and a head, the same as the old sphere-on-a-stick. The first version
+built a fresh stem, two leaves and a head per plant: ~3,700 geometries and 2,960 parts for
+the Park. Nobody can tell 170 continuously varied stem heights from 170 drawn out of eight
+once each also has its own lean, yaw and colour.
+
+**Deliberately not replaced**: `floweringTree()`'s blossom canopy (a crown mass, not a
+flower model), Dinosaur Island's `magnoliaShrub()` (a Cretaceous magnolia, and that world
+teaches it as one of the first flowering plants — a modern garden perennial there would be
+wrong), and the water-lily dots on the pond's lily pads.
+
 ### The Canada goose, and how a small animal is built here
 
 `canadaGoose()` in `ParkProps.js` is the app's one detailed bird, modelled from a
