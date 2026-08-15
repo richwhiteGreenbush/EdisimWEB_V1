@@ -238,6 +238,65 @@ export const WORLD_THEMES = {
     sunPosition: [95, 130, 55],
     stars: false,
   },
+  sea: {
+    // A tropical reef about 30ft down, in the middle of a bright day.
+    //
+    // This is the only theme whose job is to make the player feel SURROUNDED rather than
+    // to light a landscape, and almost every number here is bent toward that:
+    //
+    //  * The fog is by far the closest in the app, and it is the single biggest reason
+    //    the world reads as water. Clear tropical water still only gives 60-100ft of
+    //    useful visibility, and everything past that fades to one flat blue -- which is
+    //    also what stops a 400ft plane from ever showing its edge. Open it up to the
+    //    park's distances and this stops being the sea and becomes a blue field.
+    //  * Sunlight underwater is BLUE-WHITE and comes from almost straight overhead. Water
+    //    absorbs red within the first 15ft, which is why a diver's photographs come back
+    //    blue unless they carry a light; and the sun is steep because a shallow ray
+    //    mostly reflects off the surface instead of entering it. The steepness is doing
+    //    the same job it does in the library -- this is a world with overhangs, cave
+    //    mouths and a solid ceiling of water over it.
+    //  * The hemisphere fill is very high, and blue over sand. A reef is a heap of
+    //    overhangs shading each other, and light in real water arrives from every
+    //    direction at once because it is SCATTERED, not just from the sun -- the same
+    //    problem Dinosaur Island's canopy had, with more of it.
+    //
+    // The ground ramp is pale carbonate sand rather than the seabed's true colour: it is
+    // the reflector the whole reef is lit off, and the reef's own oranges and pinks need
+    // something neutral to sit against. The corals supply the colour; the floor must not
+    // compete with them.
+    groundDetail: 'ground-regolith.jpg',
+    sky: 0x1c6c99,
+    fogNear: 30,
+    fogFar: 155,
+    groundLow: 0x8e8b74,
+    groundHigh: 0xdcd2b2,
+    groundRoughness: 1,
+    // Low broad swells with a fine ripple layer on top -- pockAmplitude here is sand
+    // waves, not the moon's craters. The flat zone holds the spawn, the browser station
+    // and the reef's near edge.
+    amplitude: 4.2,
+    pockAmplitude: 0.5,
+    flatRadius: 34,
+    blendRadius: 108,
+    hemiSky: 0x5fb4dc,
+    // By some distance the LIGHTEST ground bounce in the app, and it has to be. Two things
+    // are going on that no land world has. Light in water is scattered by the water itself,
+    // so it genuinely arrives from every direction rather than only from the sun. And the
+    // floor here is white carbonate sand, which is a far better reflector than grass or
+    // regolith -- divers call the up-welling light off it "sand glare" for a reason.
+    //
+    // What forced the number was the shark. Its white belly faces DOWN, so the sun never
+    // touches it and the ground bounce is the entire light it gets: at a normal outdoor
+    // 0x7c8878 the countershading -- the second thing anybody recognises a shark by --
+    // rendered as the same olive grey as its back, and the animal read as a lump. This is
+    // the same lesson as the Mars props that came out as black silhouettes, in reverse.
+    hemiGround: 0x9db2a8,
+    hemiIntensity: 1.85,
+    sunColor: 0xd8f2ff,
+    sunIntensity: 2.5,
+    sunPosition: [45, 175, 60],
+    stars: false,
+  },
   dinosaur: {
     groundDetail: 'ground-soil.jpg',
     // Late Cretaceous: hot, humid and far more carbon dioxide than today, with no ice
