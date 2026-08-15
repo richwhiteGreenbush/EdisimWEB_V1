@@ -445,6 +445,31 @@ world. Two things to know when editing `DinoProps.js`:
   that scaled its own Group would have that silently discarded on the next reload —
   the same trap the `startup-*` assets' `targetHeight` field exists to work around.
 
+**What makes a theropod read as a theropod** (from rebuilding `tyrannosaurus()` against a
+reference illustration — 41ft nose to tail, 13ft at the hip, 12.8k triangles), in order of
+how much each one buys:
+
+- **THE DRUMSTICK, and it has to hang BELOW the belly line.** The femur is twice the
+  thickness of the shin under it and carries a muscle mass the size of the ribcage. Sized
+  correctly but tucked up against the body it hides *inside the body's own silhouette* and
+  buys nothing — the first pass had a full-size thigh and still read as a barrel on stilts.
+  A separate caudofemoral bulge behind and below the hip is what pushes it clear.
+- **A SHORT, THICK, S-CURVED NECK.** Five feet, not ten. A long smooth neck turns the
+  animal into a sauropod with teeth.
+- **A jaw that is actually ARTICULATED.** Build it closed — which is what "a lower jaw
+  under the upper one" produces if you are not thinking about it — and the two tooth rows
+  interpenetrate into one welded saw. The jaw line and its tooth row are swung about the
+  hinge together, as one piece, by a single `GAPE` angle.
+- **A skull built in THREE segments, not one sweep.** Its width has to change along its
+  length — wide and deep at the back for the jaw muscles and forward-facing eyes, narrow at
+  the snout — and `scaleAbout` can only be applied once per geometry.
+- **Countershading plus a dark dorsal stripe and a banded tail**, rather than one flat
+  olive from nose to tip. Two gotchas there: the stripe's centre line has to sit **on the
+  back's surface**, not on the body axis, or it is entirely inside the ribcage and
+  invisible — and the ribcage is scaled 1.12 taller *after* it is swept, so the surface is
+  higher than the control-point radii alone say. The `band`/`flank`/`snout` tones are all
+  derived from the two colours a record can set, so a custom-coloured animal stays coherent.
+
 Three things this world got wrong first and are easy to reintroduce:
 
 - **A closed canopy needs a much lighter `hemiGround` than an open world.** The hemi

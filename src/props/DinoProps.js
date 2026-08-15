@@ -114,6 +114,21 @@ function creature(parts, seed = 3) {
   );
 }
 
+// A ring of thicker hide around a swept limb -- the neck folds and the tail banding.
+//
+// TorusGeometry lies in XY with its hole down Z, so rotateY(PI/2) stands it up around the
+// body's own X axis and the rotateZ that follows tilts it to match the local slope of
+// whatever it is wrapping. Ungtilted, a ring on a tail that is dropping away reads as a
+// collar sliding off the end.
+function bandRing(radius, thickness, color, [x, y, z], tilt, s = 1, segments = 14) {
+  return {
+    geometry: new THREE.TorusGeometry(radius * s, thickness * s, 6, segments),
+    rotation: [0, Math.PI / 2, tilt],
+    position: [x * s, y * s, z * s],
+    color,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Tyrannosaurus rex
 // ---------------------------------------------------------------------------
@@ -121,96 +136,235 @@ function creature(parts, seed = 3) {
 // Built in the modern posture: spine roughly horizontal, tail held clear of the ground
 // as a counterweight to the head. The upright, tail-dragging "Godzilla" pose museums
 // used until the 1970s would have dislocated the animal's hips.
-export function tyrannosaurus({ scale = 1, back = 0x7d7c53, belly = 0xc6ba8e, seed = 3 } = {}) {
+//
+// Modelled from a reference illustration, and the things that make it read as a T. rex
+// rather than as a generic big lizard are, in order of how much each one buys:
+//
+//   * THE DRUMSTICK. The femur is twice the thickness of the shin below it and carries a
+//     muscle mass the size of the animal's own ribcage. A leg of even thickness is the
+//     single loudest thing wrong with a bad theropod, and the old model had one.
+//   * A SHORT, THICK, S-CURVED NECK. Five feet, not ten, and creased with folds. A long
+//     smooth neck turns the animal into a sauropod with teeth.
+//   * A BOXY SKULL that is wide and deep at the back and narrows to the snout, with the
+//     bony brow ridges over the eyes and a lower jaw hinged well back under them.
+//   * A DEEP, LATERALLY COMPRESSED RIBCAGE that narrows behind the ribs to the hips.
+//   * COUNTERSHADING plus a dark dorsal stripe and banded tail, rather than one flat
+//     olive from nose to tip.
+//
+// Everything still merges to ONE vertex-coloured, flat-shaded mesh -- see creature().
+export function tyrannosaurus({ scale = 1, back = 0x6b5f3a, belly = 0xc6b487, seed = 3 } = {}) {
   const s = scale;
   const parts = [];
 
-  // Torso, neck, skull, jaw.
-  parts.push(tube([[-3.5, 12.4, 0], [0, 13.1, 0], [4.5, 13.2, 0], [9, 12.5, 0]], [2.3, 3.0, 2.9, 2.1], back, s));
+  // The other tones are DERIVED from the two the caller can set, so a saved record that
+  // passes its own colours still gets a coherent animal rather than a patchwork.
+  const dorsal = new THREE.Color(back);
+  const flank = dorsal.clone().offsetHSL(0.012, 0.05, 0.075).getHex();
+  const band = dorsal.clone().offsetHSL(-0.01, 0.03, -0.062).getHex();
+  const snout = dorsal.clone().lerp(new THREE.Color(belly), 0.4).getHex();
+  const dorsalHex = dorsal.getHex();
+  const CLAW = 0x33302a;
+
+  // --- ribcage and hips ---------------------------------------------------------------
+  // Deep and narrow, not a barrel: a theropod's ribcage is visibly taller than it is
+  // wide, which is what gives the animal its keel-like chest from the front.
+  const ribs = tube(
+    [[-3.4, 12.5, 0], [0.4, 13.1, 0], [4.2, 13.3, 0], [7.4, 12.9, 0], [9.2, 12.4, 0]],
+    [2.5, 3.15, 3.2, 2.7, 2.2],
+    dorsalHex, s, { tubularSegments: 20 }
+  );
+  scaleAbout(ribs.geometry, [3 * s, 13 * s, 0], [1, 1.12, 0.84]);
+  parts.push(ribs);
 
   // The pale countershaded underside.
   //
-  // This used to be a narrow tube slung a foot BELOW the torso, which read as a plank
-  // strapped to the animal: it was too small to be the body and too separate to be part
-  // of it, and it left a hard step all down the flank. It is now a WIDE, FLATTENED mass
-  // whose axis sits inside the torso -- it is tucked in at the sides and clears the
-  // torso's own underside by only a few inches, so it reads as the belly's swell rather
-  // than as a second object. Countershading needs a broad pale underside, not a keel.
+  // A WIDE, FLATTENED mass whose axis sits inside the torso -- tucked in at the sides and
+  // clearing the torso's own underside by a few inches, so it reads as the belly's swell
+  // rather than as a second object. It began life as a narrow tube slung a foot BELOW the
+  // body and read as a plank strapped on: too small to be the body, too separate to be
+  // part of it, and leaving a hard step all down the flank. Countershading needs a broad
+  // pale underside, not a keel.
   const bellyTube = tube(
-    [[-3.2, 11.3, 0], [0.5, 11.6, 0], [5, 11.6, 0], [9, 11.7, 0]],
-    [2.0, 2.7, 2.6, 1.8],
-    belly,
-    s
+    [[-2.4, 11.6, 0], [0.8, 11.4, 0], [5, 11.5, 0], [9, 11.6, 0]],
+    [1.8, 2.85, 2.8, 1.9],
+    belly, s, { tubularSegments: 16 }
   );
-  scaleAbout(bellyTube.geometry, [2 * s, 11.6 * s, 0], [1, 0.65, 1]);
+  scaleAbout(bellyTube.geometry, [2 * s, 11.5 * s, 0], [1, 0.62, 1]);
   parts.push(bellyTube);
-  parts.push(tube([[9, 12.5, 0], [11.4, 13.6, 0], [13.4, 14.2, 0]], [2.0, 1.5, 1.15], back, s, { tubularSegments: 14 }));
 
-  const skull = tube([[13.4, 14.3, 0], [16.2, 14.2, 0], [18.9, 13.7, 0]], [1.45, 1.35, 0.5], back, s, { tubularSegments: 14 });
-  scaleAbout(skull.geometry, [16 * s, 14 * s, 0], [1, 1.28, 0.86]);
-  parts.push(skull);
+  // --- neck ------------------------------------------------------------------------------
+  // Short, thick and S-curved, rising from the shoulders and levelling off under the head.
+  parts.push(tube(
+    [[8.6, 12.6, 0], [10.4, 13.4, 0], [12.0, 14.05, 0], [13.6, 14.15, 0]],
+    [2.6, 2.05, 1.72, 1.58],
+    dorsalHex, s, { tubularSegments: 16 }
+  ));
+  // Neck folds. The reference animal's neck is heavily creased, and three rings of
+  // slightly thicker, slightly darker hide is the whole of it.
+  for (const [x, y, r, tilt] of [[10.2, 13.3, 2.12, -0.42], [11.3, 13.85, 1.86, -0.3], [12.5, 14.1, 1.68, -0.12]]) {
+    parts.push(bandRing(r, 0.12, band, [x, y, 0], tilt, s, 12));
+  }
 
-  const jaw = tube([[13.6, 12.8, 0], [16.2, 12.7, 0], [18.6, 12.6, 0]], [0.85, 0.75, 0.35], back, s, { tubularSegments: 12 });
-  scaleAbout(jaw.geometry, [16 * s, 12.7 * s, 0], [1, 0.9, 0.8]);
+  // --- skull -------------------------------------------------------------------------------
+  // Three segments rather than one sweep, because the skull's WIDTH has to change along
+  // its length and a single tube can only be scaled once: wide and deep at the back for
+  // the jaw muscles and the forward-facing eyes, narrowing hard to the snout.
+  const cranium = tube([[13.5, 14.15, 0], [15.0, 14.35, 0], [16.5, 14.25, 0]], [1.62, 1.78, 1.6], snout, s, { tubularSegments: 10 });
+  scaleAbout(cranium.geometry, [15 * s, 14.3 * s, 0], [1, 1.14, 1.06]);
+  parts.push(cranium);
+
+  const midSnout = tube([[16.3, 14.25, 0], [17.6, 14.2, 0], [18.6, 14.0, 0]], [1.5, 1.28, 1.05], snout, s, { tubularSegments: 10 });
+  scaleAbout(midSnout.geometry, [17.5 * s, 14.15 * s, 0], [1, 1.05, 0.78]);
+  parts.push(midSnout);
+
+  const tip = tube([[18.4, 14.0, 0], [19.4, 13.85, 0], [20.1, 13.5, 0]], [1.06, 0.86, 0.42], snout, s, { tubularSegments: 8 });
+  scaleAbout(tip.geometry, [19.2 * s, 13.85 * s, 0], [1, 1.02, 0.72]);
+  parts.push(tip);
+
+  // Lower jaw, hinged well back under the eye and hanging open.
+  //
+  // The jaw and its tooth row are swung about the HINGE as one piece rather than each
+  // being nudged down by hand. Built closed -- which is what "a lower jaw under the upper
+  // one" produces if you are not thinking about it -- the two tooth rows interpenetrate
+  // into a single solid saw, and the animal reads as having one welded mouth.
+  const HINGE = [14.3, 13.15];
+  const GAPE = 0.19; // radians the jaw hangs open
+  const swing = ([x, y]) => {
+    const dx = x - HINGE[0];
+    const dy = y - HINGE[1];
+    return [HINGE[0] + dx * Math.cos(GAPE) + dy * Math.sin(GAPE), HINGE[1] - dx * Math.sin(GAPE) + dy * Math.cos(GAPE)];
+  };
+  const jawLine = [[14.3, 13.15], [16.6, 12.75], [18.6, 12.6], [19.9, 12.75]].map(swing);
+  const jaw = tube(jawLine.map(([x, y]) => [x, y, 0]), [1.15, 0.92, 0.62, 0.3], flank, s, { tubularSegments: 12 });
+  scaleAbout(jaw.geometry, [jawLine[1][0] * s, jawLine[1][1] * s, 0], [1, 0.92, 0.76]);
   parts.push(jaw);
+  parts.push(joint(1.25, flank, [14.4, 13.2, 0], s));
 
-  // Teeth. The big ones are up front, and the largest T. rex tooth found is about the
+  // Brow ridges. The bony horn over each eye is one of the most recognisable things on
+  // the skull and it costs two squashed spheres.
+  for (const side of [-1, 1]) {
+    const brow = blob(0.62, snout, [16.55, 15.25, side * 0.95], s, 8);
+    scaleAbout(brow.geometry, [0, 0, 0], [1.5, 0.55, 0.85]);
+    parts.push(brow);
+  }
+
+  // Eyes, set forward and under the brows -- T. rex had overlapping fields of view, which
+  // is how a hunter judges distance.
+  for (const side of [-1, 1]) {
+    parts.push(blob(0.5, snout, [16.9, 14.72, side * 1.02], s, 8));
+    parts.push(blob(0.3, EYE, [17.05, 14.75, side * 1.15], s, 8));
+  }
+  // Nostrils, well back from the tip, where they actually sit.
+  for (const side of [-1, 1]) parts.push(blob(0.2, EYE, [18.9, 14.35, side * 0.5], s, 6));
+
+  // Teeth, following the real jaw lines rather than a straight row: biggest at the front
+  // of the maxilla and shrinking backward. The largest T. rex tooth found is about the
   // size of a banana -- which is exactly the comparison the placard nearby makes.
-  for (let i = 0; i < 9; i++) {
-    const x = 14.4 + i * 0.5;
-    const length = 0.85 - i * 0.045;
+  for (let i = 0; i < 11; i++) {
+    const t = i / 10;
+    const x = 15.1 + t * 4.5;
+    const halfWidth = 0.92 - t * 0.5;
+    const drop = 13.42 - t * 0.28;
+    const length = (0.55 + t * 0.5) * (1 - Math.max(0, t - 0.82) * 4);
     for (const side of [-1, 1]) {
-      parts.push(spike(length, 0.17, TOOTH, [x, 13.35, side * 0.72], [Math.PI, 0, 0], s));
-      parts.push(spike(length * 0.85, 0.15, TOOTH, [x, 13.05, side * 0.6], [0, 0, 0], s));
+      parts.push(spike(length, 0.15, TOOTH, [x, drop, side * halfWidth], [Math.PI, 0, 0], s));
+    }
+  }
+  // The lower row rides the jaw, so it takes the same swing about the hinge.
+  for (let i = 0; i < 9; i++) {
+    const t = i / 8;
+    const halfWidth = 0.82 - t * 0.44;
+    const length = (0.44 + t * 0.34) * (1 - Math.max(0, t - 0.8) * 4);
+    const [x, y] = swing([15.6 + t * 3.9, 12.92 + t * 0.1]);
+    for (const side of [-1, 1]) {
+      parts.push(spike(length, 0.13, TOOTH, [x, y, side * halfWidth], [0, 0, -GAPE], s));
     }
   }
 
-  // Eyes, set forward on the skull -- T. rex had overlapping fields of view, which is
-  // how a hunter judges distance.
-  for (const side of [-1, 1]) parts.push(blob(0.34, EYE, [16.9, 15.0, side * 1.0], s, 8));
-  for (const side of [-1, 1]) parts.push(blob(0.5, back, [16.5, 15.5, side * 0.95], s, 8));
+  // --- tail ---------------------------------------------------------------------------------
+  // Long, deep at the base, tapering to a whip. It is the counterweight, and it is banded
+  // rather than plain -- the rings are what stop twenty feet of tapering tube reading as a
+  // length of hosepipe.
+  parts.push(tube(
+    // The base of the tail stays THICK for a good six feet before it starts to taper --
+    // it is a muscle anchor, not a whip until much further out.
+    [[-3.4, 12.5, 0], [-7.5, 12.6, 0], [-12, 11.9, 0], [-16.5, 10.6, 0], [-21, 9.3, 0]],
+    [2.6, 2.3, 1.5, 0.78, 0.14],
+    dorsalHex, s, { tubularSegments: 22 }
+  ));
+  for (const [x, y, r, tilt] of [
+    [-5.8, 12.6, 2.18, 0.02], [-9.0, 12.4, 1.74, -0.1],
+    [-12.2, 11.8, 1.28, -0.2], [-15.3, 11.0, 0.88, -0.26], [-18.3, 10.1, 0.5, -0.28],
+  ]) {
+    parts.push(bandRing(r, 0.14, band, [x, y, 0], tilt, s, 12));
+  }
 
-  // Tail: long, deep at the base, tapering to a whip. It is the counterweight.
-  parts.push(
-    tube(
-      [[-3.5, 12.4, 0], [-8, 12.5, 0], [-13, 11.7, 0], [-18, 10.3, 0], [-22.5, 9.1, 0]],
-      [2.3, 1.75, 1.1, 0.6, 0.16],
-      back,
-      s
-    )
+  // A darker stripe down the spine, from the shoulders to the tip of the tail.
+  //
+  // Its centre line sits ON the back's surface, not on the body's axis, so only the top
+  // half of the tube shows and it reads as a colour band rather than as a sail. Run down
+  // the middle of the animal instead -- the obvious place to put it -- and it is entirely
+  // inside the ribcage and invisible, which is exactly how the first attempt came out.
+  // The ribcage is also scaled 1.12 taller AFTER it is swept, so the surface is higher
+  // than the control-point radii alone suggest.
+  const stripe = tube(
+    [[9.2, 14.9, 0], [4.2, 16.85, 0], [0.4, 16.6, 0], [-3.4, 15.3, 0], [-7.5, 14.4, 0], [-12, 13.1, 0], [-16.5, 11.2, 0]],
+    [0.42, 0.55, 0.55, 0.48, 0.38, 0.26, 0.14],
+    band, s, { tubularSegments: 18, radialSegments: 8 }
   );
+  parts.push(stripe);
 
-  // Legs. Digitigrade -- the animal walks on its toes, and what looks like a backwards
-  // knee halfway up is really its ankle.
+  // --- legs -----------------------------------------------------------------------------------
+  // Digitigrade -- the animal walks on its toes, and what looks like a backwards knee
+  // halfway up is really its ankle.
   for (const side of [-1, 1]) {
-    const z = side * 2.5;
-    // The thigh starts INSIDE the torso, not on its surface, and a hip ball covers the
-    // junction. Rooted on the surface it left a V-shaped notch you could see daylight
-    // through -- the two tubes' end rings lie in different planes and simply cross.
-    parts.push(joint(2.35, back, [0.4, 12.2, z * 0.8], s));
-    parts.push(tube([[0.3, 12.6, z * 0.8], [0.6, 8.6, z * 1.15]], [2.1, 1.2], back, s, { tubularSegments: 10 }));
-    // Knee and ankle get the same treatment, at their own scale.
-    parts.push(joint(1.2, back, [0.6, 8.6, z * 1.15], s));
-    parts.push(tube([[0.6, 8.6, z * 1.15], [-0.9, 4.8, z * 1.15]], [1.15, 0.62], back, s, { tubularSegments: 10 }));
-    parts.push(joint(0.64, back, [-0.9, 4.8, z * 1.15], s));
-    parts.push(tube([[-0.9, 4.8, z * 1.15], [0.5, 1.35, z * 1.15]], [0.6, 0.42], back, s, { tubularSegments: 8 }));
-    // Three forward toes plus the little reversed hallux, each with a claw.
-    for (const spread of [-0.75, 0, 0.75]) {
-      parts.push(
-        tube([[0.5, 1.0, z * 1.15], [1.9, 0.42, z * 1.15 + spread]], [0.42, 0.24], back, s, { tubularSegments: 6 })
-      );
-      parts.push(spike(0.7, 0.16, BONE, [2.4, 0.3, z * 1.15 + spread * 1.25], [0, 0, -Math.PI / 2 - 0.3], s));
+    const z = side * 2.6;
+
+    // Hip, plus the huge caudofemoral muscle behind and below it. That rear bulge is what
+    // actually swung a T. rex's leg, and without it the thigh has no visible mass at all:
+    // sunk against the belly it hides inside the body's own outline and the animal reads
+    // as a barrel on stilts, which is exactly how the first pass came out.
+    parts.push(joint(2.7, flank, [0.3, 12.2, z * 0.78], s));
+    const haunch = blob(2.35, flank, [-1.0, 10.8, z * 0.95], s, 12);
+    scaleAbout(haunch.geometry, [0, 0, 0], [1.1, 1.15, 0.78]);
+    parts.push(haunch);
+
+    // FEMUR. The reference animal's thigh is the thickest part of it after the ribcage,
+    // and it is flattened side-to-side rather than round -- a cylinder of even thickness
+    // here is what makes a theropod look like a lizard on stilts. It reaches WELL below
+    // the belly line, which is the only way the drumstick reads at all.
+    const thigh = tube([[0.1, 12.5, z * 0.8], [1.3, 10.0, z * 0.98], [2.3, 7.4, z * 1.02]], [3.0, 2.7, 1.55], flank, s, { tubularSegments: 12 });
+    scaleAbout(thigh.geometry, [1.2 * s, 10 * s, z * 0.95 * s], [1, 1, 0.78]);
+    parts.push(thigh);
+
+    // Knee, shin, ankle -- each joint gets its own ball, at its own scale. Rooted straight
+    // onto each other the two tubes' end rings lie in different planes and simply cross,
+    // leaving a V-shaped notch you can see daylight through.
+    parts.push(joint(1.6, flank, [2.3, 7.4, z * 1.02], s));
+    parts.push(tube([[2.3, 7.4, z * 1.02], [1.0, 5.2, z * 1.05], [0.0, 3.8, z * 1.05]], [1.45, 0.95, 0.72], flank, s, { tubularSegments: 10 }));
+    parts.push(joint(0.8, flank, [0.0, 3.8, z * 1.05], s));
+    parts.push(tube([[0.0, 3.8, z * 1.05], [0.8, 2.3, z * 1.05], [1.5, 1.0, z * 1.05]], [0.7, 0.6, 0.52], flank, s, { tubularSegments: 8 }));
+
+    // Three forward toes -- two bones apiece, so they bend -- plus the little reversed
+    // hallux, each finished with a claw.
+    for (const spread of [-0.8, 0, 0.8]) {
+      const outward = spread * 1.35;
+      parts.push(tube([[1.5, 0.95, z * 1.05], [2.5, 0.55, z * 1.05 + outward * 0.6]], [0.5, 0.36], flank, s, { tubularSegments: 5 }));
+      parts.push(tube([[2.5, 0.55, z * 1.05 + outward * 0.6], [3.4, 0.4, z * 1.05 + outward]], [0.34, 0.24], flank, s, { tubularSegments: 5 }));
+      parts.push(spike(0.85, 0.17, CLAW, [3.95, 0.32, z * 1.05 + outward * 1.18], [0, 0, -Math.PI / 2 - 0.35], s));
     }
-    parts.push(tube([[0.4, 1.1, z * 1.15], [-0.5, 0.5, z * 1.15]], [0.3, 0.18], back, s, { tubularSegments: 6 }));
+    parts.push(tube([[1.4, 1.05, z * 1.05], [0.5, 0.45, z * 1.05]], [0.34, 0.2], flank, s, { tubularSegments: 5 }));
+    parts.push(spike(0.5, 0.13, CLAW, [0.15, 0.35, z * 1.05], [0, 0, Math.PI / 2 + 0.4], s));
 
     // The famous arms. Two fingers, and shorter than a human's -- but they could curl
     // about 400 pounds, so "useless" is the one thing they were not.
-    parts.push(joint(0.72, back, [8.2, 11.4, side * 1.9], s));
-    parts.push(tube([[8.3, 11.2, side * 2.0], [9.2, 9.9, side * 2.4]], [0.62, 0.42], back, s, { tubularSegments: 6 }));
-    parts.push(joint(0.42, back, [9.2, 9.9, side * 2.4], s));
-    parts.push(tube([[9.2, 9.9, side * 2.4], [10.4, 9.2, side * 2.3]], [0.4, 0.28], back, s, { tubularSegments: 6 }));
-    for (const finger of [-0.22, 0.22]) {
-      parts.push(spike(0.9, 0.13, BONE, [11.0, 9.0, side * 2.3 + finger], [0, 0, -Math.PI / 2 - 0.5], s));
+    parts.push(joint(0.85, flank, [7.9, 11.5, side * 2.1], s));
+    parts.push(tube([[8.0, 11.3, side * 2.15], [9.0, 10.0, side * 2.5]], [0.68, 0.46], flank, s, { tubularSegments: 6 }));
+    parts.push(joint(0.48, flank, [9.0, 10.0, side * 2.5], s));
+    parts.push(tube([[9.0, 10.0, side * 2.5], [10.3, 9.5, side * 2.4]], [0.44, 0.3], flank, s, { tubularSegments: 6 }));
+    for (const finger of [-0.24, 0.24]) {
+      parts.push(tube([[10.3, 9.5, side * 2.4 + finger], [11.0, 9.25, side * 2.4 + finger]], [0.2, 0.15], flank, s, { tubularSegments: 4 }));
+      parts.push(spike(0.85, 0.12, CLAW, [11.5, 9.05, side * 2.4 + finger], [0, 0, -Math.PI / 2 - 0.6], s));
     }
   }
 
