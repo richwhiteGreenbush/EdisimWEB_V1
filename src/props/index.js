@@ -7,6 +7,7 @@ import * as Dino from './DinoProps.js';
 import * as Park from './ParkProps.js';
 import * as Body from './BodyProps.js';
 import * as City from './CityProps.js';
+import * as Sea from './SeaProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -169,6 +170,29 @@ export const PROP_BUILDERS = {
   newsstand: City.newsstand,
   'subway-entrance': City.subwayEntrance,
   'wall-sign': City.wallSign,
+
+  // Under the Sea
+  'reef-shark': Sea.reefShark,
+  'moray-eel': Sea.morayEel,
+  octopus: Sea.octopus,
+  starfish: Sea.starfish,
+  'coral-bommie': Sea.coralBommie,
+  'reef-cave': Sea.reefCave,
+  'coral-garden': Sea.coralGarden,
+  'brain-coral': Sea.brainCoral,
+  'sea-fan': Sea.seaFan,
+  'sea-anemone': Sea.seaAnemone,
+  'tube-sponge': Sea.tubeSponge,
+  'giant-clam': Sea.giantClam,
+  'sea-urchin': Sea.seaUrchin,
+  'sea-cucumber': Sea.seaCucumber,
+  'seagrass-patch': Sea.seagrassPatch,
+  'reef-fish-school': Sea.reefFishSchool,
+  'clownfish-school': Sea.clownfishSchool,
+  'water-surface': Sea.waterSurface,
+  'light-shafts': Sea.lightShafts,
+  'bubble-column': Sea.bubbleColumn,
+  'marine-snow': Sea.marineSnow,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

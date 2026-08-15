@@ -10,9 +10,10 @@ and images, freehand-draw shapes that inflate into 3D balloons, build your own m
 out of stretchable primitives, drop glowing light
 orbs, place live interactive web browser panels, and save/load the world. New visitors
 land in a prebuilt Park; The Museum, The Library, The Moon, On Mars, Dinosaur Island
-and Fantastic Voyage (human anatomy) are loadable from the menu. One more world —
-1940's New York — is deliberately **not** in the menu and is reached only by clicking a
-billboard behind the library building. Pure client-side Three.js app — no backend, ships as a static `dist/` bundle.
+and Fantastic Voyage (human anatomy) are loadable from the menu. Two more worlds —
+1940's New York and Under the Sea — are deliberately **not** in the menu and are each
+reached only by clicking a billboard: New York from behind the library building, Under
+the Sea from behind the Park's nature centre. Pure client-side Three.js app — no backend, ships as a static `dist/` bundle.
 
 ## Commands
 
@@ -81,7 +82,7 @@ follow whatever height the mesh's real geometry has — flat or hilly.
 relief (`amplitude`/`flatRadius`/`blendRadius`/`pockAmplitude`), ground color ramp,
 hemisphere + sun color/intensity/direction, and whether the starfield is visible —
 lives in `config.js`'s `WORLD_THEMES`
-(`default`/`park`/`museum`/`library`/`moon`/`mars`/`dinosaur`/`voyage`).
+(`default`/`park`/`museum`/`library`/`moon`/`mars`/`dinosaur`/`voyage`/`newyork`/`sea`).
 `applyWorldTheme(name)` rewrites the ground's **existing** position/color attributes
 **in place** on the **same** `BufferGeometry` and the same `Mesh` — deliberately, since
 `PlayerController` and every placement path hold a reference to that mesh; swapping the
@@ -147,7 +148,7 @@ has applied an uploaded image to a surface.
 rehydrating anything, so a world file with no theme of its own resets a leftover moon
 sky back to daylight instead of inheriting it.
 
-### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / Empty / (New York)
+### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / Empty / (New York, Under the Sea)
 
 The menu's top level is just two expanding groups plus **Clear World**: **Load Object**
 (Import / Draw / Light Orb / Web Browser — the things you put *into* a world) and
@@ -239,7 +240,7 @@ replaced.
 
 **Everything is generated in code** — `PropKit.js` (shared helpers) plus `src/props/`
 (`CommonProps` / `ParkProps` / `MuseumProps` / `LibraryProps` / `MoonProps` /
-`MarsProps` / `DinoProps` / `BodyProps` / `CityProps` / `Earth`), with `props/index.js`'s
+`MarsProps` / `DinoProps` / `BodyProps` / `CityProps` / `SeaProps` / `Earth`), with `props/index.js`'s
 `PROP_BUILDERS` as the name→builder table. **Those keys are
 persisted**, so renaming one silently breaks every already-saved world using it; add a
 new key instead. `buildProp()` throws on an unknown name rather than silently dropping
@@ -667,6 +668,121 @@ the one marquee a student stands directly under, and the lamps' lit glass is **o
 merged into a single mesh per lamp**. A dozen lamps at three translucent glass meshes apiece
 was 36 transparent draws — the largest block of transparency in any world here — for glass
 at opacity 0.92 that was visually indistinguishable from solid.
+
+### Under the Sea, and how to make a world feel like a VOLUME
+
+A tropical coral reef thirty feet down, modelled from a photograph, in
+`src/props/SeaProps.js` + `seaLayout()`. Like New York it is `hidden: true` and reached
+only through a portal — the billboard in the 24ft slot behind the Park's nature centre,
+with a `standing-sign` wayfinder out on the lawn as the only signpost to it. The portal
+plumbing is unchanged; see the New York section above for how a door works.
+
+**Everything specific to this world follows from one problem: it is the only world that is
+not a landscape.** Every other preset is objects standing on a floor under a sky, and the
+sky is empty because there is nothing in it. Water is a *material* the student is inside,
+and the entire difference between this world and a blue field with fish standing in it is
+four props that carry no information and teach nothing:
+
+- **`waterSurface()` — the ceiling, and it is OPAQUE.** The instinct is to make water
+  translucent; from beneath, a wind-rippled surface is a *mirror*, and you cannot see
+  through it except at the steepest angles. So an opaque plane is both more accurate and
+  free, where a transparent one at 360ft square would be the most expensive object in the
+  app. It is self-lit (`emissive` + `emissiveMap`), because the sun is on the far side of
+  it and without that the brightest thing in the scene renders as a dark grey slab.
+  `castShadow = false`, or it seals the sun out of the entire world — the museum
+  skylight's trap at world scale.
+- **`lightShafts()` — additive quads, `fog: false`, and ALL LEANING THE SAME WAY.** Sunbeams
+  are parallel; they only appear to fan out through perspective. The first version gave each
+  shaft its own bearing and the result was unmistakably a laser show. `fog` must be off
+  because three.js fogs a fragment *before* blending, so a fully-fogged additive fragment
+  adds the fog colour onto a background that is already the fog colour and the far end of
+  every shaft becomes a bright blue wall. They also have to be **wide** — narrower than
+  about 1:10 against their length and a beam of light becomes a rod of glass falling
+  through the water.
+- **`marineSnow()` — a `THREE.Points` cloud**, one draw call for the whole volume, and the
+  cheapest immersion in the file by a wide margin. Deliberately faint: turned up far enough
+  to actually notice, it stops reading as debris and starts reading as a starfield.
+- **`bubbleColumn()` — bubbles that GROW as they rise**, because the pressure squeezing them
+  drops the whole way up. All of them in one translucent mesh.
+
+**The `sea` theme's numbers are the other half of it.** The fog is by far the closest in the
+app (30/155) and is the single biggest reason the world reads as water — open it up to the
+Park's distances and it becomes a blue field. `hemiGround` is `0x9db2a8`, the *lightest*
+ground bounce anywhere in this project, for two reasons that only apply here: light in
+water is scattered by the water itself so it genuinely arrives from every direction, and
+the floor is white carbonate sand, which is a far better reflector than grass. What forced
+the number was the shark — its white belly faces down, so the sun never touches it and the
+ground bounce is the entire light it gets. At a normal outdoor value the countershading
+rendered as the same olive grey as its back and the animal read as a lump.
+
+**The composition is the photograph's, and the pairing is the point**: reef wall across the
+front-left, open sand to the right. The reef alone is a wall of clutter with nowhere to
+stand back and look at it from; the open sand alone is a desert. The sharks are placed with
+a `y` (15–20ft above the floor), which is what makes the world a volume rather than a
+field, and the far one is smaller and half-lost in the fog — a single animal at a known
+size gives the fog nothing to measure itself against.
+
+The four primary models, and what carries each:
+
+- **Reef shark** — the first dorsal has to be BIG with a concave trailing edge; hard-edged
+  countershading; a heterocercal tail (upper lobe much longer, or it is a tuna); pectorals
+  held out and down like wings, since it cannot stop swimming; five raked gill slits.
+- **Moray eel** — the mouth never closes, because a moray has no gill covers and breathes
+  by gaping. Built closed, the two tooth rows also interpenetrate into one welded saw, so it
+  uses the same single-angle jaw swing the T. rex does. No paired fins anywhere: add
+  pectorals and it becomes a fish.
+- **Octopus** — the eye is the whole animal: a domed lens set high with a **horizontal bar**
+  pupil, not a round one. Eight arms that each do something different (an even fan of eight
+  is a fairground ride). Suckers are placed from each arm's own sampled curve, not from the
+  tube's UVs, because a swept tube's Frenet frame twists unpredictably along a curling path
+  and there is no fixed `v` that means "underside".
+- **Sea star** — arms taper from a real disc, not from a point; flat on the bottom and domed
+  on top; and the beaded tubercles are the animal, the same way the goose's feather edging is.
+
+Traps this world hit that generalise:
+
+- **A hole has to be built VOID FIRST.** `reefCave()` builds the five faces of the recess
+  and then places rock around them from those dimensions. Built the other way — boulders
+  with dark slabs shoved in behind — it produced neither a hole nor a cave: the slabs stuck
+  out through the rock as black fins and the mouth was a two-foot slot with a boulder in it.
+  The void is also deliberately **1.6× the opening**, because sized to match, its four
+  straight edges land exactly at the gap and the cave reads as a black *rectangle* cut into
+  the reef. Oversized, every edge hides behind rock.
+- **Flat colonies are right on sand and wrong on a slope.** `coralGarden`'s `mound` option
+  drapes a garden over a bommie (without it the rock stays bare grey and the coral rings its
+  foot, which is exactly backwards — reef rock *is* old coral). But plates and encrusting
+  mats are essentially flat, so on a mound's flank they lie against the rock and read as
+  coloured stickers. Same colonies, opposite verdict, purely because of what they are seen
+  against — so a draped garden picks from a different kind list. The lean is also capped
+  near 17°: at the rock's true slope a coloured slab reads as litter dropped on it.
+- **`SphereGeometry`'s height-segment floor is where the triangles go.** `ball()` floors at
+  3, not 5, and that one character was worth about 60,000 triangles: nearly everything here
+  is a *small* sphere asked for at detail 4 or 5 — a fish's eye, a tentacle tip, a tubercle
+  — and a floor of 5 quietly made each one a 50-triangle ball a few inches across. The
+  opposite bound matters too, though: at **4 width segments a sphere is square in
+  cross-section**, and 130 anemone tentacles tipped with detail-4 balls read as pale cubes
+  on sticks. Six is two dozen triangles and unmistakably a bead.
+- **A near-field colony has to be big enough to have a shape.** Scaled down to a few inches
+  the sand-level gardens between the spawn and the reef came out as scattered coloured chips
+  — litter on the sand rather than life on it. Fewer and bigger is the fix, not more.
+- **Open water gives a light orb nothing to be attached to.** Five orbs through the reef each
+  read as a glowing ball hanging in mid-water — the Moon's lesson with no roof anywhere to
+  rescue it. There is now exactly ONE in the world, buried *behind* the cave's back wall:
+  orbs do not cast shadows here, so its light passes through the rock and lifts the recess
+  off pure black while the core itself can never be seen.
+- **Caustics need a MIN of wave trains, not a sum.** Summed, the strongest train dominates
+  and the ceiling comes out looking combed; taking the minimum lights a pixel wherever any
+  train is at a node, and the three families of bright lines overlap into the closed
+  cellular web a real caustic pattern is. Every frequency must be an integer multiple of
+  2π/size or the sheet's seam draws a straight line across the sky.
+
+**Performance** (this app has to run on school Chromebooks): **274 draw calls, 488k
+triangles, 6 transparent meshes, 1 point light, 89 textures, ~1.2ms of CPU render**, 175ms
+to build and 620ms to load — the lightest-rendering populated world in the app by draw
+calls and by CPU, against the Park's 777 calls / 544k tris / 3.1ms. Three choices bought
+it: every reef garden of 20–30 colonies merges to one vertex-coloured mesh, a whole shoal of
+fish merges to one, and the ceiling is one opaque quad rather than the obvious transparent
+one.
 
 ### Photo textures, but only on the big flat surfaces
 

@@ -146,6 +146,52 @@ function parkLayout() {
     })
   );
 
+  // --- the way into Under the Sea -------------------------------------------------------
+  //
+  // The billboard behind the nature centre is the ONLY route to that world: it is
+  // deliberately absent from Load World (`hidden` in PRESET_WORLDS below), so this sign is
+  // its door. Clicking it loads the world -- see worldPortal() in CommonProps.js and the
+  // reroute in ObjectMenu.tryPick().
+  //
+  // The geometry, since none of it is guessable from the numbers: the building is 30x18
+  // on a plinth that reaches 20.4ft deep, centred on (-50, 2) and yawed 1.3, so its porch
+  // faces out along (sin 1.3, cos 1.3) = (0.96, 0.27) and its BACK wall is at about
+  // (-59.8, -0.7). The sign stands 24ft further along that line and takes the building's
+  // own yaw, which faces it BACK toward the rear wall -- so a student rounding either back
+  // corner walks into the slot between the two and meets the face square on. Turned the
+  // other way it would show them its blank back and nothing else.
+  items.push(
+    prop('world-portal', -82.6, -8.8, {
+      rotY: 1.3,
+      options: {
+        title: 'UNDER THE SEA',
+        subtitle: 'A tropical coral reef, thirty feet down — walk the sand under a shark, meet a moray and an octopus',
+        world: 'sea',
+        accent: '#1f8fb4',
+        face: '#0d2b3e',
+      },
+    })
+  );
+  items.push(prop('lamp-post', -75, -20, { options: { height: 10 } }));
+  items.push(prop('lamp-post', -70, 3, { options: { height: 10 } }));
+
+  // A portal nobody finds is a portal nobody has. This is the only signpost to it, out on
+  // the lawn between the gate and the nature centre where every visitor already walks.
+  items.push(
+    prop('standing-sign', -20, 15, {
+      rotY: 1.5,
+      options: {
+        lines: ['DIVE EXHIBIT'],
+        subtitle: 'BEHIND THE NATURE CENTRE · WALK AROUND THE BUILDING',
+        width: 9,
+        height: 2.6,
+        postHeight: 7,
+        face: '#0d3b4a',
+        accent: '#4fc4d8',
+      },
+    })
+  );
+
   items.push(
     prop('info-placard', -13, -13, {
       rotY: 0.4,
@@ -2490,6 +2536,365 @@ function newYorkLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// Under the Sea -- a tropical coral reef, thirty feet down
+// ---------------------------------------------------------------------------
+
+// Modelled from a photograph of a reef wall: a shark cruising over open water on the
+// right, a moray looking out of a cave in the middle, an octopus down on the rubble to the
+// left, and sea stars on the sand in the foreground.
+//
+// THE WHOLE COMPOSITION IS THE PHOTOGRAPH'S. A reef in real life is a wall with open water
+// beside it, and the pairing is what makes either half work: the reef alone is a wall of
+// clutter with nowhere to stand back and look at it from, and the open sand alone is a
+// desert. So the reef mass runs across the front-left of the arrival view and the sand
+// opens out to the right, which is also where the shark is -- the one thing in this world
+// that needs empty water around it to read at all.
+//
+// Three numbers this hangs off:
+//
+//  * The SPAWN is at z = 24 facing just west of north, which puts the reef's near edge
+//    about 40ft off -- inside this theme's 34ft fog start, so it arrives already softened
+//    by water rather than as a hard-edged model. Turned 9 degrees west for the same reason
+//    1940's New York is turned 14: it swings the reef mass off the frame edge and into the
+//    view without putting it dead centre.
+//  * Anything meant to be SWIMMING is placed with a `y`, which this file reads as feet
+//    above the sea floor. The sharks are at 15-20ft, which is over a student's head by
+//    three times and is the single strongest reminder that this is a volume and not a
+//    field.
+//  * The WATER SURFACE is at 46ft. High enough that the shafts have room to be long and
+//    the sharks have room to be under it, low enough that it is unmistakably a lid.
+const SEA_SPAWN = { x: 0, z: 20, yaw: 0.16 };
+const SEA_CEILING = 46;
+
+function seaLayout() {
+  const items = [];
+
+  // --- being under water --------------------------------------------------------------
+  // These four carry no information and teach nothing; they are what stops the world from
+  // being a blue field with fish standing in it. See the notes at the foot of SeaProps.js.
+  items.push(prop('water-surface', 0, 0, { options: { size: 360, height: SEA_CEILING } }));
+  items.push(prop('light-shafts', -10, -20, { options: { count: 4, height: SEA_CEILING, spread: 24, width: 9, seed: 103, opacity: 0.22 } }));
+  items.push(prop('light-shafts', 28, 2, { options: { count: 3, height: SEA_CEILING, spread: 18, width: 8, seed: 211, opacity: 0.18 } }));
+  items.push(prop('light-shafts', -34, -50, { options: { count: 3, height: SEA_CEILING, spread: 22, width: 11, seed: 307, opacity: 0.16 } }));
+  items.push(prop('marine-snow', 0, 8, { options: { radius: 48, height: 32, count: 420, seed: 109 } }));
+  items.push(prop('marine-snow', -14, -40, { options: { radius: 44, height: 30, count: 320, seed: 113 } }));
+  items.push(prop('bubble-column', -3.5, -22, { options: { height: 18, count: 30, radius: 1.4, seed: 107 } }));
+  items.push(prop('bubble-column', 27, -19, { y: 2, options: { height: 13, count: 20, radius: 1.0, seed: 127 } }));
+
+  // --- the reef wall --------------------------------------------------------------------
+  // An arc of mounds curving from the west round to the east, with a second broken ridge
+  // behind it. The gap between the two is what gives the world somewhere to swim INTO --
+  // one solid wall of coral would be a fence.
+  //
+  // THEY ARE TALL, and the first pass was not. At 5-6ft the mounds sat below a student's
+  // eye line and the whole thing read as a scatter of boulders on a plain; a reef is a WALL
+  // you cannot see over, and everything else about this world -- the cave in it, the shark
+  // cruising along it, the sense of there being a somewhere-else on the far side -- depends
+  // on it being one.
+  //
+  // Each front-ridge mound carries a coral garden DRAPED OVER IT (see `mound` in
+  // coralGarden). Without that the gardens all sat on the sand around the rocks' feet and
+  // the rocks themselves stayed bare grey, which is exactly backwards: on a real reef the
+  // rock IS old coral and barely a square inch of it is uncovered.
+  const bommies = [
+    [-42, -14, 9, 10, 401, 30], [-28, -15, 8, 11, 409, 28], [-18, -21, 7, 8, 419, 24],
+    [13, -25, 8, 10, 431, 28], [24, -19, 7, 8.5, 439, 24], [33, -13, 6, 6.5, 443, 20],
+    [-36, -38, 8, 9, 449, 24], [-16, -46, 7, 8, 457, 22], [6, -50, 8, 9, 463, 24],
+    [27, -43, 7, 7.5, 467, 20], [44, -30, 7, 8, 479, 20], [-50, -24, 8, 9, 487, 22],
+    [-32, 3, 4, 3, 491, 12], [31, -1, 3.5, 2.5, 493, 10],
+  ];
+  for (const [x, z, radius, height, seed, count] of bommies) {
+    items.push(prop('coral-bommie', x, z, { options: { radius, height, seed } }));
+    // Smaller colonies on the mounds than on the sand. A garden draped over a nine-foot
+    // rock is seen against the rock, so a colony sized for open sand looks like a slab
+    // stuck on rather than something growing out of it.
+    items.push(prop('coral-garden', x, z, {
+      options: { radius, count, height: height > 6 ? 0.78 : 0.6, mound: height * 0.95, seed: seed + 1 },
+    }));
+  }
+
+  // --- primary model 2: the moray's cave ------------------------------------------------
+  // The cave and the eel are TWO objects, and deliberately: anything a student is invited
+  // to click and program has to be a thing they can pick, and an eel modelled into the rock
+  // would select the whole reef. Same decision, same reason, as the Park's geese.
+  // The cave's mouth is 5ft wide and 4.8ft tall with a 5ft recess behind it, so the eel is
+  // placed to put its head just proud of the rock at about mouth-centre height, with a good
+  // three feet of body still down the hole. See reefCave() for how the recess is built.
+  items.push(prop('reef-cave', -5, -21, { options: { width: 17, height: 11, mouth: 5.5, mouthHeight: 6.5, recess: 5, seed: 43 } }));
+  // The cave gets a garden like every other mound. Bare rock around a hole reads as a
+  // quarry; a real ledge mouth is as encrusted as everything else on the reef.
+  items.push(prop('coral-garden', -5, -21, { options: { radius: 8.5, count: 26, height: 1.0, mound: 10, seed: 44 } }));
+  items.push(prop('moray-eel', -5, -19.6, { y: 1.1, rotY: 0.12, options: { length: 8.5, seed: 11 } }));
+  items.push(
+    prop('info-placard', -14, -9, {
+      rotY: 0.8,
+      options: {
+        eyebrow: 'Green moray eel',
+        title: 'Why its mouth never closes',
+        body: 'It is not snarling. A moray has no gill covers to pump water with, so it has to gape to breathe — that open mouth is the animal taking a breath, over and over, all day. This one is about 6 feet of the 8 it grows to; the rest is still down the hole.',
+      },
+    })
+  );
+
+  // --- primary model 3: the octopus -----------------------------------------------------
+  // Down on the rubble at the reef's foot, on the left, facing back toward the arrival
+  // point so a student meets its eye rather than its mantle.
+  items.push(prop('octopus', -21, -7, { rotY: 0.56, options: { span: 6.8, seed: 17 } }));
+  items.push(
+    prop('info-placard', -28, -3, {
+      rotY: 0.65,
+      options: {
+        eyebrow: 'Common octopus',
+        title: 'Nine brains and no bones',
+        body: 'Two thirds of its neurons are in the arms, so each one solves its own problems while the head thinks about something else. With no skeleton at all, an octopus this size — about 7 feet across — can pour itself through a hole the width of its own eye.',
+      },
+    })
+  );
+
+  // --- primary model 1: the sharks ------------------------------------------------------
+  // Over the open sand to the east, high enough to pass well over a student's head. The
+  // second one is much further out and smaller, and it is doing a job: a single animal at a
+  // known size gives the fog nothing to measure itself against, and a second one half-lost
+  // in it is what makes the water read as deep.
+  items.push(prop('reef-shark', 21, -25, { y: 15, rotY: -2.05, rotX: 0.08, options: { length: 8.5, seed: 5 } }));
+  items.push(prop('reef-shark', -26, -60, { y: 19, rotY: 1.15, rotX: -0.05, options: { length: 7, seed: 23 } }));
+  items.push(
+    prop('info-placard', 15, -2, {
+      rotY: -0.6,
+      options: {
+        eyebrow: 'Caribbean reef shark',
+        title: 'It cannot stop swimming',
+        body: 'Water has to keep moving over its gills, so it swims even while it sleeps — which is why the fins are always held out like wings. At 8 feet it is longer than a bed, and it eats fish. Divers on this reef swim with them every day.',
+      },
+    })
+  );
+
+  // --- primary model 4: the sea stars ----------------------------------------------------
+  // On the open sand in the foreground, where the photograph has them: they are the one
+  // thing here a student has to crouch to look at, which is the whole point of putting them
+  // where somebody walking to the reef will step over one.
+  items.push(prop('starfish', -7, 9, { rotY: 0.4, options: { size: 2.2, color: 0xd4392c, seed: 23 } }));
+  items.push(prop('starfish', 8, 3, { rotY: -1.1, options: { size: 2.0, color: 0x3f78c8, seed: 29 } }));
+  items.push(prop('starfish', 17, -8, { rotY: 2.2, options: { size: 1.6, color: 0xe08a2c, seed: 31 } }));
+  items.push(prop('starfish', -24, 6, { rotY: 1.6, options: { size: 1.8, color: 0xc04a86, seed: 37 } }));
+  items.push(
+    prop('info-placard', -14.5, 13.5, {
+      rotY: 0.7,
+      options: {
+        eyebrow: 'Sea stars',
+        title: 'No head, no blood, no brain',
+        body: 'It walks on hundreds of tiny water-powered feet under each arm, and it pumps sea water instead of blood. Lose an arm and it grows another. Most reef sea stars are hand-sized; the sunflower star of the Pacific reaches 3 feet across.',
+      },
+    })
+  );
+
+  // --- the anemone and its clownfish ------------------------------------------------------
+  items.push(prop('sea-anemone', 7, -15, { options: { radius: 3.1, tentacles: 130, seed: 61 } }));
+  // Above and just outside the crown, not inside it: placed at the anemone's own radius the
+  // fish were completely swallowed by 130 tentacles, and a clownfish nobody can see is not
+  // worth the anemone it came with.
+  items.push(prop('clownfish-school', 7, -15, { y: 3.2, options: { count: 8, radius: 3.6, height: 2.4, seed: 97 } }));
+  items.push(
+    prop('info-placard', 14.5, -6.5, {
+      rotY: -0.85,
+      options: {
+        eyebrow: 'Clownfish and anemone',
+        title: 'A deal between two animals',
+        body: 'Those tentacles sting every other fish that touches them. The clownfish wears a coat of mucus that stops them firing, so it gets a house nothing can follow it into — and in return it chases off the fish that eat anemones. Neither one survives long alone.',
+      },
+    })
+  );
+
+  // --- coral on the sand ---------------------------------------------------------------
+  // Rubble gardens in the gaps between the mounds, at sea-floor level. Each is one draw
+  // call, so the reef can be genuinely crowded without the frame budget noticing.
+  const gardens = [
+    [-34, -13, 6, 20, 0.9, 501], [-24, -18, 5, 16, 0.85, 509], [-11, -27, 5, 16, 0.8, 521],
+    [4, -30, 5, 16, 0.85, 523], [19, -24, 5, 16, 0.85, 541], [30, -14, 5, 16, 0.8, 547],
+    [-44, -18, 5, 16, 0.85, 557], [-26, -31, 5, 16, 0.9, 563], [-5, -40, 5, 16, 0.85, 569],
+    [17, -38, 5, 16, 0.85, 571], [37, -20, 4, 12, 0.75, 577], [-13, -6, 4, 11, 0.6, 587],
+    [10, -12, 3.5, 10, 0.55, 593], [-22, 1, 3.5, 10, 0.5, 599], [24, 4, 3.5, 10, 0.5, 601],
+    // In the near field, between the spawn and the reef. Without these a student arrives
+    // looking across thirty-five feet of bare floor, which is a third of the screen doing
+    // nothing -- and worse, it puts everything worth seeing at a distance rather than
+    // within reach. Kept low and sparse so nothing blocks the walk in.
+    // Note the HEIGHT, not the count. Dropped to 0.4 these came out as scattered coloured
+    // chips -- a colony a few inches across has no shape left to read, so a drift of them
+    // looks like litter on the sand rather than like life on it. Fewer and bigger.
+    [-9, 11, 4, 7, 0.7, 607], [15, 12, 4, 7, 0.65, 613], [-19, 6, 3.5, 6, 0.65, 617],
+    [4, 2, 3, 5, 0.6, 619], [26, -3, 3.5, 6, 0.65, 631],
+  ];
+  for (const [x, z, radius, count, height, seed] of gardens) {
+    items.push(prop('coral-garden', x, z, { options: { radius, count, height, seed } }));
+  }
+
+  // Specimen colonies, big enough to be worth walking up to.
+  items.push(prop('brain-coral', -13, -13, { options: { radius: 2.6, seed: 53, color: 0xcbb44f } }));
+  items.push(prop('brain-coral', 20, -22, { options: { radius: 2.1, seed: 151, color: 0xc98a5a } }));
+  items.push(prop('brain-coral', -31, -27, { options: { radius: 2.4, seed: 157, color: 0xb5a86a } }));
+  items.push(
+    prop('info-placard', -7.5, -11.5, {
+      rotY: 0.25,
+      options: {
+        eyebrow: 'Brain coral',
+        title: 'An animal that builds rock',
+        body: 'Every groove holds a row of tiny animals, each one no bigger than a pinhead, and together they lay down limestone about half an inch a year. A boulder this size has been growing since before your great-grandparents were born.',
+      },
+    })
+  );
+
+  // Sea fans, all turned the same way. They feed by filtering water that passes through
+  // them, so a real colony grows broadside to the current -- and a group of them facing
+  // different ways is one of those mistakes that reads as wrong without being nameable.
+  const FAN_YAW = 0.35;
+  for (const [x, z, width, height, color, seed] of [
+    [-35, -18, 5.5, 6.5, 0xb44a8e, 59], [-38, -14, 4.5, 5.5, 0xa48ec4, 161],
+    [-32, -22, 5, 6, 0xcf5f78, 163], [30, -13, 4.5, 5.5, 0xb44a8e, 167],
+    [-9, -33, 5, 6, 0xa48ec4, 173], [22, -35, 4.5, 5, 0xcf5f78, 179],
+  ]) {
+    items.push(prop('sea-fan', x, z, { rotY: FAN_YAW, options: { width, height, color, seed } }));
+  }
+
+  // Sponges, clams, urchins and cucumbers -- the reef's small change.
+  items.push(prop('tube-sponge', -22, -20, { options: { count: 5, height: 3.4, color: 0xe0752a, seed: 67 } }));
+  items.push(prop('tube-sponge', 10, -20, { options: { count: 4, height: 2.8, color: 0xc4508f, seed: 181 } }));
+  items.push(prop('tube-sponge', -44, -12, { options: { count: 5, height: 3.6, color: 0xd85a30, seed: 191 } }));
+  items.push(prop('tube-sponge', 31, -25, { options: { count: 3, height: 2.6, color: 0xe0a83a, seed: 193 } }));
+
+  items.push(prop('giant-clam', -10, -3, { rotY: 0.5, options: { size: 3.0, seed: 71, mantle: 0x2fa0a8 } }));
+  items.push(prop('giant-clam', 23, -12, { rotY: -1.2, options: { size: 2.4, seed: 197, mantle: 0x7a5fc0 } }));
+  items.push(
+    prop('info-placard', -16, 0, {
+      rotY: 1.2,
+      options: {
+        eyebrow: 'Giant clam',
+        title: 'It farms its own food',
+        body: 'The blue frill is not decoration — it is a garden. Millions of algae live inside it, and the clam grows them for sugar the way a farmer grows a crop. The biggest species reaches four feet and lives over a hundred years.',
+      },
+    })
+  );
+
+  for (const [x, z, radius, seed] of [
+    [-22, 3, 0.7, 73], [15, -16, 0.6, 199], [-31, -7, 0.65, 211], [29, -8, 0.55, 223], [2, -12, 0.6, 227],
+    [-11, 7, 0.5, 239], [12, 7, 0.55, 241], [21, -2, 0.45, 251],
+  ]) {
+    items.push(prop('sea-urchin', x, z, { options: { radius, spines: 50, seed } }));
+  }
+  items.push(prop('sea-cucumber', 20, 1, { rotY: 0.8, options: { length: 2.6, seed: 79 } }));
+  items.push(prop('sea-cucumber', -18, 2, { rotY: -0.4, options: { length: 2.2, seed: 229, color: 0x6b4a58 } }));
+  items.push(prop('sea-cucumber', 33, -16, { rotY: 1.9, options: { length: 2.4, seed: 233 } }));
+
+  // Seagrass on the open sand, and a taller stand of it out at the world's edge where it
+  // has the same job the Park's perimeter woodland does: closing off the view so a 400ft
+  // plane never shows a student where it ends.
+  items.push(prop('seagrass-patch', 30, 12, { options: { radius: 7, count: 70, height: 2.2, seed: 83 } }));
+  items.push(prop('seagrass-patch', -28, 15, { options: { radius: 6, count: 60, height: 2.0, seed: 239 } }));
+  items.push(prop('seagrass-patch', 12, 20, { options: { radius: 5, count: 45, height: 1.8, seed: 241 } }));
+  for (let i = 0; i < 10; i++) {
+    const angle = (i / 10) * Math.PI * 2 + 0.4;
+    const radius = 92 + ((i * 7) % 4) * 9;
+    items.push(
+      prop('seagrass-patch', Math.cos(angle) * radius, -14 + Math.sin(angle) * radius, {
+        options: { radius: 11, count: 70, height: 7 + (i % 3) * 1.6, seed: 251 + i * 13, color: 0x3f6b40, drift: 0.65 },
+      })
+    );
+  }
+
+  // --- fish ---------------------------------------------------------------------------------
+  // Spread through the whole volume rather than laid out on the floor, because that is the
+  // difference between a world with fish in it and a world that is under water.
+  const schools = [
+    ['tang', 11, 5, -30, 5, 0.95, 4.5, 0.7, 89],
+    ['yellow', 8, -20, -26, 4, 0.85, 4, -0.5, 311],
+    ['anthias', 16, -30, -10, 9, 0.55, 4.5, 1.2, 313],
+    ['damsel', 14, 3, -14, 3, 0.42, 3, 2.1, 317],
+    ['butterfly', 6, 25, -30, 6, 0.75, 3.5, -1.4, 331],
+    ['tang', 9, -40, -30, 11, 0.9, 5, 0.2, 337],
+    ['anthias', 18, 16, -44, 7, 0.5, 5, 2.6, 347],
+    ['damsel', 12, -12, -36, 4, 0.45, 3.5, -2.2, 349],
+    ['yellow', 7, 34, -34, 8, 0.8, 4, 1.7, 353],
+  ];
+  for (const [species, count, x, z, y, length, radius, heading, seed] of schools) {
+    items.push(prop('reef-fish-school', x, z, { y, options: { species, count, length, radius, heading, seed, rise: 4 } }));
+  }
+
+  // --- the browser station and the way home -----------------------------------------------
+  items.push(...browserStation(7, 9, { faceX: SEA_SPAWN.x, faceZ: SEA_SPAWN.z }));
+
+  // The return half of the pair behind the Park's nature centre. Out on the open sand to
+  // the east rather than beside the spawn: a door home right where you arrive is a door
+  // most students press before they have seen anything.
+  items.push(
+    prop('world-portal', 44, 14, {
+      rotY: -Math.PI / 2,
+      options: {
+        title: 'THE PARK',
+        subtitle: 'Back up to dry land — the meadow, the pond and the bandstand',
+        world: 'park',
+        accent: '#2f8f5b',
+        face: '#123043',
+      },
+    })
+  );
+
+  // --- activities ---------------------------------------------------------------------------
+  items.push(
+    activity(44, -4, {
+      number: 1,
+      rotY: -1.48,
+      accent: '#1f7fa8',
+      title: 'Send the shark on patrol',
+      target: 'Click the big shark overhead → Program. (Look up — it is 15 feet above you.)',
+      steps: [
+        ctrlStep('forever'),
+        ctrlStep('repeat 40 times', 1),
+        moveStep('move X by -0.5 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+        ctrlStep('repeat 40 times', 1),
+        moveStep('move X by 0.5 feet', 2),
+        moveStep('rotate 180 degrees', 1),
+      ],
+      tip: 'Twenty feet out and twenty feet back, for ever. The two rotate blocks are what make it face the way it is going: move X always travels along the world, never along the shark, so turning it does not change where it goes — it only changes which way it points.',
+    })
+  );
+  items.push(
+    activity(-44, 6, {
+      number: 2,
+      rotY: 1.88,
+      accent: '#b4552a',
+      title: 'Make the octopus change colour',
+      target: 'Click the octopus on the rubble → Program.',
+      steps: [
+        ctrlStep('forever'),
+        lookStep('change color to red', 1),
+        ctrlStep('wait 1 seconds', 1),
+        lookStep('change color to white', 1),
+        ctrlStep('wait 1 seconds', 1),
+      ],
+      tip: 'A real octopus does this in about a fifth of a second, using millions of tiny colour sacs in its skin called chromatophores — and it does it while being colour-blind. Add a third colour and shorten the waits to see how fast you can make it flicker.',
+    })
+  );
+
+  // --- lighting -------------------------------------------------------------------------------
+  // ONE orb in the whole world, and it is DEEP INSIDE the moray's cave rather than in
+  // front of it -- so what a student sees through the mouth is a faint glow somewhere back
+  // in the rock, which is worth having, and never the lamp itself.
+  //
+  // The first pass had five spread through the reef and every one of them read as a
+  // glowing ball hanging in mid-water -- which is the Moon's lesson (`against a black sky a
+  // high orb reads as a floating ball rather than as a lamp`) with no roof anywhere to
+  // rescue it. Open water gives a light source nothing to be attached to. The fix is to use
+  // almost none and let the theme's very high hemisphere fill do the work instead, which is
+  // also what really lights a reef.
+  // Behind the cave's back wall, not inside the chamber. Orbs do not cast shadows here, so
+  // the light passes through the rock and lifts the recess off pure black while the glowing
+  // core itself is buried in the mound and can never be seen from anywhere.
+  items.push(orb(-5, -29, 2.2, ORB_WHITE));
+
+  return { theme: 'sea', spawn: { ...SEA_SPAWN }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + materialization
 // ---------------------------------------------------------------------------
 
@@ -2523,6 +2928,14 @@ export const PRESET_WORLDS = {
     label: "1940's New York",
     hint: 'Broadway at Times Square in the summer of 1949 — reached from the billboard behind the Library',
     build: newYorkLayout,
+    hidden: true,
+  },
+  // Hidden for the same reason, behind its own door: the billboard behind the Park's
+  // nature centre. See the notes on world portals in CLAUDE.md.
+  sea: {
+    label: 'Under the Sea',
+    hint: 'A tropical coral reef thirty feet down — reached from the billboard behind the Park’s nature centre',
+    build: seaLayout,
     hidden: true,
   },
 };
