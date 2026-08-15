@@ -3,8 +3,18 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TK6Y2Q8NP2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TK6Y2Q8NP2');
+</script>
 <title>Edusim: Web Edition — Build It. Code It. Explore It.</title>
-<meta name="description" content="Edusim: Web Edition is a free 3D world that runs in your browser. Build your own models out of cubes, spheres, cylinders and pyramids, code them to move with drag-and-drop blocks, then explore ready-made worlds that already have things waiting to be programmed — a park, a museum, a library, the Moon, a Mars base, full-size dinosaurs and the inside of the human body. No downloads, no accounts, no ads." />
+<meta name="description" content="Edusim: Web Edition is a free 3D world that runs in your browser. Build your own models out of cubes, spheres, cylinders and pyramids, code them to move with drag-and-drop blocks, then explore ready-made worlds that already have things waiting to be programmed — a park, a museum, a library, the Moon, a Mars base, full-size dinosaurs, the inside of the human body and a coral reef thirty feet under the sea. No downloads, no accounts, no ads." />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -48,7 +58,7 @@
       <strong>code</strong> it to move by dragging blocks together, then go and
       <strong>explore</strong> ready-made worlds that already have plenty in them worth
       programming — a city park, a museum, the Moon, a base on Mars, an island of
-      full-size dinosaurs.
+      full-size dinosaurs, and a coral reef with a shark cruising over your head.
     </p>
     <div class="hero-cta-row">
       <a class="btn btn-primary" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">▶ Launch Edusim — it's free</a>
@@ -139,9 +149,9 @@
             <span class="pillar-kicker">🗺️ Explore it</span>
             <h3>Worlds that teach you something</h3>
             <p>
-              Walk into a park, a museum, the Moon, Mars, or an island of full-size
-              dinosaurs. Every one is dotted with signs worth stopping for — and with
-              things already built and waiting for you to program.
+              Walk into a park, a museum, the Moon, Mars, an island of full-size
+              dinosaurs, or a coral reef. Every one is dotted with signs worth stopping
+              for — and with things already built and waiting for you to program.
             </p>
             <span class="pillar-more">See the worlds ↓</span>
           </div>
@@ -451,6 +461,10 @@
           for — and none of it is fixed in place. Anything you can see, you can move,
           resize, or teach to move on its own.
         </p>
+        <p>
+          🔎 And at least one world is <strong>not on that list at all</strong>. It
+          is in there — you just have to go and find the way in.
+        </p>
       </div>
 
       <!-- The point of the whole section, so it goes ABOVE the world grid: these worlds
@@ -640,7 +654,7 @@
             <span class="world-pin">🫀</span>
           </div>
           <div class="world-body">
-            <span class="world-kicker">Newest world</span>
+            <span class="world-kicker">Inside the human body</span>
             <h3>Fantastic Voyage</h3>
             <p>
               You've been shrunk. Walk in along an artery, duck under a rib cage, and
@@ -653,6 +667,31 @@
               <li>🩸 An artery you walk through</li>
               <li>🧬 DNA, cells &amp; a nerve cell</li>
               <li>📊 A chart for every body system</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="world-card reveal" style="--accent: var(--blue);">
+          <div class="world-shot">
+            <img src="assets/screenshots/world_sea.jpg" width="1600" height="1000" loading="lazy"
+                 alt="A tropical coral reef seen from the sea floor: a reef shark cruising overhead against a rippling, sunlit water surface, a moray eel looking out of a dark cave in the rocks, an orange anemone with clownfish around it, black sea urchins, colourful coral and information signs standing on the pale sand." />
+            <span class="world-pin">🦈</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">Newest world · hidden</span>
+            <h3>Under the Sea</h3>
+            <p>
+              Thirty feet down on a coral reef, with the surface rippling above your head
+              and sunbeams coming down through it. A reef shark passes three times your own
+              height overhead, a moray eel breathes with its mouth open in a cave, and an
+              octopus sprawls on the rubble. This one isn't in the menu — walk round the
+              back of the nature centre in the Park and you'll find the way in.
+            </p>
+            <ul class="world-chips">
+              <li>🦈 A shark passing overhead</li>
+              <li>🐙 Octopus, moray eel &amp; sea stars</li>
+              <li>🐠 Clownfish in their anemone</li>
+              <li>🔎 Hidden — you have to find it</li>
             </ul>
           </div>
         </article>
@@ -694,6 +733,12 @@
             <strong>Empty World</strong> is exactly that: open grass, a few trees for
             scale, and nothing else in your way. It's the one to pick when the model
             you're building is the whole point.
+          </p>
+          <p>
+            🔎 One world is deliberately <strong>missing from this list</strong>.
+            Under the Sea has no menu button at all — the only way in is a billboard
+            standing behind the nature centre in the Park. Walk round the back of the
+            building, click the sign, and you are on the reef.
           </p>
           <p class="world-switch-note">
             💾 Your changes save themselves as you go, so a world is exactly how you
