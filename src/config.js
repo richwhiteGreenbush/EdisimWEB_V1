@@ -366,12 +366,20 @@ export const WEB_BROWSER_WIDTH = 4; // feet
 export const WEB_BROWSER_HEIGHT = 2.6; // feet
 export const WEB_BROWSER_DOM_WIDTH = 900; // px -- DOM authoring size, for crisp text
 export const WEB_BROWSER_DOM_HEIGHT = 585; // px -- keeps the same 4:2.6 aspect as above
-// This project's own site, which is both a useful landing page for a student who has
-// just placed a panel and -- being GitHub Pages -- known to allow being framed. Most
-// large sites send X-Frame-Options/CSP frame-ancestors headers that block embedding
-// outright, and there is no client-side workaround. See the web browser panel notes in
-// CLAUDE.md. Every preset world seeds its spawn-point panel from this same constant.
-export const WEB_BROWSER_DEFAULT_URL = 'https://richwhitegreenbush.github.io/EdisimWEB_V1';
+// This project's own site: a useful landing page for a student who has just placed a
+// panel, and it sends no X-Frame-Options or CSP frame-ancestors, so it allows being
+// framed. Most large sites block embedding outright and there is no client-side
+// workaround -- see the web browser panel notes in CLAUDE.md. Every preset world seeds
+// its spawn-point panel from this same constant.
+//
+// KNOWN LIMITATION, and it is not a bug in this file: edusim3dweb.com has no HTTPS
+// (port 443 is not open), while the app is served from Railway over HTTPS. A browser
+// refuses to load an http: iframe inside an https: page -- "Mixed Content ... blocked"
+// -- so on the Railway deployment this panel comes up blank. It works on any http
+// origin, including the local Apache mirror serve-local.sh runs. The fix is to enable
+// SSL for the domain at pair Networks; this line then becomes https: and works
+// everywhere. Nothing in the app can work around it.
+export const WEB_BROWSER_DEFAULT_URL = 'http://edusim3dweb.com';
 export const EDIT_ICON_SIZE = 0.7; // feet, billboard sprite size
 export const EDIT_ICON_MARGIN = 0.6; // feet above the panel's bounding-box top
 
