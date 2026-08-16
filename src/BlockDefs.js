@@ -49,16 +49,28 @@ export const BLOCK_DEFS = {
 
   // --- Motion ---------------------------------------------------------------
   //
-  // These three move along the object's OWN facing, which is the whole reason they
-  // replaced move X/Y/Z. World-axis movement meant rotating something never changed
-  // where it would then travel, so "drive around in a square" was not writable at all
-  // and every patrol in every world had to be an out-and-back with a rotate 180 in the
-  // middle. With `move forward`, a rotate finally changes what the next move does.
+  // `moveForward` and `glide` travel along the object's OWN facing, which is the whole
+  // reason they replaced move X/Z. World-axis movement meant rotating something never
+  // changed where it would then travel, so "drive around in a square" was not writable at
+  // all and every patrol in every world had to be an out-and-back with a rotate 180 in
+  // the middle. With these, a rotate finally changes what the next move does.
+  //
+  // `moveUp` is the deliberate exception -- see the note on it below.
   moveForward: {
     category: 'motion',
     hasChildren: false,
     label: [{ text: 'move forward' }, { field: 'feet' }, { text: 'feet' }],
     params: { feet: { type: 'number', default: 2, step: 0.5 } },
+  },
+  // The one movement block that is NOT relative to facing, and deliberately so. Up is up
+  // whichever way a thing is pointing, and a lift that tilted with its object would be
+  // both surprising and useless for the job these are for -- raising a dome onto a
+  // building, floating a balloon, dropping rain. A negative number goes down.
+  moveUp: {
+    category: 'motion',
+    hasChildren: false,
+    label: [{ text: 'move up by' }, { field: 'feet' }, { text: 'feet' }],
+    params: { feet: { type: 'number', default: 1, step: 0.5 } },
   },
   glide: {
     category: 'motion',
@@ -166,7 +178,7 @@ export const BLOCK_DEFS = {
 // note on them above.
 export const PALETTE_ORDER = [
   'repeat', 'forever', 'wait', 'whenSaid', 'duplicate',
-  'moveForward', 'glide', 'rotate', 'goHome',
+  'moveForward', 'moveUp', 'glide', 'rotate', 'goHome',
   'say', 'changeSize', 'setSize', 'setOpacity', 'changeColor',
 ];
 

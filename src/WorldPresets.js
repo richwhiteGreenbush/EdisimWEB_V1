@@ -497,11 +497,12 @@ function parkLayout() {
       title: 'Grow the maple from a sapling',
       target: 'Click the big maple tree → Program.',
       steps: [
+        lookStep('set size to 25 %'),
         ctrlStep('repeat 12 times'),
-        lookStep('change size by 8 %', 1),
+        lookStep('change size by 12 %', 1),
         ctrlStep('wait 0.2 seconds', 1),
       ],
-      tip: 'Watch closely: 8% of a big tree is more than 8% of a small one, so it speeds up as it goes. That is what growth really does. Use -7 % to shrink it back down.',
+      tip: 'Two size blocks, and they are not the same. "set size to" always measures from how big the tree was when you pressed play, so it starts from a sapling every time. "change size by" builds on whatever size it is NOW — which is why 12% of a big tree is more than 12% of a small one, and why it speeds up as it goes. That is what growth really does.',
     })
   );
 
@@ -1280,12 +1281,14 @@ function marsLayout() {
       target: 'Click the little helicopter → Program.',
       steps: [
         ctrlStep('forever'),
-        ctrlStep('repeat 4 times', 1),
-        moveStep('glide 14 feet over 2 seconds', 2),
-        moveStep('rotate 90 degrees', 2),
-        ctrlStep('wait 1 seconds', 1),
+        ctrlStep('repeat 10 times', 1),
+        moveStep('move up by 0.4 feet', 2),
+        ctrlStep('wait 0.1 seconds', 2),
+        ctrlStep('repeat 10 times', 1),
+        moveStep('move up by -0.4 feet', 2),
+        ctrlStep('wait 0.1 seconds', 2),
       ],
-      tip: 'Four glides and four quarter turns is a square, and it only works because glide follows the way the copter is POINTING. Change the rotate to 72 degrees and the repeat to 5 and you get a pentagon: any regular shape is 360 divided by the number of sides.',
+      tip: 'Up four feet, hover, back down — a negative number in move up goes down. On Mars getting off the ground is the hard part: the air is so thin the blades have almost nothing to push against, which is why the real Ingenuity had to spin at 2,500 rpm.',
     })
   );
 
@@ -3209,18 +3212,14 @@ function egyptLayout() {
       number: 1,
       rotY: 0.54,
       accent: '#c2861f',
-      title: 'Make the obelisks answer each other',
-      target: 'Give the LEFT obelisk the first stack, the right one the second.',
+      title: 'Raise the obelisk',
+      target: 'Click the left-hand obelisk → Program.',
       steps: [
-        ctrlStep('forever'),
-        lookStep('say sunrise', 1),
-        ctrlStep('wait 3 seconds', 1),
-        ctrlStep('when an object says sunrise'),
-        lookStep('set opacity to 40 %', 1),
-        ctrlStep('wait 1 seconds', 1),
-        lookStep('set opacity to 100 %', 1),
+        ctrlStep('repeat 20 times'),
+        moveStep('move up by 0.6 feet', 1),
+        ctrlStep('wait 0.15 seconds', 1),
       ],
-      tip: 'Two stacks on two different objects: the first talks, the second listens. "when an object says" does not care WHICH object said it, so one shout sets off every listener in the world — give the same listening stack to the Sphinx as well and watch them both answer.',
+      tip: 'Egyptian crews raised these by hauling them upright onto a base with ropes and sand — no cranes, no pulleys. Yours cheats and floats. Change 0.6 to 0.1 and watch how much more convincing slow is than fast, then put "go back to start" on the end to drop it home again.',
     }),
   );
 
@@ -3678,17 +3677,16 @@ function waterCycleLayout() {
       number: 2,
       rotY: -0.1,
       accent: '#2f9e8f',
-      title: 'Start and stop the shower',
+      title: 'Make the rain fall',
       target: 'Click the grey rain under the dark cloud → Program.',
       steps: [
         ctrlStep('forever'),
-        lookStep('set opacity to 0 %', 1),
-        ctrlStep('wait 4 seconds', 1),
-        lookStep('set opacity to 80 %', 1),
-        lookStep('say raining', 1),
-        ctrlStep('wait 6 seconds', 1),
+        ctrlStep('repeat 20 times', 1),
+        moveStep('move up by -1 feet', 2),
+        ctrlStep('wait 0.05 seconds', 2),
+        moveStep('go back to start', 1),
       ],
-      tip: 'A cloud only rains while its droplets are heavy enough to fall, so real showers switch on and off. The say block at the end broadcasts to the whole world — give the sea a "when an object says raining" stack and the rest of the cycle can react to this one cloud letting go.',
+      tip: 'Fall a bit at a time, then jump back to the top — which is exactly how a cartoon makes endless rain out of one drawing. "go back to start" is what resets it, and it remembers where the rain was when you pressed play. Change -1 to -3 and it becomes a downpour.',
     }),
   );
 
@@ -3889,15 +3887,15 @@ function pompeiiLayout() {
   items.push(
     activity(-25, 78, {
       number: 1, rotY: face(-25, 78), accent: '#c2521f',
-      title: 'Thicken the ash fall',
+      title: 'Raise the ash column',
       target: 'Click the falling ash near the forum → Program.',
       steps: [
-        ctrlStep('repeat 8 times'),
-        lookStep('change size by 12 %', 1),
-        ctrlStep('wait 0.4 seconds', 1),
-        lookStep('say it is getting dark'),
+        ctrlStep('repeat 30 times'),
+        moveStep('move up by 1 feet', 1),
+        lookStep('change size by 3 %', 1),
+        ctrlStep('wait 0.1 seconds', 1),
       ],
-      tip: 'The fall got heavier for eighteen hours before the town was buried. Press play twice and it keeps on growing, because "change size by" builds on whatever size it is NOW. Put "set size to 100 %" at the top instead and it always starts from the same place.',
+      tip: 'It rises and spreads at the same time, which is what a Plinian column does — up fast, then flat at the top where the air stops it climbing. The real one reached 21 miles in about an hour. Pliny the Younger watched it from across the bay and wrote the only eyewitness account we have.',
     }),
   );
   items.push(
@@ -4243,14 +4241,18 @@ function ellisLayout() {
   items.push(
     activity(24, 88, {
       number: 2, rotY: face(24, 88), accent: '#74b09a',
-      title: 'Light the torch',
-      target: 'Click the Statue of Liberty → Program.',
+      title: 'Make the ship signal, and Liberty answer',
+      target: 'Two stacks. Give the first to the STEAMSHIP, the second to the Statue of Liberty.',
       steps: [
         ctrlStep('forever'),
-        lookStep('change color to #ffd27f', 1), ctrlStep('wait 1 seconds', 1),
-        lookStep('change color to #7fd4c4', 1), ctrlStep('wait 1 seconds', 1),
+        lookStep('say land ahead', 1),
+        ctrlStep('wait 6 seconds', 1),
+        ctrlStep('when an object says land ahead'),
+        lookStep('change color to #ffd27f', 1),
+        ctrlStep('wait 2 seconds', 1),
+        lookStep('change color to #7fd4c4', 1),
       ],
-      tip: 'The statue was a dull brown when it arrived — it is copper, and copper turns green as it weathers. It took about thirty years. When people proposed painting it back to brown in 1906 the public would not have it.',
+      tip: 'Two objects, two stacks, one message. "when an object says" does not care WHICH object spoke, so give the same listening stack to the Main Building as well and both answer at once. Liberty really was a dull brown when she arrived — copper turns green as it weathers, and it took about thirty years.',
     }),
   );
 
@@ -4382,16 +4384,16 @@ function capitolLayout() {
   items.push(
     activity(-26, 128, {
       number: 1, rotY: face(-26, 128), accent: '#8a8578',
-      title: 'Build the dome up from nothing',
+      title: 'Raise the dome into place',
       target: 'Click the dome (not the building) → Program.',
       steps: [
-        lookStep('set size to 10 %'),
-        ctrlStep('repeat 20 times'),
-        lookStep('change size by 12 %', 1),
-        ctrlStep('wait 0.15 seconds', 1),
+        moveStep('move up by 30 feet'),
+        ctrlStep('repeat 24 times'),
+        moveStep('move up by -1.5 feet', 1),
+        ctrlStep('wait 0.12 seconds', 1),
         lookStep('say the union shall go on'),
       ],
-      tip: 'The dome went up in cast-iron rings hoisted by a derrick standing inside it, right through the Civil War — Lincoln insisted the work carry on. "go back to start" snaps it back to full size whenever you like. The dome and the building are separate objects, which is why you can grow one without the other.',
+      tip: 'Lift it clear, then lower it onto the building a foot and a half at a time. The real dome went up in cast-iron rings hoisted by a derrick standing inside it, right through the Civil War — Lincoln insisted the work carry on. The dome and the building are separate objects here, which is why you can move one without the other.',
     }),
   );
   items.push(
@@ -4571,10 +4573,14 @@ function barrierLayout() {
       target: 'Click a healthy staghorn thicket → Program.',
       steps: [
         ctrlStep('forever'),
-        lookStep('change color to #ffffff', 1), ctrlStep('wait 3 seconds', 1),
-        lookStep('change color to #c98a4e', 1), ctrlStep('wait 3 seconds', 1),
+        lookStep('change color to #ffffff', 1),
+        lookStep('set opacity to 55 %', 1),
+        ctrlStep('wait 3 seconds', 1),
+        lookStep('change color to #c98a4e', 1),
+        lookStep('set opacity to 100 %', 1),
+        ctrlStep('wait 3 seconds', 1),
       ],
-      tip: 'This is the real sequence, and the timing is the lesson: warming turns it white in weeks, and recovery — if it happens at all — takes ten to fifteen years. Make the white wait twenty times longer than the colour and you have modelled it honestly.',
+      tip: 'It goes pale AND thin, because a bleached coral has lost the algae living inside it — that is where both its colour and most of its food came from. The timing is the real lesson: warming turns it white in weeks, and recovery, if it comes at all, takes ten to fifteen years. Make the white wait twenty times longer and you have modelled it honestly.',
     }),
   );
 
@@ -4717,11 +4723,12 @@ function deltaLayout() {
       title: 'Cast off and head downriver',
       target: 'Click the steamboat → Program.',
       steps: [
-        ctrlStep('repeat 18 times'),
-        moveStep('move forward 6 feet', 1),
-        ctrlStep('wait 0.3 seconds', 1),
+        ctrlStep('forever'),
+        moveStep('glide 90 feet over 12 seconds', 1),
+        moveStep('go back to start', 1),
+        ctrlStep('wait 2 seconds', 1),
       ],
-      tip: 'Downstream a packet made 15 mph and upstream barely 5, because it was fighting the current the whole way. Run this with -6 and then with +6 and the same number of steps takes the boat very different distances in your head, which is exactly the problem a pilot had.',
+      tip: 'Now compare the two movement blocks. "move forward" jumps the whole distance at once; "glide" spreads it over the seconds you give it, so a boat this size stops teleporting and starts steaming. Downstream a packet made 15 mph and upstream barely 5 — try 12 seconds one way and 36 the other.',
     }),
   );
   items.push(

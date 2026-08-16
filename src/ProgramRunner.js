@@ -49,6 +49,14 @@ function* runBlock(block, ctx) {
       yield { type: 'tick' };
       return;
 
+    case 'moveUp':
+      // World Y, not the object's own up. See the note in BlockDefs.js: a lift that
+      // tilted with its object would be surprising and useless for the jobs this exists
+      // for. Negative goes down.
+      ctx.object3D.position.y += Number(block.params.feet) || 0;
+      yield { type: 'tick' };
+      return;
+
     case 'glide': {
       // The one block that spans time rather than happening at an instant. It works
       // because this is a generator stepped once per frame: the loop below advances the

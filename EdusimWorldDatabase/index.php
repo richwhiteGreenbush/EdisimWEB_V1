@@ -33,8 +33,9 @@ $result = ewd_list_worlds([
 ]);
 
 $counts     = ewd_count_by_status();
-$tags       = ewd_popular_tags();
-$themes     = ewd_themes_in_use();
+// Top 10 only. ewd_popular_tags() already orders by use, so this is the ten a
+// visitor is most likely to want; the long tail was noise on a filter bar.
+$tags       = ewd_popular_tags(10);
 $filtering  = $search !== '' || $tag !== '' || $theme !== '';
 
 ewd_header([
@@ -85,18 +86,16 @@ ewd_hero(
         <?php endif; ?>
       </div>
 
-      <?php if ($themes): ?>
-      <div class="chip-row">
-        <span class="chip is-on" style="background:none;border-color:transparent;color:var(--ink-soft);">Where:</span>
-        <?php foreach ($themes as $t): ?>
-          <?php $on = $theme === $t['theme']; ?>
-          <a class="chip<?= $on ? ' is-on' : '' ?>"
-             href="<?= e(ewd_url_with(['theme' => $on ? null : $t['theme'], 'page' => null])) ?>">
-            <?= ewd_theme_emoji($t['theme']) ?> <?= e(ewd_theme_label($t['theme'])) ?> <b><?= (int)$t['c'] ?></b>
-          </a>
-        <?php endforeach; ?>
-      </div>
-      <?php endif; ?>
+      <?php /* The "Where" (theme) pill row is deliberately gone. With seventeen worlds in
+               the app there is a theme for nearly every one of them, so the row had grown
+               to a wall of chips that pushed the actual results below the fold and read as
+               a second, competing navigation. Tags do the same job better, because a
+               world can carry several of them and they are chosen for what a person would
+               search for.
+
+               ?theme=... IS STILL HONOURED by the query above -- only the pills are gone.
+               Existing links and bookmarks carrying a theme keep working, and the filter
+               still composes with a tag and a search. */ ?>
 
       <?php if ($tags): ?>
       <div class="chip-row">

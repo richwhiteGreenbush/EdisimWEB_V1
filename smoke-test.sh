@@ -63,15 +63,20 @@ check "logo wordmark"        "$SITE/assets/edusim-wordmark.jpg" 200
 # The hero's third button. It is a RELATIVE href, so this also proves the gallery is
 # mounted where the marketing page thinks it is -- the one thing a broken deploy layout
 # would silently get wrong.
-# Fetch first, then grep. `curl | grep -q` is wrong under `set -o pipefail`: grep exits on
-# the first match, SIGPIPEs curl, and the pipeline reports curl's 141 -- so the check fails
-# precisely BECAUSE the string was found.
-home_html="$(curl -s --max-time "$TIMEOUT" "$SITE/")"
-if printf '%s' "$home_html" | grep -q 'href="worlds/"'; then
+# Fetch to a FILE, then grep the file. Two traps have already been hit here:
+#   * `curl | grep -q` is wrong under `set -o pipefail` -- grep exits on the first match,
+#     SIGPIPEs curl, and the pipeline reports curl's 141, so the check fails precisely
+#     BECAUSE the string was found.
+#   * `printf '%s' "$var" | grep` then broke once the page grew past a few hundred KB.
+# A temp file has neither failure mode and costs nothing.
+home_html="$(mktemp)"
+curl -s --max-time "$TIMEOUT" "$SITE/" -o "$home_html"
+if grep -q 'href="worlds/"' "$home_html"; then
   printf '  \033[32mok\033[0m   %-46s links to worlds/\n' "hero gallery button"; pass=$((pass+1))
 else
   printf '  \033[31mFAIL\033[0m %-46s no href="worlds/" in the page\n' "hero gallery button"; fail=$((fail+1))
 fi
+rm -f "$home_html"
 
 section "World gallery"
 check "gallery"              "$SITE/worlds/"             200
