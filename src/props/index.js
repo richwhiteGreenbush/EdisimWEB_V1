@@ -8,6 +8,8 @@ import * as Park from './ParkProps.js';
 import * as Body from './BodyProps.js';
 import * as City from './CityProps.js';
 import * as Sea from './SeaProps.js';
+import * as Egypt from './EgyptProps.js';
+import * as Solar from './SolarProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -195,6 +197,26 @@ export const PROP_BUILDERS = {
   'light-shafts': Sea.lightShafts,
   'bubble-column': Sea.bubbleColumn,
   'marine-snow': Sea.marineSnow,
+
+  // Ancient Egypt
+  'great-sphinx': Egypt.greatSphinx,
+  'giza-pyramid': Egypt.gizaPyramid,
+  'valley-temple': Egypt.valleyTemple,
+  obelisk: Egypt.obelisk,
+  stela: Egypt.stela,
+  mastaba: Egypt.mastaba,
+  'date-palm': Egypt.datePalm,
+  'sand-drift': Egypt.sandDrift,
+  'solar-barque': Egypt.solarBarque,
+  'cartouche-plaque': Egypt.cartouchePlaque,
+
+  // Solar System Walkthrough
+  'sun-model': Solar.sunModel,
+  'planet-model': Solar.planetModel,
+  'orbit-walk': Solar.orbitWalk,
+  'distance-marker': Solar.distanceMarker,
+  'asteroid-belt': Solar.asteroidBelt,
+  comet: Solar.comet,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

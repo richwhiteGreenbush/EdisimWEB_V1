@@ -326,6 +326,240 @@ export const WORLD_THEMES = {
     sunPosition: [65, 100, 55],
     stars: false,
   },
+
+  // -------------------------------------------------------------------------
+  // The nine curriculum worlds
+  // -------------------------------------------------------------------------
+
+  // Giza at mid-morning. Desert light is the brightest and hardest in this app: there is
+  // no canopy, no cloud and no water vapour to soften it, so sunIntensity is the highest
+  // anywhere here and hemiGround is a hot sand bounce rather than the usual cool earth.
+  // That bounce is doing real work -- the Sphinx's north flank and every pyramid's shaded
+  // face are lit by NOTHING else, and at a normal outdoor value they went to silhouette,
+  // the same failure the Mars props hit.
+  //
+  // The sky is deliberately pale and slightly warm, not a saturated blue: desert haze
+  // scatters enough dust to wash the horizon out, and a deep blue behind pale limestone
+  // reads as a poster. Fog is far out (the point of this world is distant monumental
+  // silhouettes) but not off, so the third pyramid sits back in the haze.
+  egypt: {
+    groundDetail: 'ground-regolith.jpg',
+    sky: 0xd8c9a4,
+    fogNear: 150,
+    fogFar: 620,
+    groundLow: 0xa8905f,
+    groundHigh: 0xd8c193,
+    groundRoughness: 1,
+    amplitude: 3.4,
+    flatRadius: 40,
+    blendRadius: 150,
+    hemiSky: 0xf2e4c4,
+    hemiGround: 0x9c7f52,
+    hemiIntensity: 1.5,
+    sunColor: 0xfff0cc,
+    sunIntensity: 2.9,
+    sunPosition: [140, 150, 80],
+    stars: false,
+  },
+
+  // Standing in space. This is the only theme with NO sun-facing ground bounce worth the
+  // name: hemiGround is nearly black because there is no ground out here to bounce off,
+  // and the planets have to be lit from one side like real bodies are. Turn the hemi up
+  // and every planet becomes a flat disc with its terminator washed out -- the terminator
+  // IS the lesson.
+  //
+  // Fog is off in practice (pushed past the far plane): haze between the viewer and Nep-
+  // tune would be nonsense, and the walkway needs to show its whole length at once.
+  solar: {
+    sky: 0x05070f,
+    fogNear: 400,
+    fogFar: 1400,
+    groundLow: 0x1d2130,
+    groundHigh: 0x333850,
+    groundRoughness: 0.9,
+    amplitude: 0,
+    flatRadius: 300,
+    blendRadius: 320,
+    // Lifted from the near-black the first pass used. Astronomically the fill out here
+    // really is almost nothing, and at that value the deck, the placards and the outer
+    // planets were all unlit silhouettes -- true, and pedagogically useless. This is the
+    // lowest fill that still lets a student read a sign, with the deck's own emissive
+    // edge lighting (see orbitWalk) doing the rest.
+    hemiSky: 0x3d4a70,
+    hemiGround: 0x141826,
+    hemiIntensity: 0.95,
+    sunColor: 0xfff6e8,
+    sunIntensity: 3.1,
+    sunPosition: [-150, 60, 0],
+    stars: true,
+  },
+
+  // A bright showery afternoon over a valley -- the weather the cycle is made of. The
+  // sky is a rain-washed blue-grey rather than the park's clean blue, fog sits close
+  // enough to read as humidity, and the sun is strong but low-contrast: an overcast-edged
+  // day has a very high hemi relative to its sun, which is exactly what keeps the
+  // undersides of the cloud models readable instead of black.
+  watercycle: {
+    groundDetail: 'ground-soil.jpg',
+    sky: 0x9fb8cc,
+    fogNear: 90,
+    fogFar: 330,
+    groundLow: 0x3d6438,
+    groundHigh: 0x76a355,
+    amplitude: 5.5,
+    flatRadius: 24,
+    blendRadius: 110,
+    hemiSky: 0xd8e6f2,
+    hemiGround: 0x4e5a3a,
+    hemiIntensity: 1.75,
+    sunColor: 0xfff1dc,
+    sunIntensity: 1.9,
+    sunPosition: [70, 105, 60],
+    stars: false,
+  },
+
+  // 24 August AD 79, early afternoon, under the ash column. The whole world is lit by a
+  // sun that is being filtered through falling ash -- so sunColor is a strong ochre and
+  // sunIntensity is DOWN, while hemiGround is a warm ash-grey lifted well above normal.
+  //
+  // This is the one theme where the sky and fog carry the narrative: a dirty amber sky
+  // and close, warm haze put the eruption in every direction the student looks, without
+  // needing a single prop to say so.
+  pompeii: {
+    groundDetail: 'ground-soil.jpg',
+    sky: 0xa8845c,
+    fogNear: 70,
+    fogFar: 300,
+    groundLow: 0x6b5f4e,
+    groundHigh: 0x9c8d74,
+    amplitude: 2.8,
+    flatRadius: 34,
+    blendRadius: 120,
+    hemiSky: 0xd9bb90,
+    hemiGround: 0x6a5c48,
+    hemiIntensity: 1.6,
+    sunColor: 0xf0b464,
+    sunIntensity: 1.7,
+    sunPosition: [80, 95, 45],
+    stars: false,
+  },
+
+  // A Tuscan workshop yard in late afternoon. Warm, dusty, low sun -- the light of the
+  // drawings themselves. The ground is a beaten earth courtyard rather than grass, and
+  // the sun is deliberately raked low so every machine casts a long readable shadow: a
+  // wing frame and a screw are mostly VOID, and their shadow is what shows their shape.
+  davinci: {
+    groundDetail: 'ground-soil.jpg',
+    sky: 0xbfd0dc,
+    fogNear: 80,
+    fogFar: 300,
+    groundLow: 0x6e5c44,
+    groundHigh: 0xa08a68,
+    amplitude: 1.4,
+    flatRadius: 48,
+    blendRadius: 120,
+    hemiSky: 0xdfe6f0,
+    hemiGround: 0x6a5a42,
+    hemiIntensity: 1.4,
+    sunColor: 0xffe2b0,
+    sunIntensity: 2.5,
+    sunPosition: [110, 62, 70],
+    stars: false,
+  },
+
+  // New York harbour on a cold clear morning, 1907. A maritime sky: cooler and greyer
+  // than any inland world here, with fog at a real harbour distance so Liberty across the
+  // water sits in haze rather than crisply cut out -- which is what gives the crossing
+  // its sense of distance. The ground ramp is harbour stone and wet paving, not grass.
+  ellis: {
+    groundDetail: 'ground-soil.jpg',
+    sky: 0xa8bccc,
+    fogNear: 110,
+    fogFar: 420,
+    groundLow: 0x5a5f63,
+    groundHigh: 0x8d9296,
+    amplitude: 1.2,
+    flatRadius: 60,
+    blendRadius: 150,
+    hemiSky: 0xcbdcea,
+    hemiGround: 0x4e545a,
+    hemiIntensity: 1.45,
+    sunColor: 0xfff2e2,
+    sunIntensity: 2.2,
+    sunPosition: [90, 95, 70],
+    stars: false,
+  },
+
+  // The National Mall on a clear spring day. Cleanest, most neutral light in the app on
+  // purpose: this world is white marble against green lawn, and any warmth in the sun
+  // turns the Capitol cream. High hemi because a dome is a curved surface whose whole
+  // shaded half is lit by sky bounce alone.
+  capitol: {
+    groundDetail: 'ground-soil.jpg',
+    sky: 0x8ec2e8,
+    fogNear: 140,
+    fogFar: 520,
+    groundLow: 0x47713a,
+    groundHigh: 0x86b45c,
+    amplitude: 0.9,
+    flatRadius: 90,
+    blendRadius: 180,
+    hemiSky: 0xdcecff,
+    hemiGround: 0x4a5540,
+    hemiIntensity: 1.5,
+    sunColor: 0xfffaf0,
+    sunIntensity: 2.35,
+    sunPosition: [80, 130, 60],
+    stars: false,
+  },
+
+  // The Great Barrier Reef in about 25ft of water -- shallower and clearer than `sea`,
+  // which is set at 30ft on a Caribbean-style patch reef. So: fog opened up a little to
+  // let a bommie field read as a field, a greener-blue water column (coral-sea water is
+  // famously turquoise over white sand), and the same very high pale ground bounce, which
+  // `sea` proved is what keeps a white-bellied animal from rendering as a lump.
+  reef: {
+    groundDetail: 'ground-regolith.jpg',
+    sky: 0x1f86a8,
+    fogNear: 42,
+    fogFar: 190,
+    groundLow: 0x9a9a80,
+    groundHigh: 0xe4dcc0,
+    groundRoughness: 1,
+    amplitude: 2.2,
+    flatRadius: 26,
+    blendRadius: 105,
+    hemiSky: 0x7fd4e8,
+    hemiGround: 0xa6b8ad,
+    hemiIntensity: 2.0,
+    sunColor: 0xdff2ff,
+    sunIntensity: 2.5,
+    sunPosition: [30, 160, 25],
+    stars: false,
+  },
+
+  // The lower Mississippi at golden hour. Humid river air: warm low sun, close haze off
+  // the water, and a green-grey ground ramp for silt and levee grass. hemiGround is
+  // lifted for the same reason Dinosaur Island's was -- a cypress swamp is a closed
+  // canopy, and anything under Spanish moss is lit by bounce alone.
+  delta: {
+    groundDetail: 'ground-soil.jpg',
+    sky: 0xd9b98c,
+    fogNear: 65,
+    fogFar: 290,
+    groundLow: 0x4a5638,
+    groundHigh: 0x87905a,
+    amplitude: 1.8,
+    flatRadius: 30,
+    blendRadius: 110,
+    hemiSky: 0xf0d9b4,
+    hemiGround: 0x5c6244,
+    hemiIntensity: 1.6,
+    sunColor: 0xffd9a0,
+    sunIntensity: 2.3,
+    sunPosition: [120, 48, 85],
+    stars: false,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger

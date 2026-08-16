@@ -2994,6 +2994,478 @@ function seaLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// Ancient Egypt -- the Giza plateau
+// ---------------------------------------------------------------------------
+
+// Everything here is built at ONE consistent 1:5 (see the note at the top of
+// EgyptProps.js). At true size the Great Pyramid's base alone is 756ft -- wider than the
+// entire walkable world, which is clamped to a 195ft radius -- and the monuments stand a
+// quarter-mile apart. What survives 1:5 is every proportion a student can actually
+// compare, and those are the lesson: Menkaure is less than half the height of the other
+// two; the Sphinx is about as long as Menkaure's base is wide; Khafre only LOOKS taller
+// than Khufu because it stands on higher ground. Each placard states the real dimension.
+//
+// The composition is the photograph everyone has seen: the Sphinx in the near ground with
+// Khafre rising directly behind it. That is why Khafre sits on the centre line and Khufu,
+// which is really the bigger one, is offset to the left where its size can be compared
+// rather than blocked.
+function egyptLayout() {
+  const items = [];
+
+  // --- The Sphinx and its enclosure ---------------------------------------
+  // Facing +Z, back toward the spawn. The real Sphinx faces east toward the sunrise; here
+  // it faces the arrival, because a monument whose entire identity is its FACE cannot be
+  // introduced back-on. The causeway behind it runs to Khafre exactly as the real one does.
+  items.push(prop('great-sphinx', 0, 34, { rotY: 0 }));
+
+  // The Dream Stela stands between the real Sphinx's paws -- Thutmose IV's account of
+  // falling asleep in its shadow and being told to dig it out of the sand. Placed just
+  // ahead of the paws instead of between them, where it can actually be read.
+  items.push(prop('stela', 0, 63, { rotY: 0, options: { width: 5, height: 9, seed: 31 } }));
+
+  items.push(
+    prop('info-placard', -9, 62, {
+      rotY: 0.16,
+      options: {
+        eyebrow: 'c. 2500 BC',
+        title: 'The Great Sphinx',
+        accent: '#8c6b3f',
+        body:
+          'Really 240ft long and 66ft tall — carved from one ridge of limestone left standing when the quarry around it was cut away. It is not built from blocks. The head is much too small for the body because it is cut from a harder layer of rock that has worn away far more slowly. The nose has been missing for centuries, and the plaited beard is in a museum.',
+      },
+    }),
+  );
+
+  // The valley temple, south-east of the Sphinx, where the real one is. Bare Aswan granite
+  // with no carving at all -- the deliberate contrast with every other surface here.
+  items.push(prop('valley-temple', -34, 46, { rotY: 0.16 }));
+  items.push(
+    prop('info-placard', -22, 56, {
+      rotY: 0.34,
+      options: {
+        eyebrow: 'Khafre’s valley temple',
+        title: 'Stone with nothing written on it',
+        accent: '#7d5044',
+        body:
+          'Most Egyptian buildings are covered in carving. This one is completely plain: square granite piers and slab lintels, and not one hieroglyph. The granite was floated 500 miles down the Nile from Aswan. Some blocks weigh 200 tons.',
+      },
+    }),
+  );
+
+  // --- The three pyramids -------------------------------------------------
+  // Khafre on the centre line, directly behind the Sphinx, with its casing cap.
+  items.push(
+    prop('giza-pyramid', 6, -68, {
+      options: { baseWidth: 706 / 5, height: 471 / 5, courses: 32, capHeight: 471 / 5 * 0.22, seed: 61 },
+    }),
+  );
+  items.push(
+    prop('cartouche-plaque', 6, -8, {
+      rotY: -0.05,
+      options: { label: 'KHAFRE', sub: 'Really 471 ft tall — the cap is its original casing' },
+    }),
+  );
+
+  // Khufu, the Great Pyramid, offset left. Bigger than Khafre and standing on lower
+  // ground, which is the whole comparison.
+  items.push(
+    prop('giza-pyramid', -112, -46, {
+      options: { baseWidth: 756 / 5, height: 481 / 5, courses: 36, seed: 67 },
+    }),
+  );
+  items.push(
+    prop('cartouche-plaque', -96, 16, {
+      rotY: 0.76,
+      options: { label: 'KHUFU', sub: 'Really 481 ft — 2.3 million blocks' },
+    }),
+  );
+
+  // Menkaure, right and much smaller, with its granite lower courses.
+  items.push(
+    prop('giza-pyramid', 118, -18, {
+      options: { baseWidth: 344 / 5, height: 213 / 5, courses: 22, graniteCourses: 4, seed: 71 },
+    }),
+  );
+  items.push(
+    prop('cartouche-plaque', 104, 24, {
+      rotY: -0.84,
+      options: { label: 'MENKAURE', sub: 'Really 213 ft — under half its neighbours' },
+    }),
+  );
+
+  // The queens' pyramids -- three small satellites beside Menkaure, as at the real site.
+  // They also give the eye something to measure the big ones against.
+  for (let i = 0; i < 3; i++) {
+    items.push(
+      prop('giza-pyramid', 138 - i * 22, 22 + i * 5, {
+        options: { baseWidth: 8.5 - i * 0.7, height: 5.6 - i * 0.5, courses: 9, seed: 80 + i, entrance: false },
+      }),
+    );
+  }
+
+  // --- Khufu's ship -------------------------------------------------------
+  // Found sealed in a pit beside the Great Pyramid in 1954, in 1,224 pieces. Placed out on
+  // the plain toward Khufu where a student walking over to compare the pyramids passes it.
+  items.push(prop('solar-barque', -68, 26, { rotY: 1.35 }));
+  items.push(
+    prop('info-placard', -58, 34, {
+      rotY: 0.6,
+      options: {
+        eyebrow: 'Found 1954',
+        title: 'Khufu’s ship',
+        accent: '#8d6a41',
+        body:
+          'A 143ft cedar ship, sealed in a pit beside the Great Pyramid and found in 1,224 pieces. Rebuilt, it floats. It is the oldest large ship anywhere in the world, it has no keel, and it is sewn together with rope rather than nailed. The high curled ends copy a boat made of reeds.',
+      },
+    }),
+  );
+
+  // --- Mastaba field ------------------------------------------------------
+  // The plateau between the monuments is not empty: it is covered in the flat-topped tombs
+  // of officials, laid out in streets. Without them Giza reads as three objects on a
+  // plain, which is the commonest way pictures of it mislead.
+  const mastabaSpots = [
+    [-44, -6, 0.1], [-44, -20, 0.1], [-44, -34, 0.1],
+    [-70, -8, 0.1], [-70, -22, 0.1],
+    [48, -2, -0.12], [48, -16, -0.12], [70, -4, -0.12],
+    [-20, -30, 0.05], [-20, -44, 0.05],
+  ];
+  mastabaSpots.forEach(([x, z, rotY], i) => {
+    items.push(
+      prop('mastaba', x, z, {
+        rotY,
+        options: { width: 12 + (i % 3) * 3, depth: 8 + (i % 2) * 2, height: 4 + (i % 3) * 0.8, seed: 140 + i * 7 },
+      }),
+    );
+  });
+
+  // --- Obelisks flanking the approach -------------------------------------
+  items.push(prop('obelisk', -13, 84, { options: { height: 22, seed: 21 } }));
+  items.push(prop('obelisk', 13, 84, { options: { height: 22, seed: 24 } }));
+
+  // --- Palms and desert ---------------------------------------------------
+  // A palm band along the EAST edge, where the cultivated Nile valley meets the desert.
+  // That edge is abrupt in Egypt -- you can stand with one foot on each -- and a band
+  // rather than a scatter is what shows it.
+  //
+  // The band runs north-south at x = 96..156, deliberately NOT across the arrival
+  // sightline. The first pass ran it straight in front of the spawn at z = 96..114 and a
+  // 19ft palm landed 9.7ft from the player, filling the middle of the screen with a trunk
+  // -- the same "nothing tall near the spawn" rule the Park's canopy note records, found
+  // the same way, by standing there and looking.
+  const palmSpots = [
+    [98, 96], [112, 104], [126, 92], [140, 100], [154, 88],
+    [102, 66], [118, 74], [134, 58], [150, 66],
+    [106, 36], [124, 26], [142, 34],
+    // A short answering row on the far west, so the plateau is framed rather than fenced.
+    [-128, 92], [-144, 74], [-136, 108],
+  ];
+  palmSpots.forEach(([x, z], i) => {
+    items.push(prop('date-palm', x, z, { options: { height: 20 + (i % 4) * 3, seed: 200 + i * 13 } }));
+  });
+
+  // Sand drifts across the open ground, thickest where the wind piles it against things.
+  const driftSpots = [
+    [-30, 60, 16], [30, 56, 14], [-90, 0, 20], [86, 8, 18], [-56, -30, 22],
+    [56, -34, 20], [0, -30, 18], [-130, 20, 24], [130, 40, 22], [16, 74, 12],
+  ];
+  driftSpots.forEach(([x, z, size], i) => {
+    items.push(prop('sand-drift', x, z, { options: { size, seed: 300 + i * 11 } }));
+  });
+
+  // Loose rock, reusing the Moon's boulder field with desert colours -- an impact-free
+  // scatter is the same geometry problem on any world, and only the mineral colour differs.
+  items.push(prop('moon-rocks', -24, 12, { options: { count: 9, spread: 16, colors: [0xb5a081, 0x9c8a6a, 0xc9b48d], seed: 401 } }));
+  items.push(prop('moon-rocks', 40, 34, { options: { count: 8, spread: 14, colors: [0xa8926f, 0xbfa87e, 0xd0bb95], seed: 403 } }));
+
+  // --- Wayfinding and welcome ---------------------------------------------
+  items.push(
+    prop('standing-sign', 0, 100, {
+      rotY: 0,
+      options: {
+        lines: ['THE GIZA PLATEAU'],
+        subtitle: 'Everything here is built at one fifth of true size — every sign gives the real one',
+        width: 15,
+        height: 4.2,
+      },
+    }),
+  );
+
+  items.push(...browserStation(-9, 96, { faceX: 0, faceZ: 108 }));
+
+  // --- Programming challenges ---------------------------------------------
+  items.push(
+    activity(-24, 78, {
+      number: 1,
+      rotY: 0.54,
+      accent: '#c2861f',
+      title: 'Raise the obelisk',
+      target: 'Click the left-hand obelisk → Program.',
+      steps: [
+        ctrlStep('repeat 20 times'),
+        moveStep('move Y by 0.6 ft', 1),
+        ctrlStep('wait 0.15 seconds', 1),
+      ],
+      tip: 'Egyptian crews raised these by hauling them upright onto a base with ropes and sand. Yours cheats and floats. Change 0.6 to 0.1 and watch how much more convincing slow is than fast.',
+    }),
+  );
+
+  items.push(
+    activity(26, 78, {
+      number: 2,
+      rotY: -0.58,
+      accent: '#7d5044',
+      title: 'Sail the ship of the sun',
+      target: 'Click Khufu’s ship → Program.',
+      steps: [
+        ctrlStep('forever'),
+        moveStep('move X by 22 ft', 1),
+        ctrlStep('wait 2 seconds', 1),
+        moveStep('rotate 180 degrees', 1),
+        moveStep('move X by 22 ft', 1),
+        ctrlStep('wait 2 seconds', 1),
+        moveStep('rotate 180 degrees', 1),
+      ],
+      tip: 'move X always slides along the world’s X, never along the way the boat is pointing — so the two rotate blocks are only there to turn the hull to face its direction of travel. Take them out and it sails backwards half the time.',
+    }),
+  );
+
+  // --- Lighting -----------------------------------------------------------
+  // Under the valley temple's roof slabs, which is the one genuinely enclosed space here.
+  items.push(orb(-34, 44, 8, ORB_WARM));
+  items.push(orb(-34, 52, 8, ORB_WARM));
+  // Grazing the Sphinx's face from below and in front, the way a monument is lit at night.
+  items.push(orb(0, 58, 3, ORB_WARM));
+
+  return { theme: 'egypt', spawn: { x: 0, z: 118, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
+// Solar System Walkthrough
+// ---------------------------------------------------------------------------
+
+// SIZE and DISTANCE are on two different scales here, and saying so is half the exhibit.
+// One scale cannot do both: at a scale where Jupiter is walk-around-able, Neptune is forty
+// miles away, and at a scale where all eight fit in a 390ft world, Earth is a grain of
+// sand. So the planets are sized faithfully AGAINST EACH OTHER -- Jupiter really is 11
+// Earths wide out here, and that comparison is the single most valuable thing in the world
+// -- while the walk between them is compressed. Every marker prints the real distance,
+// which is what stops the compression from teaching something false.
+//
+// Earth's radius is 1.6ft; every other body is that times its true ratio to Earth.
+function solarLayout() {
+  const items = [];
+  const E = 1.6;
+
+  // The Sun, 40ft ahead of the spawn: the arrival view. Its own point light is what
+  // actually lights the inner planets, which is why they are grouped near it.
+  //
+  // NOT to the size scale, and the placard says so outright. At Earth = 1.6ft the Sun
+  // would be 175ft across and would BE the world. A model that quietly shrinks the Sun
+  // teaches that the Sun is a bit bigger than Jupiter, which is the one thing about it
+  // nobody should come away believing.
+  items.push(prop('sun-model', 0, 104, { options: { radius: 9, seed: 3 } }));
+  items.push(
+    prop('info-placard', -13, 112, {
+      rotY: 0.4,
+      options: {
+        eyebrow: 'Not to scale — everything else is',
+        title: 'The Sun',
+        accent: '#e09030',
+        body:
+          '865,000 miles across, and 99.86% of all the mass in the solar system. If it were built to the same scale as the planets along this walk it would be 175ft wide and you could not see past it. It is a star, and an average one.',
+      },
+    }),
+  );
+
+  // --- The walkway --------------------------------------------------------
+  // Eight segments rather than one 300ft slab: the frustum can drop most of it, and a
+  // student walking the length passes a visible joint every few seconds, which is what
+  // gives the distance a sense of being travelled rather than teleported.
+  for (let i = 0; i < 8; i++) {
+    items.push(prop('orbit-walk', 0, 92 - i * 38, { options: { length: 38, width: 9, seed: 5 + i } }));
+  }
+
+  // --- The eight planets --------------------------------------------------
+  // z positions are a compressed walk, not a scale distance. Each entry carries the two
+  // real numbers the placards and markers print.
+  const planets = [
+    { kind: 'mercury', z: 76,   r: 0.383, tilt: 0.03,  au: '0.39 AU', mi: '36 million miles',
+      title: 'Mercury', body: '3,032 miles across. The smallest planet, and the fastest — a year here is 88 days. It has almost no atmosphere, so its day side is 800°F and its night side is -290°F.' },
+    { kind: 'venus',   z: 50,   r: 0.949, tilt: 177.4, au: '0.72 AU', mi: '67 million miles',
+      title: 'Venus', body: '7,521 miles across — almost exactly Earth’s size. You cannot see its surface: it is wrapped in cloud that traps heat so well the ground is 870°F, hotter than Mercury. It also spins backwards, and slower than it orbits.' },
+    { kind: 'earth',   z: 22,   r: 1.0,   tilt: 23.4,  au: '1 AU',    mi: '93 million miles',
+      title: 'Earth', body: '7,926 miles across. The only place known to have liquid water on its surface — and the only planet here whose colour comes from being alive. Its 23° tilt is what gives it seasons.',
+      moons: [{ kind: 'moon', radius: 0.273 * 1.6 }] },
+    { kind: 'mars',    z: -4,   r: 0.532, tilt: 25.2,  au: '1.52 AU', mi: '142 million miles',
+      title: 'Mars', body: '4,212 miles across. Red because its soil is rusted iron. It has the tallest volcano in the solar system, Olympus Mons, and a canyon four times deeper than the Grand Canyon.',
+      moons: [{ kind: 'rock', radius: 0.12 }, { kind: 'rock', radius: 0.09 }] },
+    { kind: 'jupiter', z: -56,  r: 11.21, tilt: 3.1,   au: '5.2 AU',  mi: '484 million miles', noPlinth: true,
+      title: 'Jupiter', body: '86,881 miles across — every other planet in the solar system would fit inside it with room to spare. It is a ball of gas with no surface to stand on. The red spot is a storm wider than Earth that has been blowing for at least 350 years.',
+      moons: [{ kind: 'rock', radius: 0.29 * 1.6 }, { kind: 'moon', radius: 0.25 * 1.6 }, { kind: 'rock', radius: 0.41 * 1.6 }, { kind: 'moon', radius: 0.38 * 1.6 }] },
+    { kind: 'saturn',  z: -114, r: 9.45,  tilt: 26.7,  au: '9.5 AU',  mi: '889 million miles', rings: true, noPlinth: true,
+      title: 'Saturn', body: '72,367 miles across, and light enough to float in water if you had a bath big enough. The rings are 170,000 miles wide and only about 30ft thick — a sheet of ice and rock as thin as a house is tall.',
+      moons: [{ kind: 'moon', radius: 0.404 * 1.6 }] },
+    { kind: 'uranus',  z: -152, r: 4.01,  tilt: 97.8,  au: '19.2 AU', mi: '1.8 billion miles', noPlinth: true,
+      title: 'Uranus', body: '31,518 miles across. Look at how it is tipped: Uranus orbits lying on its side, so each pole spends 42 years in sunlight and 42 in darkness. Voyager 2 flew past in 1986 and photographed a nearly featureless blue-green ball.',
+      moons: [{ kind: 'rock', radius: 0.124 * 1.6 }] },
+    { kind: 'neptune', z: -178, r: 3.88,  tilt: 28.3,  au: '30.1 AU', mi: '2.8 billion miles', noPlinth: true,
+      title: 'Neptune', body: '30,599 miles across. The windiest place known — storms here run at 1,200 mph. It is so far out that one of its years is 165 of ours: it has completed a single orbit since it was discovered in 1846.',
+      moons: [{ kind: 'moon', radius: 0.212 * 1.6 }] },
+  ];
+
+  planets.forEach((p, i) => {
+    // Planets alternate sides of the walkway so a student passes between them rather than
+    // walking round a line of them, and so the small inner four are never hidden behind
+    // the giants.
+    const side = i % 2 === 0 ? -1 : 1;
+    const offset = p.r > 5 ? 20 : 7;
+    items.push(
+      prop('planet-model', side * offset, p.z, {
+        options: {
+          kind: p.kind,
+          radius: p.r * E,
+          tilt: p.tilt,
+          rings: !!p.rings,
+          plinth: !p.noPlinth,
+          seed: 11 + i * 7,
+          moons: p.moons || [],
+        },
+      }),
+    );
+    // Placard on the walkway side of its planet, angled back toward the walk.
+    items.push(
+      prop('info-placard', side * (offset - 3.5), p.z + 5, {
+        rotY: side * -0.5,
+        options: { eyebrow: p.mi, title: p.title, accent: '#7fb4ff', body: p.body },
+      }),
+    );
+    // Distance marker on the deck itself.
+    items.push(prop('distance-marker', side * -2.6, p.z, { rotY: side * 0.3, options: { label: p.au, sub: p.mi } }));
+  });
+
+  // --- Between Mars and Jupiter -------------------------------------------
+  // Deliberately sparse. The belt in every film is a boulder field you dodge; the real one
+  // averages about a million miles between rocks, so a student who leaves thinking it is
+  // crowded has learned something false.
+  items.push(prop('asteroid-belt', -16, -28, { options: { count: 20, spread: 20, seed: 31 } }));
+  items.push(prop('asteroid-belt', 18, -32, { options: { count: 16, spread: 16, seed: 37 } }));
+  items.push(
+    prop('info-placard', 8, -24, {
+      rotY: -0.3,
+      options: {
+        eyebrow: 'Between Mars and Jupiter',
+        title: 'The asteroid belt',
+        accent: '#9c9186',
+        body:
+          'Look how much empty space there is. Films show the belt as a boulder field you have to dodge; in reality the rocks average about a million miles apart, and every spacecraft that has flown through has done so without aiming for a gap.',
+      },
+    }),
+  );
+
+  // --- Dwarf planets ------------------------------------------------------
+  // Ceres in the belt, Pluto out past Neptune. Both carry the reclassification, which is
+  // the thing students most often ask about.
+  items.push(prop('planet-model', 26, -20, { options: { kind: 'rock', radius: 0.074 * E * 4, tilt: 4, seed: 61 } }));
+  items.push(
+    prop('info-placard', 22, -15, {
+      rotY: -0.6,
+      options: { eyebrow: 'Dwarf planet · 1.8 AU', title: 'Ceres', accent: '#9c9186',
+        body: '590 miles across and the largest object in the asteroid belt — it holds about a third of the belt’s entire mass by itself. Shown here at four times its true size, or you could not see it.' },
+    }),
+  );
+  // z = -186, not -196. WORLD_BOUND_RADIUS clamps the player to 195ft, and at -196 Pluto
+  // sat at r = 196.4 -- visible from the end of the walk and impossible to ever reach,
+  // which is a cruel joke to play about Pluto specifically.
+  items.push(prop('planet-model', 12, -184, { options: { kind: 'rock', radius: 0.186 * E * 2, tilt: 122, seed: 67 } }));
+  items.push(
+    prop('info-placard', 7, -178, {
+      rotY: -0.5,
+      options: { eyebrow: 'Dwarf planet · 39 AU', title: 'Pluto', accent: '#c8b8a0',
+        body: 'Reclassified in 2006 — not because it shrank, but because we found others like it out here and needed a word for the group. It is smaller than our Moon. Shown at twice true size.' },
+    }),
+  );
+
+  // --- Comets -------------------------------------------------------------
+  // The tail always points AWAY from the Sun, whichever way the comet is travelling —
+  // which is why both of these have their tails aimed down-walk, not backwards along their
+  // own path. Almost everybody draws it streaming behind like a jet exhaust.
+  items.push(prop('comet', -34, 40, { rotY: 0.6, options: { length: 16, seed: 41 } }));
+  items.push(prop('comet', 40, -70, { rotY: -0.9, options: { length: 22, seed: 47 } }));
+  items.push(
+    prop('info-placard', -28, 46, {
+      rotY: 0.9,
+      options: { eyebrow: 'Which way does a tail point?', title: 'Comets', accent: '#9fd8ff',
+        body: 'Away from the Sun — always. The tail is not exhaust; it is dust and gas being pushed off the comet by sunlight and the solar wind. On the way back out, a comet travels tail-first.' },
+    }),
+  );
+
+  // --- Wayfinding ---------------------------------------------------------
+  // Off the arrival axis, not across it. A 16ft sign 12ft from the spawn fills the frame
+  // and the Sun -- the thing a student came here to see -- arrives behind a billboard.
+  items.push(
+    prop('standing-sign', 18, 130, {
+      rotY: -1.04,
+      options: {
+        lines: ['THE SOLAR SYSTEM'],
+        subtitle: 'Sizes are true against each other. Distances are not — every marker gives the real one',
+        width: 14,
+        height: 4,
+      },
+    }),
+  );
+
+  items.push(...browserStation(-9, 124, { faceX: 0, faceZ: 136 }));
+
+  // --- Programming challenges ---------------------------------------------
+  items.push(
+    activity(-22, 118, {
+      number: 1,
+      rotY: 0.55,
+      accent: '#c2861f',
+      title: 'Spin Jupiter',
+      target: 'Walk down to Jupiter, click it → Program.',
+      steps: [
+        ctrlStep('forever'),
+        moveStep('rotate 12 degrees', 1),
+        ctrlStep('wait 0.05 seconds', 1),
+      ],
+      tip: 'Jupiter turns once every 10 hours — the shortest day of any planet, even though it is the biggest. Try the same script on Venus: a real Venus day is 243 Earth days, so slow it right down to 1 degree and a 2 second wait.',
+    }),
+  );
+
+  items.push(
+    activity(22, 118, {
+      number: 2,
+      rotY: -0.55,
+      accent: '#3d8bf2',
+      title: 'Send a comet in and back out',
+      target: 'Click the comet near the Sun → Program.',
+      steps: [
+        ctrlStep('forever'),
+        moveStep('move Z by -30 ft', 1),
+        ctrlStep('wait 1 seconds', 1),
+        moveStep('move Z by 30 ft', 1),
+        ctrlStep('wait 3 seconds', 1),
+      ],
+      tip: 'A real comet moves fastest when it is closest to the Sun and crawls when it is far away, which is why it spends most of its life out in the cold. Make the outbound wait much longer than the inbound one and you have modelled that.',
+    }),
+  );
+
+  // --- Lighting -----------------------------------------------------------
+  // The outer planets are a long way from the Sun's point light, and the theme's hemi is
+  // deliberately almost nothing (there is no ground out here to bounce off). Without these
+  // Uranus and Neptune are unlit silhouettes -- which is astronomically true and
+  // pedagogically useless.
+  items.push(orb(0, -60, 12, ORB_BLUE));
+  items.push(orb(0, -120, 12, ORB_BLUE));
+  items.push(orb(0, -170, 10, ORB_BLUE));
+  items.push(orb(0, 60, 8, ORB_WHITE));
+
+  return { theme: 'solar', spawn: { x: 0, z: 140, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + materialization
 // ---------------------------------------------------------------------------
 
@@ -3017,6 +3489,16 @@ export const PRESET_WORLDS = {
   // world portals carry a target world name in their options, and it is what
   // buildPresetWorldRecords is called with -- so renaming it would break saved worlds to
   // no benefit. Only the label is a person-facing string.
+  egypt: {
+    label: 'Ancient Egypt',
+    hint: 'The Giza plateau — the Great Sphinx, the three pyramids and Khufu’s buried ship',
+    build: egyptLayout,
+  },
+  solar: {
+    label: 'Solar System Walk',
+    hint: 'Walk from the Sun out to Neptune — the planets sized truly against each other',
+    build: solarLayout,
+  },
   empty: {
     label: 'My World',
     hint: 'An open green field of your own, with three boards to get you started building',
