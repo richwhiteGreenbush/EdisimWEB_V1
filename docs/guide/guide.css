@@ -39,6 +39,11 @@ a { color: #1f6b8a; }
 .gnav { background: var(--paper); border-bottom: 3px solid var(--line); position: sticky; top: 0; z-index: 20; }
 .gnav .wrap { display: flex; align-items: center; gap: 1rem; padding: 0.7rem 0; flex-wrap: wrap; }
 .gbrand { font-family: Fredoka, sans-serif; font-weight: 600; font-size: 1.15rem; color: var(--ink); text-decoration: none; margin-right: auto; }
+/* The globe emoji this replaced was a text glyph and sat on the text baseline for free.
+   An image does not: left inline it hangs a few pixels low and pushes the nav's line
+   box taller than the links beside it, so the row has to become a flex one. */
+.gbrand { display: inline-flex; align-items: center; gap: 0.5rem; }
+.gbrand-mark { width: 26px; height: 26px; border-radius: 7px; object-fit: cover; display: block; }
 .gnav-links { display: flex; align-items: center; gap: 1.1rem; flex-wrap: wrap; }
 .gnav-links a { color: var(--muted); text-decoration: none; font-weight: 700; font-size: 0.95rem; }
 .gnav-links a:hover { color: var(--ink); }

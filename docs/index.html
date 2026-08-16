@@ -16,6 +16,27 @@
 <title>Edusim: Web Edition — Build It. Code It. Explore It.</title>
 <meta name="description" content="Edusim: Web Edition is a free 3D world that runs in your browser. Build your own models out of cubes, spheres, cylinders and pyramids, code them to move with drag-and-drop blocks, then explore ready-made worlds that already have things waiting to be programmed — a park, a museum, a library, the Moon, a Mars base, full-size dinosaurs, the inside of the human body and a coral reef thirty feet under the sea. No downloads, no accounts, no ads." />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<!-- The logo mark is what a phone shows when the page is saved to a home screen, and a
+     square crop of the wordmark reads there where the whole lockup would not. -->
+<link rel="apple-touch-icon" href="assets/edusim-mark.png" />
+
+<!-- Social preview. This page gets passed around by teachers in email and chat, and
+     without these an unfurled link shows a bare title on a grey box. `edusim-social.jpg`
+     is the logo cropped to the 1.91:1 Facebook/LinkedIn/Slack card ratio; absolute URLs
+     are required here, since a scraper has no page to resolve a relative path against. -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Edusim: Web Edition" />
+<meta property="og:title" content="Edusim: Web Edition — a 3D virtual world for curious minds" />
+<meta property="og:description" content="Build models out of four simple shapes, code them to move with drag-and-drop blocks, and explore ready-made worlds — a park, a museum, the Moon, Mars, life-size dinosaurs, the human body and a coral reef. Free, in your browser." />
+<meta property="og:image" content="https://richwhitegreenbush.github.io/EdisimWEB_V1/assets/edusim-social.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="The Edusim logo: the word Edusim in chunky grass-covered letters standing in a field under a blue sky, with the line 'A 3D virtual world for curious minds' beneath it." />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Edusim: Web Edition — a 3D virtual world for curious minds" />
+<meta name="twitter:description" content="Build it. Code it. Explore it. A free 3D sandbox that runs in the browser — no download, no account, no ads." />
+<meta name="twitter:image" content="https://richwhitegreenbush.github.io/EdisimWEB_V1/assets/edusim-social.jpg" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
@@ -25,8 +46,11 @@
 
 <nav class="site-nav">
   <div class="wrap">
+    <!-- The mark is a square crop of the logo's own E, not the whole lockup: at 40px the
+         full wordmark is an unreadable green smudge, while one letter of it still reads
+         as the logo. alt="" because the word Edusim is right beside it in text. -->
     <a class="brand" href="#top">
-      <span class="brand-mark">🌎</span>
+      <img class="brand-mark" src="assets/edusim-mark.png" alt="" width="40" height="40" />
       <span>Edusim
         <small>Web Edition</small>
       </span>
@@ -50,15 +74,27 @@
 
 <header class="hero" id="top">
   <div class="wrap">
-    <span class="eyebrow hero-eyebrow">✨ Build it. Code it. Explore it.</span>
-    <h1>Imagine, <span class="pop-orange">Create</span>, <span class="pop-red">Share</span> your world!</h1>
+    <!-- The logo IS the headline. It carries the name and the tagline in one picture, and
+         its own sky-over-grass is the same gradient this header is painted with, so it
+         sits in the hero rather than on top of it. The h1 stays a real h1 with the whole
+         brand line as the alt text — an image headline with no alt is an invisible one.
+         The "Build it. Code it. Explore it." chip that used to sit here is gone on
+         purpose: the three chips below the screenshot already say it, and stacking a
+         second strapline under a logo that has one is one line too many. -->
+    <h1 class="hero-logo">
+      <img src="assets/edusim-wordmark.jpg" width="958" height="530" loading="eager"
+           alt="Edusim: Web Edition — a 3D virtual world for curious minds" />
+    </h1>
+    <!-- Shorter than it was, because the logo above now says "a 3D virtual world" and
+         this paragraph no longer has to. What it keeps is the part a picture cannot
+         carry: the three verbs, and the names of the places you can walk into. -->
     <p class="hero-sub">
-      A 3D world that runs in your browser — nothing to download, nothing to sign up
-      for. <strong>Build</strong> anything you can picture out of four simple shapes,
-      <strong>code</strong> it to move by dragging blocks together, then go and
-      <strong>explore</strong> ready-made worlds that already have plenty in them worth
-      programming — a city park, a museum, the Moon, a base on Mars, an island of
-      full-size dinosaurs, and a coral reef with a shark cruising over your head.
+      <strong>Imagine it. Create it. Share it.</strong> Nothing to download, nothing to
+      sign up for. <strong>Build</strong> anything you can picture out of four simple
+      shapes, <strong>code</strong> it to move by dragging blocks together, then go and
+      <strong>explore</strong> worlds already stocked with things worth programming — a
+      park, a museum, the Moon, a Mars base, full-size dinosaurs, and a coral reef with
+      a shark cruising overhead.
     </p>
     <div class="hero-cta-row">
       <a class="btn btn-primary" href="https://edisimwebv1-production.up.railway.app" target="_blank" rel="noopener noreferrer">▶ Launch Edusim — it's free</a>
@@ -702,8 +738,6 @@
         <div class="menu-mock" aria-hidden="true">
           <div class="menu-mock-toggle">✕ Close</div>
           <div class="menu-mock-panel">
-            <span class="mm-item">Load Object ▸</span>
-            <span class="mm-item">Create Model ▸</span>
             <span class="mm-item mm-open">Load World ▾</span>
             <span class="mm-sub">The Park</span>
             <span class="mm-sub">The Museum</span>
@@ -712,9 +746,10 @@
             <span class="mm-sub">On Mars</span>
             <span class="mm-sub">Dinosaur Island</span>
             <span class="mm-sub">Fantastic Voyage</span>
-            <span class="mm-sub">Empty World</span>
+            <span class="mm-sub">My World</span>
             <span class="mm-sub mm-alt">Save World</span>
             <span class="mm-sub mm-alt">Load World File</span>
+            <span class="mm-item">Create Model ▸</span>
             <span class="mm-item">Clear World</span>
             <span class="mm-item mm-vr">VR Headset View</span>
           </div>
@@ -722,16 +757,18 @@
         <div class="world-switch-text">
           <h3>The whole menu, in one picture</h3>
           <p>
-            Three groups and that's it. <strong>Load Object</strong> is the things you
-            bring in — models, pictures, lights, web panels.
-            <strong>Create Model</strong> is the four building shapes.
-            <strong>Load World</strong> is where you go. Opening one group closes the
-            others, so it never turns into a wall of buttons.
+            Two groups and that's it. <strong>Load World</strong> is where you go —
+            every ready-made world, plus saving yours to a file and opening one back up.
+            <strong>Create Model</strong> is the four building shapes, with
+            <strong>Load Object</strong> tucked inside it for everything else you can
+            bring in: your own models, pictures, lights and web panels. Opening one group
+            closes the other, so it never turns into a wall of buttons.
           </p>
           <p>
             🌾 And when you would rather have the horizon to yourself,
-            <strong>Empty World</strong> is exactly that: open grass, a few trees for
-            scale, and nothing else in your way. It's the one to pick when the model
+            <strong>My World</strong> is exactly that: open grass, a few trees for scale,
+            and three boards at the far side setting you a rocket to build and a program
+            to write. Nothing else in your way. It's the one to pick when the model
             you're building is the whole point.
           </p>
           <p>
@@ -1180,7 +1217,8 @@ npm run dev   <span class="c"># then open the printed URL</span></code></pre>
   <div class="wrap">
     <div class="footer-row">
       <div class="footer-brand">
-        <span class="brand-mark" style="width:32px;height:32px;font-size:1rem;">🌎</span>
+        <img class="brand-mark" src="assets/edusim-mark.png" alt="" width="32" height="32"
+             style="width:32px;height:32px;" loading="lazy" />
         Edusim: Web Edition
       </div>
       <ul class="footer-links">

@@ -1,8 +1,19 @@
 /* ===========================================================
    Edusim: Web Edition — marketing site
-   A bright, bouncy, kid-first design system built around the
-   app's own in-world color palette (see src/config.js
-   PALETTE_SWATCHES) so the site visually matches the product.
+   A bright, bouncy, kid-first design system built from TWO
+   sources, and the split between them is deliberate:
+
+   - The five accent colors are the app's own in-world palette
+     (src/config.js PALETTE_SWATCHES), and the block chips on
+     this page are BlockDefs.js CATEGORIES. They are not free
+     to restyle: the orange chip printed on an activity board
+     in the world is the orange block a student then drags, and
+     the page teaches that pairing. Retinting them here to suit
+     the logo would quietly break it.
+   - The environment colors -- sky and grass -- are sampled
+     from the logo itself (docs/assets/edusim-logo.jpg), so the
+     hero the logo card sits in is the same sky and the same
+     field the logo was photographed on.
    =========================================================== */
 
 :root {
@@ -13,10 +24,22 @@
   --purple: #8a5cf5;
   --cream: #fff9ec;
 
-  --sky-top: #6ec3f4;
-  --sky-bottom: #bfe8ff;
-  --grass-top: #6fbf5e;
-  --grass-bottom: #3f9a4a;
+  /* Straight off the logo: its sky reads #3b91e8 at the top and hazes out to a
+     grey-teal at the horizon, and its field runs from a sunlit olive in the distance
+     (#6a7745) to deep shadowed green underfoot (#2d4d0a). The old values were a paler
+     cyan sky over spring green -- a full step brighter and greener than the artwork,
+     which left the logo card sitting on the page like a sticker instead of in it.
+     --sky-bottom is the one that is NOT sampled literally: the logo's horizon haze is
+     around #91b5c4, and the hero's body paragraph is dark ink sitting on this exact
+     band, so it is held light enough to keep that text at ~8:1. */
+  --sky-top: #3f95e8;
+  --sky-bottom: #b9dcef;
+  --grass-top: #6b8f3d;
+  --grass-bottom: #35521a;
+
+  /* The logo's letters, for anything that wants to be the brand's own green rather
+     than the app palette's mint. */
+  --moss: #545c36;
 
   --ink: #1e2a3a;
   --ink-soft: #445067;
@@ -214,6 +237,17 @@ a {
   flex: none;
 }
 
+/* The mark is a crop of the logo's own E now, not an emoji, so the tile is the picture
+   rather than a box with something in it: the gradient and the centring grid come off,
+   and `object-fit: cover` is what keeps it square instead of letterboxing to the crop's
+   aspect. Everything else above -- the 12px radius, the drop shadow, `flex: none` --
+   still applies and is what makes it read as a chip. */
+img.brand-mark {
+  display: block;
+  object-fit: cover;
+  background: none;
+}
+
 .brand small {
   display: block;
   font-family: "Nunito", sans-serif;
@@ -401,7 +435,7 @@ a {
    anything under it. A visible slice of the picture is the thing that says scroll. */
 .hero {
   position: relative;
-  padding: 48px 0 110px;
+  padding: 30px 0 110px;
   background:
     radial-gradient(ellipse 90% 60% at 20% -10%, rgba(255,255,255,0.5), transparent),
     linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 55%, var(--grass-top) 55%, var(--grass-bottom) 100%);
@@ -454,8 +488,30 @@ a {
   max-width: 16ch;
 }
 
-.hero h1 .pop-orange { color: var(--orange); }
-.hero h1 .pop-red { color: #ffe082; }
+/* The logo lockup, standing in for the headline. It is a rectangular photo dropped onto
+   a gradient that is nearly -- but not exactly -- the same sky, so the join has to be
+   admitted rather than hidden: rounded corners, a white rim and a real shadow make it a
+   card sitting in the sky instead of a mismatched patch of one.
+
+   `max-width` is deliberately modest. The hero's vertical rhythm is tuned so a slice of
+   the screenshot below clears the fold on a 720px laptop (see the note above .hero), and
+   this element replaces both the old eyebrow chip and a three-line h1 -- so it can spend
+   what those cost and no more. The `min()` keeps it off the edges on a phone. */
+/* `h1.hero-logo`, not `.hero-logo` -- `.hero h1` above sets `max-width: 16ch`, which on
+   a single class loses to nothing and quietly won: 16ch of Fredoka at the clamp's top
+   size is about 520px, so the card rendered at that width whatever this rule asked for.
+   The element selector is what buys the extra specificity to beat it. */
+.hero h1.hero-logo {
+  margin: 0;
+  max-width: min(480px, 100%);
+}
+
+.hero-logo img {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  border: 5px solid rgba(255, 255, 255, 0.82);
+  box-shadow: 0 20px 44px -14px rgba(24, 79, 40, 0.55);
+}
 
 /* Dark ink, not white. This paragraph sits low in the sky gradient, over --sky-bottom
    (#bfe8ff), where white text runs at about 1.2:1 against the background and is barely
@@ -913,7 +969,11 @@ a {
 
 .section.tint-cream { background: #fff5e0; }
 .section.tint-blue { background: #eaf5ff; }
-.section.tint-green { background: #eafaf1; }
+/* A pale FIELD, not pale mint. This wash used to be tinted from --green (#3fb37f), the
+   app's swatch, which is a teal-leaning mint the logo has nothing like -- so the page's
+   large calm areas pulled away from the artwork even though every accent on them was
+   right. The mint accents inside these sections are unchanged; only the paper is. */
+.section.tint-green { background: #eef7e6; }
 .section.tint-purple { background: #f4f0ff; }
 
 /* ---------- parents strip ---------- */
@@ -968,7 +1028,7 @@ a {
 .final-cta {
   text-align: center;
   padding: 110px 0 90px;
-  background: linear-gradient(180deg, var(--grass-bottom), #2c7a3a);
+  background: linear-gradient(180deg, var(--grass-bottom), #24380f);
   color: #fff;
   position: relative;
   overflow: hidden;
@@ -1222,10 +1282,13 @@ a {
 /* Save World / Load World File sit inside Load World but are a different KIND of
    action from the ready-made worlds above them, so they are toned down rather than
    sharing the worlds' blue. Mirrors .menu-subitem-alt in the app itself. */
+/* Save World / Load World File. Amber, matching what the app's own menu does with
+   `.menu-subitem-alt` -- this mock is a picture of that menu, so when the file pair
+   stopped being a dimmer blue in the app it had to stop being a dimmer grey here. */
 .menu-mock .mm-alt {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.18);
-  color: #dfe6ec;
+  background: rgba(242, 165, 65, 0.18);
+  border-color: rgba(242, 165, 65, 0.5);
+  color: #ffd9a3;
 }
 
 .menu-mock .mm-vr {
@@ -1967,12 +2030,16 @@ a.hero-stat:hover {
   color: var(--accent, var(--orange));
 }
 
+/* Pale, not ink. This line sits at the very bottom of the hero, which is now the deep
+   shadowed end of the logo's grass rather than the old mid-green -- dark ink on it ran
+   at about 1.5:1 and simply disappeared. Everything else down there is already light:
+   the three chips are white cards and the screenshot is in a dark frame. */
 .hero-fine {
   margin: -14px 0 0;
   font-size: 0.92rem;
   font-weight: 700;
-  color: var(--ink);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+  color: #eafbef;
+  text-shadow: 0 1px 2px rgba(12, 24, 6, 0.55);
 }
 
 .activity-strip {
