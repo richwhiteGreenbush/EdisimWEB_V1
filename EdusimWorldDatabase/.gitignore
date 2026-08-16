@@ -1,0 +1,16 @@
+# Everything a running instance creates. None of it belongs in the repository: the
+# database and the two upload directories are a particular deployment's contents, and
+# config.local.php holds that deployment's admin password hash and IP salt.
+data/worlds.sqlite
+data/worlds.sqlite-wal
+data/worlds.sqlite-shm
+data/worlds/*.json
+uploads/screenshots/*
+
+lib/config.local.php
+
+# .htaccess files are written at runtime by ewd_ensure_dirs() if they are missing, and
+# are tracked copies of the same thing -- keep them.
+!data/.htaccess
+!uploads/.htaccess
+!.gitkeep

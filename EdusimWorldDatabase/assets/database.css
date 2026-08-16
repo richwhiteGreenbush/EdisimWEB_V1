@@ -1,0 +1,1138 @@
+/* ===========================================================================
+   Edusim World Database — stylesheet.
+
+   The tokens, the nav, the buttons, the hero gradient, the cards and the footer
+   are the marketing site's (docs/styles.css), reproduced here rather than linked
+   because this app is deployed on a PHP host and that page is static GitHub
+   Pages — a cross-origin stylesheet would put a second site's uptime in front of
+   this one's login screen.
+
+   Two things carried over from that file are NOT free to restyle, and the reason
+   is the same one stated there:
+
+   - The five accent colours are the app's own in-world palette
+     (src/config.js PALETTE_SWATCHES).
+   - The environment colours — sky and grass — are sampled from the logo artwork
+     itself (assets/edusim-wordmark.jpg), which is why the hero this page opens
+     with is the same sky the logo was photographed in.
+
+   Everything below the "new furniture" rule is this app's own: the share form,
+   the filter bar, the detail page and the admin queue.
+   =========================================================================== */
+
+:root {
+  --red: #e0455f;
+  --orange: #f2a541;
+  --green: #3fb37f;
+  --blue: #3d8bf2;
+  --purple: #8a5cf5;
+  --cream: #fff9ec;
+
+  /* Straight off the logo: its sky reads #4da3ec at the top and hazes out toward the
+     horizon, and its field — a blue poppy meadow — runs from #5892bb in the distance to
+     a deep #215784 underfoot. --sky-bottom is the one NOT sampled literally: the hero's
+     body text is dark ink sitting on this exact band, so it is held light enough to keep
+     that text at ~8.5:1. */
+  --sky-top: #4da3ec;
+  --sky-bottom: #9fcdec;
+  --grass-top: #5892bb;
+  --grass-bottom: #215784;
+
+  /* The logo's letters, for anything that wants the brand's own denim blue. */
+  --denim: #246c9d;
+
+  --ink: #1e2a3a;
+  --ink-soft: #445067;
+  --paper: #fffdf7;
+
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+
+  --shadow-soft: 0 18px 40px -12px rgba(30, 42, 58, 0.28);
+  --shadow-pop: 0 10px 0 0 rgba(0, 0, 0, 0.15);
+
+  --container: 1120px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: "Nunito", "Segoe UI", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* The footer sits at the bottom of the viewport on a short page — an empty gallery or a
+   "not found" page is only a few hundred pixels tall, and without this the footer floats
+   in the middle of the screen with cream below it. */
+main { flex: 1 0 auto; }
+
+h1, h2, h3, h4 {
+  font-family: "Fredoka", "Nunito", system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 0.5em;
+}
+
+p { margin: 0 0 1em; line-height: 1.6; }
+
+img { max-width: 100%; height: auto; display: block; }
+
+a { color: inherit; }
+
+.wrap {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 24px;
+  width: 100%;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-decoration: none;
+  padding: 16px 30px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+/* The longest labels here are wider than the content column of a 320px handset, and
+   neither a grid nor a flex item can shrink below its own min-content width — so on the
+   narrowest phones a wrapped label beats one clipped by `overflow-x: hidden`. */
+@media (max-width: 380px) {
+  .btn { white-space: normal; text-align: center; }
+}
+
+.btn:hover { transform: translateY(-3px); }
+.btn:active { transform: translateY(0); }
+
+.btn-primary {
+  background: var(--orange);
+  color: #402200;
+  box-shadow: 0 6px 0 0 #c67f22;
+}
+.btn-primary:hover { box-shadow: 0 9px 0 0 #c67f22; }
+.btn-primary:active { box-shadow: 0 3px 0 0 #c67f22; }
+
+.btn-green {
+  background: var(--green);
+  color: #04301f;
+  box-shadow: 0 6px 0 0 #2c8a60;
+}
+.btn-green:hover { box-shadow: 0 9px 0 0 #2c8a60; }
+.btn-green:active { box-shadow: 0 3px 0 0 #2c8a60; }
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+}
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.28); }
+
+/* .btn-ghost is authored white-on-transparent for the dark hero. On a light panel it is
+   invisible, so those places get an ink-on-paper version rather than a second class in
+   the markup — the same override the marketing site needed. */
+.on-paper .btn-ghost,
+.detail-actions .btn-ghost,
+.form-actions .btn-ghost {
+  background: rgba(30, 42, 58, 0.06);
+  color: var(--ink);
+  border-color: rgba(30, 42, 58, 0.35);
+}
+.on-paper .btn-ghost:hover,
+.detail-actions .btn-ghost:hover,
+.form-actions .btn-ghost:hover { background: rgba(30, 42, 58, 0.12); }
+
+.btn-danger {
+  background: var(--red);
+  color: #fff;
+  box-shadow: 0 6px 0 0 #a82f44;
+}
+.btn-danger:hover { box-shadow: 0 9px 0 0 #a82f44; }
+
+.btn-sm { padding: 9px 18px; font-size: 0.9rem; }
+
+/* ---------- nav ----------
+   One set of markup, two layouts: a drop-down panel on a phone, a horizontal bar from
+   900px up. The toggle is a checkbox because this app ships no navigation JavaScript —
+   a hidden checkbox is the one way to hold open/closed state in CSS alone, and unlike a
+   bare label it stays keyboard-reachable. */
+
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 253, 247, 0.94);
+  backdrop-filter: blur(8px);
+  border-bottom: 3px solid #ffe1a8;
+  flex: none;
+}
+
+.site-nav .wrap {
+  display: flex;
+  align-items: center;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  gap: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 1.3rem;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-pop);
+  flex: none;
+  object-fit: cover;
+}
+
+.brand small {
+  display: block;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--denim);
+}
+
+/* Base = the phone panel. The desktop bar is the override below. */
+.nav-links {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  list-style: none;
+  margin: 0;
+  padding: 8px 24px 18px;
+  display: grid;
+  gap: 4px;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 500;
+  font-size: 1.02rem;
+  background: var(--paper);
+  border-bottom: 3px solid #ffe1a8;
+  box-shadow: 0 20px 34px -16px rgba(30, 42, 58, 0.42);
+
+  /* visibility, not just max-height: a clipped-but-present link is still in the tab
+     order, so a keyboard user would tab into a menu they cannot see. The 0s-with-a-delay
+     timing is the trick — visibility is a DISCRETE property, so a plain transition flips
+     it at the END of the duration in both directions, and the panel would appear to
+     unroll empty. Opening switches at 0s; closing waits for the collapse. */
+  max-height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  transition: max-height 0.26s ease, visibility 0s linear 0.26s;
+}
+
+.nav-toggle:checked ~ .nav-links {
+  max-height: min(70vh, 460px);
+  overflow-y: auto;
+  visibility: visible;
+  transition: max-height 0.26s ease, visibility 0s linear 0s;
+}
+
+.nav-links a {
+  display: block;
+  text-decoration: none;
+  color: var(--ink-soft);
+  padding: 11px 12px;
+  border-radius: 12px;
+  border-bottom: 3px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.nav-links a:hover,
+.nav-links a:focus-visible { color: var(--ink); background: #fff3dc; }
+
+.nav-links a.is-active { color: var(--ink); font-weight: 700; }
+
+/* Never seen, but must stay focusable — so it is moved out of the way rather than
+   display:none'd, which would drop it from the tab order. */
+.nav-toggle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nav-burger {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+  padding: 9px 15px;
+  border-radius: 999px;
+  border: 2px solid rgba(30, 42, 58, 0.2);
+  background: #fff;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+}
+
+.nav-toggle:focus-visible ~ .nav-burger {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.burger-box,
+.burger-box::before,
+.burger-box::after {
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ink);
+}
+
+.burger-box { position: relative; transition: background 0.18s ease; }
+
+.burger-box::before,
+.burger-box::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  transition: transform 0.18s ease;
+}
+
+.burger-box::before { top: -6px; }
+.burger-box::after { top: 6px; }
+
+.nav-toggle:checked ~ .nav-burger .burger-box { background: transparent; }
+.nav-toggle:checked ~ .nav-burger .burger-box::before { transform: translateY(6px) rotate(45deg); }
+.nav-toggle:checked ~ .nav-burger .burger-box::after { transform: translateY(-6px) rotate(-45deg); }
+
+.nav-cta.btn { padding: 10px 18px; font-size: 0.9rem; flex: none; }
+
+/* A 360px handset cannot hold brand + "Play Now" + burger, and the launch button is the
+   one thing on this bar that must never be dropped — so the wordmark goes first. */
+@media (max-width: 430px) {
+  .brand span:not(.brand-mark) { display: none; }
+  .nav-cta.btn { padding: 10px 14px; }
+}
+
+@media (min-width: 900px) {
+  .nav-burger { display: none; }
+
+  .nav-links {
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    padding: 0;
+    max-height: none;
+    overflow: visible;
+    visibility: visible;
+    background: none;
+    border: none;
+    box-shadow: none;
+    font-size: 0.98rem;
+  }
+
+  .nav-links a { padding: 6px 2px; border-radius: 0; }
+
+  .nav-links a:hover,
+  .nav-links a:focus-visible,
+  .nav-links a.is-active { background: none; border-color: var(--orange); }
+}
+
+@media (min-width: 900px) and (max-width: 1099px) {
+  .nav-links { gap: 17px; font-size: 0.88rem; }
+  .brand { font-size: 1.12rem; }
+  .nav-cta.btn { padding: 9px 15px; font-size: 0.85rem; }
+}
+
+/* ---------- hero ---------- */
+
+/* The horizon is a FIXED 64px band at the bottom, not a percentage of the hero, and that
+   is a contrast decision rather than a stylistic one.
+
+   .hero-sub is dark ink — it has to be, because white runs at about 1.2:1 over the pale
+   end of this sky — and it is only legible while it stays on the sky (~8.5:1). A
+   percentage horizon moves with the content: these pages carry leads of different
+   lengths, so at the marketing site's 55% the gallery's last two lines landed on the deep
+   blue field at roughly 1.5:1 and vanished, and any later edit to a lead could put them
+   back there. Pinning the band to the bottom edge makes the safe area a property of the
+   padding instead: the 78px of bottom padding below is what guarantees the last line of
+   text clears it, whatever any hero says. Change one and check the other. */
+.hero {
+  position: relative;
+  padding: 46px 0 78px;
+  background:
+    radial-gradient(ellipse 90% 60% at 20% -10%, rgba(255,255,255,0.5), transparent),
+    linear-gradient(180deg,
+      var(--sky-top) 0%,
+      var(--sky-bottom) calc(100% - 64px),
+      var(--grass-top) calc(100% - 64px),
+      var(--grass-bottom) 100%);
+  overflow: hidden;
+  flex: none;
+}
+
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.75;
+}
+
+.hero::before {
+  width: 90px;
+  height: 90px;
+  top: 16%;
+  left: 8%;
+  box-shadow: 60px 30px 0 -10px #fff, 130px 10px 0 -20px #fff;
+}
+
+.hero::after {
+  width: 60px;
+  height: 60px;
+  top: 8%;
+  right: 12%;
+  box-shadow: -80px 40px 0 -15px #fff;
+}
+
+.hero .wrap {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 18px;
+  text-align: center;
+  justify-items: center;
+}
+
+.hero-eyebrow { background: rgba(255, 255, 255, 0.85); color: var(--red); }
+
+.hero h1 {
+  font-size: clamp(1.9rem, 4.6vw, 3rem);
+  color: #fff;
+  text-shadow: 0 3px 0 rgba(16, 52, 82, 0.35);
+  max-width: 18ch;
+  margin: 0;
+}
+
+/* Dark ink, not white. This paragraph sits low in the sky gradient where white text runs
+   at about 1.2:1 and is barely there. The h1 above it can stay white because it carries a
+   heavy shadow and is three times the size; a body paragraph has neither. */
+.hero-sub {
+  max-width: 58ch;
+  font-size: 1.1rem;
+  color: var(--ink);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  margin: 0;
+}
+
+.hero-sub a { color: #10314d; font-weight: 700; }
+
+.hero-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+/* White-on-transparent runs at 1.5:1 over this sky — a button you can only find by
+   knowing it is there. */
+.hero-cta-row .btn-ghost {
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  border-color: rgba(30, 42, 58, 0.35);
+}
+.hero-cta-row .btn-ghost:hover { background: rgba(255, 255, 255, 0.92); }
+
+/* ---------- sections ---------- */
+
+.section { padding: 54px 0 80px; }
+.section.tint-cream { background: #fff5e0; }
+.section.tint-blue { background: #eaf5ff; }
+.section.tint-green { background: #eafaf1; }
+
+.section-head { text-align: center; max-width: 640px; margin: 0 auto 34px; }
+.section-head h2 { font-size: clamp(1.5rem, 3.2vw, 2.1rem); }
+.section-head p { color: var(--ink-soft); font-size: 1.05rem; }
+
+/* ---------- flash messages ---------- */
+
+.flash-host { padding-top: 18px; }
+
+.flash {
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  font-weight: 700;
+  box-shadow: var(--shadow-pop);
+}
+
+.flash-success { background: #eafaf1; border-color: #2c8a60; }
+.flash-error { background: #ffe9ed; border-color: #a82f44; }
+.flash-info { background: #eaf5ff; border-color: var(--denim); }
+
+/* ===========================================================================
+   New furniture — everything below is this app's own
+   =========================================================================== */
+
+/* ---------- filter bar ---------- */
+
+.filter-bar {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 20px 22px;
+  margin-bottom: 34px;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.filter-row .search-field {
+  flex: 1 1 240px;
+  /* A flex item's default min-width is auto — "never shrink below your content" — so
+     without this the input's own intrinsic width stops the row wrapping properly and
+     pushes the sort control off the edge on a phone. */
+  min-width: 0;
+}
+
+.filter-count {
+  margin: 0;
+  color: var(--ink-soft);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 2px dashed rgba(30, 42, 58, 0.14);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  background: #fff;
+  border: 2px solid rgba(30, 42, 58, 0.18);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.chip:hover { border-color: var(--ink); color: var(--ink); }
+
+.chip.is-on {
+  background: var(--denim);
+  border-color: var(--denim);
+  color: #fff;
+}
+
+.chip b { font-weight: 800; opacity: 0.7; font-size: 0.8em; }
+
+/* ---------- the gallery grid ---------- */
+
+.world-grid {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .world-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1000px) {
+  .world-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.world-card {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.world-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 26px 50px -14px rgba(30, 42, 58, 0.38);
+}
+
+.world-shot {
+  position: relative;
+  background: #14202b;
+  line-height: 0;
+  display: block;
+}
+
+.world-shot img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.world-pin {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--green);
+  border: 3px solid var(--ink);
+  font-size: 1.15rem;
+  line-height: 1;
+  box-shadow: var(--shadow-pop);
+}
+
+.status-flag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  border-radius: 999px;
+  border: 3px solid var(--ink);
+  padding: 4px 12px;
+  font-family: "Fredoka", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  background: var(--orange);
+  color: #402200;
+}
+
+.status-flag.status-hidden { background: #cbd5e1; color: #1f2937; }
+
+.world-body {
+  padding: 20px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.world-kicker {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 6px;
+  background: #eafaf1;
+  color: #2c7a5b;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 0.76rem;
+  margin-bottom: 10px;
+}
+
+.world-body h3 { font-size: 1.3rem; margin-bottom: 0.25em; }
+.world-body h3 a { text-decoration: none; }
+.world-body h3 a:hover { text-decoration: underline; }
+
+.world-by {
+  margin: 0 0 10px;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+}
+
+.world-desc {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+}
+
+.world-chips {
+  list-style: none;
+  margin: auto 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.world-chips li {
+  background: #fff;
+  border: 2px solid rgba(30, 42, 58, 0.16);
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+/* ---------- empty state ---------- */
+
+.empty {
+  text-align: center;
+  background: var(--paper);
+  border: 3px dashed rgba(30, 42, 58, 0.28);
+  border-radius: var(--radius-lg);
+  padding: 60px 26px;
+}
+
+.empty .icon { font-size: 3rem; display: block; margin-bottom: 10px; }
+.empty h3 { font-size: 1.5rem; }
+.empty p { color: var(--ink-soft); max-width: 46ch; margin: 0 auto 20px; }
+
+/* ---------- pagination ---------- */
+
+.pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 40px;
+}
+
+.pager a,
+.pager span {
+  min-width: 44px;
+  text-align: center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid rgba(30, 42, 58, 0.18);
+  background: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--ink-soft);
+}
+
+.pager a:hover { border-color: var(--ink); color: var(--ink); }
+.pager .is-current { background: var(--denim); border-color: var(--denim); color: #fff; }
+.pager .gap { border: none; background: none; }
+
+/* ---------- forms ---------- */
+
+.panel {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 28px;
+}
+
+@media (min-width: 720px) {
+  .panel { padding: 34px 38px; }
+}
+
+.panel + .panel { margin-top: 28px; }
+
+.form-grid { display: grid; gap: 22px; }
+
+@media (min-width: 720px) {
+  .form-grid.two { grid-template-columns: 1fr 1fr; }
+}
+
+.field { display: grid; gap: 7px; }
+
+.field > label,
+.field-label {
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 1.02rem;
+}
+
+.field .hint {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.field .req { color: var(--red); font-weight: 800; }
+
+input[type="text"],
+input[type="search"],
+input[type="password"],
+textarea,
+select {
+  font-family: "Nunito", system-ui, sans-serif;
+  font-size: 1rem;
+  color: var(--ink);
+  background: #fff;
+  border: 2px solid rgba(30, 42, 58, 0.22);
+  border-radius: 12px;
+  padding: 12px 14px;
+  width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+textarea { resize: vertical; min-height: 150px; line-height: 1.6; }
+
+input[type="text"]:focus,
+input[type="search"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus,
+input[type="file"]:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 4px rgba(61, 139, 242, 0.18);
+}
+
+/* A file input cannot be restyled across browsers, so the control is left alone and the
+   BOX around it is what carries the design — a dashed drop-zone that reads as "put a file
+   here" whatever the browser draws inside it. */
+.file-drop {
+  border: 3px dashed rgba(30, 42, 58, 0.3);
+  border-radius: var(--radius-md);
+  background: #fff;
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.file-drop:hover { border-color: var(--denim); background: #f6fbff; }
+
+.file-drop .file-icon { font-size: 1.7rem; line-height: 1; }
+
+.file-drop input[type="file"] {
+  font-family: "Nunito", system-ui, sans-serif;
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+.file-drop .file-meta {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+}
+
+.field-error {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #a82f44;
+}
+
+.has-error input[type="text"],
+.has-error textarea,
+.has-error .file-drop { border-color: #a82f44; }
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 2px dashed rgba(30, 42, 58, 0.14);
+}
+
+/* The honeypot. Off-screen rather than display:none, because some bots skip hidden
+   fields but happily fill positioned ones — and aria-hidden + tabindex keep it away from
+   anyone using a screen reader or the keyboard. */
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ---------- the how-to strip on the share page ---------- */
+
+.steps {
+  list-style: none;
+  counter-reset: step;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 820px) {
+  .steps { grid-template-columns: repeat(3, 1fr); }
+}
+
+.steps li {
+  counter-increment: step;
+  position: relative;
+  background: #fff;
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-md);
+  padding: 20px 20px 18px 20px;
+  box-shadow: var(--shadow-pop);
+}
+
+.steps li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  background: var(--orange);
+  border: 3px solid var(--ink);
+  font-family: "Fredoka", sans-serif;
+  font-weight: 700;
+  color: #402200;
+}
+
+.steps h4 { font-size: 1.05rem; margin: 0 0 6px; }
+.steps p { margin: 0; font-size: 0.94rem; color: var(--ink-soft); }
+
+.steps code,
+.inline-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88em;
+  background: rgba(30, 42, 58, 0.08);
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+
+/* ---------- world detail page ---------- */
+
+.detail-grid {
+  display: grid;
+  gap: 30px;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+@media (min-width: 940px) {
+  .detail-grid { grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr); }
+}
+
+.detail-shot {
+  margin: 0;
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #14202b;
+  box-shadow: var(--shadow-soft);
+}
+
+.detail-shot img { width: 100%; }
+
+.detail-shot figcaption {
+  padding: 12px 18px;
+  font-size: 0.88rem;
+  color: #9db2c2;
+  text-align: center;
+}
+
+.detail-body { margin-top: 26px; }
+.detail-body h2 { font-size: 1.3rem; margin-top: 26px; }
+.detail-body p { color: var(--ink-soft); }
+.detail-body p:first-child { color: var(--ink); font-size: 1.06rem; }
+
+.side-card {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 24px;
+}
+
+.side-card + .side-card { margin-top: 22px; }
+.side-card h3 { font-size: 1.15rem; margin-bottom: 14px; }
+
+.detail-actions { display: grid; gap: 12px; }
+.detail-actions .btn { width: 100%; }
+
+.meta-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  font-size: 0.94rem;
+}
+
+.meta-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: baseline;
+  padding-bottom: 9px;
+  border-bottom: 1px dashed rgba(30, 42, 58, 0.16);
+}
+
+.meta-list li:last-child { border-bottom: none; padding-bottom: 0; }
+.meta-list .k { color: var(--ink-soft); font-weight: 600; }
+.meta-list .v { font-weight: 800; text-align: right; }
+
+.tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+
+.load-steps {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 0.94rem;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.load-steps strong { color: var(--ink); }
+
+/* ---------- the manage key receipt ---------- */
+
+.keybox {
+  background: #14202b;
+  color: #d8e6f0;
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  margin: 14px 0 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  /* A key is one unbroken token and must never be wrapped mid-string where a reader
+     could copy it with a line break in the middle — scroll the box instead. */
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* ---------- admin ---------- */
+
+.admin-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.admin-bar .spacer { margin-left: auto; }
+
+/* A grid cell holding one card plus its moderation strip. It is not itself a card —
+   .world-card already draws the border and shadow, and nesting the two draws a box
+   round a box. */
+.admin-cell { display: flex; flex-direction: column; }
+
+/* The card inside a cell must not lift on hover: the buttons sit directly under it, and
+   a card that jumps 6px on hover shoves them down as the pointer travels toward them. */
+.admin-cell .world-card:hover { transform: none; box-shadow: var(--shadow-soft); }
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.admin-actions form { display: inline; margin: 0; }
+
+.login-panel { max-width: 460px; margin: 0 auto; }
+
+/* ---------- footer ---------- */
+
+.site-footer {
+  background: #14202b;
+  color: #9db2c2;
+  padding: 44px 0 30px;
+  font-size: 0.9rem;
+  flex: none;
+}
+
+.footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 20px;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+}
+
+.footer-links {
+  display: flex;
+  /* Wraps because this list is longer than a phone can hold on one line — without it the
+     row runs off the right edge and drags the page into a sideways scroll. */
+  flex-wrap: wrap;
+  gap: 12px 22px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links a { text-decoration: none; color: #9db2c2; }
+.footer-links a:hover { color: #fff; }
+
+.footer-fine { color: #6d8494; margin: 0; }
+.footer-fine strong { color: #b9cbd8; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+}

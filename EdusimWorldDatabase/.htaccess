@@ -1,0 +1,18 @@
+# Apache hardening for the app root. Nginx ignores this file entirely -- see README.md
+# for the equivalent location blocks.
+
+# lib/ holds the configuration (including the admin password hash) and is only ever
+# reached through include(), never by URL.
+RedirectMatch 404 ^/.*/lib/.*$
+
+# The database and every stored world payload. download.php is the intended route to a
+# world file: it counts the download, checks the world is published, and names the file.
+RedirectMatch 404 ^/.*/data/.*$
+
+# A dotfile should never be served.
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+Options -Indexes
+DirectoryIndex index.php

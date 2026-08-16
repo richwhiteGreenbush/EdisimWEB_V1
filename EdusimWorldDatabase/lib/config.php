@@ -1,0 +1,114 @@
+<?php
+declare(strict_types=1);
+
+/*
+ * Edusim World Database -- configuration.
+ *
+ * Nothing here is secret except the admin password hash, and that is deliberately NOT
+ * set in this file: drop a `config.local.php` beside it, define any of the same
+ * constants there, and they win. That file is gitignored, so a real deployment's
+ * password and IP salt never land in the repository. See README.md.
+ *
+ * The override mechanism is why every setting below goes through ewd_define() rather
+ * than a bare define(): PHP keeps the FIRST definition of a constant and ignores every
+ * later one, so the local file is included at the top and each default here only
+ * applies if the local file did not already set it.
+ */
+
+function ewd_define(string $name, mixed $value): void
+{
+    if (!defined($name)) {
+        define($name, $value);
+    }
+}
+
+if (is_file(__DIR__ . '/config.local.php')) {
+    require __DIR__ . '/config.local.php';
+}
+
+// ---------------------------------------------------------------------------
+// Paths. Everything is derived from this file's own location, so the app works
+// wherever it is dropped -- a subdirectory of a school web server, a vhost root,
+// a `php -S` sandbox -- with no base-URL setting to get wrong. Every link the
+// pages emit is relative for the same reason.
+// ---------------------------------------------------------------------------
+
+ewd_define('EWD_ROOT', dirname(__DIR__));
+ewd_define('EWD_DATA_DIR', EWD_ROOT . '/data');          // sqlite file + world .json payloads
+ewd_define('EWD_WORLD_DIR', EWD_DATA_DIR . '/worlds');   // one .json per shared world
+ewd_define('EWD_UPLOAD_DIR', EWD_ROOT . '/uploads');     // screenshots, served statically
+ewd_define('EWD_SHOT_DIR', EWD_UPLOAD_DIR . '/screenshots');
+ewd_define('EWD_DB_FILE', EWD_DATA_DIR . '/worlds.sqlite');
+
+// Screenshots are the one thing served straight off disk rather than through PHP, so
+// pages need a URL for them as well as a path. Relative, like everything else.
+ewd_define('EWD_SHOT_URL', 'uploads/screenshots');
+
+// ---------------------------------------------------------------------------
+// Limits
+// ---------------------------------------------------------------------------
+
+// A world file is JSON, but an Edusim world file carries base64-encoded model and image
+// bytes inline (see src/WorldFile.js), so a world with a few imported models in it is
+// genuinely megabytes. 24MB is roomy for classroom work without letting one submission
+// fill a shared disk.
+//
+// PHP's own `upload_max_filesize` and `post_max_size` cap this independently and are
+// usually 2M/8M out of the box -- raise BOTH or large worlds fail before this code ever
+// runs. `ewd_php_upload_limit()` in helpers.php reports what the server actually allows,
+// and the share form prints it.
+ewd_define('EWD_MAX_WORLD_BYTES', 24 * 1024 * 1024);
+ewd_define('EWD_MAX_SHOT_BYTES', 8 * 1024 * 1024);
+
+// Screenshots are re-encoded (never stored as uploaded), so these are the sizes that
+// actually get written. 1600px wide is more than any card or detail page shows.
+ewd_define('EWD_SHOT_MAX_W', 1600);
+ewd_define('EWD_SHOT_MAX_H', 1200);
+ewd_define('EWD_THUMB_MAX_W', 640);
+ewd_define('EWD_THUMB_MAX_H', 400);
+ewd_define('EWD_JPEG_QUALITY', 82);
+
+ewd_define('EWD_PER_PAGE', 12);
+
+// Field lengths, enforced server-side and mirrored as `maxlength` on the form.
+ewd_define('EWD_MAX_TITLE', 80);
+ewd_define('EWD_MAX_CREATOR', 60);
+ewd_define('EWD_MAX_GROUP', 60);
+ewd_define('EWD_MAX_DESCRIPTION', 2000);
+ewd_define('EWD_MIN_DESCRIPTION', 20);
+ewd_define('EWD_MAX_TAGS', 6);
+
+// ---------------------------------------------------------------------------
+// Moderation
+// ---------------------------------------------------------------------------
+
+// false: a shared world appears in the gallery immediately.
+// true : it waits in the admin queue until a teacher approves it.
+//
+// The default is `false` because the common case is a classroom the teacher is standing
+// in, and a student who shares a world and cannot find it assumes it failed. Flip this to
+// `true` in config.local.php for anything open to the public -- the whole admin queue is
+// already built and needs no other change.
+ewd_define('EWD_REQUIRE_APPROVAL', false);
+
+// Submissions allowed per hour from one IP. A class of thirty sharing at once comes from
+// one school IP, so this is generous by design; it exists to stop a script, not a lesson.
+ewd_define('EWD_RATE_LIMIT_PER_HOUR', 40);
+
+// Salt for the one-way hash of submitter IPs. An IP is stored ONLY as a hash, so rate
+// limiting and abuse tracing still work while the table holds no personal data in the
+// clear. Override this in config.local.php with your own random string.
+ewd_define('EWD_IP_SALT', 'edusim-world-database');
+
+// The admin password, as a password_hash() string -- NOT the password itself.
+// Left empty here on purpose: with no hash set, admin.php walks you through choosing one
+// and prints the line to paste into config.local.php.
+ewd_define('EWD_ADMIN_PASSWORD_HASH', '');
+
+// ---------------------------------------------------------------------------
+// Links back to the rest of Edusim
+// ---------------------------------------------------------------------------
+
+ewd_define('EWD_APP_URL', 'https://edisimwebv1-production.up.railway.app');
+ewd_define('EWD_SITE_URL', 'https://richwhitegreenbush.github.io/EdisimWEB_V1/');
+ewd_define('EWD_GUIDE_URL', 'https://richwhitegreenbush.github.io/EdisimWEB_V1/guide/index.html');
