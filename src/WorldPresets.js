@@ -3466,6 +3466,264 @@ function solarLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// The Water Cycle
+// ---------------------------------------------------------------------------
+
+// The design problem here is that a water cycle is a LOOP, and a loop is the one thing a
+// 3D landscape does not naturally show. Stand in a real valley and you see a sea, a cloud
+// and a river; you do not see that they are the same water going round. So the five big
+// labelled arrows are the exhibit, laid out as a circuit a student can actually walk, and
+// everything else exists to give the arrows something to connect.
+//
+// The circuit runs anticlockwise seen from above: sea (east) -> up -> cloud (north) ->
+// rain (west) -> mountain and stream -> back to the sea. A student who follows the arrows
+// ends up where they started, which is the entire point and is not something a poster can
+// make anybody do.
+function waterCycleLayout() {
+  const items = [];
+
+  // --- 1. The sea, and evaporation ----------------------------------------
+  items.push(prop('water-body', 62, 30, { options: { width: 74, depth: 62, seed: 23 } }));
+  items.push(prop('vapour-column', 52, 44, { y: 0.5, options: { height: 22, radius: 4, seed: 17 } }));
+  items.push(prop('vapour-column', 74, 22, { y: 0.5, options: { height: 18, radius: 3.4, seed: 19 } }));
+  items.push(prop('vapour-column', 66, 48, { y: 0.5, options: { height: 20, radius: 3.8, seed: 21 } }));
+  items.push(
+    prop('cycle-arrow', 46, 56, {
+      rotY: -0.9,
+      options: { span: 26, rise: 16, label: 'EVAPORATION', sub: 'the sun lifts water as invisible vapour', color: 0x3d8bf2 },
+    }),
+  );
+  items.push(
+    prop('info-placard', 38, 44, {
+      rotY: -0.7,
+      options: {
+        eyebrow: 'Stage 1',
+        title: 'Evaporation',
+        accent: '#3d8bf2',
+        body:
+          'The sun heats the surface and water leaves it as a gas. You cannot see water vapour — the wisps here stand in for something genuinely invisible. About 90% of the water in the air came off the oceans this way; the rest came out of plants.',
+      },
+    }),
+  );
+
+  // --- 2. Condensation: the cloud -----------------------------------------
+  // Clouds are placed with an explicit absoluteY, which is the deliberate exception to
+  // "origin is the base centre" that the Moon's Earth and the museum's paintings also use.
+  // Every base sits at exactly 34ft, because that is the point: cumulus form where rising
+  // air reaches the condensation level, so a field of them all has ONE base height.
+  items.push(prop('cumulus-cloud', 6, -14, { y: 62, absoluteY: true, options: { size: 46, height: 22, seed: 7 } }));
+  items.push(prop('cumulus-cloud', -34, -26, { y: 58, absoluteY: true, options: { size: 38, height: 18, seed: 11 } }));
+  items.push(prop('cumulus-cloud', 46, -34, { y: 60, absoluteY: true, options: { size: 34, height: 16, seed: 13 } }));
+  items.push(prop('cumulus-cloud', -70, -8, { y: 56, absoluteY: true, options: { size: 40, height: 19, seed: 27, dark: true } }));
+  items.push(
+    prop('cycle-arrow', 26, -4, {
+      rotY: -0.4,
+      options: { span: 24, rise: 14, label: 'CONDENSATION', sub: 'vapour cools and turns back into droplets', color: 0x7a5fd0 },
+    }),
+  );
+  items.push(
+    prop('info-placard', 20, 8, {
+      rotY: -0.4,
+      options: {
+        eyebrow: 'Stage 2',
+        title: 'Condensation',
+        accent: '#7a5fd0',
+        body:
+          'Air cools as it rises. Cold air holds less vapour, so at a certain height the water turns back into liquid droplets around specks of dust — and that is a cloud. Look at the bottoms: they are all flat, and all at the same height. That height is where the air got cold enough.',
+      },
+    }),
+  );
+
+  // --- 3. Precipitation ---------------------------------------------------
+  // The rain curtain hangs under the dark cloud, which is the one that is raining. A
+  // cloud only rains when its droplets have collided into drops too heavy to stay up, and
+  // making exactly one cloud dark and exactly that one rain is how the world says so.
+  items.push(prop('rain-curtain', -70, -8, { y: 10, absoluteY: true, options: { radius: 15, height: 44, count: 300, seed: 13 } }));
+  items.push(
+    prop('cycle-arrow', -46, 2, {
+      rotY: 0.6,
+      options: { span: 24, rise: 13, label: 'PRECIPITATION', sub: 'drops get too heavy to stay up', color: 0x2f9e8f },
+    }),
+  );
+  items.push(
+    prop('info-placard', -44, 16, {
+      rotY: 0.5,
+      options: {
+        eyebrow: 'Stage 3',
+        title: 'Precipitation',
+        accent: '#2f9e8f',
+        body:
+          'A cloud droplet is far too small to fall — it would take days to reach the ground and would evaporate first. Rain happens when about a million of them collide and merge into one drop. Higher up and colder, the same process makes snow and hail.',
+      },
+    }),
+  );
+
+  // --- 4. Collection: the mountain, the snowpack and the stream -----------
+  items.push(prop('mountain-peak', -104, -52, { options: { height: 52, radius: 38, seed: 29, snowline: 0.52 } }));
+  items.push(prop('mountain-peak', -150, -20, { options: { height: 34, radius: 26, seed: 33, snowline: 0.62 } }));
+  items.push(prop('stream-course', -78, 6, { rotY: -0.5, options: { length: 70, drop: 9, width: 4.5, seed: 31, bends: 3 } }));
+  items.push(prop('stream-course', -44, 48, { rotY: -1.1, options: { length: 64, drop: 5, width: 6, seed: 35, bends: 2 } }));
+  items.push(
+    prop('info-placard', -84, 26, {
+      rotY: 0.9,
+      options: {
+        eyebrow: 'Stage 4',
+        title: 'Collection and runoff',
+        accent: '#8a93a8',
+        body:
+          'Snow on a mountain is water in storage — sometimes for months, sometimes for thousands of years. When it melts it runs downhill, gathers into streams and rivers, and heads back to the sea. Look at where the snow stops: that line is where it is cold enough for snow to survive the summer.',
+      },
+    }),
+  );
+  items.push(
+    prop('cycle-arrow', -30, 62, {
+      rotY: 1.5,
+      options: { span: 26, rise: 11, label: 'COLLECTION', sub: 'rivers carry it back to the sea', color: 0x2f6ea8 },
+    }),
+  );
+
+  // --- 5. Transpiration, and what happens underground ---------------------
+  // The stage every poster leaves out, and the one that explains wells and springs.
+  items.push(prop('groundwater-cutaway', -34, 64, { rotY: 0.55, options: { width: 24, height: 10, depth: 8, seed: 37 } }));
+  items.push(
+    prop('info-placard', -20, 70, {
+      rotY: 0.3,
+      options: {
+        eyebrow: 'Where the rest of it goes',
+        title: 'Groundwater',
+        accent: '#a08a63',
+        body:
+          'Not all rain runs off. Much of it soaks down through soil and porous rock until it reaches a layer water cannot pass, and collects there. That is the water table, and it is where a well gets its water. It moves — but slowly: a few feet a day, not a few feet a second.',
+      },
+    }),
+  );
+
+  // Transpiration: trees breathing water out of their leaves. A big oak moves about 40,000
+  // gallons a year, which is the fact that makes this stage worth its own arrow.
+  const treeSpots = [[-16, 30], [-26, 22], [-6, 26], [-34, 34], [-20, 44], [4, 34], [-42, 26]];
+  treeSpots.forEach(([x, z], i) => {
+    items.push(prop('shade-tree', x, z, { options: { height: 22 + (i % 3) * 4, seed: 60 + i * 5 } }));
+  });
+  items.push(prop('vapour-column', -22, 30, { y: 20, absoluteY: true, options: { height: 14, radius: 3, seed: 43, tint: 0xdaf0e2 } }));
+  items.push(prop('vapour-column', -6, 27, { y: 20, absoluteY: true, options: { height: 12, radius: 2.6, seed: 45, tint: 0xdaf0e2 } }));
+  items.push(
+    prop('cycle-arrow', -16, 16, {
+      rotY: 0.2,
+      options: { span: 20, rise: 12, label: 'TRANSPIRATION', sub: 'plants breathe water out too', color: 0x4e9c3f },
+    }),
+  );
+  items.push(
+    prop('info-placard', -6, 14, {
+      rotY: 0,
+      options: {
+        eyebrow: 'Stage 5',
+        title: 'Transpiration',
+        accent: '#4e9c3f',
+        body:
+          'Plants pull water up from their roots and let it out through tiny pores in their leaves. One large oak moves about 40,000 gallons a year — a whole forest can put more water into the air than a lake of the same size.',
+      },
+    }),
+  );
+
+  // --- Wayfinding ---------------------------------------------------------
+  items.push(
+    prop('standing-sign', 24, 88, {
+      rotY: -0.4,
+      options: {
+        lines: ['THE WATER CYCLE'],
+        subtitle: 'Follow the five arrows all the way round — you will finish where you started',
+        width: 15,
+        height: 4.2,
+      },
+    }),
+  );
+
+  items.push(...browserStation(-11, 86, { faceX: 0, faceZ: 98 }));
+
+  // --- Programming challenges ---------------------------------------------
+  items.push(
+    activity(-24, 80, {
+      number: 1,
+      rotY: 0.35,
+      accent: '#3d8bf2',
+      title: 'Send a cloud across the sky',
+      target: 'Click the big white cloud → Program.',
+      steps: [
+        ctrlStep('forever'),
+        moveStep('move X by -60 ft', 1),
+        ctrlStep('wait 4 seconds', 1),
+        moveStep('move X by 60 ft', 1),
+        ctrlStep('wait 4 seconds', 1),
+      ],
+      tip: 'Weather really does travel — in most of the world, west to east. Add a second cloud running at a different speed and you have the thing that makes forecasting hard: they do not all move together.',
+    }),
+  );
+
+  items.push(
+    activity(8, 82, {
+      number: 2,
+      rotY: -0.1,
+      accent: '#2f9e8f',
+      title: 'Make the rain fall',
+      target: 'Click the grey rain under the dark cloud → Program.',
+      steps: [
+        ctrlStep('forever'),
+        moveStep('move Y by -1 ft', 1),
+        ctrlStep('wait 0.05 seconds', 1),
+        ctrlStep('repeat 1 times', 1),
+        moveStep('move Y by 20 ft', 2),
+      ],
+      tip: 'This is a loop that falls a bit at a time and then jumps back to the top — which is exactly how a cartoon makes rain out of one drawing. Change the -1 to -3 and it becomes a downpour.',
+    }),
+  );
+
+  // --- The path round the circuit -----------------------------------------
+  // Laid stone between the arrows, and it is doing the arrows' job at ground level: an
+  // arrow tells a student which way the WATER goes, and the path tells them which way to
+  // WALK to follow it. Without it the five arrows are five separate signs in a field, and
+  // the loop only exists on the sign that says the word.
+  const pathSpots = [
+    [30, 74, -0.5], [42, 60, -0.8], [46, 42, -1.2], [40, 22, -1.5],
+    [16, 6, 2.4], [-10, 2, 2.0], [-34, 8, 1.8], [-52, 22, 1.4],
+    [-58, 42, 1.0], [-44, 60, 0.7], [-22, 72, 0.3], [2, 78, 0.0],
+  ];
+  pathSpots.forEach(([x, z, rotY], i) => {
+    items.push(prop('path-stones', x, z, { rotY, options: { length: 16, width: 5, seed: 200 + i * 9 } }));
+  });
+
+  // --- Filling out the valley ---------------------------------------------
+  // Conifers up the mountain flank, where the snowline and the treeline both matter, and
+  // broadleaf lower down. The treeline stopping well below the snowline is real and worth
+  // a student noticing without being told.
+  const coniferSpots = [[-84, -34], [-96, -20], [-70, -30], [-118, -22], [-108, -6], [-132, -6], [-88, -8]];
+  coniferSpots.forEach(([x, z], i) => {
+    items.push(prop('conifer-tree', x, z, { options: { height: 20 + (i % 3) * 5, seed: 300 + i * 7 } }));
+  });
+
+  // Wildflowers on the wet meadow between the stream and the sea -- where the water is is
+  // where the flowers are, which is the cycle's point made without a placard.
+  items.push(prop('wildflowers', -30, 46, { options: { radius: 9, count: 130, seed: 401 } }));
+  items.push(prop('wildflowers', 6, 52, { options: { radius: 8, count: 110, seed: 403 } }));
+  items.push(prop('flower-bed', -14, 56, { rotY: 0.3, options: { width: 11, depth: 5, seed: 405 } }));
+
+  // Boulders along the stream bed, reusing the Moon's field with river-rock colours.
+  items.push(prop('moon-rocks', -66, 18, { options: { count: 8, spread: 12, colors: [0x6e6a5e, 0x8a8274, 0x5c5a52], seed: 501 } }));
+  items.push(prop('moon-rocks', -50, 40, { options: { count: 7, spread: 10, colors: [0x7a7566, 0x66625a, 0x918a7c], seed: 503 } }));
+
+  // A bench at the top of the walk, looking back down over the whole circuit.
+  items.push(prop('bench', 26, 66, { rotY: -2.2, options: { length: 5 } }));
+  items.push(prop('bench', -30, 62, { rotY: 2.4, options: { length: 5 } }));
+
+  // --- Lighting -----------------------------------------------------------
+  // Under the raining cloud, which is genuinely the darkest spot in the world, and inside
+  // the tree group where the canopy closes over.
+  items.push(orb(-70, -8, 9, ORB_WHITE));
+  items.push(orb(-22, 30, 8, ORB_WHITE));
+
+  return { theme: 'watercycle', spawn: { x: 0, z: 100, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + materialization
 // ---------------------------------------------------------------------------
 
@@ -3498,6 +3756,11 @@ export const PRESET_WORLDS = {
     label: 'Solar System Walk',
     hint: 'Walk from the Sun out to Neptune — the planets sized truly against each other',
     build: solarLayout,
+  },
+  watercycle: {
+    label: 'The Water Cycle',
+    hint: 'Follow five labelled arrows round the whole loop — sea, cloud, rain, mountain, river',
+    build: waterCycleLayout,
   },
   empty: {
     label: 'My World',

@@ -10,6 +10,7 @@ import * as City from './CityProps.js';
 import * as Sea from './SeaProps.js';
 import * as Egypt from './EgyptProps.js';
 import * as Solar from './SolarProps.js';
+import * as Water from './WaterProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -217,6 +218,16 @@ export const PROP_BUILDERS = {
   'distance-marker': Solar.distanceMarker,
   'asteroid-belt': Solar.asteroidBelt,
   comet: Solar.comet,
+
+  // The Water Cycle
+  'cumulus-cloud': Water.cumulusCloud,
+  'rain-curtain': Water.rainCurtain,
+  'vapour-column': Water.vapourColumn,
+  'water-body': Water.waterBody,
+  'mountain-peak': Water.mountainPeak,
+  'stream-course': Water.streamCourse,
+  'groundwater-cutaway': Water.groundwaterCutaway,
+  'cycle-arrow': Water.cycleArrow,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than
