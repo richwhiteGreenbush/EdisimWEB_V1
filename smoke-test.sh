@@ -17,8 +17,15 @@ set -uo pipefail
 # pair Networks and the app is on Railway -- so aiming both at one origin silently tests
 # the wrong thing (the marketing page answers `/` with a 200 that means nothing about the
 # app being there).
+#
+# The canonical origin is edusim3dweb.com. edusim3d.me is an alias that 301s to it, and
+# pointing SITE there fails EVERY check for a reason that has nothing to do with the
+# deploy: `code()` deliberately does not follow redirects, because a check that follows
+# them cannot tell "the file is served" from "something answered after a hop". The alias
+# gets its own redirect check below instead.
 if [ "${1:-}" = "--prod" ]; then
-  SITE="http://edusim3d.me"
+  SITE="http://edusim3dweb.com"
+  ALIAS="http://edusim3d.me"
   APP="https://edisimwebv1-production.up.railway.app"
   TIMEOUT="${TIMEOUT:-30}"
 fi
@@ -129,6 +136,18 @@ check "a stored world file"  "$SITE/worlds/data/worlds/x.json"    403 404
 check "the seed payloads"    "$SITE/worlds/seed/worlds/park.json" 403 404
 check "the seeding script"   "$SITE/worlds/tools/seed-presets.php" 403 404
 check "directory listing"    "$SITE/worlds/uploads/screenshots/"  403 404
+
+# The alias domain, when there is one. It must land on the canonical origin rather than
+# 404 or loop -- a broken alias is invisible from the canonical host itself.
+if [ -n "${ALIAS:-}" ]; then
+  section "Alias domain"
+  loc="$(curl -s -o /dev/null -w '%{redirect_url}' --max-time "$TIMEOUT" "$ALIAS/")"
+  acode="$(code "$ALIAS/")"
+  case "$loc" in
+    "$SITE"*) printf '  \033[32mok\033[0m   %-46s %s -> %s\n' "alias redirects to the canonical site" "$acode" "$loc"; pass=$((pass+1)) ;;
+    *)        printf '  \033[31mFAIL\033[0m %-46s %s -> %s\n' "alias redirects to the canonical site" "$acode" "${loc:-nowhere}"; fail=$((fail+1)) ;;
+  esac
+fi
 
 section "Edusim app (as Railway serves it)"
 check "app index"            "$APP/"                     200
