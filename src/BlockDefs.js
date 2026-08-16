@@ -36,23 +36,44 @@ export const BLOCK_DEFS = {
     label: [{ text: 'wait' }, { field: 'seconds' }, { text: 'seconds' }],
     params: { seconds: { type: 'number', default: 1, min: 0, step: 0.1 } },
   },
-  moveX: {
-    category: 'motion',
-    hasChildren: false,
-    label: [{ text: 'move X by' }, { field: 'feet' }, { text: 'feet' }],
-    params: { feet: { type: 'number', default: 1, step: 0.5 } },
+  // A HAT block: its children do not run when the program is played, only when some
+  // object anywhere in the world runs `say` with matching text. That is why it is filed
+  // under Control -- it is not a thing an object does, it is a reason for it to start.
+  whenSaid: {
+    category: 'control',
+    hasChildren: true,
+    hat: true,
+    label: [{ text: 'when an object says' }, { field: 'text' }],
+    params: { text: { type: 'text', default: 'hello' } },
   },
-  moveY: {
+
+  // --- Motion ---------------------------------------------------------------
+  //
+  // These three move along the object's OWN facing, which is the whole reason they
+  // replaced move X/Y/Z. World-axis movement meant rotating something never changed
+  // where it would then travel, so "drive around in a square" was not writable at all
+  // and every patrol in every world had to be an out-and-back with a rotate 180 in the
+  // middle. With `move forward`, a rotate finally changes what the next move does.
+  moveForward: {
     category: 'motion',
     hasChildren: false,
-    label: [{ text: 'move Y by' }, { field: 'feet' }, { text: 'feet' }],
-    params: { feet: { type: 'number', default: 1, step: 0.5 } },
+    label: [{ text: 'move forward' }, { field: 'feet' }, { text: 'feet' }],
+    params: { feet: { type: 'number', default: 2, step: 0.5 } },
   },
-  moveZ: {
+  glide: {
     category: 'motion',
     hasChildren: false,
-    label: [{ text: 'move Z by' }, { field: 'feet' }, { text: 'feet' }],
-    params: { feet: { type: 'number', default: 1, step: 0.5 } },
+    label: [{ text: 'glide' }, { field: 'feet' }, { text: 'feet over' }, { field: 'seconds' }, { text: 'seconds' }],
+    params: {
+      feet: { type: 'number', default: 10, step: 1 },
+      seconds: { type: 'number', default: 2, min: 0.1, step: 0.1 },
+    },
+  },
+  goHome: {
+    category: 'motion',
+    hasChildren: false,
+    label: [{ text: 'go back to start' }],
+    params: {},
   },
   rotate: {
     category: 'motion',
@@ -60,17 +81,72 @@ export const BLOCK_DEFS = {
     label: [{ text: 'rotate' }, { field: 'degrees' }, { text: 'degrees' }],
     params: { degrees: { type: 'number', default: 15, step: 5 } },
   },
+
+  // --- Look -----------------------------------------------------------------
+  say: {
+    category: 'look',
+    hasChildren: false,
+    label: [{ text: 'say' }, { field: 'text' }],
+    params: { text: { type: 'text', default: 'hello' } },
+  },
   changeSize: {
     category: 'look',
     hasChildren: false,
     label: [{ text: 'change size by' }, { field: 'percent' }, { text: '%' }],
     params: { percent: { type: 'number', default: 10, step: 5 } },
   },
+  // "to", not "by" -- absolute, and measured against the size the object was when its
+  // program started rather than against its current size. Relative to current, `set size
+  // to 50%` inside a loop halves it every pass and the object vanishes in a second, which
+  // is exactly the confusion that makes an absolute block worth having alongside the
+  // relative one.
+  setSize: {
+    category: 'look',
+    hasChildren: false,
+    label: [{ text: 'set size to' }, { field: 'percent' }, { text: '%' }],
+    params: { percent: { type: 'number', default: 100, min: 1, step: 5 } },
+  },
+  setOpacity: {
+    category: 'look',
+    hasChildren: false,
+    label: [{ text: 'set opacity to' }, { field: 'percent' }, { text: '%' }],
+    params: { percent: { type: 'number', default: 100, min: 0, max: 100, step: 5 } },
+  },
   changeColor: {
     category: 'look',
     hasChildren: false,
     label: [{ text: 'change color to' }, { field: 'color' }],
     params: { color: { type: 'color', default: PALETTE_SWATCHES[0] } },
+  },
+
+  // --- Retired -------------------------------------------------------------
+  //
+  // Off the palette, still runnable. A block type is PERSISTED inside every saved
+  // program -- in IndexedDB, in an exported world file, and in the copy a student sent a
+  // classmate -- so deleting these outright would not tidy anything up, it would turn
+  // somebody's working program into a silent no-op with no way to see why. They are kept
+  // out of PALETTE_ORDER so nobody writes a new one, and kept in the runner so nobody's
+  // old one breaks.
+  moveX: {
+    category: 'motion',
+    hasChildren: false,
+    retired: true,
+    label: [{ text: 'move X by' }, { field: 'feet' }, { text: 'feet' }],
+    params: { feet: { type: 'number', default: 1, step: 0.5 } },
+  },
+  moveY: {
+    category: 'motion',
+    hasChildren: false,
+    retired: true,
+    label: [{ text: 'move Y by' }, { field: 'feet' }, { text: 'feet' }],
+    params: { feet: { type: 'number', default: 1, step: 0.5 } },
+  },
+  moveZ: {
+    category: 'motion',
+    hasChildren: false,
+    retired: true,
+    label: [{ text: 'move Z by' }, { field: 'feet' }, { text: 'feet' }],
+    params: { feet: { type: 'number', default: 1, step: 0.5 } },
   },
   // Filed under Control, not Look: Scratch puts "create clone of" there for the same
   // reason -- it does not change how this object looks, it changes how many there are.
@@ -86,10 +162,12 @@ export const BLOCK_DEFS = {
   },
 };
 
+// What the palette offers, in order. Retired types are deliberately absent -- see the
+// note on them above.
 export const PALETTE_ORDER = [
-  'repeat', 'forever', 'wait', 'duplicate',
-  'moveX', 'moveY', 'moveZ', 'rotate',
-  'changeSize', 'changeColor',
+  'repeat', 'forever', 'wait', 'whenSaid', 'duplicate',
+  'moveForward', 'glide', 'rotate', 'goHome',
+  'say', 'changeSize', 'setSize', 'setOpacity', 'changeColor',
 ];
 
 export function createBlockInstance(type) {

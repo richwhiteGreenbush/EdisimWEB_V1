@@ -211,20 +211,27 @@ export class ProgramEditor {
 
       const schema = def.params[token.field];
       const input = document.createElement('input');
-      input.className = 'pe-field';
-      input.type = schema.type === 'color' ? 'color' : 'number';
+      input.className = schema.type === 'text' ? 'pe-field pe-field-text' : 'pe-field';
+      input.type = schema.type === 'color' ? 'color' : schema.type === 'text' ? 'text' : 'number';
       if (schema.type === 'number') {
         if (schema.min !== undefined) input.min = String(schema.min);
+        if (schema.max !== undefined) input.max = String(schema.max);
         if (schema.step !== undefined) input.step = String(schema.step);
       }
+      if (schema.type === 'text') input.maxLength = 60;
       input.value = params[token.field];
       input.disabled = paletteOnly;
       input.addEventListener('pointerdown', (e) => e.stopPropagation());
       input.addEventListener('click', (e) => e.stopPropagation());
-      input.addEventListener('change', () => {
-        const value = schema.type === 'color' ? input.value : Number(input.value);
+      // Text fields commit on every keystroke as well as on change. `change` alone means
+      // typing a message and dragging the block without leaving the field loses what was
+      // typed -- which for `say` is the entire content of the block.
+      const commit = () => {
+        const value = schema.type === 'number' ? Number(input.value) : input.value;
         onFieldChange?.(token.field, value);
-      });
+      };
+      input.addEventListener('change', commit);
+      if (schema.type === 'text') input.addEventListener('input', commit);
       el.appendChild(input);
     }
 

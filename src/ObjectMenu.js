@@ -1,7 +1,6 @@
 import * as THREE from 'three';
-import { scaleToHeight } from './ModelLoader.js';
 import { applyColorTint } from './ColorTint.js';
-import { MODEL_TARGET_HEIGHT, PALETTE_SWATCHES } from './config.js';
+import { PALETTE_SWATCHES } from './config.js';
 
 const CLICK_MOVE_THRESHOLD = 6; // px -- beyond this, a mousedown->mouseup is a look-drag, not a click
 const CLICK_TIME_THRESHOLD = 500; // ms
@@ -80,7 +79,7 @@ export class ObjectMenu {
     //
     // Create Model's construction pieces are excluded for a related reason: until the
     // student renders them into a finished model they are parts, not objects, and this
-    // menu's Size/Move/Program apply to whole objects. They are reachable only through
+    // menu's Program action applies to whole objects. They are reachable only through
     // their own floating hammer icon (ConstructionManager) -- and once rendered, the
     // model that replaces them carries no such flag and picks up normally.
     const pickable = this.registry
@@ -155,18 +154,6 @@ export class ObjectMenu {
     return btn;
   }
 
-  numberField(labelText, defaultValue) {
-    const wrap = document.createElement('label');
-    wrap.className = 'om-field';
-    const span = document.createElement('span');
-    span.textContent = labelText;
-    const input = document.createElement('input');
-    input.type = 'number';
-    input.value = String(defaultValue);
-    wrap.append(span, input);
-    return { wrap, input };
-  }
-
   renderRoot() {
     this.panel.innerHTML = '';
     const item = this.registry.get(this.activeId);
@@ -174,8 +161,13 @@ export class ObjectMenu {
     title.className = 'om-title';
     title.textContent = 'Object';
     this.panel.appendChild(title);
-    this.panel.appendChild(this.button('Size', () => this.renderSize()));
-    this.panel.appendChild(this.button('Move', () => this.renderMove()));
+    // Size and Move are deliberately NOT here any more.
+    //
+    // They were the two actions that changed an object by typing a number into a form,
+    // and both are now things you write instead: `set size to`, `change size by`, `move
+    // forward`, `glide` and `go back to start`. Keeping a second, hidden way to do the
+    // same jobs meant a student could resize something and then be unable to explain how,
+    // and it made the programming tool look like the long way round rather than the point.
     if (item?.record?.kind === 'light-orb') {
       this.panel.appendChild(this.button('Color', () => this.renderColor()));
     }
@@ -209,99 +201,6 @@ export class ObjectMenu {
     this.panel.appendChild(this.button('Back', () => this.renderRoot(), 'om-back'));
   }
 
-  renderSize() {
-    this.panel.innerHTML = '';
-    const title = document.createElement('div');
-    title.className = 'om-title';
-    title.textContent = 'Size';
-    this.panel.appendChild(title);
-
-    const { wrap, input } = this.numberField('Resize to (%)', 100);
-    this.panel.appendChild(wrap);
-
-    const row = document.createElement('div');
-    row.className = 'om-row';
-    row.appendChild(this.button('Apply', () => this.applySizePercent(Number(input.value))));
-    row.appendChild(this.button('Reset to 5ft tall', () => this.resetToTargetHeight()));
-    this.panel.appendChild(row);
-
-    this.panel.appendChild(this.button('Back', () => this.renderRoot(), 'om-back'));
-  }
-
-  renderMove() {
-    this.panel.innerHTML = '';
-    const title = document.createElement('div');
-    title.className = 'om-title';
-    title.textContent = 'Move (relative to you)';
-    this.panel.appendChild(title);
-
-    const back = this.numberField('Backward (ft)', 0);
-    const up = this.numberField('Up (ft)', 0);
-    this.panel.appendChild(back.wrap);
-    this.panel.appendChild(up.wrap);
-
-    const row = document.createElement('div');
-    row.className = 'om-row';
-    row.appendChild(this.button('Apply', () => this.applyMove(Number(back.input.value), Number(up.input.value))));
-    this.panel.appendChild(row);
-
-    this.panel.appendChild(this.button('Back', () => this.renderRoot(), 'om-back'));
-  }
-
-  persistTransform(id) {
-    const item = this.registry.get(id);
-    if (!item?.record) return;
-    item.record.transform = {
-      position: item.object3D.position.toArray(),
-      rotation: [item.object3D.rotation.x, item.object3D.rotation.y, item.object3D.rotation.z],
-      scale: item.object3D.scale.toArray(),
-    };
-    this.worldStore?.saveObject(item.record);
-  }
-
-  applySizePercent(percent) {
-    const item = this.registry.get(this.activeId);
-    if (!item) return this.close();
-    if (!Number.isFinite(percent) || percent <= 0) {
-      this.menu?.toast('Enter a size percentage greater than 0.', { tone: 'error' });
-      return;
-    }
-    item.object3D.scale.multiplyScalar(percent / 100);
-    this.persistTransform(this.activeId);
-    this.menu?.toast(`Resized to ${percent}% of its previous size.`, { tone: 'success' });
-    this.close();
-  }
-
-  resetToTargetHeight() {
-    const item = this.registry.get(this.activeId);
-    if (!item) return this.close();
-    scaleToHeight(item.object3D, MODEL_TARGET_HEIGHT);
-    this.persistTransform(this.activeId);
-    this.menu?.toast(`Reset to ${MODEL_TARGET_HEIGHT}ft tall.`, { tone: 'success' });
-    this.close();
-  }
-
-  applyMove(backFt, upFt) {
-    const item = this.registry.get(this.activeId);
-    if (!item) return this.close();
-    if (!Number.isFinite(backFt) || !Number.isFinite(upFt)) {
-      this.menu?.toast('Enter valid numbers for move distance.', { tone: 'error' });
-      return;
-    }
-
-    const dir = new THREE.Vector3();
-    this.camera.getWorldDirection(dir);
-    dir.y = 0;
-    if (dir.lengthSq() > 1e-6) dir.normalize();
-    else dir.set(0, 0, -1);
-
-    item.object3D.position.x += dir.x * backFt;
-    item.object3D.position.z += dir.z * backFt;
-    item.object3D.position.y += upFt;
-    this.persistTransform(this.activeId);
-    this.menu?.toast(`Moved ${backFt}ft back and ${upFt}ft up.`, { tone: 'success' });
-    this.close();
-  }
 
   applyColor(hex) {
     const item = this.registry.get(this.activeId);

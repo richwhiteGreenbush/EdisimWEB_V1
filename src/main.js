@@ -12,6 +12,7 @@ import { TouchNav } from './TouchNav.js';
 import { ProgramManager } from './ProgramManager.js';
 import { ProgramEditor } from './ProgramEditor.js';
 import { PlayIconManager } from './PlayIcon.js';
+import { SpeechBubbleManager } from './SpeechBubble.js';
 import { placeLightOrb } from './LightOrb.js';
 import { WebBrowserManager, placeWebBrowser } from './WebBrowserPanel.js';
 import { buildPresetWorldRecords } from './WorldPresets.js';
@@ -153,6 +154,7 @@ const menuActions = {
     }
     registry.clear();
     playIconManager.clear();
+    speechBubbles.clear();
     webBrowserManager.clear();
     buildGizmo.deactivate();
     await worldStore.clearAll();
@@ -192,8 +194,9 @@ const menu = new Menu({
 });
 
 const playIconManager = new PlayIconManager({ scene, camera, domElement: canvas, registry, programManager, menu });
+const speechBubbles = new SpeechBubbleManager({ scene, registry });
 
-const worldStore = new WorldStore({ scene, registry, menu, programManager, playIconManager, webBrowserManager });
+const worldStore = new WorldStore({ scene, registry, menu, programManager, playIconManager, webBrowserManager, speechBubbles });
 
 const importManager = new ImportManager({
   scene,
@@ -246,6 +249,9 @@ const primitiveMenu = new PrimitiveMenu({ registry, menu, worldStore, buildGizmo
 // takes it as a constructor argument, so it cannot be given these up front -- and it
 // does not need to be, since nothing calls this until a program is actually running.
 programManager.onDuplicate = (id, offset) => duplicatePlacedObject({ id, offset, registry, worldStore, menu });
+// The `say` block's visible half. The broadcast half -- waking every `when an object
+// says` hat in the world -- is ProgramManager's own job and needs nothing from here.
+programManager.onSay = (id, object3D, text) => speechBubbles.show(id, object3D, text);
 
 worldStore
   .rehydrateAll()
@@ -300,7 +306,7 @@ timer.connect(document);
 if (import.meta.env.DEV) {
   window.__debug = {
     camera, player, renderer, scene, THREE, menu, registry, importManager, drawTool,
-    worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager,
+    worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager, speechBubbles,
     webBrowserManager, vrView, constructionManager, primitiveMenu, buildGizmo,
   };
 }
@@ -316,6 +322,7 @@ function animate(timestamp) {
   registry.tick();
   programManager.tick();
   playIconManager.tick();
+  speechBubbles.tick();
   webBrowserManager.tick();
   constructionManager.tick();
   buildGizmo.tick();

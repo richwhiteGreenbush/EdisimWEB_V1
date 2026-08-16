@@ -930,14 +930,29 @@ orange as the `repeat` block the student is about to go and drag, so the board t
 the palette while it sets the task. A local copy of the colours would drift silently and
 produce exactly the confusion the board exists to prevent.
 
-**Every sequence on these boards has been run.** That is not politeness — `move X/Y/Z`
-shift an object along the **WORLD** axes, not along its own facing, so rotating something
-does **not** change which way it will then travel. "Drive around the field in a square"
-is not writable with this block set. Every patrol on every board is therefore an
-out-and-back along one axis with a `rotate 180 degrees` in the middle so the thing faces
-the way it is going, and several boards say so in their tip. If a block is ever added
-that moves relative to facing, these can be rewritten — until then, a board promising a
-circuit would be a board that lies.
+**Every sequence on these boards has been run.** That used to carry a hard constraint:
+`move X/Y/Z` shifted an object along the **WORLD** axes, so rotating something did not
+change where it then travelled, "drive around the field in a square" was not writable at
+all, and every patrol had to be an out-and-back with a `rotate 180 degrees` in the middle.
+
+**`move forward` and `glide` removed that constraint**, and the boards were rewritten
+when they landed. Both follow the object's own facing (`getWorldDirection()`, i.e. its
+local **+Z** — the same forward every prop in `src/props/` is authored to), so a `rotate`
+now genuinely steers. `repeat 4 { move forward 10, rotate 90 }` returns to its exact
+starting point, and several boards teach that as "360 divided by the number of sides".
+
+The replacement constraint is the one to remember: **there is no vertical motion block.**
+`move forward`, `glide` and `goHome` are the whole of Motion besides `rotate`, and none of
+them lifts anything. Five boards used to raise an obelisk, a dome, an ash column, a rain
+curtain and a helicopter on `move Y`; all five are now built from `changeSize`/`setSize`,
+`setOpacity` or `say`/`whenSaid` instead. A board promising a lift would be a board that
+lies, in exactly the way a board promising a circuit used to be.
+
+`moveX`/`moveY`/`moveZ` still exist in `BLOCK_DEFS` and in the runner, flagged `retired`
+and absent from `PALETTE_ORDER`. **They must stay there.** A block type is persisted
+inside every saved program — in IndexedDB, in an exported world file, in the copy a
+student sent a classmate — so deleting them would not tidy anything up, it would turn
+somebody's working program into a silent no-op with no way to see why.
 
 Two placement rules, both learned by getting them wrong:
 

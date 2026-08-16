@@ -40,12 +40,13 @@ function applyTransform(object3D, transform) {
 }
 
 export class WorldStore {
-  constructor({ scene, registry, menu, programManager, playIconManager, webBrowserManager }) {
+  constructor({ scene, registry, menu, programManager, playIconManager, webBrowserManager, speechBubbles }) {
     this.scene = scene;
     this.registry = registry;
     this.menu = menu;
     this.programManager = programManager;
     this.playIconManager = playIconManager;
+    this.speechBubbles = speechBubbles;
     this.webBrowserManager = webBrowserManager;
     this.dbPromise = openDB();
 
@@ -99,6 +100,7 @@ export class WorldStore {
   async loadFromRecords(records) {
     this.registry.clear();
     this.playIconManager?.clear();
+    this.speechBubbles?.clear();
     this.webBrowserManager?.clear();
     await this.clearAll();
 

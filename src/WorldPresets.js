@@ -482,9 +482,9 @@ function parkLayout() {
       steps: [
         ctrlStep('forever'),
         ctrlStep('repeat 20 times', 1),
-        moveStep('move X by 0.3 feet', 2),
+        moveStep('move forward 0.3 feet', 2),
         ctrlStep('repeat 20 times', 1),
-        moveStep('move X by -0.3 feet', 2),
+        moveStep('move forward 0.3 feet', 2),
       ],
       tip: 'Out six feet, back six feet, over and over. Drop a wait 0.1 seconds inside each loop to slow them to a proper glide — geese are never in a hurry.',
     })
@@ -824,10 +824,10 @@ function libraryLayout() {
       steps: [
         ctrlStep('forever'),
         ctrlStep('repeat 15 times', 1),
-        moveStep('move Z by -1 feet', 2),
+        moveStep('move forward 1 feet', 2),
         moveStep('rotate 180 degrees', 1),
         ctrlStep('repeat 15 times', 1),
-        moveStep('move Z by 1 feet', 2),
+        moveStep('move forward 1 feet', 2),
         moveStep('rotate 180 degrees', 1),
       ],
       tip: 'Notice the second loop uses MINUS one foot. Turning the cart round does not change which way move Z pushes it — you have to flip the number yourself.',
@@ -993,10 +993,10 @@ function moonLayout() {
       steps: [
         ctrlStep('forever'),
         ctrlStep('repeat 12 times', 1),
-        moveStep('move X by 0.5 feet', 2),
+        moveStep('move forward 0.5 feet', 2),
         moveStep('rotate 180 degrees', 1),
         ctrlStep('repeat 12 times', 1),
-        moveStep('move X by -0.5 feet', 2),
+        moveStep('move forward 0.5 feet', 2),
         moveStep('rotate 180 degrees', 1),
       ],
       tip: 'Six feet out, turn, six feet home. The real crews were never allowed to drive further than they could WALK back if it broke down — so keep your loops short.',
@@ -1259,11 +1259,11 @@ function marsLayout() {
       steps: [
         ctrlStep('forever'),
         ctrlStep('repeat 20 times', 1),
-        moveStep('move Z by -0.4 feet', 2),
+        moveStep('move forward 0.4 feet', 2),
         ctrlStep('wait 0.1 seconds', 2),
         moveStep('rotate 180 degrees', 1),
         ctrlStep('repeat 20 times', 1),
-        moveStep('move Z by 0.4 feet', 2),
+        moveStep('move forward 0.4 feet', 2),
         ctrlStep('wait 0.1 seconds', 2),
         moveStep('rotate 180 degrees', 1),
       ],
@@ -1280,14 +1280,12 @@ function marsLayout() {
       target: 'Click the little helicopter → Program.',
       steps: [
         ctrlStep('forever'),
-        ctrlStep('repeat 10 times', 1),
-        moveStep('move Y by 0.4 feet', 2),
-        ctrlStep('wait 0.1 seconds', 2),
-        ctrlStep('repeat 10 times', 1),
-        moveStep('move Y by -0.4 feet', 2),
-        ctrlStep('wait 0.1 seconds', 2),
+        ctrlStep('repeat 4 times', 1),
+        moveStep('glide 14 feet over 2 seconds', 2),
+        moveStep('rotate 90 degrees', 2),
+        ctrlStep('wait 1 seconds', 1),
       ],
-      tip: 'Up four feet, hover, back down. move Y is the only block that goes UP — and on Mars getting off the ground is the hard part, because there is barely any air for the blades to push against.',
+      tip: 'Four glides and four quarter turns is a square, and it only works because glide follows the way the copter is POINTING. Change the rotate to 72 degrees and the repeat to 5 and you get a pentagon: any regular shape is 360 divided by the number of sides.',
     })
   );
 
@@ -1533,10 +1531,10 @@ function dinosaurLayout() {
       steps: [
         ctrlStep('forever'),
         ctrlStep('repeat 15 times', 1),
-        moveStep('move X by 1 feet', 2),
+        moveStep('move forward 1 feet', 2),
         moveStep('rotate 180 degrees', 1),
         ctrlStep('repeat 15 times', 1),
-        moveStep('move X by -1 feet', 2),
+        moveStep('move forward 1 feet', 2),
         moveStep('rotate 180 degrees', 1),
       ],
       tip: 'Fifteen feet out across the clearing, turn, fifteen feet back — a browsing animal working a patch of ferns. Add wait 0.3 seconds inside the loops and it stops to chew.',
@@ -1552,10 +1550,10 @@ function dinosaurLayout() {
       steps: [
         ctrlStep('forever'),
         ctrlStep('repeat 40 times', 1),
-        moveStep('move X by 0.5 feet', 2),
+        moveStep('move forward 0.5 feet', 2),
         moveStep('rotate 180 degrees', 1),
         ctrlStep('repeat 40 times', 1),
-        moveStep('move X by -0.5 feet', 2),
+        moveStep('move forward 0.5 feet', 2),
         moveStep('rotate 180 degrees', 1),
       ],
       tip: 'A 33-foot wingspan does not flap much — it soars. Long, slow, steady passes look far more right than anything quick. Try adding move Y to make it ride a thermal.',
@@ -1833,10 +1831,10 @@ function voyageLayout() {
       steps: [
         ctrlStep('forever'),
         ctrlStep('repeat 30 times', 1),
-        moveStep('move Z by -0.8 feet', 2),
+        moveStep('move forward 0.8 feet', 2),
         moveStep('rotate 180 degrees', 1),
         ctrlStep('repeat 30 times', 1),
-        moveStep('move Z by 0.8 feet', 2),
+        moveStep('move forward 0.8 feet', 2),
         moveStep('rotate 180 degrees', 1),
       ],
       tip: 'Twenty-four feet down the hall and back. Swallowable pill-sized cameras have been doing the real version of this trip since 2001 — no crew, but a very long journey.',
@@ -2286,14 +2284,14 @@ function emptyLayout() {
         intro: 'Click your rocket and choose Program. Drag these together — the indented two go inside forever — then press Save.',
         steps: [
           { lead: 'Change one number', text: 'Try 2 degrees. Try 90. Take the wait out. Changing a number and running it again is the whole skill.' },
-          { lead: 'Then launch it', text: 'Swap those for repeat 30 times holding move Y by 0.4 feet.' },
+          { lead: 'Then fly it', text: 'Swap the rotate for glide 12 feet over 2 seconds, and put a rotate 90 degrees under it.' },
         ],
         blocks: [
           { cat: 'control', text: 'forever' },
           { cat: 'motion', text: 'rotate 15 degrees', depth: 1 },
           { cat: 'control', text: 'wait 0.1 seconds', depth: 1 },
         ],
-        tip: 'move X, Y and Z slide a model along the WORLD’s directions, not the way it is facing. Turning something does not change which way it will travel.',
+        tip: 'move forward and glide go the way your model is POINTING, so a rotate genuinely steers it. Four glides and four 90 degree turns draw a square — and 360 divided by any number of sides gives you that shape.',
         accent: '#6b3fa0',
         ...MY_WORLD_CARD,
       },
@@ -2614,10 +2612,10 @@ function newYorkLayout() {
       steps: [
         ctrlStep('forever'),
         ctrlStep('repeat 20 times', 1),
-        moveStep('move Z by 1 feet', 2),
+        moveStep('move forward 1 feet', 2),
         moveStep('rotate 180 degrees', 1),
         ctrlStep('repeat 20 times', 1),
-        moveStep('move Z by -1 feet', 2),
+        moveStep('move forward 1 feet', 2),
         moveStep('rotate 180 degrees', 1),
       ],
       tip: 'The cab is facing you, so the FIRST leg is a plus. Turning it round does not change which way move Z pushes it — that is why the second loop uses minus one. Try wait 0.05 seconds inside a loop to slow it to a crawl.',
@@ -2959,13 +2957,13 @@ function seaLayout() {
       steps: [
         ctrlStep('forever'),
         ctrlStep('repeat 40 times', 1),
-        moveStep('move X by -0.5 feet', 2),
+        moveStep('move forward 0.5 feet', 2),
         moveStep('rotate 180 degrees', 1),
         ctrlStep('repeat 40 times', 1),
-        moveStep('move X by 0.5 feet', 2),
+        moveStep('move forward 0.5 feet', 2),
         moveStep('rotate 180 degrees', 1),
       ],
-      tip: 'Twenty feet out and twenty feet back, for ever. The two rotate blocks are what make it face the way it is going: move X always travels along the world, never along the shark, so turning it does not change where it goes — it only changes which way it points.',
+      tip: 'Twenty feet out, turn, twenty feet back. move forward goes the way the shark is POINTING, so the rotate is what actually sends it home — take it out and the shark just keeps going in one direction for ever.',
     })
   );
   items.push(
@@ -3211,14 +3209,18 @@ function egyptLayout() {
       number: 1,
       rotY: 0.54,
       accent: '#c2861f',
-      title: 'Raise the obelisk',
-      target: 'Click the left-hand obelisk → Program.',
+      title: 'Make the obelisks answer each other',
+      target: 'Give the LEFT obelisk the first stack, the right one the second.',
       steps: [
-        ctrlStep('repeat 20 times'),
-        moveStep('move Y by 0.6 ft', 1),
-        ctrlStep('wait 0.15 seconds', 1),
+        ctrlStep('forever'),
+        lookStep('say sunrise', 1),
+        ctrlStep('wait 3 seconds', 1),
+        ctrlStep('when an object says sunrise'),
+        lookStep('set opacity to 40 %', 1),
+        ctrlStep('wait 1 seconds', 1),
+        lookStep('set opacity to 100 %', 1),
       ],
-      tip: 'Egyptian crews raised these by hauling them upright onto a base with ropes and sand. Yours cheats and floats. Change 0.6 to 0.1 and watch how much more convincing slow is than fast.',
+      tip: 'Two stacks on two different objects: the first talks, the second listens. "when an object says" does not care WHICH object said it, so one shout sets off every listener in the world — give the same listening stack to the Sphinx as well and watch them both answer.',
     }),
   );
 
@@ -3231,14 +3233,14 @@ function egyptLayout() {
       target: 'Click Khufu’s ship → Program.',
       steps: [
         ctrlStep('forever'),
-        moveStep('move X by 22 ft', 1),
+        moveStep('move forward 22 feet', 1),
         ctrlStep('wait 2 seconds', 1),
         moveStep('rotate 180 degrees', 1),
-        moveStep('move X by 22 ft', 1),
+        moveStep('move forward 22 feet', 1),
         ctrlStep('wait 2 seconds', 1),
         moveStep('rotate 180 degrees', 1),
       ],
-      tip: 'move X always slides along the world’s X, never along the way the boat is pointing — so the two rotate blocks are only there to turn the hull to face its direction of travel. Take them out and it sails backwards half the time.',
+      tip: 'move forward follows the hull, so the rotate genuinely turns the boat round rather than just spinning it on the spot. Swap move forward for glide 40 feet over 6 seconds and it stops teleporting and starts steaming.',
     }),
   );
 
@@ -3455,9 +3457,9 @@ function solarLayout() {
       target: 'Click the comet near the Sun → Program.',
       steps: [
         ctrlStep('forever'),
-        moveStep('move Z by -30 ft', 1),
+        moveStep('move forward 30 feet', 1),
         ctrlStep('wait 1 seconds', 1),
-        moveStep('move Z by 30 ft', 1),
+        moveStep('move forward 30 feet', 1),
         ctrlStep('wait 3 seconds', 1),
       ],
       tip: 'A real comet moves fastest when it is closest to the Sun and crawls when it is far away, which is why it spends most of its life out in the cold. Make the outbound wait much longer than the inbound one and you have modelled that.',
@@ -3662,9 +3664,9 @@ function waterCycleLayout() {
       target: 'Click the big white cloud → Program.',
       steps: [
         ctrlStep('forever'),
-        moveStep('move X by -60 ft', 1),
+        moveStep('move forward 60 feet', 1),
         ctrlStep('wait 4 seconds', 1),
-        moveStep('move X by 60 ft', 1),
+        moveStep('move forward 60 feet', 1),
         ctrlStep('wait 4 seconds', 1),
       ],
       tip: 'Weather really does travel — in most of the world, west to east. Add a second cloud running at a different speed and you have the thing that makes forecasting hard: they do not all move together.',
@@ -3676,16 +3678,17 @@ function waterCycleLayout() {
       number: 2,
       rotY: -0.1,
       accent: '#2f9e8f',
-      title: 'Make the rain fall',
+      title: 'Start and stop the shower',
       target: 'Click the grey rain under the dark cloud → Program.',
       steps: [
         ctrlStep('forever'),
-        moveStep('move Y by -1 ft', 1),
-        ctrlStep('wait 0.05 seconds', 1),
-        ctrlStep('repeat 1 times', 1),
-        moveStep('move Y by 20 ft', 2),
+        lookStep('set opacity to 0 %', 1),
+        ctrlStep('wait 4 seconds', 1),
+        lookStep('set opacity to 80 %', 1),
+        lookStep('say raining', 1),
+        ctrlStep('wait 6 seconds', 1),
       ],
-      tip: 'This is a loop that falls a bit at a time and then jumps back to the top — which is exactly how a cartoon makes rain out of one drawing. Change the -1 to -3 and it becomes a downpour.',
+      tip: 'A cloud only rains while its droplets are heavy enough to fall, so real showers switch on and off. The say block at the end broadcasts to the whole world — give the sea a "when an object says raining" stack and the rest of the cycle can react to this one cloud letting go.',
     }),
   );
 
@@ -3886,10 +3889,15 @@ function pompeiiLayout() {
   items.push(
     activity(-25, 78, {
       number: 1, rotY: face(-25, 78), accent: '#c2521f',
-      title: 'Raise the ash column',
+      title: 'Thicken the ash fall',
       target: 'Click the falling ash near the forum → Program.',
-      steps: [ctrlStep('repeat 30 times'), moveStep('move Y by 1 ft', 1), ctrlStep('wait 0.1 seconds', 1)],
-      tip: 'The real column reached 21 miles up in about an hour. Pliny the Younger watched it from across the bay and wrote the only eyewitness account we have — which is why this kind of eruption is named after him.',
+      steps: [
+        ctrlStep('repeat 8 times'),
+        lookStep('change size by 12 %', 1),
+        ctrlStep('wait 0.4 seconds', 1),
+        lookStep('say it is getting dark'),
+      ],
+      tip: 'The fall got heavier for eighteen hours before the town was buried. Press play twice and it keeps on growing, because "change size by" builds on whatever size it is NOW. Put "set size to 100 %" at the top instead and it always starts from the same place.',
     }),
   );
   items.push(
@@ -3899,9 +3907,9 @@ function pompeiiLayout() {
       target: 'Click a stretch of paved street → Program.',
       steps: [
         ctrlStep('forever'),
-        moveStep('move Z by -40 ft', 1), ctrlStep('wait 3 seconds', 1),
+        moveStep('move forward 40 feet', 1), ctrlStep('wait 3 seconds', 1),
         moveStep('rotate 180 degrees', 1),
-        moveStep('move Z by 40 ft', 1), ctrlStep('wait 3 seconds', 1),
+        moveStep('move forward 40 feet', 1), ctrlStep('wait 3 seconds', 1),
         moveStep('rotate 180 degrees', 1),
       ],
       tip: 'Look at the ruts worn into the basalt, and the raised stepping stones across the road. The gaps between the stones are exactly a cart axle wide — the street doubled as the drain, and you crossed it without stepping in it.',
@@ -4076,7 +4084,7 @@ function davinciLayout() {
       target: 'Click the self-propelled cart → Program.',
       steps: [
         ctrlStep('repeat 4 times'),
-        moveStep('move Z by -12 ft', 1), ctrlStep('wait 1 seconds', 1),
+        moveStep('move forward 12 feet', 1), ctrlStep('wait 1 seconds', 1),
         moveStep('rotate 90 degrees', 1), ctrlStep('wait 0.5 seconds', 1),
       ],
       tip: 'This is the closest thing here to what the real cart did: it drove a fixed path set by pegs in its gears. Note that move Z always goes along the WORLD’s Z — the rotate turns the cart to face its way, but does not change which way move Z sends it.',
@@ -4226,7 +4234,7 @@ function ellisLayout() {
       target: 'Click the steamship → Program.',
       steps: [
         ctrlStep('repeat 14 times'),
-        moveStep('move X by 2 ft', 1),
+        moveStep('move forward 2 feet', 1),
         ctrlStep('wait 0.4 seconds', 1),
       ],
       tip: 'Two feet at a time, with a pause — a ship this size comes alongside at walking pace and stops by reversing its engines. Try 12 ft with no wait and you will see why they do not.',
@@ -4374,14 +4382,16 @@ function capitolLayout() {
   items.push(
     activity(-26, 128, {
       number: 1, rotY: face(-26, 128), accent: '#8a8578',
-      title: 'Raise the dome into place',
+      title: 'Build the dome up from nothing',
       target: 'Click the dome (not the building) → Program.',
       steps: [
-        ctrlStep('repeat 24 times'),
-        moveStep('move Y by 1.5 ft', 1),
-        ctrlStep('wait 0.12 seconds', 1),
+        lookStep('set size to 10 %'),
+        ctrlStep('repeat 20 times'),
+        lookStep('change size by 12 %', 1),
+        ctrlStep('wait 0.15 seconds', 1),
+        lookStep('say the union shall go on'),
       ],
-      tip: 'The real dome went up in cast-iron rings hoisted by a steam derrick standing inside it, all through the Civil War. The dome and the building are two separate objects here, which is why you can move one without the other.',
+      tip: 'The dome went up in cast-iron rings hoisted by a derrick standing inside it, right through the Civil War — Lincoln insisted the work carry on. "go back to start" snaps it back to full size whenever you like. The dome and the building are separate objects, which is why you can grow one without the other.',
     }),
   );
   items.push(
@@ -4391,9 +4401,9 @@ function capitolLayout() {
       target: 'Click any bronze statue → Program.',
       steps: [
         ctrlStep('forever'),
-        moveStep('move X by 16 ft', 1), ctrlStep('wait 2 seconds', 1),
+        moveStep('move forward 16 feet', 1), ctrlStep('wait 2 seconds', 1),
         moveStep('rotate 180 degrees', 1),
-        moveStep('move X by 16 ft', 1), ctrlStep('wait 2 seconds', 1),
+        moveStep('move forward 16 feet', 1), ctrlStep('wait 2 seconds', 1),
         moveStep('rotate 180 degrees', 1),
       ],
       tip: 'States really do swap theirs — several have been replaced in the last few years. Try changing the colour too: these are bronze, and bronze goes green outdoors, which is exactly what happened to the Statue of Liberty.',
@@ -4546,9 +4556,9 @@ function barrierLayout() {
       target: 'Click the manta ray → Program.',
       steps: [
         ctrlStep('forever'),
-        moveStep('move X by 40 ft', 1), ctrlStep('wait 4 seconds', 1),
+        moveStep('move forward 40 feet', 1), ctrlStep('wait 4 seconds', 1),
         moveStep('rotate 180 degrees', 1),
-        moveStep('move X by 40 ft', 1), ctrlStep('wait 4 seconds', 1),
+        moveStep('move forward 40 feet', 1), ctrlStep('wait 4 seconds', 1),
         moveStep('rotate 180 degrees', 1),
       ],
       tip: 'Mantas really do patrol the same cleaning stations day after day, hovering while little wrasse pick parasites off them. Add a move Y to make it rise and fall as it goes — they do that too.',
@@ -4708,7 +4718,7 @@ function deltaLayout() {
       target: 'Click the steamboat → Program.',
       steps: [
         ctrlStep('repeat 18 times'),
-        moveStep('move X by -6 ft', 1),
+        moveStep('move forward 6 feet', 1),
         ctrlStep('wait 0.3 seconds', 1),
       ],
       tip: 'Downstream a packet made 15 mph and upstream barely 5, because it was fighting the current the whole way. Run this with -6 and then with +6 and the same number of steps takes the boat very different distances in your head, which is exactly the problem a pilot had.',
@@ -4721,12 +4731,12 @@ function deltaLayout() {
       target: 'Click one of the little dug-out boats → Program.',
       steps: [
         ctrlStep('forever'),
-        moveStep('move Z by -20 ft', 1), ctrlStep('wait 2 seconds', 1),
+        moveStep('move forward 20 feet', 1), ctrlStep('wait 2 seconds', 1),
         moveStep('rotate 180 degrees', 1),
-        moveStep('move Z by 20 ft', 1), ctrlStep('wait 2 seconds', 1),
+        moveStep('move forward 20 feet', 1), ctrlStep('wait 2 seconds', 1),
         moveStep('rotate 180 degrees', 1),
       ],
-      tip: 'A pirogue is dug from a single cypress log and draws a few inches, so it goes where the steamboat cannot. The rotate blocks only turn it to face the way it is going — move Z always runs along the world’s Z, whichever way the boat points.',
+      tip: 'A pirogue is dug from a single cypress log and draws a few inches, so it goes where the steamboat cannot. Because move forward follows the way it points, you can give it four sides instead of two: repeat 4 times holding move forward and rotate 90 degrees.',
     }),
   );
 

@@ -573,10 +573,11 @@ html, body {
 }
 
 #program-palette {
-  /* Sized to the widest block template, which is "duplicate [4] ft away" -- the
-     labels are nowrap, so a palette narrower than its longest block overflows
-     sideways rather than wrapping. */
-  width: 208px;
+  /* Sized to the widest block template, which is now
+     "glide [10] feet over [2] seconds", measured at 263px of content. The labels are
+     nowrap, so a palette narrower than its longest block overflows sideways rather than
+     wrapping. Re-measure this whenever a longer block is added. */
+  width: 284px;
   flex-shrink: 0;
   overflow-y: auto;
   background: rgba(255, 255, 255, 0.03);
@@ -660,6 +661,15 @@ html, body {
   text-align: center;
   color: #333;
   background: rgba(255, 255, 255, 0.92);
+}
+
+/* Text fields carry a message rather than a number, so they need real room -- at the
+   number field's 46px "hello" does not fit, let alone anything a student would write.
+   They also read left-aligned: centred text in a wide box looks like a caption. */
+.pe-field-text {
+  width: 104px;
+  text-align: left;
+  font-weight: 500;
 }
 
 .pe-field[type='color'] {
