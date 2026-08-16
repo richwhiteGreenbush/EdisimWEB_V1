@@ -147,6 +147,23 @@ export class VRMenu {
     if (this.collapsed) return [];
     const rows = [];
 
+    // Load World first, matching the flat menu's order.
+    rows.push({ id: 'group:world', label: 'Load World', group: 'world' });
+    if (this.openGroup === 'world') {
+      // `hidden` presets are skipped here for the same reason as in the DOM menu: their
+      // only way in is a portal inside another world.
+      for (const [name, preset] of Object.entries(PRESET_WORLDS)) {
+        if (preset.hidden) continue;
+        rows.push({ id: `preset:${name}`, label: preset.label, indent: true });
+      }
+      rows.push({ id: 'saveWorld', label: 'Save World', indent: true, leavesVR: true });
+      rows.push({ id: 'loadWorldFile', label: 'Load World File', indent: true, leavesVR: true });
+    }
+
+    // Load Object stays TOP-LEVEL here, where the flat menu has since moved it inside
+    // Create Model. That is not an oversight: Create Model does not exist in VR at all
+    // (see below), so nesting these four inside a group that is not here would put them
+    // behind a door with nothing on the other side of it.
     rows.push({ id: 'group:object', label: 'Load Object', group: 'object' });
     if (this.openGroup === 'object') {
       rows.push({ id: 'lightOrb', label: 'Light Orb', indent: true });
@@ -164,17 +181,6 @@ export class VRMenu {
     // they could not build with. Adding it means either rows marked leavesVR (a Load
     // Object-style compromise) or in-scene versions of those three, which is a feature
     // of its own.
-    rows.push({ id: 'group:world', label: 'Load World', group: 'world' });
-    if (this.openGroup === 'world') {
-      // `hidden` presets are skipped here for the same reason as in the DOM menu: their
-      // only way in is a portal inside another world.
-      for (const [name, preset] of Object.entries(PRESET_WORLDS)) {
-        if (preset.hidden) continue;
-        rows.push({ id: `preset:${name}`, label: preset.label, indent: true });
-      }
-      rows.push({ id: 'saveWorld', label: 'Save World', indent: true, leavesVR: true });
-      rows.push({ id: 'loadWorldFile', label: 'Load World File', indent: true, leavesVR: true });
-    }
 
     rows.push({ id: 'clear', label: 'Clear World' });
     rows.push({ id: 'exit', label: 'Exit VR View', exit: true });

@@ -367,6 +367,276 @@ export function activityBoard({
   return g;
 }
 
+// A big greeting board: a few lines of large centred type saying what this place is for.
+//
+// Deliberately NOT an infoPlacard or a standingSign. A placard is a museum label you
+// stoop to read, and standingSign is built around one line plus a subtitle -- give it
+// three and the third falls off the bottom of its own canvas, because it sizes its type
+// off the panel height and starts at a fixed fraction of it. This one measures its whole
+// block of text first and centres it, so the caller can pass one line or four.
+//
+// The face is dark, unlike the two cream boards it stands beside. In an open field the
+// only things to see are green ground and blue sky, and a third cream rectangle in the
+// row would read as one more of the same; the dark panel with white type is the one a
+// student's eye goes to first.
+export function welcomeBoard({
+  eyebrow = '',
+  lead = '',
+  lines = [],
+  footnote = '',
+  face = '#15334d',
+  ink = '#f6f2e7',
+  accent = '#ffc457',
+  width = 12,
+  height = 4.6,
+  postHeight = 9.2,
+} = {}) {
+  const post = standard({ color: 0x39332b, roughness: 0.7, metalness: 0.3, ...relief('metal', { seed: 41, repeat: 3 }) });
+  const g = group();
+
+  const inset = width / 2 + 0.3;
+  g.add(cyl(0.2, 0.26, postHeight, post, -inset, postHeight / 2, 0, 12));
+  g.add(cyl(0.2, 0.26, postHeight, post, inset, postHeight / 2, 0, 12));
+
+  const texture = canvasTexture(1400, Math.round(1400 * (height / width)), (ctx, w, h) => {
+    ctx.fillStyle = face;
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 12;
+    ctx.strokeRect(20, 20, w - 40, h - 40);
+
+    const eyebrowSize = Math.round(h * 0.075);
+    const leadSize = Math.round(h * 0.115);
+    const bigSize = Math.round(h * 0.185);
+    const footSize = Math.round(h * 0.08);
+
+    // Measured and centred as a block, rather than laid out from a fixed top: the
+    // caller decides how many lines there are, and only the total tells us where to start.
+    const blockH =
+      (eyebrow ? eyebrowSize * 1.9 : 0) +
+      (lead ? leadSize * 1.6 : 0) +
+      lines.length * bigSize * 1.2 +
+      (footnote ? footSize * 2.1 : 0);
+
+    ctx.textAlign = 'center';
+    let y = (h - blockH) / 2;
+
+    if (eyebrow) {
+      ctx.fillStyle = accent;
+      ctx.font = `bold ${eyebrowSize}px "Helvetica Neue", Arial, sans-serif`;
+      ctx.fillText(eyebrow, w / 2, y + eyebrowSize);
+      y += eyebrowSize * 1.9;
+    }
+
+    if (lead) {
+      ctx.fillStyle = 'rgba(246,242,231,0.78)';
+      ctx.font = `${leadSize}px "Helvetica Neue", Arial, sans-serif`;
+      ctx.fillText(lead, w / 2, y + leadSize);
+      y += leadSize * 1.6;
+    }
+
+    // The last line takes the accent colour. On a board whose whole job is one sentence,
+    // that is what stops it reading as a paragraph and makes it land as a call to action.
+    ctx.font = `bold ${bigSize}px "Helvetica Neue", Arial, sans-serif`;
+    lines.forEach((line, i) => {
+      ctx.fillStyle = i === lines.length - 1 ? accent : ink;
+      ctx.fillText(line, w / 2, y + bigSize);
+      y += bigSize * 1.2;
+    });
+
+    if (footnote) {
+      ctx.fillStyle = 'rgba(246,242,231,0.62)';
+      ctx.font = `italic ${footSize}px Georgia, "Times New Roman", serif`;
+      ctx.fillText(footnote, w / 2, y + footSize * 1.4);
+    }
+
+    ctx.textAlign = 'left';
+  });
+
+  // Emissive for the same reason activityBoard is: a big flat panel with the sun behind
+  // it renders as a black slab, and this is the first thing a student is meant to read.
+  const panelY = postHeight - height / 2 - 0.5;
+  const panel = signPanel(width, height, texture, { emissive: '#ffffff', emissiveIntensity: 0.45 });
+  panel.position.set(0, panelY, 0.001);
+  g.add(box(width + 0.18, height + 0.18, 0.14, post, 0, panelY, -0.08), panel);
+
+  return g;
+}
+
+// A walkthrough on a board: the steps of one tutorial, standing in the world the student
+// is meant to follow them in.
+//
+// It carries BOTH numbered instructions and block chips because the two tutorials it was
+// built for need one each -- building a rocket is a list of things to do with the mouse,
+// programming it is a stack of blocks to copy -- and a student meets them back to back.
+// Two prop kinds that differed only in which half they drew would drift apart.
+//
+// The chips come from `CATEGORIES` in BlockDefs.js, exactly as activityBoard's do: the
+// orange chip painted here is the same orange as the block being described, so the board
+// teaches the palette while it teaches the task.
+export function tutorialBoard({
+  kicker = 'HOW TO',
+  number = null,
+  title = '',
+  intro = '',
+  steps = [],
+  blocks = [],
+  tip = '',
+  accent = '#c2521f',
+  width = 9,
+  height = 7.6,
+  postHeight = 10.6,
+} = {}) {
+  const post = standard({ color: 0x39332b, roughness: 0.7, metalness: 0.3, ...relief('metal', { seed: 73, repeat: 3 }) });
+  const g = group();
+
+  // Posts outside the panel, not inset -- every line here is left-aligned and starts a
+  // few inches in, so an inset post stands in front of the first character of all of them.
+  const inset = width / 2 + 0.28;
+  g.add(cyl(0.17, 0.22, postHeight, post, -inset, postHeight / 2, 0, 12));
+  g.add(cyl(0.17, 0.22, postHeight, post, inset, postHeight / 2, 0, 12));
+
+  const texture = canvasTexture(1200, Math.round(1200 * (height / width)), (ctx, w, h) => {
+    const round = (x, y, rw, rh, r) => {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + rw, y, x + rw, y + rh, r);
+      ctx.arcTo(x + rw, y + rh, x, y + rh, r);
+      ctx.arcTo(x, y + rh, x, y, r);
+      ctx.arcTo(x, y, x + rw, y, r);
+      ctx.closePath();
+    };
+
+    ctx.fillStyle = '#fdfaf3';
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 18;
+    ctx.strokeRect(9, 9, w - 18, h - 18);
+
+    ctx.fillStyle = accent;
+    ctx.fillRect(18, 18, w - 36, 122);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 54px "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText(kicker, 50, 100);
+    if (number !== null) {
+      ctx.textAlign = 'right';
+      ctx.font = 'bold 62px "Helvetica Neue", Arial, sans-serif';
+      ctx.fillText(String(number), w - 50, 102);
+      ctx.textAlign = 'left';
+    }
+
+    const LEFT = 50;
+    const COL = w - LEFT * 2;
+
+    let headY = 216;
+    if (title) {
+      ctx.fillStyle = '#241f1a';
+      ctx.font = 'bold 58px Georgia, "Times New Roman", serif';
+      headY = wrapText(ctx, title, LEFT, headY, COL, 66);
+    }
+    if (intro) {
+      ctx.fillStyle = '#5d5348';
+      ctx.font = '31px "Helvetica Neue", Arial, sans-serif';
+      headY = wrapText(ctx, intro, LEFT, headY + 20, COL, 39);
+    }
+
+    // One routine, run twice: once to measure and once to draw. Doing it any other way
+    // means two pieces of layout arithmetic that have to agree and eventually will not.
+    const body = (startY, size, paint) => {
+      const lineH = Math.round(size * 1.3);
+      const indent = Math.round(size * 2);
+      const colW = COL - indent;
+      let y = startY;
+
+      const line = (text, x) => {
+        if (paint) ctx.fillText(text, x, y + size * 0.82);
+        y += lineH;
+      };
+
+      // Blocks BEFORE steps. A coding card reads "here is the stack, now go and change
+      // it", so the thing to copy has to come first and the numbered steps are what to do
+      // once it is running. A building card passes no blocks at all, so this costs it
+      // nothing. Indented by depth, because a student's first real difficulty with a
+      // C-block is not knowing that "inside" is a place.
+      for (const block of blocks) {
+        const depth = block.depth || 0;
+        const x = LEFT + depth * 44;
+        const chipH = Math.round(size * 1.7);
+        ctx.font = `bold ${size}px "Helvetica Neue", Arial, sans-serif`;
+        const chipW = Math.min(COL - depth * 44, ctx.measureText(block.text).width + 52);
+        if (paint) {
+          ctx.fillStyle = CATEGORIES[block.cat]?.dark || '#5f5f5f';
+          round(x, y + 5, chipW, chipH, 16);
+          ctx.fill();
+          ctx.fillStyle = CATEGORIES[block.cat]?.fill || '#8d8d8d';
+          round(x, y, chipW, chipH, 16);
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(block.text, x + 26, y + chipH * 0.7);
+        }
+        y += chipH + Math.round(size * 0.36);
+      }
+      if (blocks.length && steps.length) y += Math.round(size * 0.5);
+
+      steps.forEach((step, i) => {
+        const top = y;
+        if (step.lead) {
+          ctx.font = `bold ${size}px "Helvetica Neue", Arial, sans-serif`;
+          if (paint) ctx.fillStyle = '#241f1a';
+          for (const l of wrapLines(ctx, step.lead, colW)) line(l, LEFT + indent);
+        }
+        if (step.text) {
+          ctx.font = `${size}px "Helvetica Neue", Arial, sans-serif`;
+          if (paint) ctx.fillStyle = '#4a4137';
+          for (const l of wrapLines(ctx, step.text, colW)) line(l, LEFT + indent);
+        }
+        // The number disc last, from the row's remembered top: it has to be positioned
+        // against the first line of the step, which is only known once the step is laid out.
+        if (paint) {
+          const r = size * 0.62;
+          ctx.fillStyle = accent;
+          ctx.beginPath();
+          ctx.arc(LEFT + r + 2, top + r + 3, r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = `bold ${Math.round(size * 0.8)}px "Helvetica Neue", Arial, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.fillText(String(i + 1), LEFT + r + 2, top + r * 1.35 + 3);
+          ctx.textAlign = 'left';
+        }
+        y += Math.round(size * 0.44);
+      });
+
+      return y - startY;
+    };
+
+    // Fit the steps to whatever room the title left, the way cardTexture fits its body.
+    // How many lines a wrapped title runs to is not something a caller can predict from
+    // the outside, and a board with its last step cut off is worse than one set smaller.
+    const tipTop = tip ? h - 156 : h - 34;
+    const available = tipTop - (headY + 26);
+    let size = 34;
+    while (size > 22 && body(0, size, false) > available) size -= 2;
+    body(headY + 26, size, true);
+
+    if (tip) {
+      ctx.fillStyle = 'rgba(0,0,0,0.055)';
+      round(30, tipTop, w - 60, h - tipTop - 30, 18);
+      ctx.fill();
+      ctx.fillStyle = '#4a4137';
+      ctx.font = 'italic 28px Georgia, "Times New Roman", serif';
+      wrapText(ctx, tip, 56, tipTop + 46, w - 112, 35);
+    }
+  });
+
+  const panelY = postHeight - height / 2 - 0.5;
+  const panel = signPanel(width, height, texture, { emissive: '#ffffff', emissiveIntensity: 0.5 });
+  panel.position.set(0, panelY, 0.001);
+  g.add(box(width + 0.16, height + 0.16, 0.12, post, 0, panelY, -0.07), panel);
+
+  return g;
+}
+
 // The stand a web browser panel sits on.
 //
 // A browser panel is a WebGL bezel with a CSS3D <iframe> welded to its transform, and

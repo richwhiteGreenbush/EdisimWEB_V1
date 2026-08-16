@@ -110,10 +110,43 @@ html, body {
   background: rgba(125, 211, 252, 0.22);
 }
 
+/* Save World / Load World File. Amber against the submenu's blue, because these are not
+   more worlds -- they are the file pair, and one of them is the only button in the menu
+   that does not change what is on screen. This used to be a DIMMER grey version of the
+   blue, which is the visual language of a disabled control: the two buttons a student
+   needs in order to hand work in were the two that looked switched off. */
 .menu-subitem-alt {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.14);
-  color: rgba(242, 245, 247, 0.8);
+  background: rgba(242, 165, 65, 0.16);
+  border-color: rgba(242, 165, 65, 0.5);
+  color: #ffd9a3;
+}
+
+.menu-subitem-alt:hover {
+  background: rgba(242, 165, 65, 0.3);
+}
+
+/* A group nested inside another group (Load Object, inside Create Model). It keeps the
+   sub-item's blue so it reads as one of the items in the list it sits in, and takes the
+   open state's brighter fill from .menu-btn-open like any other group toggle. */
+.menu-subitem-group {
+  font-weight: 600;
+}
+
+/* Indented one step further than its parent, and in a warmer rule colour, so two open
+   levels are visibly two levels rather than one long list. */
+.menu-submenu-nested {
+  margin-left: 6px;
+  padding-left: 8px;
+  border-left-color: rgba(196, 165, 255, 0.45);
+}
+
+.menu-submenu-nested .menu-subitem {
+  background: rgba(196, 165, 255, 0.1);
+  border-color: rgba(196, 165, 255, 0.28);
+}
+
+.menu-submenu-nested .menu-subitem:hover {
+  background: rgba(196, 165, 255, 0.22);
 }
 
 .menu-link {

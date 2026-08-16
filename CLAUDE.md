@@ -148,20 +148,42 @@ has applied an uploaded image to a surface.
 rehydrating anything, so a world file with no theme of its own resets a leftover moon
 sky back to daylight instead of inheriting it.
 
-### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / Empty / (New York, Under the Sea)
+### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / My World / (New York, Under the Sea)
 
-The menu's top level is just two expanding groups plus **Clear World**: **Load Object**
-(Import / Draw / Light Orb / Web Browser — the things you put *into* a world) and
-**Load World** (the worlds themselves). Both are built by `Menu.js`'s `_group()`, which
-pairs a `▸`/`▾` toggle button with a `.menu-submenu` panel and registers the pair in
-`this.groups`. `setGroupOpen(group, open)` walks that list and closes every group except
-the one being opened, so the panel never shows two trees at once; `closeGroups()` is the
-same call with `null`, which matches nothing and therefore shuts them all — that's what
-collapsing the whole menu and picking any submenu item both go through.
+The menu reads **Load World → Create Model → Clear World → VR Headset View**, in that
+order: where am I going to build this, then what am I building, then the two
+whole-session actions. **Load Object** (Import / Draw / Light Orb / Web Browser) is not
+top-level — it is a dropdown *inside* Create Model, because bringing in a model, painting
+a balloon, dropping an orb and hanging a browser panel are the same job as adding a
+shape: putting something of your own into the world.
+
+Both levels are built by `Menu.js`'s `_group()`, which pairs a `▸`/`▾` toggle button with
+a `.menu-submenu` panel. **The two levels are tracked in separate lists and that is
+load-bearing.** `setGroupOpen(group, open)` walks `this.groups` and closes every
+top-level group except the one being opened, so the panel never shows two trees at once —
+and a nested group must not take part in that, or opening Load Object would close the
+Create Model it lives inside and hide itself along with it. `setNestedOpen()` applies the
+same one-at-a-time rule among `this.nestedGroups` without touching their parent, while
+`setGroupOpen()` always collapses every nested group: a sub-dropdown left open inside a
+hidden tree would otherwise spring back the next time its parent opened, in a state the
+student did not leave it in. `closeGroups()` is `setGroupOpen(null, false)`, which matches
+nothing and therefore shuts everything — that's what collapsing the whole menu and picking
+any submenu item both go through.
+
+`_group()` appends whatever children it is handed and tags only the **buttons** as
+sub-items, which is the whole of what makes nesting work: a nested group's toggle and its
+panel are passed in as ordinary children, and the panel is a div, so giving it a button's
+styling would draw a box round the entire subtree.
+
+**Save World / Load World File wear `menu-subitem-alt`, which is now a different COLOUR
+(amber) rather than a dimmer version of the submenu blue.** They are not more worlds —
+they are the file pair, and one of them is the only button in the menu that does not
+change what is on screen. Dimming them said "disabled", so the two buttons a student needs
+in order to hand work in were the two that looked switched off.
 
 Menu ▸ **Load World** opens a submenu (`Menu.js`, built by iterating
 `WorldPresets.PRESET_WORLDS` so another world is a one-line change) listing the
-ready-made worlds plus **From a file…**, which is where the original .json load lives.
+ready-made worlds plus the **Save World** / **Load World File** pair.
 
 **The Park is the boot world** (`config.js`'s `BOOT_WORLD`). A first visit — or any
 visit where `rehydrateAll()` comes back with an empty registry — builds it via the same
@@ -200,7 +222,7 @@ presets need no loading path of their own, and once loaded every object in them 
 clickable, resizable, movable, **programmable** and saveable like anything else the
 user placed. Nothing stores geometry or image bytes.
 
-**Every world except the Empty World puts a live web browser panel by its spawn point**,
+**Every world except My World puts a live web browser panel by its spawn point**,
 via `WorldPresets.browserStation()`. It emits **two** records, not one: the panel (a
 `web-browser`, carrying nothing but its URL) and a `browser-kiosk` prop under it. They
 stay separate objects deliberately — a browser panel is one bezel mesh that the whole
@@ -217,11 +239,14 @@ Two placement details:
   shoulder. Note the camera's `fov: 70` is **vertical**; a 16:9 screen actually sees about
   51° either side, which is what makes 39° comfortable rather than marginal.
 
-**The Empty World is the deliberate exception to almost everything above.** No buildings,
-no placards, no activity boards and no browser station: it exists so Create Model has
+**My World is the deliberate exception to almost everything above.** No buildings, no
+placards, no activity boards and no browser station: it exists so Create Model has
 somewhere with an empty horizon, and every one of those would be an obstacle to walk round
-while building. It runs the `default` theme — the one whose numbers are exactly the old
-pre-theme constants — and holds nothing but five of the Park's own trees. They are not
+while building. (Its `PRESET_WORLDS` **key is still `empty`** — that string is persisted,
+since a world portal carries a target world name in its options and it is what
+`buildPresetWorldRecords` is called with, so only the label changed.) It runs the
+`default` theme — the one whose numbers are exactly the old pre-theme constants — and
+holds five of the Park's own trees. They are not
 decoration either: a genuinely featureless plane has no landmarks, so walking any distance
 across it stops registering as movement, and nothing else gives the ground a sense of
 scale. Their positions are randomised with `Math.random()` at **build** time and then baked
@@ -230,6 +255,40 @@ fresh load gives a different field, a reload of a saved one gives back exactly t
 the student left. The bearings are an even sweep with jitter rather than five free
 draws: independent bearings leave a 3% chance of all five landing behind the student, who
 then arrives facing the emptiest possible view of an already empty world.
+
+**The three boards are the one thing standing in it, and they are grouped at the far side
+of the working area for exactly the reason above.** An empty field tells a student who has
+just arrived nothing about what to do with it, and the two tutorials that turn it into a
+workshop were only ever on a website they had to leave the app to read. So My World now
+carries a `welcome-board` saying what the place is for, flanked by two `tutorial-board`s —
+build a rocket, then program it — at `x = ±15, z = -6`, all facing the spawn.
+
+Three numbers decide that placement, and every one of them is a rule this project has hit
+before:
+
+- **Everything from the spawn to about `z = 0` stays clear**, because a fresh construction
+  piece lands `PRIMITIVE_SPAWN_DISTANCE` (10ft) ahead and spirals out from there. Boards
+  inside that are things to walk round while building, which is the one thing this world
+  exists not to have.
+- **The outer two sit ~31° off the arrival sightline**, not more. `fov: 70` is *vertical*,
+  so a 16:9 screen sees about 51° either side — the same arithmetic that governs where a
+  browser station goes.
+- **The boards are 10 × 8ft, bigger than an activity board's 6.4 × 5.5, and the copy is
+  cut to match.** Type size follows from board size, and `tutorialBoard` auto-fits its
+  steps into whatever room the title left (as `cardTexture` does). Feed it a web page's
+  worth of prose and the fit drops to a size nobody can read from anywhere — the first
+  pass did exactly that, and the fix was to cut the words, not to enlarge the sign.
+
+`tutorialBoard` draws its **block chips before its numbered steps**: a coding card reads
+"here is the stack, now go and change it". The chips come from `CATEGORIES` in
+`BlockDefs.js`, the same import trick `activityBoard` uses, so the orange `forever` painted
+on the board is the orange `forever` the student then drags. `welcomeBoard` exists because
+`standingSign` is built around one line plus a subtitle — give it three and the third falls
+off the bottom of its own canvas, since it sizes type off the panel height and starts at a
+fixed fraction of it. `welcomeBoard` measures its whole block of text and centres it, and
+its face is **dark** where the two cards are cream: in an open field the only things to see
+are green ground and blue sky, so a third cream rectangle in the row would read as one more
+of the same.
 
 `buildPresetWorldRecords(name, { groundHeightAt })` (`WorldPresets.js`) **applies the
 theme first, then reads each object's Y off the freshly reshaped terrain.** That order
@@ -1153,8 +1212,10 @@ surfaced).
 
 ### Create Model: building a model out of primitives
 
-Menu ▸ **Create Model** is its own top-level group (`_group()` does not nest, so it could
-not go under Load Object) with one button per shape. Each drops a 2ft yellow construction
+Menu ▸ **Create Model** is a top-level group with one button per shape, and **Load Object
+is a nested dropdown at the bottom of it** — `_group()` now takes a `nested` flag and
+appends whatever children it is handed, so one group can sit inside another (see the menu
+notes above for why the two levels are tracked separately). Each shape button drops a 2ft yellow construction
 piece on the ground ahead of the student, carrying a floating amber **hammer** icon that
 opens `PrimitiveMenu`: Apply Texture / Stretch to Shape / Rotate/Move Shape / Connect to
 Primitive / Remove Shape / Render Model / Close. Render Model fuses a connected cluster

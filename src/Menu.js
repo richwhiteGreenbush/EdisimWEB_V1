@@ -28,11 +28,19 @@ export class Menu {
     this.panel.id = 'menu-panel';
     this.panel.hidden = true;
 
-    // The top level is three expanding groups plus Clear World: "Load Object" for the
-    // things you put INTO a world, "Create Model" for building one out of shapes, and
-    // "Load World" for the worlds themselves. All are built by _group(), and opening any
-    // one closes the others, so the panel never shows two trees of options at once.
+    // The top level reads in the order a student actually needs it: "Load World" (go
+    // somewhere), "Create Model" (make something there), then Clear World and the VR
+    // toggle. "Load Object" is no longer top-level -- it is a dropdown INSIDE Create
+    // Model, because importing a model, drawing a balloon, dropping a light orb and
+    // hanging a browser panel are all the same job as building a shape: putting a thing
+    // of your own into the world.
+    //
+    // Two levels of group, therefore, tracked separately. `setGroupOpen` closes every
+    // other top-level group so the panel never shows two trees at once; a NESTED group
+    // must not take part in that, or opening it would close the parent it lives inside
+    // and hide itself along with it.
     this.groups = [];
+    this.nestedGroups = [];
 
     // Kept as a field: main.js flips it via setImportEnabled() while a load is running.
     this.importBtn = this._button(
@@ -53,12 +61,12 @@ export class Menu {
     );
     webBrowserBtn.addEventListener('click', () => onWebBrowserClick?.());
 
-    const loadObject = this._group('Load Object', 'Add something to the world in front of you', [
-      this.importBtn,
-      drawBtn,
-      lightOrbBtn,
-      webBrowserBtn,
-    ]);
+    const loadObject = this._group(
+      'Load Object',
+      'Add something to the world in front of you',
+      [this.importBtn, drawBtn, lightOrbBtn, webBrowserBtn],
+      { nested: true }
+    );
 
     // Create Model: each button drops one construction piece in front of the student.
     // Built from PRIMITIVE_SHAPES so the shape list lives in exactly one place.
@@ -71,10 +79,14 @@ export class Menu {
       return btn;
     });
 
+    // The four shapes come first because they are what this group is for; Load Object
+    // follows as a dropdown of its own. Its toggle AND its panel are handed over as
+    // ordinary children -- _group() appends whatever it is given and only tags the
+    // buttons, which is what lets one group sit inside another with no other plumbing.
     const createModel = this._group(
       'Create Model',
       'Build your own model out of simple shapes, then render it into one object',
-      shapeButtons
+      [...shapeButtons, loadObject.toggle, loadObject.panel]
     );
 
     // The ready-made worlds are built from PRESET_WORLDS rather than hardcoded here, so
@@ -96,11 +108,13 @@ export class Menu {
       worldButtons.push(btn);
     }
 
-    // The .json file pair closes the group, save above load. They wear menu-subitem-alt
-    // so they read as a different kind of action from the ready-made worlds above them:
-    // those replace what you have, these two move a world between people. Both halves
-    // have to be here — a student who can only load a file can receive someone else's
-    // world but never send their own.
+    // The .json file pair closes the group, save above load. They wear menu-subitem-alt,
+    // which is a distinctly different COLOUR from the world buttons above them rather
+    // than a quieter version of the same one -- these two are a different kind of action
+    // entirely. Every button above replaces the world you are standing in; these move a
+    // world between people, and one of them is the only button in this menu that does not
+    // change what is on screen at all. Both halves have to be here — a student who can
+    // only load a file can receive someone else's world but never send their own.
     const saveWorldBtn = this._button(
       'Save World',
       'Download this world as a file — keep it, or send it to someone else to open'
@@ -143,13 +157,15 @@ export class Menu {
     hint.className = 'menu-hint';
     hint.textContent = 'Arrow keys to walk & turn · drag to look';
 
+    // Load World first: it is the question a student answers before any other -- where am
+    // I going to build this? Create Model second, carrying Load Object inside it. Then the
+    // two whole-session actions. loadObject's own toggle and panel are NOT appended here;
+    // they are already inside createModel's panel.
     this.panel.append(
-      loadObject.toggle,
-      loadObject.panel,
-      createModel.toggle,
-      createModel.panel,
       loadWorld.toggle,
       loadWorld.panel,
+      createModel.toggle,
+      createModel.panel,
       this.clearBtn,
       this.vrBtn,
       hint
@@ -173,35 +189,56 @@ export class Menu {
     return btn;
   }
 
-  // A top-level button that expands to reveal its own list of actions. The label is
-  // stored separately from the button's text because the text carries the ▸/▾ marker
-  // and gets rewritten every time the group opens or closes.
-  _group(label, title, buttons) {
+  // A button that expands to reveal its own list of actions. The label is stored
+  // separately from the button's text because the text carries the ▸/▾ marker and gets
+  // rewritten every time the group opens or closes.
+  //
+  // `children` may hold another group's toggle and panel, which is how Load Object sits
+  // inside Create Model. Only BUTTONS are tagged as sub-items: a nested group's panel is
+  // a div, and giving it a button's styling would draw a box round the whole subtree.
+  _group(label, title, children, { nested = false } = {}) {
     const toggle = this._button(`${label} ▸`, title);
+    if (nested) toggle.classList.add('menu-subitem-group');
 
     const panel = document.createElement('div');
-    panel.className = 'menu-submenu';
+    panel.className = nested ? 'menu-submenu menu-submenu-nested' : 'menu-submenu';
     panel.hidden = true;
-    for (const btn of buttons) {
-      btn.classList.add('menu-subitem');
-      panel.appendChild(btn);
+    for (const child of children) {
+      if (child.tagName === 'BUTTON') child.classList.add('menu-subitem');
+      panel.appendChild(child);
     }
 
-    const group = { label, toggle, panel };
-    toggle.addEventListener('click', () => this.setGroupOpen(group, panel.hidden));
-    this.groups.push(group);
+    const group = { label, toggle, panel, nested };
+    if (nested) {
+      this.nestedGroups.push(group);
+      toggle.addEventListener('click', () => this.setNestedOpen(group, panel.hidden));
+    } else {
+      this.groups.push(group);
+      toggle.addEventListener('click', () => this.setGroupOpen(group, panel.hidden));
+    }
     return group;
+  }
+
+  _paintToggle(group, isOpen) {
+    group.panel.hidden = !isOpen;
+    group.toggle.textContent = `${group.label} ${isOpen ? '▾' : '▸'}`;
+    group.toggle.classList.toggle('menu-btn-open', isOpen);
   }
 
   // Opens `group` and closes every other one. Passing null (see closeGroups) closes
   // them all, since no group can match.
+  //
+  // Nested groups always collapse with it: whichever top-level tree is being shown, a
+  // sub-dropdown left open inside a hidden one would spring back the next time its
+  // parent opened, in a state the student did not leave it in.
   setGroupOpen(group, open) {
-    for (const candidate of this.groups) {
-      const isOpen = open && candidate === group;
-      candidate.panel.hidden = !isOpen;
-      candidate.toggle.textContent = `${candidate.label} ${isOpen ? '▾' : '▸'}`;
-      candidate.toggle.classList.toggle('menu-btn-open', isOpen);
-    }
+    for (const candidate of this.nestedGroups) this._paintToggle(candidate, false);
+    for (const candidate of this.groups) this._paintToggle(candidate, open && candidate === group);
+  }
+
+  // The same one-at-a-time rule among nested groups, without touching their parent.
+  setNestedOpen(group, open) {
+    for (const candidate of this.nestedGroups) this._paintToggle(candidate, open && candidate === group);
   }
 
   closeGroups() {

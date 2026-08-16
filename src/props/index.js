@@ -26,6 +26,8 @@ export const PROP_BUILDERS = {
   planter: Common.planter,
   'shade-tree': Common.shadeTree,
   'activity-board': Common.activityBoard,
+  'welcome-board': Common.welcomeBoard,
+  'tutorial-board': Common.tutorialBoard,
   'browser-kiosk': Common.browserKiosk,
   'world-portal': Common.worldPortal,
 

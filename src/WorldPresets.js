@@ -2178,16 +2178,115 @@ const EMPTY_WORLD_TREES = [
 
 const EMPTY_WORLD_SPAWN = { x: 0, z: 16, yaw: 0 };
 
-// A blank green field. This is the one preset with no buildings, no placards, no activity
-// boards and -- unlike every other world -- no browser station either: it exists so that
-// Create Model has somewhere with an empty horizon, and anything standing in it would be
-// something a student has to walk around while they build.
+// The three boards stand in a shallow arc BEYOND the build zone, all facing the spawn.
+//
+// Two numbers decide this. A student arrives at (0, 16) looking down -Z, and a fresh
+// construction piece lands PRIMITIVE_SPAWN_DISTANCE (10ft) in front of them and spirals
+// out from there -- so everything from the spawn to about z = 0 has to stay clear, or the
+// boards are things to walk round while building, which is the one thing this world is
+// for. And the camera's 70 degree fov is VERTICAL: a 16:9 screen sees about 51 degrees
+// either side, so the outer two sit at about 31 degrees off the arrival sightline, well
+// inside the frame but not stacked in the middle of it.
+//
+// z = -6 puts them 22ft away dead ahead and 26ft on the diagonals: far enough to read the
+// headline and see there are three of them, close enough that walking up to one is a few
+// steps rather than a journey.
+const MY_WORLD_BOARD_Z = -6;
+const MY_WORLD_BOARD_X = 15;
+
+// Bigger than an activity board (6.4 x 5.5), because these carry a whole tutorial rather
+// than one challenge, and because the type size follows from the board size: a student
+// should be able to read the steps from where they arrive and walk up only to check a
+// detail. The copy is cut to match -- a billboard carrying a web page's worth of prose
+// forces the auto-fit down to a size nobody can read from anywhere.
+const MY_WORLD_CARD = { width: 10, height: 8, postHeight: 11 };
+
+// Faces the board at (x, z) toward the spawn. atan2(dx, dz), not atan2(dz, dx): a plain
+// Object3D's +Z is its facing direction.
+const facingSpawn = (x, z) => Math.atan2(EMPTY_WORLD_SPAWN.x - x, EMPTY_WORLD_SPAWN.z - z);
+
+// An open green field of the student's own, with three boards at the far side of it: what
+// this world is for, how to build something in it, and how to make that thing move.
+//
+// It used to hold nothing at all, on the grounds that anything standing here is an
+// obstacle to walk round while building. That is still the rule -- which is why the
+// boards are grouped together at the edge of the working area rather than dotted about,
+// and why there is still no browser station, no placards and no activity boards. But an
+// empty field tells a student who has just arrived nothing whatsoever about what to do
+// with it, and the two tutorials that turn it into a workshop were only ever on a website
+// they would have to leave the app to read.
 //
 // Five trees rather than none because a truly featureless plane has no landmarks at all,
 // so walking any distance in it stops feeling like moving. They are also the only thing
 // giving the ground a sense of scale.
 function emptyLayout() {
   const items = [];
+
+  // The welcome board is centred and lower than the two beside it, so the three read as
+  // one group with a heading rather than as three competing signs.
+  items.push(
+    prop('welcome-board', 0, MY_WORLD_BOARD_Z, {
+      rotY: facingSpawn(0, MY_WORLD_BOARD_Z),
+      options: {
+        eyebrow: '🌱  MY WORLD',
+        lead: 'This is your world to:',
+        lines: ['Build and program', 'YOUR OWN ideas in!'],
+        footnote: 'Nobody else can change it — and it saves itself as you go',
+      },
+    })
+  );
+
+  // Building, on the left. Condensed from the Rocket tutorial in the Hands-On Guide
+  // (docs/guide/tutorials.html) -- the same eight pieces in the same order, cut to what a
+  // student can read off a board while standing in front of it. A billboard that tries to
+  // carry a web page's worth of prose ends up carrying none of it.
+  items.push(
+    prop('tutorial-board', -MY_WORLD_BOARD_X, MY_WORLD_BOARD_Z, {
+      rotY: facingSpawn(-MY_WORLD_BOARD_X, MY_WORLD_BOARD_Z),
+      options: {
+        kicker: '🔨  BUILD IT',
+        number: 1,
+        title: 'Build a Rocket',
+        intro: 'Menu ▸ Create Model. Each piece lands in front of you in build yellow — click the hammer above it.',
+        steps: [
+          { lead: 'Body', text: 'A Cylinder. Drag a TOP corner up until it is 3× as tall as it is wide. White.' },
+          { lead: 'Nose', text: 'A Sphere stretched into an egg. Lift it onto the body with the green ball. Red.' },
+          { lead: 'Engine', text: 'A Cylinder squashed short, a little wider than the body. Dark grey.' },
+          { lead: 'Four fins', text: 'A Cube squashed flat, slid against the bottom of the body. One per side. Red.' },
+          { lead: 'Connect, then Render', text: 'Join every piece to the body, then press Render Model.' },
+        ],
+        tip: 'Fins are fiddly: walk round to the side you are working on first. The corner nearest you is always the easiest to grab.',
+        accent: '#c2521f',
+        ...MY_WORLD_CARD,
+      },
+    })
+  );
+
+  // Programming, on the right, as the blocks themselves. The chips are drawn from
+  // BlockDefs' CATEGORIES, so the colours on the board are the colours in the palette.
+  items.push(
+    prop('tutorial-board', MY_WORLD_BOARD_X, MY_WORLD_BOARD_Z, {
+      rotY: facingSpawn(MY_WORLD_BOARD_X, MY_WORLD_BOARD_Z),
+      options: {
+        kicker: '🧩  CODE IT',
+        number: 2,
+        title: 'Now fly it',
+        intro: 'Click your rocket and choose Program. Drag these together — the indented two go inside forever — then press Save.',
+        steps: [
+          { lead: 'Change one number', text: 'Try 2 degrees. Try 90. Take the wait out. Changing a number and running it again is the whole skill.' },
+          { lead: 'Then launch it', text: 'Swap those for repeat 30 times holding move Y by 0.4 feet.' },
+        ],
+        blocks: [
+          { cat: 'control', text: 'forever' },
+          { cat: 'motion', text: 'rotate 15 degrees', depth: 1 },
+          { cat: 'control', text: 'wait 0.1 seconds', depth: 1 },
+        ],
+        tip: 'move X, Y and Z slide a model along the WORLD’s directions, not the way it is facing. Turning something does not change which way it will travel.',
+        accent: '#6b3fa0',
+        ...MY_WORLD_CARD,
+      },
+    })
+  );
 
   // Randomised at BUILD time and then baked into the records, so every fresh load of
   // this world is a different field while reloading a saved one gives back exactly the
@@ -2914,9 +3013,13 @@ export const PRESET_WORLDS = {
     hint: 'Miniaturised inside the human body — walk around the lungs, stomach, liver and kidneys',
     build: voyageLayout,
   },
+  // The KEY stays `empty` even though the label no longer says so. It is persisted --
+  // world portals carry a target world name in their options, and it is what
+  // buildPresetWorldRecords is called with -- so renaming it would break saved worlds to
+  // no benefit. Only the label is a person-facing string.
   empty: {
-    label: 'Empty World',
-    hint: 'An open green field with a few trees — nothing built yet, so everything is yours to build',
+    label: 'My World',
+    hint: 'An open green field of your own, with three boards to get you started building',
     build: emptyLayout,
   },
   // HIDDEN from both menus (Menu.js and VRMenu.js skip any preset with this flag), and
