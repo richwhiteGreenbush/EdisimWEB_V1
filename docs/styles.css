@@ -24,22 +24,24 @@
   --purple: #8a5cf5;
   --cream: #fff9ec;
 
-  /* Straight off the logo: its sky reads #3b91e8 at the top and hazes out to a
-     grey-teal at the horizon, and its field runs from a sunlit olive in the distance
-     (#6a7745) to deep shadowed green underfoot (#2d4d0a). The old values were a paler
-     cyan sky over spring green -- a full step brighter and greener than the artwork,
-     which left the logo card sitting on the page like a sticker instead of in it.
+  /* Straight off the logo: its sky reads #4da3ec at the top and hazes out toward the
+     horizon, and its field -- a blue poppy meadow, not the old green lawn -- runs from
+     #5892bb in the distance to a deep #215784 underfoot. The whole environment is one
+     hue now, which is the point: the artwork has no green in it anywhere, so a green
+     hero would put the logo card on the page like a sticker instead of in it. The
+     orange poppies scattered through that field are already almost exactly the app
+     palette's --orange, so the accents below needed no retinting to sit with it.
      --sky-bottom is the one that is NOT sampled literally: the logo's horizon haze is
-     around #91b5c4, and the hero's body paragraph is dark ink sitting on this exact
-     band, so it is held light enough to keep that text at ~8:1. */
-  --sky-top: #3f95e8;
-  --sky-bottom: #b9dcef;
-  --grass-top: #6b8f3d;
-  --grass-bottom: #35521a;
+     around #79bae5, and the hero's body paragraph is dark ink sitting on this exact
+     band, so it is held light enough to keep that text at ~8.5:1. */
+  --sky-top: #4da3ec;
+  --sky-bottom: #9fcdec;
+  --grass-top: #5892bb;
+  --grass-bottom: #215784;
 
-  /* The logo's letters, for anything that wants to be the brand's own green rather
-     than the app palette's mint. */
-  --moss: #545c36;
+  /* The logo's letters, for anything that wants to be the brand's own denim blue rather
+     than the app palette's cornflower. */
+  --denim: #246c9d;
 
   --ink: #1e2a3a;
   --ink-soft: #445067;
@@ -248,6 +250,12 @@ img.brand-mark {
   background: none;
 }
 
+/* --denim, not --green. This sits half an inch from the mark, and the mark is now a crop
+   of the logo's own blue E -- so the app palette's mint was the one green left anywhere
+   near the lockup, reading as a stray rather than as an accent. The brand's own letter
+   colour is the obvious thing for the brand's own subtitle to be, and at 0.62rem bold it
+   still clears 5.5:1 on the nav's cream. The mint accents elsewhere are untouched: they
+   are the app's palette doing the job it is on this page to do. */
 .brand small {
   display: block;
   font-family: "Nunito", sans-serif;
@@ -255,7 +263,7 @@ img.brand-mark {
   font-size: 0.62rem;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--green);
+  color: var(--denim);
 }
 
 /* Base = the phone/tablet-portrait panel. The desktop bar is the override below. */
@@ -484,7 +492,7 @@ img.brand-mark {
 .hero h1 {
   font-size: clamp(2.2rem, 5.6vw, 3.6rem);
   color: #fff;
-  text-shadow: 0 3px 0 rgba(24, 79, 40, 0.35);
+  text-shadow: 0 3px 0 rgba(16, 52, 82, 0.35);
   max-width: 16ch;
 }
 
@@ -510,7 +518,7 @@ img.brand-mark {
   width: 100%;
   border-radius: var(--radius-lg);
   border: 5px solid rgba(255, 255, 255, 0.82);
-  box-shadow: 0 20px 44px -14px rgba(24, 79, 40, 0.55);
+  box-shadow: 0 20px 44px -14px rgba(16, 52, 82, 0.55);
 }
 
 /* Dark ink, not white. This paragraph sits low in the sky gradient, over --sky-bottom
@@ -969,11 +977,13 @@ img.brand-mark {
 
 .section.tint-cream { background: #fff5e0; }
 .section.tint-blue { background: #eaf5ff; }
-/* A pale FIELD, not pale mint. This wash used to be tinted from --green (#3fb37f), the
-   app's swatch, which is a teal-leaning mint the logo has nothing like -- so the page's
-   large calm areas pulled away from the artwork even though every accent on them was
-   right. The mint accents inside these sections are unchanged; only the paper is. */
-.section.tint-green { background: #eef7e6; }
+/* Back to pale mint, tinted from --green (#3fb37f). This was briefly a pale OLIVE, to
+   echo the grass in the old logo -- and that reason has gone with it: the artwork is a
+   blue meadow now and has no green anywhere for a wash to agree with. An olive paper
+   would be the only green left on the page and would agree with nothing. So all four
+   washes are once again tinted from the app palette's own swatches, and the artwork's
+   colours live where the artwork does -- the hero and the closing CTA. */
+.section.tint-green { background: #eafaf1; }
 .section.tint-purple { background: #f4f0ff; }
 
 /* ---------- parents strip ---------- */
@@ -1028,7 +1038,7 @@ img.brand-mark {
 .final-cta {
   text-align: center;
   padding: 110px 0 90px;
-  background: linear-gradient(180deg, var(--grass-bottom), #24380f);
+  background: linear-gradient(180deg, var(--grass-bottom), #123650);
   color: #fff;
   position: relative;
   overflow: hidden;
@@ -1043,7 +1053,7 @@ img.brand-mark {
   max-width: 48ch;
   margin: 0 auto 30px;
   font-size: 1.1rem;
-  color: #eafbef;
+  color: #e8f4fd;
 }
 
 .final-cta .hero-cta-row {
@@ -1052,12 +1062,12 @@ img.brand-mark {
 
 .final-note {
   font-size: 0.85rem;
-  color: #cdeccf;
+  color: #cfe4f2;
 }
 
 /* ---------- for developers ---------- */
 
-/* Sits between the green play CTA and the near-black footer, so it is deliberately
+/* Sits between the blue play CTA and the near-black footer, so it is deliberately
    dark: it reads as the start of the footer rather than as one more thing being
    pitched at a child. */
 .devs {
@@ -2030,16 +2040,16 @@ a.hero-stat:hover {
   color: var(--accent, var(--orange));
 }
 
-/* Pale, not ink. This line sits at the very bottom of the hero, which is now the deep
-   shadowed end of the logo's grass rather than the old mid-green -- dark ink on it ran
-   at about 1.5:1 and simply disappeared. Everything else down there is already light:
-   the three chips are white cards and the screenshot is in a dark frame. */
+/* Pale, not ink. This line sits at the very bottom of the hero, which is the deep
+   shadowed end of the logo's field -- dark ink on it ran at about 1.5:1 and simply
+   disappeared. Everything else down there is already light: the three chips are white
+   cards and the screenshot is in a dark frame. */
 .hero-fine {
   margin: -14px 0 0;
   font-size: 0.92rem;
   font-weight: 700;
-  color: #eafbef;
-  text-shadow: 0 1px 2px rgba(12, 24, 6, 0.55);
+  color: #e8f4fd;
+  text-shadow: 0 1px 2px rgba(8, 26, 44, 0.55);
 }
 
 .activity-strip {
