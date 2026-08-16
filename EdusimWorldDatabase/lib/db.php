@@ -56,20 +56,44 @@ function ewd_ensure_dirs(): void
     // fetchable by URL. download.php is the only intended way to a world file, because
     // it is what counts downloads and sets the filename. Nginx ignores .htaccess -- see
     // README.md for the equivalent location block.
-    ewd_write_once(EWD_DATA_DIR . '/.htaccess', "Require all denied\nDeny from all\n");
+    // `Deny from all` is Apache 2.2 syntax and needs mod_access_compat under 2.4; guarded
+    // so that a server without it gets the 2.4 rule alone rather than a 500 on the
+    // directory. Same class of bug as the uploads/ file below, and worth avoiding even
+    // where nothing legitimate reads this directory over HTTP.
+    ewd_write_once(EWD_DATA_DIR . '/.htaccess', implode("\n", [
+        'Require all denied',
+        '<IfModule mod_access_compat.c>',
+        '  Deny from all',
+        '</IfModule>',
+        '',
+    ]));
 
     // uploads/ IS meant to be readable -- screenshots are served straight off disk -- so
     // this one only stops the directory being used to execute anything. Screenshots are
     // re-encoded through GD before they land here, so nothing with a payload in it
     // survives, but a directory that both accepts uploads and runs PHP is the classic
     // hole and is worth closing twice.
+    // Keep this in step with uploads/.htaccess in the repository -- this is the copy that
+    // gets written on a fresh install, and it is the one that shipped the bug.
+    //
+    // The deny is FIRST because it is the only rule that works under every PHP SAPI: with
+    // FastCGI the handler is attached in the server config and RemoveHandler here cannot
+    // detach it. And `php_flag` MUST stay inside an IfModule -- it is an unknown directive
+    // under FastCGI, and an unknown directive in .htaccess is a hard 500 on every request
+    // into this directory, which is exactly how every gallery screenshot broke.
     ewd_write_once(EWD_UPLOAD_DIR . '/.htaccess', implode("\n", [
-        'php_flag engine off',
+        '<FilesMatch "\.(?:php|phtml|php[0-9]|phps|phar|cgi|pl|py|inc)$">',
+        '  Require all denied',
+        '</FilesMatch>',
         '<IfModule mod_php.c>',
+        '  php_admin_flag engine off',
+        '</IfModule>',
+        '<IfModule mod_php7.c>',
         '  php_admin_flag engine off',
         '</IfModule>',
         'RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phar',
         'RemoveType .php .phtml .php3 .php4 .php5 .php7 .php8 .phar',
+        'Options -ExecCGI -Indexes',
         '',
     ]));
 }

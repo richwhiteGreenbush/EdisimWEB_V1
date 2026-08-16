@@ -1,2 +1,4 @@
 Require all denied
-Deny from all
+<IfModule mod_access_compat.c>
+  Deny from all
+</IfModule>

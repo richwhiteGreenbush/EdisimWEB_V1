@@ -1,6 +1,27 @@
-php_flag engine off
+# uploads/ IS meant to be readable -- screenshots are served straight off disk -- so this
+# file only has to stop the directory being used to EXECUTE anything.
+#
+# THE DENY IS FIRST BECAUSE IT IS THE ONLY RULE THAT WORKS UNDER EVERY PHP SAPI. When PHP
+# runs as FastCGI/FPM the handler is attached in the SERVER config
+# (SetHandler proxy:fcgi://...), and a RemoveHandler down here cannot detach it. Refusing
+# the request by filename does not care how PHP is wired up.
+<FilesMatch "\.(?:php|phtml|php[0-9]|phps|phar|cgi|pl|py|inc)$">
+  Require all denied
+</FilesMatch>
+
+# mod_php ONLY, and the guard is not optional. `php_flag` is an UNKNOWN DIRECTIVE when PHP
+# runs as FastCGI -- which is what pair Networks uses -- and an unknown directive in a
+# .htaccess is a hard 500 on EVERY request into the directory. Unguarded, this one line
+# made every screenshot in the gallery return 500 while the page around them was fine.
 <IfModule mod_php.c>
   php_admin_flag engine off
 </IfModule>
+<IfModule mod_php7.c>
+  php_admin_flag engine off
+</IfModule>
+
+# mod_mime, so these are safe anywhere. They are belt-and-braces behind the deny above.
 RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phar
 RemoveType .php .phtml .php3 .php4 .php5 .php7 .php8 .phar
+
+Options -ExecCGI -Indexes
