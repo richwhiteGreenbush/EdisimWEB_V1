@@ -109,6 +109,17 @@ ewd_define('EWD_ADMIN_PASSWORD_HASH', '');
 // Links back to the rest of Edusim
 // ---------------------------------------------------------------------------
 
+// The marketing site and the Hands-On Guide are deployed on THIS host, one level up: the
+// gallery is a directory inside the site (edusim3d.me/worlds/), so these are relative and
+// a visitor stays on the domain they arrived on. They used to be absolute github.io URLs,
+// which quietly bounced anyone clicking "Main site" onto the old GitHub Pages copy.
+//
+// Relative also means the links stay correct on any host the site is copied to, and in
+// the local Apache mirror -- the same reasoning as every other path in this file.
+ewd_define('EWD_SITE_URL', '../');
+ewd_define('EWD_GUIDE_URL', '../guide/index.html');
+
+// The app is the ONE link that has to stay absolute: it is deployed to Railway, a
+// different host entirely, and there is no copy of it on this server to point at. If it
+// ever moves onto this domain, this becomes relative like the two above.
 ewd_define('EWD_APP_URL', 'https://edisimwebv1-production.up.railway.app');
-ewd_define('EWD_SITE_URL', 'https://richwhitegreenbush.github.io/EdisimWEB_V1/');
-ewd_define('EWD_GUIDE_URL', 'https://richwhitegreenbush.github.io/EdisimWEB_V1/guide/index.html');

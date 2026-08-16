@@ -13,11 +13,26 @@
 #
 set -uo pipefail
 
+# `--prod` points at the two real deployments. They are different hosts -- the site is on
+# pair Networks and the app is on Railway -- so aiming both at one origin silently tests
+# the wrong thing (the marketing page answers `/` with a 200 that means nothing about the
+# app being there).
+if [ "${1:-}" = "--prod" ]; then
+  SITE="http://edusim3d.me"
+  APP="https://edisimwebv1-production.up.railway.app"
+  TIMEOUT="${TIMEOUT:-30}"
+fi
+
 SITE="${SITE:-http://localhost:8080}"
 APP="${APP:-http://localhost:8081}"
+# Generous by default: local is instant, but pair over the open internet is not, and a
+# timeout reads as a failing check rather than a slow one.
+TIMEOUT="${TIMEOUT:-30}"
+
+printf 'site %s\napp  %s\n' "$SITE" "$APP"
 
 pass=0; fail=0
-code() { curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$1"; }
+code() { curl -s -o /dev/null -w '%{http_code}' --max-time "$TIMEOUT" "$1"; }
 
 # check <description> <url> <expected...>   -- any one of the expected codes passes
 check() {
@@ -38,9 +53,30 @@ check "home page"            "$SITE/"                    200
 check "stylesheet"           "$SITE/styles.css"          200
 check "hands-on guide"       "$SITE/guide/"              200
 check "logo wordmark"        "$SITE/assets/edusim-wordmark.jpg" 200
+# The hero's third button. It is a RELATIVE href, so this also proves the gallery is
+# mounted where the marketing page thinks it is -- the one thing a broken deploy layout
+# would silently get wrong.
+# Fetch first, then grep. `curl | grep -q` is wrong under `set -o pipefail`: grep exits on
+# the first match, SIGPIPEs curl, and the pipeline reports curl's 141 -- so the check fails
+# precisely BECAUSE the string was found.
+home_html="$(curl -s --max-time "$TIMEOUT" "$SITE/")"
+if printf '%s' "$home_html" | grep -q 'href="worlds/"'; then
+  printf '  \033[32mok\033[0m   %-46s links to worlds/\n' "hero gallery button"; pass=$((pass+1))
+else
+  printf '  \033[31mFAIL\033[0m %-46s no href="worlds/" in the page\n' "hero gallery button"; fail=$((fail+1))
+fi
 
 section "World gallery"
 check "gallery"              "$SITE/worlds/"             200
+# The gallery must not send visitors off to the old GitHub Pages copy. Everything on this
+# host is relative; the only absolute link left is the app, which really is on Railway.
+gal_html="$(curl -s --max-time "$TIMEOUT" "$SITE/worlds/")"
+stray="$(printf '%s' "$gal_html" | grep -oE 'href="https?://[^"]+"' | grep -v 'railway\.app' | grep -v 'fonts\.g' | sort -u || true)"
+if [ -z "$stray" ]; then
+  printf '  \033[32mok\033[0m   %-46s none\n' "off-site links in the gallery"; pass=$((pass+1))
+else
+  printf '  \033[31mFAIL\033[0m %-46s %s\n' "off-site links in the gallery" "$(printf '%s' "$stray" | tr '\n' ' ')"; fail=$((fail+1))
+fi
 check "share form"           "$SITE/worlds/share.php"    200
 check "admin"                "$SITE/worlds/admin.php"    200
 
