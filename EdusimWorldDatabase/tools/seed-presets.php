@@ -217,6 +217,89 @@ $WORLDS = [
             . "it soaks into the ground.\n\n"
             . "Two coding challenges: send a cloud across the sky, and make the rain fall.",
     ],
+    'pompeii' => [
+        'title' => 'Ancient Pompeii',
+        'tags'  => 'history, official, building, science',
+        'description' =>
+            "24 August, AD 79 — and the town is not a ruin. Every picture you have seen of Pompeii is broken "
+            . "wall stumps in bright sunshine, but the point of the place is that it was an ordinary working "
+            . "town on an ordinary afternoon. So the houses stand, the bar is stocked, and Vesuvius is going up "
+            . "behind them.\n\n"
+            . "Walk the paved street and look down: the ruts worn into the basalt by cart wheels, and the raised "
+            . "stepping stones across the road with gaps exactly an axle wide, because the street doubled as the "
+            . "drain. There is a forum, the oldest stone amphitheatre anywhere, painted walls, and — off to one "
+            . "side, where you come upon them rather than being shown them — the plaster casts.\n\n"
+            . "Two coding challenges: raise the ash column, and send a cart up the street.",
+    ],
+    'davinci' => [
+        'title' => "Da Vinci's Studio",
+        'tags'  => 'history, science, official, building',
+        'description' =>
+            "The workshop yard, with the machines built full size straight out of the notebooks: the "
+            . "bat-framed ornithopter, the aerial screw, the spring-driven cart, the war engines, and the "
+            . "drawings on their easels.\n\n"
+            . "Most of these never worked, and the signs say so — the flying machines could not have lifted, and "
+            . "the aerial screw would simply have spun the whole machine the other way, which is exactly why a "
+            . "real helicopter needs a tail rotor. Being wrong in interesting ways for a very long time is how "
+            . "engineering actually proceeds. The cart is the exception: a replica was built in 2004 and it drove.\n\n"
+            . "Look at the open notebooks — the writing runs backwards, because Leonardo was left-handed.\n\n"
+            . "Two coding challenges: turn the aerial screw, and drive the cart.",
+    ],
+    'ellis' => [
+        'title' => 'Ellis Island',
+        'tags'  => 'history, official, building, starter',
+        'description' =>
+            "New York harbour in 1907 — the busiest year the station ever had, when 1,004,756 people came "
+            . "through. The Main Building with its copper domes, a steamship at the pier, Liberty across the "
+            . "water, and the baggage heaped on the dock.\n\n"
+            . "It is deliberately not grand. First and second class were inspected in their cabins and walked "
+            . "straight off at Manhattan; only steerage came here, to a queue, a numbered tag pinned to your "
+            . "coat, and a doctor who looked at your eyes for thirty seconds. Read the manifest board and the "
+            . "line-inspection sign — and look at Liberty's feet, where the broken chain is.\n\n"
+            . "Two coding challenges: bring the ship alongside, and light the torch.",
+    ],
+    'capitol' => [
+        'title' => 'The U.S. Capitol',
+        'tags'  => 'history, official, building, starter',
+        'description' =>
+            "The West Front seen from the Mall: the cast-iron dome with the Statue of Freedom on top, the two "
+            . "chamber wings, the great flight of inauguration steps, a reflecting pool, and the Washington "
+            . "Monument off to one side.\n\n"
+            . "Three things worth finding. The dome is markedly taller than it is wide, which is what separates "
+            . "it from every state house that copied it. The Washington Monument changes colour two thirds of "
+            . "the way up, because building stopped for 23 years and the marble never matched. And the Statue of "
+            . "Freedom wears a feathered helmet rather than a liberty cap, because Jefferson Davis objected to "
+            . "the cap — she was cast by Philip Reid, who was himself enslaved.\n\n"
+            . "Two coding challenges: raise the dome, and send a statue on tour.",
+    ],
+    'reef' => [
+        'title' => 'Great Barrier Reef',
+        'tags'  => 'ocean, nature, animals, science, official',
+        'description' =>
+            "Twenty-five feet down on the outer reef, with sunbeams coming through the surface and the whole "
+            . "water column full of life: a green sea turtle, a manta ray fifteen feet across, a potato cod, "
+            . "reef sharks overhead, and staghorn thickets building the reef itself.\n\n"
+            . "One section is bone white, and it is not a different species. Coral is an animal that farms algae "
+            . "inside itself; when the water gets too warm it expels them and turns white. It is starving at "
+            . "that point, not dead — it can come back if the water cools fast enough. Much of it did not in "
+            . "2016 and 2017. The healthy reef and the bleached reef are placed side by side on purpose.\n\n"
+            . "Two coding challenges: fly the manta past the reef, and bleach a coral then bring it back.",
+    ],
+    'delta' => [
+        'title' => 'Delta River Boat',
+        'tags'  => 'history, nature, official, vehicles',
+        'description' =>
+            "A sternwheel packet at a Mississippi landing about 1870, at golden hour. The boat is the world — "
+            . "130 feet of it, with open galleries of turned posts and fretwork, tall forward chimneys, and a "
+            . "paddle wheel as tall as two decks.\n\n"
+            . "Behind it is a cypress swamp: trees with hugely flared bases, their strange 'knees' standing up "
+            . "out of the ground around them, and Spanish moss hanging off the branches — which is neither "
+            . "Spanish nor a moss, but an air plant related to the pineapple.\n\n"
+            . "The cotton bales on the levee are what the boat came for, and the sign does not skip what that "
+            . "trade was built on. Samuel Clemens piloted boats like this one before he was a writer, and took "
+            . "his pen name from the leadsman's call for twelve feet of water.\n\n"
+            . "Two coding challenges: cast off downriver, and pole the pirogue across.",
+    ],
 ];
 
 // ---------------------------------------------------------------------------

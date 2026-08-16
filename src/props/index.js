@@ -11,6 +11,12 @@ import * as Sea from './SeaProps.js';
 import * as Egypt from './EgyptProps.js';
 import * as Solar from './SolarProps.js';
 import * as Water from './WaterProps.js';
+import * as Pompeii from './PompeiiProps.js';
+import * as Vinci from './VinciProps.js';
+import * as Ellis from './EllisProps.js';
+import * as Capitol from './CapitolProps.js';
+import * as Barrier from './BarrierProps.js';
+import * as Delta from './DeltaProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -228,6 +234,63 @@ export const PROP_BUILDERS = {
   'stream-course': Water.streamCourse,
   'groundwater-cutaway': Water.groundwaterCutaway,
   'cycle-arrow': Water.cycleArrow,
+
+  // Ancient Pompeii
+  vesuvius: Pompeii.vesuvius,
+  'pompeii-street': Pompeii.pompeiiStreet,
+  'pompeii-villa': Pompeii.pompeiiVilla,
+  thermopolium: Pompeii.thermopolium,
+  'forum-colonnade': Pompeii.forumColonnade,
+  amphitheatre: Pompeii.amphitheatre,
+  'plaster-cast': Pompeii.plasterCast,
+  'fresco-wall': Pompeii.frescoWall,
+  'ash-fall': Pompeii.ashFall,
+
+  // Leonardo da Vinci's Studio
+  ornithopter: Vinci.ornithopter,
+  'aerial-screw': Vinci.aerialScrew,
+  'vinci-cart': Vinci.selfPropelledCart,
+  'vitruvian-panel': Vinci.vitruvianPanel,
+  workbench: Vinci.workbench,
+  'codex-stand': Vinci.codexStand,
+  'easel-painting': Vinci.easelPainting,
+  'war-machine': Vinci.warMachine,
+  'studio-building': Vinci.studioBuilding,
+
+  // Ellis Island
+  'ellis-main-building': Ellis.ellisMainBuilding,
+  'statue-of-liberty': Ellis.statueOfLiberty,
+  steamship: Ellis.steamship,
+  'ferry-pier': Ellis.ferryPier,
+  'baggage-pile': Ellis.baggagePile,
+  'inspection-line': Ellis.inspectionLine,
+  'manifest-board': Ellis.manifestBoard,
+
+  // The U.S. Capitol
+  'capitol-building': Capitol.capitolBuilding,
+  'capitol-dome': Capitol.capitolDome,
+  'washington-monument': Capitol.washingtonMonument,
+  'reflecting-pool': Capitol.reflectingPool,
+  'chamber-desks': Capitol.chamberDesks,
+  'statuary-figure': Capitol.statuaryFigure,
+  'flag-pole': Capitol.flagPole,
+
+  // The Great Barrier Reef
+  'sea-turtle': Barrier.seaTurtle,
+  'manta-ray': Barrier.mantaRay,
+  'staghorn-coral': Barrier.staghornCoral,
+  'plate-coral': Barrier.plateCoral,
+  'potato-cod': Barrier.potatoCod,
+  'bleached-patch': Barrier.bleachedPatch,
+
+  // The Delta River Boat
+  'paddle-steamer': Delta.paddleSteamer,
+  'cotton-bales': Delta.cottonBales,
+  'levee-landing': Delta.leveeLanding,
+  'cypress-tree': Delta.cypressTree,
+  pirogue: Delta.pirogue,
+  'channel-marker': Delta.channelMarker,
+  'reed-bed': Delta.reedBed,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

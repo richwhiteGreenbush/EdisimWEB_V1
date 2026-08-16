@@ -37,6 +37,18 @@ function orb(x, z, y, color = ORB_WHITE) {
   return { kind: 'light-orb', color, x, z, y };
 }
 
+// The yaw that turns a prop at (x, z) to FACE the point (tx, tz) -- normally the spawn.
+//
+// atan2(dx, dz), not atan2(dz, dx), and not the camera's formula either. A plain
+// Object3D's forward is its own +Z, so this is the same arithmetic browserStation() has
+// always used; a CAMERA looks down its own -Z and needs atan2(-dx, -dz) instead. Mixing
+// the two is easy and silent -- it shipped five signs facing backwards in one world, each
+// presenting its blank side to the arrival -- so every layout that turns something toward
+// the player goes through this rather than through a hand-guessed constant.
+function facing(x, z, tx = 0, tz = 0) {
+  return Math.atan2(tx - x, tz - z);
+}
+
 // One of the three assets fetched from public/ (`startup-library` / `startup-tree` /
 // `startup-billboard`). These are the project's own downloaded .obj/.png files, reused
 // here at park scale.
@@ -3723,6 +3735,1010 @@ function waterCycleLayout() {
   return { theme: 'watercycle', spawn: { x: 0, z: 100, yaw: 0 }, items };
 }
 
+
+// ---------------------------------------------------------------------------
+// Ancient Pompeii
+// ---------------------------------------------------------------------------
+
+// 24 August AD 79, early afternoon. The town is NOT a ruin here, and that is the whole
+// design: every picture a student has seen is of broken wall stumps in bright sunshine,
+// but the point of Pompeii is that it was an ordinary working town on an ordinary day.
+// So the buildings stand, the bar is stocked, the street is intact -- and Vesuvius is
+// going up behind them. The ruin is the consequence, not the subject.
+function pompeiiLayout() {
+  const items = [];
+  const SP = { x: 0, z: 104 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- Vesuvius -----------------------------------------------------------
+  // Far to the north-west and huge. The eruption column is a PLINIAN one -- named for
+  // Pliny the Younger, who watched this exact eruption and described it as an umbrella
+  // pine: a narrow trunk going up fast, then a flat spreading canopy where it stops
+  // rising. That flat top is the identifying feature, not a widening plume.
+  items.push(prop('vesuvius', -70, -168, { options: { height: 92, baseRadius: 104, columnHeight: 160, seed: 3 } }));
+
+  // --- The street ---------------------------------------------------------
+  // Running north up the middle of the world, so a student walks it on arrival.
+  for (let i = 0; i < 4; i++) {
+    items.push(prop('pompeii-street', 0, 62 - i * 48, { options: { length: 48, width: 16, seed: 11 + i, crossing: i % 2 === 0 } }));
+  }
+
+  // --- Houses down both sides ---------------------------------------------
+  // Roman houses face INWARD onto their courtyards, so a street frontage has almost no
+  // windows -- which is itself worth seeing, and is why these read as blank and solid.
+  const villas = [
+    [-25, 44, 1], [-25, 12, 1], [-25, -22, 1],
+    [25, 50, -1], [25, 16, -1], [25, -18, -1],
+  ];
+  villas.forEach(([x, z, s], i) => {
+    items.push(prop('pompeii-villa', x, z, { rotY: s > 0 ? Math.PI / 2 : -Math.PI / 2, options: { width: 26 + (i % 3) * 4, depth: 20, height: 15 + (i % 2) * 3, seed: 17 + i * 5 } }));
+  });
+
+  // The bar, opening straight onto the street. There are about 80 of these in Pompeii and
+  // they are the clearest sign that this was a town where ordinary people bought hot food
+  // on the way home rather than cooking it.
+  items.push(prop('thermopolium', -11, 30, { rotY: Math.PI / 2, options: { length: 12, seed: 23 } }));
+  items.push(
+    prop('info-placard', -8, 40, {
+      rotY: face(-8, 40),
+      options: {
+        eyebrow: 'A bar on the corner', title: 'Thermopolium', accent: '#9e3b28',
+        body: 'Roman fast food. The round holes in the counter held dolia — big jars of stew, wine and hot food. There are about eighty of these in Pompeii, because most flats had no kitchen and no chimney. The counter is faced in broken scraps of marble, which is exactly how the real ones look.',
+      },
+    }),
+  );
+
+  // --- The forum ----------------------------------------------------------
+  items.push(prop('forum-colonnade', -34, -8, { rotY: Math.PI / 2, options: { bays: 7, spacing: 8, height: 15, seed: 29 } }));
+  items.push(prop('forum-colonnade', 34, -8, { rotY: -Math.PI / 2, options: { bays: 7, spacing: 8, height: 15, seed: 33 } }));
+  items.push(
+    prop('info-placard', -18, 4, {
+      rotY: face(-18, 4),
+      options: {
+        eyebrow: 'The town square', title: 'The Forum', accent: '#c98b3a',
+        body: 'Law courts, temples, the market and the town council all opened onto this one paved square, and no carts were allowed in it. Every Roman town of any size was laid out around one, which is why a Roman who had never been here would still have known exactly where to find things.',
+      },
+    }),
+  );
+
+  // --- The amphitheatre ---------------------------------------------------
+  // Pompeii's is the oldest surviving stone amphitheatre anywhere -- about 70 BC, a
+  // century and a half before the Colosseum.
+  items.push(prop('amphitheatre', 86, -58, { options: { radiusX: 42, radiusZ: 34, height: 15, seed: 31 } }));
+  items.push(
+    prop('info-placard', 52, -34, {
+      rotY: face(52, -34),
+      options: {
+        eyebrow: 'Built about 70 BC', title: 'The Amphitheatre', accent: '#8a4630',
+        body: 'The oldest stone amphitheatre that still stands anywhere — a hundred and fifty years older than the Colosseum. It held 20,000 people, which is more than lived in the town. In AD 59 a riot broke out here between locals and visitors from Nuceria and the Senate banned games for ten years.',
+      },
+    }),
+  );
+
+  // --- Frescoes -----------------------------------------------------------
+  items.push(prop('fresco-wall', -13, -46, { rotY: face(-13, -46), options: { width: 15, height: 10, seed: 41 } }));
+  items.push(prop('fresco-wall', 14, -52, { rotY: face(14, -52), options: { width: 13, height: 9, seed: 45 } }));
+  items.push(
+    prop('info-placard', -4, -40, {
+      rotY: face(-4, -40),
+      options: {
+        eyebrow: 'What the walls looked like', title: 'Pompeian red', accent: '#9e3b28',
+        body: 'Almost every room in town was painted, floor to ceiling, in deep red and ochre fields divided by thin painted architecture with a small picture in the middle. The colour is so associated with this one town that painters still call it Pompeian red.',
+      },
+    }),
+  );
+
+  // --- The casts ----------------------------------------------------------
+  // In 1863 Giuseppe Fiorelli realised the voids in the ash were body-shaped and poured
+  // plaster into them. Placed off the main street rather than on it: these are the most
+  // affecting objects in archaeology and they should be come upon, not paraded.
+  items.push(prop('plaster-cast', -46, 30, { rotY: 0.6, options: { pose: 'curled', seed: 37 } }));
+  items.push(prop('plaster-cast', -50, 24, { rotY: -0.9, options: { pose: 'curled', seed: 39 } }));
+  items.push(prop('plaster-cast', -43, 22, { rotY: 2.1, options: { pose: 'seated', seed: 43 } }));
+  items.push(
+    prop('info-placard', -40, 36, {
+      rotY: face(-40, 36),
+      options: {
+        eyebrow: 'Found 1863', title: 'The casts', accent: '#5a5045',
+        body: 'The ash set hard around the people who died in it. Their bodies decayed and left holes. In 1863 Giuseppe Fiorelli worked out what the holes were and filled them with plaster — so these are casts of an empty space, not of a body. About 1,150 have been made.',
+      },
+    }),
+  );
+
+  // --- Ash ---------------------------------------------------------------
+  // The fall on the first day was pumice: light, dry, and it piled up like grey snow.
+  items.push(prop('ash-fall', -20, 20, { y: 4, absoluteY: true, options: { radius: 34, height: 46, count: 240, seed: 43 } }));
+  items.push(prop('ash-fall', 26, -14, { y: 4, absoluteY: true, options: { radius: 30, height: 44, count: 200, seed: 47 } }));
+  items.push(prop('ash-fall', 0, 62, { y: 4, absoluteY: true, options: { radius: 26, height: 40, count: 160, seed: 51 } }));
+
+  // Drifts of fallen pumice against the buildings.
+  [[-38, 46], [38, 40], [-38, 6], [38, 2], [-14, -34], [16, -30], [-46, -12], [48, 12]].forEach(([x, z], i) => {
+    items.push(prop('sand-drift', x, z, { options: { size: 12 + (i % 3) * 4, color: 0xb5ad9e, seed: 300 + i * 9 } }));
+  });
+
+  // Loose rock and rubble.
+  items.push(prop('moon-rocks', -60, -30, { options: { count: 9, spread: 14, colors: [0x6e6459, 0x8a8478, 0x5a564f], seed: 401 } }));
+  items.push(prop('moon-rocks', 60, 26, { options: { count: 8, spread: 12, colors: [0x7d7466, 0x9a9186, 0x63605a], seed: 403 } }));
+
+  // Street furniture and the rest of the town. A Roman street is dense -- shops, fountains
+  // and shrines every few yards -- and an empty one reads as a film set after hours.
+  items.push(prop('stone-fountain', -12, 60, { rotY: 0.4, options: { seed: 61 } }));
+  items.push(prop('stone-fountain', 13, -8, { rotY: -0.3, options: { seed: 63 } }));
+  items.push(prop('thermopolium', 11, -40, { rotY: -Math.PI / 2, options: { length: 10, seed: 27 } }));
+  items.push(prop('pompeii-villa', -25, -54, { rotY: Math.PI / 2, options: { width: 24, depth: 18, height: 14, seed: 71 } }));
+  items.push(prop('pompeii-villa', 25, -50, { rotY: -Math.PI / 2, options: { width: 26, depth: 18, height: 16, seed: 73 } }));
+  items.push(prop('fresco-wall', -30, 62, { rotY: face(-30, 62), options: { width: 12, height: 8, seed: 49 } }));
+  const potSpots = [[-13, 52], [13, 52], [-13, 18], [13, 18], [-13, -18], [13, -20]];
+  potSpots.forEach(([x, z], i) => items.push(prop('planter', x, z, { options: { size: 2.6, shrubColor: 0x5c7a42 } })));
+  items.push(prop('bench', -14, 70, { rotY: face(-14, 70) + Math.PI, options: { length: 5 } }));
+  items.push(prop('bench', 15, 70, { rotY: face(15, 70) + Math.PI, options: { length: 5 } }));
+
+  // --- Wayfinding ---------------------------------------------------------
+  items.push(
+    prop('standing-sign', 22, 92, {
+      rotY: face(22, 92),
+      options: { lines: ['POMPEII'], subtitle: '24 August, AD 79 — an ordinary afternoon', width: 14, height: 4.2 },
+    }),
+  );
+  items.push(...browserStation(-10, 90, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- Programming challenges ---------------------------------------------
+  items.push(
+    activity(-25, 78, {
+      number: 1, rotY: face(-25, 78), accent: '#c2521f',
+      title: 'Raise the ash column',
+      target: 'Click the falling ash near the forum → Program.',
+      steps: [ctrlStep('repeat 30 times'), moveStep('move Y by 1 ft', 1), ctrlStep('wait 0.1 seconds', 1)],
+      tip: 'The real column reached 21 miles up in about an hour. Pliny the Younger watched it from across the bay and wrote the only eyewitness account we have — which is why this kind of eruption is named after him.',
+    }),
+  );
+  items.push(
+    activity(25, 76, {
+      number: 2, rotY: face(25, 76), accent: '#9e3b28',
+      title: 'Send a cart up the street',
+      target: 'Click a stretch of paved street → Program.',
+      steps: [
+        ctrlStep('forever'),
+        moveStep('move Z by -40 ft', 1), ctrlStep('wait 3 seconds', 1),
+        moveStep('rotate 180 degrees', 1),
+        moveStep('move Z by 40 ft', 1), ctrlStep('wait 3 seconds', 1),
+        moveStep('rotate 180 degrees', 1),
+      ],
+      tip: 'Look at the ruts worn into the basalt, and the raised stepping stones across the road. The gaps between the stones are exactly a cart axle wide — the street doubled as the drain, and you crossed it without stepping in it.',
+    }),
+  );
+
+  // --- Lighting -----------------------------------------------------------
+  items.push(orb(-11, 30, 5, ORB_WARM));
+  items.push(orb(-34, -8, 9, ORB_WARM));
+  items.push(orb(34, -8, 9, ORB_WARM));
+  items.push(orb(-46, 27, 4, ORB_WHITE));
+
+  return { theme: 'pompeii', spawn: { ...SP, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
+// Leonardo da Vinci's Studio
+// ---------------------------------------------------------------------------
+
+// The workshop yard, with the machines built out of the notebooks at full size.
+//
+// The honest point of this world: NONE of the flying machines ever flew, and the placards
+// say so. Leonardo's aerial screw could not have worked -- nothing counteracts its torque
+// -- and no human has the power-to-weight ratio to flap a wing. Presenting them as working
+// aircraft teaches something false about how engineering actually proceeds, which is by
+// being wrong in interesting ways for a very long time. The cart, by contrast, DOES work:
+// a replica was built in 2004 and it drove.
+function davinciLayout() {
+  const items = [];
+  const SP = { x: 0, z: 74 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // The workshop itself, at the head of the yard.
+  items.push(prop('studio-building', 0, -34, { options: { width: 36, depth: 26, height: 21, seed: 47 } }));
+
+  // --- The machines, spread across the yard -------------------------------
+  items.push(prop('ornithopter', -26, 20, { rotY: 0.5, options: { span: 34, seed: 7 } }));
+  items.push(
+    prop('info-placard', -14, 30, {
+      rotY: face(-14, 30),
+      options: {
+        eyebrow: 'It never flew', title: 'The ornithopter', accent: '#8a6a42',
+        body: 'A flapping-wing glider, framed like a bat rather than feathered like a bird — Leonardo studied bats because a membrane wing is something a person could actually build. It could not have worked: no human has the power to flap a wing that size. He was wrong for the right reasons, and the wing shape is very nearly a modern hang glider.',
+      },
+    }),
+  );
+
+  items.push(prop('aerial-screw', 28, 14, { options: { height: 19, radius: 9, seed: 13 } }));
+  items.push(
+    prop('info-placard', 17, 24, {
+      rotY: face(17, 24),
+      options: {
+        eyebrow: 'Also never flew', title: 'The aerial screw', accent: '#b08d4a',
+        body: 'Often called the first helicopter. Four people walk the capstan to spin a linen screw. It could not have lifted: nothing stops the whole machine spinning the opposite way, and the crew would have to run faster than anyone can. A real helicopter needs a tail rotor for exactly the reason this one fails.',
+      },
+    }),
+  );
+
+  items.push(prop('vinci-cart', -14, 46, { rotY: -0.6, options: { seed: 19 } }));
+  items.push(
+    prop('info-placard', -4, 50, {
+      rotY: face(-4, 50),
+      options: {
+        eyebrow: 'This one works', title: 'The self-propelled cart', accent: '#9a7a3c',
+        body: 'Driven by two coiled springs, and steered by pegs set between the gear teeth — change the pegs and it drives a different path. That makes it programmable, which is why it is often called the first robot. A working replica was built in 2004 and it drove exactly as drawn.',
+      },
+    }),
+  );
+
+  items.push(prop('war-machine', 34, 44, { rotY: -1.1, options: { seed: 41 } }));
+  items.push(
+    prop('info-placard', 24, 48, {
+      rotY: face(24, 48),
+      options: {
+        eyebrow: 'Who paid for all this', title: 'The war machines', accent: '#6b5031',
+        body: 'Leonardo wrote to the Duke of Milan offering himself as a military engineer, and listed painting last. The notebooks hold far more pages of catapults, bridges and cannon than of flying. Renaissance genius was funded by somebody, and it is worth knowing by whom.',
+      },
+    }),
+  );
+
+  // --- Drawings and the bench --------------------------------------------
+  items.push(prop('vitruvian-panel', -34, -4, { rotY: face(-34, -4), options: { size: 9, seed: 23 } }));
+  items.push(
+    prop('info-placard', -25, 6, {
+      rotY: face(-25, 6),
+      options: {
+        eyebrow: 'c. 1490', title: 'Vitruvian Man', accent: '#8a6a42',
+        body: 'A drawing that is really an argument: a human body fits both a circle and a square, but not from the same centre. The square is centred on the body; the circle is centred on the navel. Leonardo solved a problem the Roman architect Vitruvius had posed fifteen centuries earlier.',
+      },
+    }),
+  );
+
+  items.push(prop('easel-painting', 32, -6, { rotY: face(32, -6), options: { width: 5, height: 7, seed: 37 } }));
+  items.push(
+    prop('info-placard', 24, 4, {
+      rotY: face(24, 4),
+      options: {
+        eyebrow: 'Unfinished, like most of them', title: 'On the easel', accent: '#7a6448',
+        body: 'Leonardo finished perhaps fifteen paintings in forty years. He left work half-done constantly, went back to the Mona Lisa for sixteen years, and never delivered it. What is on this easel is a blocked-in underpainting with the drawing still showing — which is what most of his panels actually looked like.',
+      },
+    }),
+  );
+
+  items.push(prop('workbench', -8, -12, { rotY: 0.2, options: { length: 11, seed: 29 } }));
+  items.push(prop('workbench', 10, -14, { rotY: -0.3, options: { length: 9, seed: 31 } }));
+  items.push(prop('codex-stand', -2, 4, { rotY: face(-2, 4), options: { seed: 31, sketch: 'gears' } }));
+  items.push(prop('codex-stand', 12, 12, { rotY: face(12, 12), options: { seed: 35, sketch: 'wing' } }));
+  items.push(prop('codex-stand', -18, 10, { rotY: face(-18, 10), options: { seed: 39, sketch: 'screw' } }));
+  items.push(
+    prop('info-placard', 4, 14, {
+      rotY: face(4, 14),
+      options: {
+        eyebrow: 'Why it reads backwards', title: 'Mirror writing', accent: '#6b5031',
+        body: 'Leonardo wrote right to left in mirror image through all 13,000 surviving pages. He was left-handed, and writing that way stops the ink smudging under your hand — the simplest explanation is usually the right one. It was not a code: anyone with a mirror can read it.',
+      },
+    }),
+  );
+
+  // --- The yard -----------------------------------------------------------
+  const treeSpots = [[-44, 34], [-48, 12], [44, 30], [50, 8], [-44, -22], [46, -20]];
+  treeSpots.forEach(([x, z], i) => {
+    items.push(prop('shade-tree', x, z, { options: { height: 20 + (i % 3) * 4, seed: 200 + i * 7, leafColor: 0x5c7a42 } }));
+  });
+  items.push(prop('planter', -20, 60, { options: { size: 3.4 } }));
+  items.push(prop('planter', 20, 60, { options: { size: 3.4 } }));
+  items.push(prop('planter', -30, 46, { options: { size: 3 } }));
+  items.push(prop('planter', 30, 44, { options: { size: 3 } }));
+  items.push(prop('bench', -20, 34, { rotY: face(-20, 34) + Math.PI, options: { length: 5 } }));
+  items.push(prop('bench', 20, 36, { rotY: face(20, 36) + Math.PI, options: { length: 5 } }));
+  [[-9, 58, 0.2], [9, 56, -0.2], [-2, 32, 0.1], [4, 10, 0], [-6, -18, 0.3]].forEach(([x, z, r], i) => {
+    items.push(prop('path-stones', x, z, { rotY: r, options: { length: 16, width: 5, seed: 400 + i * 7 } }));
+  });
+  items.push(prop('moon-rocks', -52, 48, { options: { count: 7, spread: 10, colors: [0x9a8a72, 0x7d7060, 0xb0a28a], seed: 501 } }));
+  items.push(prop('moon-rocks', 52, 52, { options: { count: 6, spread: 9, colors: [0xa89a80, 0x8a7d68, 0xc0b298], seed: 503 } }));
+
+  // More of the yard: a workshop is a place of clutter, and a tidy one reads as a showroom.
+  items.push(prop('workbench', 20, -20, { rotY: -0.5, options: { length: 8, seed: 33 } }));
+  items.push(prop('workbench', -22, -18, { rotY: 0.5, options: { length: 8, seed: 35 } }));
+  items.push(prop('codex-stand', 22, 30, { rotY: face(22, 30), options: { seed: 43, sketch: 'gears' } }));
+  items.push(prop('codex-stand', -30, 24, { rotY: face(-30, 24), options: { seed: 45, sketch: 'wing' } }));
+  items.push(prop('vitruvian-panel', 36, -22, { rotY: face(36, -22), options: { size: 7, seed: 27 } }));
+  items.push(prop('easel-painting', -34, -20, { rotY: face(-34, -20), options: { width: 4.4, height: 6, seed: 39 } }));
+  items.push(prop('bench', -34, 8, { rotY: face(-34, 8) + Math.PI, options: { length: 4.5 } }));
+  items.push(prop('bench', 34, 10, { rotY: face(34, 10) + Math.PI, options: { length: 4.5 } }));
+  items.push(prop('planter', -14, 24, { options: { size: 2.6, shrubColor: 0x6b8a4a } }));
+  items.push(prop('planter', 14, 26, { options: { size: 2.6, shrubColor: 0x6b8a4a } }));
+  items.push(prop('flower-bed', -24, 62, { rotY: 0.3, options: { width: 9, depth: 4, seed: 605 } }));
+
+  // --- Wayfinding ---------------------------------------------------------
+  items.push(
+    prop('standing-sign', 20, 66, {
+      rotY: face(20, 66),
+      options: { lines: ['THE STUDIO'], subtitle: 'Most of these never worked — and that is the interesting part', width: 15, height: 4.2 },
+    }),
+  );
+  items.push(...browserStation(-10, 62, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- Programming challenges ---------------------------------------------
+  items.push(
+    activity(-26, 56, {
+      number: 1, rotY: face(-26, 56), accent: '#b08d4a',
+      title: 'Turn the aerial screw',
+      target: 'Click the big linen screw → Program.',
+      steps: [ctrlStep('forever'), moveStep('rotate 8 degrees', 1), ctrlStep('wait 0.06 seconds', 1)],
+      tip: 'Watch what does NOT happen: it turns, and it stays exactly where it is. That is the flaw — with nothing to push against, spinning the screw would just spin the machine the other way. A modern helicopter needs a tail rotor for precisely this reason.',
+    }),
+  );
+  items.push(
+    activity(26, 58, {
+      number: 2, rotY: face(26, 58), accent: '#9a7a3c',
+      title: 'Drive the cart, then turn it',
+      target: 'Click the self-propelled cart → Program.',
+      steps: [
+        ctrlStep('repeat 4 times'),
+        moveStep('move Z by -12 ft', 1), ctrlStep('wait 1 seconds', 1),
+        moveStep('rotate 90 degrees', 1), ctrlStep('wait 0.5 seconds', 1),
+      ],
+      tip: 'This is the closest thing here to what the real cart did: it drove a fixed path set by pegs in its gears. Note that move Z always goes along the WORLD’s Z — the rotate turns the cart to face its way, but does not change which way move Z sends it.',
+    }),
+  );
+
+  // --- Lighting -----------------------------------------------------------
+  items.push(orb(0, -30, 9, ORB_WARM));
+  items.push(orb(-8, -12, 6, ORB_WARM));
+  items.push(orb(10, -14, 6, ORB_WARM));
+
+  return { theme: 'davinci', spawn: { ...SP, yaw: 0 }, items };
+}
+
+
+// ---------------------------------------------------------------------------
+// Ellis Island
+// ---------------------------------------------------------------------------
+
+// 1907 -- the busiest year the station ever had: 1,004,756 people. The world is the
+// harbour approach, because arriving is the part of the story that is actually about
+// arriving.
+//
+// What this world must not do is make it look grand. The Main Building is handsome and
+// the Registry Room is enormous, but the experience was a queue, a numbered tag pinned to
+// your coat, a doctor looking at your eyes for thirty seconds, and a chalk letter on your
+// shoulder if something was wrong. So the baggage is the largest object on the dock and
+// the inspection line has an iron rail.
+function ellisLayout() {
+  const items = [];
+  const SP = { x: 0, z: 112 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- The Main Building --------------------------------------------------
+  items.push(prop('ellis-main-building', 0, 12, { options: { width: 76, depth: 36, height: 27, seed: 5 } }));
+  items.push(
+    prop('info-placard', -22, 52, {
+      rotY: face(-22, 52),
+      options: {
+        eyebrow: '1892 – 1954', title: 'The Main Building', accent: '#a8593c',
+        body: 'Twelve million people came through this door. On the busiest single day, 17 April 1907, 11,747 were processed. Red brick with limestone trim and four copper domes — and for most arrivals this was the first American building they ever saw, from the deck of a ship.',
+      },
+    }),
+  );
+
+  // --- Liberty across the water -------------------------------------------
+  // About half a mile off, which at this distance makes her a silhouette -- and the
+  // silhouette is the whole thing: raised arm, seven-ray crown, tablet, huge pedestal.
+  items.push(prop('statue-of-liberty', -132, -68, { rotY: 0.9, options: { scale: 0.5, seed: 11 } }));
+  items.push(
+    prop('info-placard', -60, 60, {
+      rotY: face(-60, 60),
+      options: {
+        eyebrow: 'Look at her feet', title: 'The broken chain', accent: '#74b09a',
+        body: 'Almost nobody sees it, because you cannot from the ground: she is stepping out of a broken shackle. The statue was a gift from France marking the end of slavery as much as independence. The seven rays of her crown stand for the seven continents and seas.',
+      },
+    }),
+  );
+
+  // --- The waterfront -----------------------------------------------------
+  // The harbour itself, reusing the Water Cycle's water body -- open water is the same
+  // problem whichever world needs it.
+  items.push(prop('water-body', -96, 4, { options: { width: 130, depth: 150, seed: 23, shore: false } }));
+  items.push(prop('water-body', 104, 30, { options: { width: 120, depth: 150, seed: 27, shore: false } }));
+
+  items.push(prop('ferry-pier', -46, 76, { rotY: 0.2, options: { length: 46, width: 16, seed: 23 } }));
+  items.push(prop('steamship', -80, 52, { rotY: 1.5, options: { length: 100, funnels: 2, seed: 17 } }));
+  items.push(
+    prop('info-placard', -40, 62, {
+      rotY: face(-40, 62),
+      options: {
+        eyebrow: 'How you got here', title: 'Steerage', accent: '#24262b',
+        body: 'First and second class passengers were inspected in their cabins and walked straight off at Manhattan. Only steerage came to Ellis Island. Steerage was below the waterline at the stern, over the propellers — a fortnight in the noisiest, roughest berth on the ship, for about $30.',
+      },
+    }),
+  );
+
+  // --- The dock -----------------------------------------------------------
+  items.push(prop('baggage-pile', -20, 62, { rotY: 0.3, options: { count: 30, spread: 10, seed: 29 } }));
+  items.push(prop('baggage-pile', 22, 58, { rotY: -0.4, options: { count: 22, spread: 8, seed: 33 } }));
+  items.push(
+    prop('info-placard', 2, 66, {
+      rotY: face(2, 66),
+      options: {
+        eyebrow: 'Everything they owned', title: 'The baggage', accent: '#6b4a2c',
+        body: 'You could bring what you could carry. People arrived with a trunk, or a bundle tied in a sheet, and left it in a heap on this dock while they were examined. Some never got it back. The photographs of the baggage room are the ones that carry the weight of the whole place.',
+      },
+    }),
+  );
+
+  items.push(prop('inspection-line', -6, 40, { rotY: 0.1, options: { length: 28, seed: 31 } }));
+  items.push(
+    prop('info-placard', 24, 42, {
+      rotY: face(24, 42),
+      options: {
+        eyebrow: 'Six seconds a person', title: 'The line inspection', accent: '#3a3f45',
+        body: 'Doctors watched you walk up the stairs — that was the first test, and you never knew it was happening. At the top they looked at your eyes with a buttonhook for trachoma. A chalk letter on your coat meant a second look: E for eyes, H for heart, X for suspected mental illness. About 2% were sent back.',
+      },
+    }),
+  );
+
+  items.push(prop('manifest-board', 30, 74, { rotY: face(30, 74), options: { ship: 'SS PRINZESSIN', date: '17 APRIL 1907', souls: '1,806', seed: 37 } }));
+
+  // --- Landscape and lamps ------------------------------------------------
+  const lamps = [[-30, 84], [30, 84], [-30, 56], [30, 54], [-14, 30], [16, 30]];
+  lamps.forEach(([x, z], i) => items.push(prop('lamp-post', x, z, { options: { height: 13, seed: 100 + i } })));
+  const benches = [[-38, 68, 0.4], [38, 66, -0.4], [-40, 44, 0.9]];
+  benches.forEach(([x, z, r]) => items.push(prop('bench', x, z, { rotY: face(x, z) + Math.PI + r, options: { length: 5 } })));
+  [[-8, 92, 0], [10, 90, 0], [0, 70, 0], [-4, 52, 0.1]].forEach(([x, z, r], i) => {
+    items.push(prop('path-stones', x, z, { rotY: r, options: { length: 16, width: 6, seed: 300 + i * 7 } }));
+  });
+  [[-56, 92], [56, 90], [-64, 34], [64, 60]].forEach(([x, z], i) => {
+    items.push(prop('shade-tree', x, z, { options: { height: 18 + (i % 2) * 4, seed: 200 + i * 9, leafColor: 0x4c6b3a } }));
+  });
+  items.push(prop('flag-pole', 40, 88, { options: { height: 24, seed: 41 } }));
+
+  // More of the dock. The station handled five thousand people on an ordinary day, and an
+  // empty quay reads as a country halt.
+  items.push(prop('baggage-pile', -34, 46, { rotY: 0.7, options: { count: 18, spread: 7, seed: 37 } }));
+  items.push(prop('baggage-pile', 36, 44, { rotY: -0.6, options: { count: 16, spread: 6, seed: 39 } }));
+  items.push(prop('baggage-pile', 4, 78, { rotY: 0.2, options: { count: 14, spread: 6, seed: 41 } }));
+  items.push(prop('inspection-line', 26, 26, { rotY: -0.4, options: { length: 20, seed: 43 } }));
+  items.push(prop('ferry-pier', 48, 74, { rotY: -0.25, options: { length: 40, width: 14, seed: 45 } }));
+  items.push(prop('steamship', 92, 44, { rotY: -1.5, options: { length: 78, funnels: 1, seed: 47 } }));
+  items.push(prop('manifest-board', -34, 76, { rotY: face(-34, 76), options: { ship: 'SS KROONLAND', date: '18 APRIL 1907', souls: '1,142', seed: 49 } }));
+  const lamps3 = [[-46, 96], [46, 96], [-14, 74], [16, 74]];
+  lamps3.forEach(([x, z], i) => items.push(prop('lamp-post', x, z, { options: { height: 13, seed: 150 + i } })));
+  items.push(prop('bench', -18, 84, { rotY: face(-18, 84) + Math.PI, options: { length: 5 } }));
+  items.push(prop('bench', 18, 84, { rotY: face(18, 84) + Math.PI, options: { length: 5 } }));
+  items.push(prop('planter', -24, 92, { options: { size: 3 } }));
+  items.push(prop('planter', 24, 92, { options: { size: 3 } }));
+
+  // --- Wayfinding ---------------------------------------------------------
+  items.push(
+    prop('standing-sign', -24, 98, {
+      rotY: face(-24, 98),
+      options: { lines: ['ELLIS ISLAND'], subtitle: '1907 — twelve million people came through this door', width: 15, height: 4.2 },
+    }),
+  );
+  items.push(...browserStation(12, 98, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- Programming challenges ---------------------------------------------
+  items.push(
+    activity(-30, 90, {
+      number: 1, rotY: face(-30, 90), accent: '#a8593c',
+      title: 'Bring the ship in to the pier',
+      target: 'Click the steamship → Program.',
+      steps: [
+        ctrlStep('repeat 14 times'),
+        moveStep('move X by 2 ft', 1),
+        ctrlStep('wait 0.4 seconds', 1),
+      ],
+      tip: 'Two feet at a time, with a pause — a ship this size comes alongside at walking pace and stops by reversing its engines. Try 12 ft with no wait and you will see why they do not.',
+    }),
+  );
+  items.push(
+    activity(24, 88, {
+      number: 2, rotY: face(24, 88), accent: '#74b09a',
+      title: 'Light the torch',
+      target: 'Click the Statue of Liberty → Program.',
+      steps: [
+        ctrlStep('forever'),
+        lookStep('change color to #ffd27f', 1), ctrlStep('wait 1 seconds', 1),
+        lookStep('change color to #7fd4c4', 1), ctrlStep('wait 1 seconds', 1),
+      ],
+      tip: 'The statue was a dull brown when it arrived — it is copper, and copper turns green as it weathers. It took about thirty years. When people proposed painting it back to brown in 1906 the public would not have it.',
+    }),
+  );
+
+  // --- Lighting -----------------------------------------------------------
+  items.push(orb(0, 26, 7, ORB_WARM));
+  items.push(orb(-6, 40, 6, ORB_WHITE));
+  items.push(orb(-132, -68, 34, ORB_WARM));
+
+  return { theme: 'ellis', spawn: { ...SP, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
+// The U.S. Capitol
+// ---------------------------------------------------------------------------
+
+// The West Front, seen from the Mall.
+//
+// The lighting problem here is white marble against green lawn: white-on-white has no
+// contrast of its own, so all the modelling has to come from SHADOW. Hence the `capitol`
+// theme's cleanest, most neutral sun in the app (any warmth turns the whole building
+// cream) and a high hemisphere fill, since a dome is a curved surface whose entire shaded
+// half is lit by sky bounce alone.
+function capitolLayout() {
+  const items = [];
+  const SP = { x: 0, z: 150 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // The building and its dome. The dome is a SEPARATE object stacked on the centre block,
+  // so a student can click and program it on its own -- and so the two can be sized
+  // against each other without one builder growing a second job.
+  items.push(prop('capitol-building', 0, -22, { options: { centreWidth: 48, wingWidth: 42, depth: 36, height: 26, seed: 7 } }));
+  items.push(prop('capitol-dome', 0, -22, { y: 29, absoluteY: false, options: { drumRadius: 15, seed: 3 } }));
+  items.push(
+    prop('info-placard', -30, 52, {
+      rotY: face(-30, 52),
+      options: {
+        eyebrow: 'Finished during the Civil War', title: 'The dome', accent: '#8a8578',
+        body: 'Nearly nine million pounds of cast iron, built in rings and bolted together. Lincoln insisted the work continue through the war — "if people see the Capitol going on, it is a sign we intend the Union shall go on". It is not a hemisphere: it is markedly taller than it is wide, which is what separates it from every state house that copied it.',
+      },
+    }),
+  );
+  items.push(
+    prop('info-placard', 30, 52, {
+      rotY: face(30, 52),
+      options: {
+        eyebrow: 'On top, 19ft of bronze', title: 'The Statue of Freedom', accent: '#6e6a52',
+        body: 'She wears a feathered helmet, not a liberty cap. Jefferson Davis — then Secretary of War, later president of the Confederacy — objected to the cap because it was the Roman symbol of a freed slave, and had it changed. The statue was cast by Philip Reid, who was himself enslaved.',
+      },
+    }),
+  );
+
+  // The reflecting pool on the axis. A mirror doubles the height of whatever stands at the
+  // end of it, which is why the Mall has one.
+  items.push(prop('reflecting-pool', 0, 78, { options: { length: 84, width: 24, seed: 17 } }));
+
+  // The Washington Monument, off the axis to the west so it can be seen alongside rather
+  // than behind. The colour change two thirds up is real: work stopped for 23 years over
+  // the Civil War and the marble they went back to never matched.
+  items.push(prop('washington-monument', -120, 96, { options: { height: 96, seed: 13 } }));
+  items.push(
+    prop('info-placard', -74, 92, {
+      rotY: face(-74, 92),
+      options: {
+        eyebrow: 'Look two thirds of the way up', title: 'The Washington Monument', accent: '#d2cec2',
+        body: 'The stone changes colour, and you can see the line from a mile off. Building stopped in 1854 when the money ran out, the Civil War came, and it stood as a stump for 23 years. When they finished it in 1884 the original quarry was gone and no other marble matched.',
+      },
+    }),
+  );
+
+  // The chambers, shown as a cutaway on the lawn since neither is enterable.
+  items.push(prop('chamber-desks', -56, 22, { rotY: face(-56, 22), options: { rows: 5, seed: 19 } }));
+  items.push(
+    prop('info-placard', -40, 34, {
+      rotY: face(-40, 34),
+      options: {
+        eyebrow: 'A cutaway of the chamber', title: '435 and 100', accent: '#6b4a2c',
+        body: 'The House has 435 voting members and the Senate 100 — two per state regardless of size, which is why Wyoming and California have the same Senate power. The desks face a rostrum, and members of the two parties sit on opposite sides of the centre aisle.',
+      },
+    }),
+  );
+
+  // Statuary -- every state sends two.
+  const statues = [[-24, 30], [24, 30], [-34, 8], [34, 8], [-24, -4], [24, -4]];
+  statues.forEach(([x, z], i) => {
+    items.push(prop('statuary-figure', x, z, { rotY: face(x, z), options: { height: 9 + (i % 2), seed: 60 + i * 5, robe: i % 2 === 0 } }));
+  });
+  items.push(
+    prop('info-placard', 40, 34, {
+      rotY: face(40, 34),
+      options: {
+        eyebrow: 'Two from every state', title: 'Statuary Hall', accent: '#6e6a52',
+        body: 'Each state chooses two people to stand in the Capitol, and can swap them. States have been changing theirs — several have replaced Confederate figures since 2020. Who a place decides to put on a plinth is a live argument, not settled history.',
+      },
+    }),
+  );
+
+  items.push(prop('flag-pole', -18, 40, { options: { height: 28, seed: 29 } }));
+  items.push(prop('flag-pole', 18, 40, { options: { height: 28, seed: 31 } }));
+
+  // --- The Mall -----------------------------------------------------------
+  // Elms in rows, which is what the Mall actually is: a formal allee, not scattered trees.
+  for (let i = 0; i < 7; i++) {
+    const z = 116 - i * 20;
+    items.push(prop('shade-tree', -46, z, { options: { height: 24 + (i % 3) * 3, seed: 300 + i * 7, leafColor: 0x4e7a3a } }));
+    items.push(prop('shade-tree', 46, z, { options: { height: 24 + ((i + 1) % 3) * 3, seed: 320 + i * 7, leafColor: 0x4e7a3a } }));
+  }
+  const benches2 = [[-30, 108], [30, 108], [-30, 66], [30, 66]];
+  benches2.forEach(([x, z]) => items.push(prop('bench', x, z, { rotY: face(x, z) + Math.PI, options: { length: 5 } })));
+  const lamps2 = [[-34, 124], [34, 124], [-34, 88], [34, 88], [-34, 50], [34, 50]];
+  lamps2.forEach(([x, z], i) => items.push(prop('lamp-post', x, z, { options: { height: 12, seed: 400 + i } })));
+  [[-13, 130, 0], [13, 130, 0], [0, 36, 0], [0, 20, 0]].forEach(([x, z, r], i) => {
+    items.push(prop('path-stones', x, z, { rotY: r, options: { length: 18, width: 6, seed: 500 + i * 7 } }));
+  });
+  items.push(prop('planter', -20, 122, { options: { size: 3.6 } }));
+  items.push(prop('planter', 20, 122, { options: { size: 3.6 } }));
+  items.push(prop('flower-bed', -12, 44, { rotY: 0.2, options: { width: 11, depth: 5, seed: 601 } }));
+  items.push(prop('flower-bed', 12, 44, { rotY: -0.2, options: { width: 11, depth: 5, seed: 603 } }));
+
+  // --- Wayfinding ---------------------------------------------------------
+  items.push(
+    prop('standing-sign', 22, 138, {
+      rotY: face(22, 138),
+      options: { lines: ['THE U.S. CAPITOL'], subtitle: 'The West Front, from the Mall', width: 15, height: 4.2 },
+    }),
+  );
+  items.push(...browserStation(-11, 136, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- Programming challenges ---------------------------------------------
+  items.push(
+    activity(-26, 128, {
+      number: 1, rotY: face(-26, 128), accent: '#8a8578',
+      title: 'Raise the dome into place',
+      target: 'Click the dome (not the building) → Program.',
+      steps: [
+        ctrlStep('repeat 24 times'),
+        moveStep('move Y by 1.5 ft', 1),
+        ctrlStep('wait 0.12 seconds', 1),
+      ],
+      tip: 'The real dome went up in cast-iron rings hoisted by a steam derrick standing inside it, all through the Civil War. The dome and the building are two separate objects here, which is why you can move one without the other.',
+    }),
+  );
+  items.push(
+    activity(26, 128, {
+      number: 2, rotY: face(26, 128), accent: '#6e6a52',
+      title: 'Send a statue on tour',
+      target: 'Click any bronze statue → Program.',
+      steps: [
+        ctrlStep('forever'),
+        moveStep('move X by 16 ft', 1), ctrlStep('wait 2 seconds', 1),
+        moveStep('rotate 180 degrees', 1),
+        moveStep('move X by 16 ft', 1), ctrlStep('wait 2 seconds', 1),
+        moveStep('rotate 180 degrees', 1),
+      ],
+      tip: 'States really do swap theirs — several have been replaced in the last few years. Try changing the colour too: these are bronze, and bronze goes green outdoors, which is exactly what happened to the Statue of Liberty.',
+    }),
+  );
+
+  // --- Lighting -----------------------------------------------------------
+  items.push(orb(0, 4, 10, ORB_WHITE));
+  items.push(orb(-56, 22, 7, ORB_WARM));
+  items.push(orb(0, -22, 46, ORB_WHITE));
+
+  return { theme: 'capitol', spawn: { ...SP, yaw: 0 }, items };
+}
+
+
+// ---------------------------------------------------------------------------
+// The Great Barrier Reef Dive
+// ---------------------------------------------------------------------------
+
+// About 25ft down on the outer reef -- shallower and clearer than `sea`'s 30ft patch reef.
+//
+// This world deliberately REUSES most of SeaProps. The water ceiling, light shafts, marine
+// snow, bubble columns, bommies, gardens, clams, anemones and fish schools are the same
+// problems already solved once, and solving them again differently would only make them
+// diverge. What is new is the megafauna the Barrier Reef is actually known for -- a green
+// turtle, a manta ray, the staghorn thickets that build the reef -- and one thing `sea`
+// does not carry: a bleached section, because a reef only ever shown healthy teaches that
+// it is fine.
+function barrierLayout() {
+  const items = [];
+  const SP = { x: 0, z: 72 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- The volume ---------------------------------------------------------
+  // Ceiling, beams, snow, bubbles. An opaque surface is both more accurate and far cheaper
+  // than a transparent one: from beneath, a wind-rippled surface is a MIRROR.
+  items.push(prop('water-surface', 0, 0, { y: 25, absoluteY: true, options: { size: 340, seed: 5 } }));
+  items.push(prop('light-shafts', -18, 6, { y: 24, absoluteY: true, options: { count: 8, height: 24, seed: 11 } }));
+  items.push(prop('light-shafts', 34, -26, { y: 24, absoluteY: true, options: { count: 7, height: 24, seed: 13 } }));
+  items.push(prop('marine-snow', 0, 10, { y: 12, absoluteY: true, options: { count: 900, radius: 90, height: 24, seed: 17 } }));
+  items.push(prop('bubble-column', -34, -14, { options: { height: 24, seed: 19 } }));
+  items.push(prop('bubble-column', 40, 18, { options: { height: 24, seed: 23 } }));
+
+  // --- The reef wall ------------------------------------------------------
+  // Across the front-left, with open sand to the right. The pairing is the composition:
+  // the reef alone is a wall of clutter with nowhere to stand back and look from, and open
+  // sand alone is a desert.
+  const bommies = [
+    [-52, 6, 14], [-40, -18, 17], [-58, -34, 12], [-30, -44, 15],
+    [-64, 18, 11], [-16, -58, 13], [-46, 32, 10],
+  ];
+  bommies.forEach(([x, z, size], i) => {
+    items.push(prop('coral-bommie', x, z, { options: { size, seed: 100 + i * 7 } }));
+    items.push(prop('coral-garden', x, z, { options: { radius: size * 0.8, count: 22, mound: true, seed: 120 + i * 7 } }));
+  });
+
+  // Staghorn thickets -- the branching Acropora that actually builds the reef.
+  const staghorns = [[-30, 14, 6], [-44, -6, 5], [-22, -30, 6.5], [-56, -14, 5], [-12, -46, 5.5], [-38, 22, 4.5]];
+  staghorns.forEach(([x, z, size], i) => {
+    items.push(prop('staghorn-coral', x, z, { rotY: i * 0.9, options: { size, seed: 200 + i * 11, color: [0xc98a4e, 0xb0704e, 0xd0a05e][i % 3] } }));
+  });
+
+  // Plate corals -- the tables that shade the reef flat.
+  [[-26, -6, 4], [-48, 18, 3.4], [-18, -20, 4.4], [-58, 2, 3]].forEach(([x, z, r], i) => {
+    items.push(prop('plate-coral', x, z, { options: { radius: r, seed: 300 + i * 9 } }));
+  });
+
+  items.push(prop('brain-coral', -22, 2, { options: { radius: 3.4, seed: 41 } }));
+  items.push(prop('brain-coral', -36, -30, { options: { radius: 2.8, seed: 43 } }));
+  items.push(prop('sea-fan', -44, 10, { rotY: 0.6, options: { height: 6, seed: 45 } }));
+  items.push(prop('sea-fan', -54, -22, { rotY: -0.4, options: { height: 5, seed: 47 } }));
+  items.push(prop('tube-sponge', -34, -2, { options: { height: 5, seed: 49 } }));
+  items.push(prop('tube-sponge', -50, -8, { options: { height: 4, seed: 51 } }));
+  items.push(prop('giant-clam', -24, -14, { rotY: 0.8, options: { size: 3.4, seed: 53 } }));
+  items.push(prop('giant-clam', -40, 4, { rotY: -0.5, options: { size: 2.8, seed: 55 } }));
+  items.push(prop('sea-anemone', -28, 20, { options: { radius: 2.4, seed: 57 } }));
+  items.push(prop('clownfish-school', -28, 20, { y: 2.4, options: { count: 7, seed: 59 } }));
+
+  // --- The open sand ------------------------------------------------------
+  items.push(prop('seagrass-patch', 30, 22, { options: { radius: 12, count: 160, seed: 61 } }));
+  items.push(prop('seagrass-patch', 48, -6, { options: { radius: 10, count: 130, seed: 63 } }));
+  items.push(prop('sea-urchin', 24, 6, { options: { seed: 65 } }));
+  items.push(prop('sea-cucumber', 36, 34, { rotY: 0.7, options: { seed: 67 } }));
+  items.push(prop('starfish', 20, 34, { rotY: 1.2, options: { seed: 69 } }));
+  items.push(prop('starfish', 44, 12, { rotY: -0.6, options: { seed: 71 } }));
+
+  // --- The animals --------------------------------------------------------
+  // Placed with a `y`, which is what makes this world a VOLUME rather than a field.
+  items.push(prop('sea-turtle', 8, 10, { y: 9, rotY: -0.6, options: { length: 4.6, seed: 5 } }));
+  items.push(prop('sea-turtle', -14, -34, { y: 13, rotY: 2.1, options: { length: 3.8, seed: 9 } }));
+  items.push(
+    prop('info-placard', 16, 30, {
+      rotY: face(16, 30),
+      options: {
+        eyebrow: 'Green sea turtle', title: 'Older than you would guess', accent: '#5c6b3f',
+        body: 'They take 25 to 50 years to become adults and can live past 80. A female returns to lay eggs on the same beach she hatched on, navigating by the Earth’s magnetic field. Note the flat shell and the huge front flippers — a domed shell and small feet would make this a tortoise.',
+      },
+    }),
+  );
+
+  // The manta, high and wide -- the largest thing here.
+  items.push(prop('manta-ray', -8, -20, { y: 18, rotY: 0.5, options: { span: 14, seed: 11 } }));
+  items.push(
+    prop('info-placard', 4, 22, {
+      rotY: face(4, 22),
+      options: {
+        eyebrow: 'Reef manta', title: 'Fifteen feet across', accent: '#2b3442',
+        body: 'It swims by flapping its whole body like a wing, and feeds by cruising with its mouth wide open, filtering plankton. The two rolled fins on its head funnel water in. Every manta’s belly spots are unique, so researchers identify individuals the way we use fingerprints.',
+      },
+    }),
+  );
+
+  items.push(prop('potato-cod', -18, 8, { y: 5, rotY: 1.1, options: { length: 5.2, seed: 17 } }));
+  items.push(prop('reef-shark', 22, -30, { y: 15, rotY: -0.8, options: { length: 6, seed: 21 } }));
+  items.push(prop('reef-shark', 52, -44, { y: 18, rotY: -1.2, options: { length: 4.6, seed: 25 } }));
+  items.push(prop('reef-fish-school', -20, -10, { y: 7, options: { count: 34, radius: 7, seed: 73 } }));
+  items.push(prop('reef-fish-school', 12, -8, { y: 11, options: { count: 28, radius: 6, seed: 75 } }));
+
+  // --- The bleached section ----------------------------------------------
+  // Deliberately next to the living reef, so the two are seen together. Half the Barrier
+  // Reef's shallow coral died in the 2016 and 2017 bleaching events.
+  items.push(prop('bleached-patch', 26, -12, { options: { size: 16, seed: 23 } }));
+  items.push(prop('staghorn-coral', 32, -20, { options: { size: 5.5, bleached: true, seed: 205 } }));
+  items.push(prop('staghorn-coral', 20, -22, { options: { size: 4.5, bleached: true, seed: 207 } }));
+  items.push(prop('plate-coral', 34, -6, { options: { radius: 3.6, bleached: true, seed: 305 } }));
+  items.push(
+    prop('info-placard', 20, 4, {
+      rotY: face(20, 4),
+      options: {
+        eyebrow: 'The white section is not a species', title: 'Bleaching', accent: '#e8e4d8',
+        body: 'Coral is an animal that farms algae inside itself, and the algae give it both its colour and most of its food. When the water gets too warm the coral expels them and turns bone white. It is not dead yet at that point — it is starving, and it can recover if the water cools quickly enough. In 2016 and 2017 much of it did not.',
+      },
+    }),
+  );
+
+  // --- Wayfinding ---------------------------------------------------------
+  items.push(
+    prop('standing-sign', 20, 62, {
+      rotY: face(20, 62),
+      options: { lines: ['THE GREAT BARRIER REEF'], subtitle: 'Twenty-five feet down on the outer reef', width: 16, height: 4.2 },
+    }),
+  );
+  items.push(...browserStation(-11, 60, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- Programming challenges ---------------------------------------------
+  items.push(
+    activity(-24, 54, {
+      number: 1, rotY: face(-24, 54), accent: '#2b3442',
+      title: 'Fly the manta past the reef',
+      target: 'Click the manta ray → Program.',
+      steps: [
+        ctrlStep('forever'),
+        moveStep('move X by 40 ft', 1), ctrlStep('wait 4 seconds', 1),
+        moveStep('rotate 180 degrees', 1),
+        moveStep('move X by 40 ft', 1), ctrlStep('wait 4 seconds', 1),
+        moveStep('rotate 180 degrees', 1),
+      ],
+      tip: 'Mantas really do patrol the same cleaning stations day after day, hovering while little wrasse pick parasites off them. Add a move Y to make it rise and fall as it goes — they do that too.',
+    }),
+  );
+  items.push(
+    activity(24, 52, {
+      number: 2, rotY: face(24, 52), accent: '#e8a04e',
+      title: 'Bleach a coral, then bring it back',
+      target: 'Click a healthy staghorn thicket → Program.',
+      steps: [
+        ctrlStep('forever'),
+        lookStep('change color to #ffffff', 1), ctrlStep('wait 3 seconds', 1),
+        lookStep('change color to #c98a4e', 1), ctrlStep('wait 3 seconds', 1),
+      ],
+      tip: 'This is the real sequence, and the timing is the lesson: warming turns it white in weeks, and recovery — if it happens at all — takes ten to fifteen years. Make the white wait twenty times longer than the colour and you have modelled it honestly.',
+    }),
+  );
+
+  // --- Lighting -----------------------------------------------------------
+  // ONE orb, buried behind the reef wall. Open water gives a light source nothing to be
+  // attached to, so a visible orb reads as a glowing ball hanging in mid-water.
+  items.push(orb(-48, -20, 3, ORB_WHITE));
+
+  return { theme: 'reef', spawn: { ...SP, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
+// The Delta River Boat
+// ---------------------------------------------------------------------------
+
+// A sternwheel packet at a Mississippi landing, about 1870, at golden hour.
+//
+// The boat IS the world; everything else gives it somewhere to be. So it is built at close
+// to true size -- a middling packet was around 180ft and this one is 130 -- and it is the
+// one object a student is meant to walk the whole length of.
+function deltaLayout() {
+  const items = [];
+  const SP = { x: 0, z: 88 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- The river ----------------------------------------------------------
+  // Wide, and running across the world rather than away from it, so the boat is seen
+  // broadside -- which is the only angle that shows a sternwheeler what it is.
+  items.push(prop('water-body', -30, -34, { options: { width: 210, depth: 96, seed: 23, shore: false } }));
+  items.push(prop('water-body', 130, -30, { options: { width: 130, depth: 96, seed: 27, shore: false } }));
+
+  // --- The boat -----------------------------------------------------------
+  // y: -3 sinks the hull INTO the river. Seated on the terrain like every other prop, the
+  // boat's flat bottom sat a clear foot above the water plane and the whole 45ft steamer
+  // read as hovering -- which the wide overhanging guards only made worse, since from the
+  // bank you then see straight under them. A packet drew about four feet loaded, and
+  // putting that four feet below the surface is what makes it float rather than hover.
+  items.push(prop('paddle-steamer', -4, -30, { y: -3, rotY: -1.45, options: { length: 130, name: 'DELTA QUEEN', seed: 5 } }));
+  items.push(
+    prop('info-placard', -26, 26, {
+      rotY: face(-26, 26),
+      options: {
+        eyebrow: 'A sternwheel packet', title: 'Why the wheel is at the back', accent: '#9a3226',
+        body: 'A sidewheeler is faster and turns better; a sternwheeler is narrower and can work water a sidewheeler cannot. On the upper Mississippi that mattered more than speed. These boats drew about four feet loaded — the old joke was that they could run on a heavy dew.',
+      },
+    }),
+  );
+  items.push(
+    prop('info-placard', 22, 24, {
+      rotY: face(22, 24),
+      options: {
+        eyebrow: 'Look how tall they are', title: 'The chimneys', accent: '#33312c',
+        body: 'Not decoration: the height is what makes the draught that keeps the fires hot enough. They stand forward because the boilers are forward and the engines are aft, driving the wheel through long pitman arms. The fluted crowns were the one place an owner could show off.',
+      },
+    }),
+  );
+
+  // --- The landing --------------------------------------------------------
+  items.push(prop('levee-landing', 0, 22, { options: { width: 50, seed: 17 } }));
+  items.push(prop('cotton-bales', -22, 40, { rotY: 0.2, options: { count: 15, seed: 11 } }));
+  items.push(prop('cotton-bales', 20, 44, { rotY: -0.3, options: { count: 12, seed: 13 } }));
+  items.push(prop('cotton-bales', -34, 54, { rotY: 0.6, options: { count: 10, seed: 15 } }));
+  items.push(
+    prop('info-placard', 2, 46, {
+      rotY: face(2, 46),
+      options: {
+        eyebrow: 'What the boat came for', title: 'Cotton', accent: '#bdb096',
+        body: 'A bale weighed about 500lb and a big packet carried thousands. The whole river economy ran on it, and before 1865 that economy ran on enslaved labour — the boats, the landings and the bales are all part of that history and cannot honestly be shown without it.',
+      },
+    }),
+  );
+
+  items.push(prop('pirogue', 30, 14, { rotY: 0.5, options: { length: 14, seed: 29 } }));
+  items.push(prop('pirogue', 38, 6, { rotY: -0.8, options: { length: 12, seed: 31 } }));
+
+  // --- The swamp ----------------------------------------------------------
+  // Cypress behind the levee. The `delta` theme's hemi is lifted for the same reason
+  // Dinosaur Island's was: anything under Spanish moss is lit by bounce alone.
+  const cypress = [
+    [-58, 62, 44], [-72, 40, 38], [-46, 76, 40], [-84, 66, 34], [-62, 88, 36],
+    [58, 66, 42], [74, 44, 36], [48, 82, 38], [86, 70, 34], [66, 96, 36],
+    [-96, 88, 30], [96, 92, 32],
+  ];
+  cypress.forEach(([x, z, h], i) => {
+    items.push(prop('cypress-tree', x, z, { options: { height: h, seed: 200 + i * 11, moss: i % 4 !== 0 } }));
+  });
+  items.push(
+    prop('info-placard', -40, 68, {
+      rotY: face(-40, 68),
+      options: {
+        eyebrow: 'Not a moss, and not a parasite', title: 'Spanish moss', accent: '#9a9a7c',
+        body: 'It is an air plant, related to the pineapple. It takes nothing from the tree — it only sits there, living on rain and dust. It is not Spanish either: French settlers called it "Spanish beard" as an insult, and the Spanish called it "French hair" straight back.',
+      },
+    }),
+  );
+
+  items.push(prop('reed-bed', -34, 12, { options: { radius: 10, count: 110, seed: 37 } }));
+  items.push(prop('reed-bed', 34, 10, { options: { radius: 9, count: 90, seed: 39 } }));
+  items.push(prop('reed-bed', -50, 30, { options: { radius: 8, count: 80, seed: 41 } }));
+  items.push(prop('reed-bed', 52, 32, { options: { radius: 8, count: 80, seed: 43 } }));
+
+  items.push(prop('channel-marker', -66, -8, { options: { height: 15, red: true, seed: 31 } }));
+  items.push(prop('channel-marker', 62, -12, { options: { height: 14, red: false, seed: 33 } }));
+  items.push(
+    prop('info-placard', 40, 34, {
+      rotY: face(40, 34),
+      options: {
+        eyebrow: 'Mark twain', title: 'Two fathoms', accent: '#5f5040',
+        body: 'A leadsman swung a weighted line and called the depth. "Mark twain" meant two fathoms — twelve feet — just enough water to be safe. Samuel Clemens was a licensed river pilot before he was a writer, and took the call for his pen name.',
+      },
+    }),
+  );
+
+  // --- Bank and trees -----------------------------------------------------
+  [[-14, 58], [14, 60], [-28, 74], [28, 76]].forEach(([x, z], i) => {
+    items.push(prop('shade-tree', x, z, { options: { height: 22 + (i % 2) * 5, seed: 400 + i * 7, leafColor: 0x4e6b3a } }));
+  });
+  items.push(prop('moon-rocks', -46, 6, { options: { count: 8, spread: 11, colors: [0x7d7466, 0x5f5a4e, 0x8e8778], seed: 501 } }));
+  items.push(prop('moon-rocks', 48, 2, { options: { count: 7, spread: 10, colors: [0x6b6458, 0x8a8272, 0x565044], seed: 503 } }));
+  items.push(prop('wildflowers', -20, 66, { options: { radius: 8, count: 110, seed: 601 } }));
+  items.push(prop('wildflowers', 22, 68, { options: { radius: 7, count: 90, seed: 603 } }));
+  const benches3 = [[-12, 50], [12, 52]];
+  benches3.forEach(([x, z]) => items.push(prop('bench', x, z, { rotY: face(x, z) + Math.PI, options: { length: 5 } })));
+  items.push(prop('lamp-post', -20, 56, { options: { height: 12, seed: 701 } }));
+  items.push(prop('lamp-post', 20, 58, { options: { height: 12, seed: 703 } }));
+
+  // --- Wayfinding ---------------------------------------------------------
+  items.push(
+    prop('standing-sign', 22, 78, {
+      rotY: face(22, 78),
+      options: { lines: ['THE DELTA LANDING'], subtitle: 'A sternwheel packet on the Mississippi, about 1870', width: 15, height: 4.2 },
+    }),
+  );
+  items.push(...browserStation(-11, 76, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- Programming challenges ---------------------------------------------
+  items.push(
+    activity(-26, 72, {
+      number: 1, rotY: face(-26, 72), accent: '#9a3226',
+      title: 'Cast off and head downriver',
+      target: 'Click the steamboat → Program.',
+      steps: [
+        ctrlStep('repeat 18 times'),
+        moveStep('move X by -6 ft', 1),
+        ctrlStep('wait 0.3 seconds', 1),
+      ],
+      tip: 'Downstream a packet made 15 mph and upstream barely 5, because it was fighting the current the whole way. Run this with -6 and then with +6 and the same number of steps takes the boat very different distances in your head, which is exactly the problem a pilot had.',
+    }),
+  );
+  items.push(
+    activity(26, 70, {
+      number: 2, rotY: face(26, 70), accent: '#6b5842',
+      title: 'Pole the pirogue across',
+      target: 'Click one of the little dug-out boats → Program.',
+      steps: [
+        ctrlStep('forever'),
+        moveStep('move Z by -20 ft', 1), ctrlStep('wait 2 seconds', 1),
+        moveStep('rotate 180 degrees', 1),
+        moveStep('move Z by 20 ft', 1), ctrlStep('wait 2 seconds', 1),
+        moveStep('rotate 180 degrees', 1),
+      ],
+      tip: 'A pirogue is dug from a single cypress log and draws a few inches, so it goes where the steamboat cannot. The rotate blocks only turn it to face the way it is going — move Z always runs along the world’s Z, whichever way the boat points.',
+    }),
+  );
+
+  // --- Lighting -----------------------------------------------------------
+  items.push(orb(-4, -30, 16, ORB_WARM));
+  items.push(orb(-30, -14, 10, ORB_WARM));
+  items.push(orb(-58, 62, 9, ORB_WHITE));
+  items.push(orb(58, 66, 9, ORB_WHITE));
+
+  return { theme: 'delta', spawn: { ...SP, yaw: 0 }, items };
+}
+
 // ---------------------------------------------------------------------------
 // Registry + materialization
 // ---------------------------------------------------------------------------
@@ -3761,6 +4777,36 @@ export const PRESET_WORLDS = {
     label: 'The Water Cycle',
     hint: 'Follow five labelled arrows round the whole loop — sea, cloud, rain, mountain, river',
     build: waterCycleLayout,
+  },
+  pompeii: {
+    label: 'Ancient Pompeii',
+    hint: 'A Roman town on an ordinary afternoon, with Vesuvius going up behind it',
+    build: pompeiiLayout,
+  },
+  davinci: {
+    label: "Da Vinci's Studio",
+    hint: 'The flying machines and the cart, built full size out of the notebooks',
+    build: davinciLayout,
+  },
+  ellis: {
+    label: 'Ellis Island',
+    hint: 'The harbour in 1907 — the Main Building, a steamship at the pier, Liberty across the water',
+    build: ellisLayout,
+  },
+  capitol: {
+    label: 'The U.S. Capitol',
+    hint: 'The West Front from the Mall, with the dome, the chambers and the Washington Monument',
+    build: capitolLayout,
+  },
+  reef: {
+    label: 'Great Barrier Reef',
+    hint: 'Twenty-five feet down — turtles, a manta ray, staghorn thickets and a bleached section',
+    build: barrierLayout,
+  },
+  delta: {
+    label: 'Delta River Boat',
+    hint: 'A sternwheel packet at a Mississippi landing, about 1870',
+    build: deltaLayout,
   },
   empty: {
     label: 'My World',
