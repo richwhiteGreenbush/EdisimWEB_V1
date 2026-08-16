@@ -186,14 +186,21 @@ export function waterBody({ width = 46, depth = 34, seed = 23, shore = true } = 
   // Bed first, then the surface just above it: a single plane at ground level z-fights
   // with the terrain, which shows as a shimmering rash across the whole pond.
   if (shore) {
+    // The bed has to stay UNDER the water it is the bed of. The first pass spread lumps of
+    // radius up to 0.3*width across +/-0.4*width, so the outermost reached 0.7 of the
+    // half-width -- well past the surface plane's edge -- and the pond was ringed with
+    // patches of bare brown ground that read as dug earth, not as a shore.
+    //
+    // Radius plus offset is now capped at 0.34 of the half-width, and the whole bed sits
+    // lower, so every part of it is genuinely submerged.
     const bedParts = [];
     for (let i = 0; i < 9; i++) {
-      const r = randomIn(rng, width * 0.16, width * 0.3);
+      const r = randomIn(rng, width * 0.1, width * 0.17);
       const geo = roughenSphere(new THREE.IcosahedronGeometry(r, 2), { amount: 0.2, flatten: 0.12, phase: i * 1.6 });
       bedParts.push({
         geometry: geo,
         color: i % 2 ? 0x6b5f45 : 0x7d7055,
-        position: [randomIn(rng, -width * 0.4, width * 0.4), -0.5, randomIn(rng, -depth * 0.4, depth * 0.4)],
+        position: [randomIn(rng, -width * 0.24, width * 0.24), -1.1, randomIn(rng, -depth * 0.24, depth * 0.24)],
       });
     }
     g.add(mergedMesh(bedParts, { roughness: 1, ...relief('soil', { seed: seed + 3, repeat: 5 }) }));

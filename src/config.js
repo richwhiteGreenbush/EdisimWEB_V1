@@ -390,7 +390,12 @@ export const WORLD_THEMES = {
     hemiIntensity: 0.95,
     sunColor: 0xfff6e8,
     sunIntensity: 3.1,
-    sunPosition: [-150, 60, 0],
+    // The directional light must come FROM WHERE THE SUN MODEL IS -- solarLayout puts it
+    // at z = +104, the near end of the walk. The first pass left this at [-150, 60, 0],
+    // so every planet was lit from the left while the Sun blazed away behind the student,
+    // and the terminators all fell on the wrong side. In a world whose entire subject is
+    // the Sun lighting the planets, that is not a lighting preference, it is an error.
+    sunPosition: [10, 55, 190],
     stars: true,
   },
 

@@ -462,30 +462,22 @@ export function greatSphinx({ seed = 5 } = {}) {
         [side * headR * 1.08, headY - headR * 1.25, headZ + headR * 0.5],
         [side * headR * 1.1, headY - headR * 1.85, headZ + headR * 0.52],
       ],
-      [headR * 0.3, headR * 0.42, headR * 0.5, headR * 0.46],
+      [headR * 0.22, headR * 0.3, headR * 0.36, headR * 0.33],
       { tubularSegments: 18, radialSegments: 12 },
     );
-    // Flatten across the body axis: a lappet is a broad flat flap, not a sausage.
-    lappet.scale(0.42, 1, 1);
+    // NO geometry.scale() here, and that is the point.
+    //
+    // `geometry.scale(0.42, 1, 1)` multiplies every COORDINATE, not just the cross-section
+    // -- the same trap DinoProps' scaleAbout() exists to work around. The lappet is swept
+    // in absolute head coordinates, so scaling it "thinner" also dragged it 58% of the way
+    // back toward the centre line, while the stripe bands stayed where they were written.
+    // The result was a row of bars sticking straight out through the side of the headcloth.
+    //
+    // The flap is flattened by its RADII instead (a narrow sweep read as a broad flat flap
+    // because it is wide in Z and shallow in X), and the stripes are gone: a band laid on a
+    // curved swept surface can only be positioned by re-deriving the sweep, and a smooth
+    // lappet plus the cap, fillet and queue already reads unmistakably as a nemes.
     parts.push({ geometry: lappet, color: 0xd8c08e });
-
-    // Flush stripe bands. Thin discs sitting ON the lappet at its own local radius, so
-    // they change colour without changing silhouette.
-    for (let i = 0; i < 8; i++) {
-      const t = i / 7;
-      if (i % 2) continue;
-      const band = new THREE.BoxGeometry(headR * 0.28, headR * 0.11, headR * (0.86 + t * 0.28));
-      parts.push({
-        geometry: band,
-        color: 0xb08f56,
-        position: [
-          side * (headR * 0.76 + t * headR * 0.34),
-          headY + headR * (0.26 - t * 2.05),
-          headZ + headR * (0.18 + t * 0.34),
-        ],
-        rotation: [0.1, 0, side * -0.1],
-      });
-    }
   }
 
   // The queue -- the plaited tail of the nemes down the back of the neck.

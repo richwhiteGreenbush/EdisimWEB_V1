@@ -170,6 +170,53 @@ $WORLDS = [
             . "York, this world is hidden in the app — the only way in is the billboard behind the Park's "
             . "nature centre.",
     ],
+
+    /*
+     * The curriculum worlds. Order in this table is the order they are inserted, and it is
+     * deliberate: PHP preserves insertion order for string keys, and the seeder walks the
+     * array in order, so the gallery's ids come out in a stable, meaningful sequence rather
+     * than in whatever order a directory listing happened to return. Re-running the seeder
+     * therefore never reshuffles anything.
+     */
+    'egypt' => [
+        'title' => 'Ancient Egypt',
+        'tags'  => 'history, official, science, building',
+        'description' =>
+            "The Giza plateau — the Great Sphinx with Khafre's pyramid rising directly behind it, which is the "
+            . "view everybody knows, plus Khufu and Menkaure, the granite valley temple, a field of mastaba "
+            . "tombs and Khufu's buried cedar ship.\n\n"
+            . "Everything is built at one consistent fifth of true size, because the Great Pyramid's base alone "
+            . "is wider than the whole walkable world. What that keeps is every proportion you can compare: "
+            . "Menkaure really is less than half the height of the other two, and the Sphinx really is as long "
+            . "as Menkaure's base is wide. Every sign gives the real figure.\n\n"
+            . "Two coding challenges: raise the obelisk, and sail the ship of the sun.",
+    ],
+    'solar' => [
+        'title' => 'Solar System Walk',
+        'tags'  => 'space, science, official, starter',
+        'description' =>
+            "Walk from the Sun out past Neptune along a lit deck, with every planet, its moons, and a marker "
+            . "giving the real distance from the Sun.\n\n"
+            . "Size and distance are on two different scales here, and the signs say so — one scale cannot do "
+            . "both, because at a scale where Jupiter is big enough to walk around, Neptune would be forty miles "
+            . "away. What is faithful is the planets against EACH OTHER: standing Earth next to Jupiter is the "
+            . "whole exhibit. Uranus is tipped on its side, Saturn's rings are a sheet of ice as thin as a house "
+            . "is tall, and the asteroid belt is mostly empty, which is not what films show.\n\n"
+            . "Two coding challenges: spin Jupiter, and send a comet in past the Sun and back out.",
+    ],
+    'watercycle' => [
+        'title' => 'The Water Cycle',
+        'tags'  => 'science, nature, official, starter',
+        'description' =>
+            "Evaporation, condensation, precipitation, collection and transpiration — as a loop you walk rather "
+            . "than a poster you read. Five big labelled arrows mark the stages, and a stone path joins them, so "
+            . "following the water all the way round brings you back where you started.\n\n"
+            . "There is a sea with vapour rising off it, a field of cumulus clouds whose bases are all at exactly "
+            . "the same height (that height is where the air got cold enough), one dark cloud that is actually "
+            . "raining, a snow-capped mountain feeding a stream, and a cutaway showing where the rain goes once "
+            . "it soaks into the ground.\n\n"
+            . "Two coding challenges: send a cloud across the sky, and make the rain fall.",
+    ],
 ];
 
 // ---------------------------------------------------------------------------
@@ -177,6 +224,34 @@ $WORLDS = [
 $argvFlags = array_slice($argv, 1);
 $dryRun = in_array('--dry-run', $argvFlags, true);
 $force  = in_array('--force', $argvFlags, true);
+
+/*
+ * --only=key,key restricts the run to named worlds.
+ *
+ * This exists because deduplication is on `world_sha256` and there is NO update path --
+ * every route through this script ends in an insert. So any edit that changes a world
+ * file's bytes makes it look brand new, and a full re-run quietly adds a second copy of a
+ * world that is already published. That is not hypothetical: repointing the in-world
+ * browser panels rewrote one URL inside nine already-seeded worlds, and the very next
+ * dry run offered to insert all nine again.
+ *
+ * The safe habit is therefore to name what you are adding rather than to run the whole
+ * table and trust the hash to sort it out. `--force` is the opposite of a fix here: it
+ * skips the hash check, so it inserts the duplicate rather than preventing it.
+ */
+$only = null;
+foreach ($argvFlags as $flag) {
+    if (str_starts_with($flag, '--only=')) {
+        $only = array_values(array_filter(array_map('trim', explode(',', substr($flag, 7)))));
+    }
+}
+if ($only !== null) {
+    $unknown = array_diff($only, array_keys($WORLDS));
+    if ($unknown) {
+        fwrite(STDERR, 'Unknown world key(s): ' . implode(', ', $unknown) . PHP_EOL);
+        exit(1);
+    }
+}
 
 function say(string $msg): void
 {
@@ -241,6 +316,9 @@ $seedDir = __DIR__ . '/../seed/worlds';
 $inserted = $skipped = $replaced = $failed = 0;
 
 foreach ($WORLDS as $key => $meta) {
+    if ($only !== null && !in_array($key, $only, true)) {
+        continue;
+    }
     $jsonPath = $seedDir . '/' . $key . '.json';
     if (!is_file($jsonPath)) {
         say("SKIP  $key — no world file at $jsonPath");
