@@ -221,6 +221,19 @@ export function createThemeMarker() {
   return marker;
 }
 
+// The stand-in object for a `world-spawn` record -- where a world puts the player when it
+// is opened. Same shape and same reasoning as the theme marker above: an empty Group has
+// no geometry, so it can never be hit by ObjectMenu's raycast or given a play icon, but it
+// IS an ordinary registry citizen. That is what makes the spawn survive everything for
+// free -- it is written to IndexedDB, exported into a world file by Save World (which just
+// maps the registry back to records), carried through the gallery, and rehydrated by
+// loadFromRecords -- with no path in the app needing to know it exists.
+export function createSpawnMarker() {
+  const marker = new THREE.Group();
+  marker.userData.isWorldSpawn = true;
+  return marker;
+}
+
 // Retints and reshapes the whole environment: sky, fog, ground relief and color, the
 // two lights, and the starfield. Cheap enough to call on a menu click (one pass over
 // ~15k terrain vertices), and a no-op when the requested theme is already live -- which

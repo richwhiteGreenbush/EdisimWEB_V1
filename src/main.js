@@ -85,7 +85,19 @@ loadWorldInput.addEventListener('change', async () => {
   if (!file) return;
   try {
     const records = await readWorldFile(file);
-    await worldStore.loadFromRecords(records);
+    const spawn = await worldStore.loadFromRecords(records);
+    // Move them ONLY if the file says where to stand.
+    //
+    // This used to never move anybody, on the grounds that the student chose the file
+    // while standing somewhere and moving them would be rude. That reasoning rested on a
+    // world file carrying no spawn -- with nowhere better to put them, leaving them put
+    // was the least-wrong option. Now that a file can say, honouring it is plainly better:
+    // loading one replaces the entire world, so wherever they were standing was in a place
+    // that no longer exists.
+    //
+    // Files without a spawn still behave exactly as before, which is every world anybody
+    // has already saved or been sent.
+    if (spawn) player.resetTo(spawn);
     menu.toast(`Loaded world with ${records.length} object${records.length === 1 ? '' : 's'}.`, { tone: 'success' });
   } catch (err) {
     console.error('Failed to load world file:', err);
@@ -265,15 +277,16 @@ worldStore
     if (linkedWorldId) {
       menu.toast('Opening the shared world…');
       const records = await fetchLinkedWorld(linkedWorldId);
-      await worldStore.loadFromRecords(records);
-      // Back to the app's own starting spot, which resetTo()'s defaults already are.
+      const spawn = await worldStore.loadFromRecords(records);
+      // Stand them where the world says, and at the app's own default spot if it does not
+      // say -- which is every world file exported before spawns existed.
       //
-      // Load World File deliberately does NOT do this -- there the student chose the file
-      // while standing somewhere, and moving them would be rude. A link is the opposite
-      // case: they may have arrived from another world entirely and be standing 150ft out
-      // in the fog of a world that no longer exists, and a shared world file carries no
-      // spawn of its own to put them at.
-      player.resetTo();
+      // Moving them at all is not optional here: they may have arrived from another world
+      // entirely and be standing 150ft out in the fog of a world that no longer exists.
+      // Before the spawn record this could only ever be the default spot, which in a world
+      // composed around one particular view meant arriving in an empty corner with the
+      // thing they came to see behind them.
+      player.resetTo(spawn || undefined);
       menu.toast('Shared world opened — this replaced what was here before.', { tone: 'success' });
       return;
     }

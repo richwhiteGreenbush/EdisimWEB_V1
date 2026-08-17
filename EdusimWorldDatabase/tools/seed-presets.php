@@ -575,11 +575,53 @@ foreach ($WORLDS as $key => $meta) {
         continue;
     }
 
-    // --force means "this world file changed": drop the old row (and its files) so the
-    // gallery does not end up showing the same world twice.
-    if ($existing) {
-        ewd_delete_world((int)$existing['id']);
+    /*
+     * UPDATE IN PLACE when this world is already in the gallery under its own slug.
+     *
+     * This is the important path, and the one the script did not have. Dedup is on the
+     * world file's sha256, and a re-export changes that hash EVERY time -- toRecord()
+     * stamps a fresh uuid and Date.now() on every record -- so `$existing` is null for a
+     * regenerated world however unchanged it looks. Left to itself the script therefore
+     * inserts a second copy of the same world, and the old delete-then-insert branch below
+     * minted a NEW id even when it did match.
+     *
+     * A new id is not cosmetic. The marketing page carries twenty-two hard-coded
+     * `?world=<id>` links, "Open this world in Edusim" is an id, and every link anyone has
+     * ever shared is an id. Re-seeding must not renumber them.
+     *
+     * So: look the world up by the slug its title produces, which is stable across
+     * re-exports, and overwrite its contents while keeping `id`, `slug` and `created_at`.
+     */
+    $bySlug = ewd_find_world_by_slug(ewd_slugify($meta['title']));
+    if ($bySlug) {
+        $slug  = (string)$bySlug['slug'];
+        $world = ewd_store_world_file($raw, $slug);
+        $shot  = seed_store_shot($shotPath, $slug);
+
+        ewd_update_world((int)$bySlug['id'], [
+            'title'        => $meta['title'],
+            'creator'      => SEED_CREATOR,
+            'group_name'   => SEED_GROUP,
+            'description'  => $meta['description'],
+            'theme'        => $info['theme'],
+            'record_count' => $info['records'],
+            'kinds_json'   => json_encode($info['kinds'], JSON_THROW_ON_ERROR),
+            'world_path'   => $world['path'],
+            'world_bytes'  => $world['bytes'],
+            'world_sha256' => $world['sha256'],
+            'shot_path'    => $shot['path'],
+            'shot_thumb_path' => $shot['thumb'],
+            'shot_width'   => $shot['width'],
+            'shot_height'  => $shot['height'],
+            'updated_at'   => ewd_now(),
+        ], ewd_parse_tags($meta['tags']));
+
+        say(sprintf(
+            'UPD   %-9s #%-3d %-18s %3d records, %-9s %s',
+            $key, (int)$bySlug['id'], $slug, $info['records'], $info['theme'], ewd_bytes($world['bytes'])
+        ));
         $replaced++;
+        continue;
     }
 
     $slug  = ewd_unique_slug(ewd_slugify($meta['title']));

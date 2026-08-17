@@ -6603,6 +6603,26 @@ export function buildPresetWorldRecords(name, { groundHeightAt }) {
       createdAt: Date.now(),
       transform: { position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
     },
+    // Where this world stands the player. Every layout already declares a spawn -- it is
+    // what the Load World menu uses -- and this carries it INTO the records, so it
+    // survives into IndexedDB, into an exported world file, and into the gallery.
+    //
+    // Without it a world file said nothing about where to stand, so anyone opening one
+    // from a gallery link landed at the app's default spot: in these worlds, out in an
+    // empty corner of a field with the thing they came to see behind them.
+    //
+    // The spawn rides in the record's own transform (position = where, rotation[1] =
+    // facing) rather than in fields of its own -- see spawnFromRecords().
+    {
+      id: uuid(),
+      kind: 'world-spawn',
+      createdAt: Date.now(),
+      transform: {
+        position: [layout.spawn.x || 0, 0, layout.spawn.z || 0],
+        rotation: [0, layout.spawn.yaw || 0, 0],
+        scale: [1, 1, 1],
+      },
+    },
     ...layout.items.map((item) => toRecord(item, groundHeightAt)),
   ];
 

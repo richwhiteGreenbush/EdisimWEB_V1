@@ -434,6 +434,68 @@ function ewd_bump(int $id, string $column): void
  * orphaned file wastes a few megabytes, while a row pointing at a file that is gone is a
  * broken page in the gallery.
  */
+/**
+ * Overwrite an existing world's contents, keeping its identity.
+ *
+ * `id`, `slug`, `created_at`, `status`, `downloads`, `views` and `manage_key_hash` are
+ * deliberately NOT touched. The id in particular is load-bearing well outside this table:
+ * "Open this world in Edusim" is a `?world=<id>` link, the marketing site hard-codes
+ * twenty-two of them, and so does every link anybody has ever shared. Re-publishing a
+ * world must not renumber it.
+ *
+ * The old world file and screenshots are unlinked, because ewd_store_world_file() names
+ * every copy with fresh random hex -- so an update writes a NEW file rather than
+ * overwriting, and without this each re-seed would leave the previous one on disk forever.
+ * Old paths are read BEFORE the update and removed after it commits, so a failure halfway
+ * cannot leave the row pointing at a file that has already been deleted.
+ */
+function ewd_update_world(int $id, array $data, ?array $tags = null): bool
+{
+    $before = ewd_find_world($id);
+    if (!$before) {
+        return false;
+    }
+
+    $db = ewd_db();
+    $db->beginTransaction();
+    try {
+        $cols = array_keys($data);
+        $sets = implode(', ', array_map(static fn ($c) => $c . ' = :' . $c, $cols));
+        $stmt = $db->prepare('UPDATE worlds SET ' . $sets . ' WHERE id = :id');
+        foreach ($cols as $c) {
+            $stmt->bindValue(':' . $c, $data[$c]);
+        }
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        if ($tags !== null) {
+            ewd_set_world_tags($id, $tags, $db);
+        }
+
+        $db->commit();
+    } catch (Throwable $e) {
+        $db->rollBack();
+        throw $e;
+    }
+
+    foreach ([
+        ['world_path', EWD_WORLD_DIR],
+        ['shot_path', EWD_SHOT_DIR],
+        ['shot_thumb_path', EWD_SHOT_DIR],
+    ] as [$col, $dir]) {
+        $old = (string)($before[$col] ?? '');
+        $new = (string)($data[$col] ?? $old);
+        // Only when it actually changed -- deleting an unchanged path would delete the
+        // file the row still points at.
+        if ($old !== '' && $old !== $new && is_file($dir . '/' . $old)) {
+            @unlink($dir . '/' . $old);
+        }
+    }
+
+    ewd_db()->exec('DELETE FROM tags WHERE id NOT IN (SELECT tag_id FROM world_tags)');
+    return true;
+}
+
 function ewd_delete_world(int $id): bool
 {
     $world = ewd_find_world($id);

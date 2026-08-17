@@ -5,9 +5,28 @@ import { inflateFromCanvas } from './BalloonInflator.js';
 import { loadLibraryModel, loadTreeModel, loadBillboardImage } from './StartupAssets.js';
 import { createLightOrb } from './LightOrb.js';
 import { createPrimitiveMesh, buildBuiltModel } from './Primitives.js';
-import { applyWorldTheme, createThemeMarker } from './SceneSetup.js';
+import { applyWorldTheme, createThemeMarker, createSpawnMarker } from './SceneSetup.js';
 import { buildProp } from './props/index.js';
 import { DEFAULT_THEME } from './config.js';
+
+// The spawn a set of records asks for, as PlayerController.resetTo() wants it, or null.
+//
+// It reads the marker's ordinary TRANSFORM rather than bespoke fields: position is where
+// to stand and rotation[1] is which way to face. That keeps the spawn in the one place
+// every other record already keeps its placement, so nothing else -- persistence, export,
+// the gallery -- needs a special case for it.
+//
+// `y` is deliberately not carried through. PlayerController.resetTo() raycasts the ground
+// at the given x/z and sits the camera at EYE_HEIGHT above whatever it finds, which is
+// what makes a spawn survive a world being loaded under a different theme with completely
+// different terrain -- a stored height would put the student in the air or underground.
+export function spawnFromRecords(records) {
+  const record = records?.find((r) => r?.kind === 'world-spawn');
+  if (!record) return null;
+  const [x = 0, , z = 0] = record.transform?.position || [];
+  const [, yaw = 0] = record.transform?.rotation || [];
+  return { x, z, yaw };
+}
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -120,6 +139,15 @@ export class WorldStore {
         console.error('Failed to load a record from the world file:', record?.kind, err);
       }
     }
+
+    // Hand back where this world wants the player, or null if it does not say.
+    //
+    // Returned rather than acted on, because the caller is the only thing that knows
+    // whether moving somebody is appropriate: a world opened from a link or a file should
+    // place them, and a page refresh restoring the world they are already standing in
+    // must not. `null` is the honest answer for every world file exported before spawns
+    // existed, and every caller falls back to the app's own default for it.
+    return spawnFromRecords(records);
   }
 
   async rehydrateAll() {
@@ -172,6 +200,18 @@ export class WorldStore {
     if (record.kind === 'world-theme') {
       applyWorldTheme(record.theme);
       const marker = createThemeMarker();
+      applyTransform(marker, record.transform);
+      this.scene.add(marker);
+      this.addAndRun(record, marker);
+      return;
+    }
+
+    // Where this world puts the player. Rehydrating it does not MOVE anybody -- moving is
+    // the caller's decision, because the same records arrive by four different routes and
+    // only some of them should reposition the student (a page refresh restoring what they
+    // were already standing in must not). loadFromRecords() hands the spawn back instead.
+    if (record.kind === 'world-spawn') {
+      const marker = createSpawnMarker();
       applyTransform(marker, record.transform);
       this.scene.add(marker);
       this.addAndRun(record, marker);
