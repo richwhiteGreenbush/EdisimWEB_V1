@@ -6,6 +6,7 @@
 
 import { PALETTE_SWATCHES } from './config.js';
 
+import { uuid } from './Uuid.js';
 export const CATEGORIES = {
   control: { name: 'Control', fill: '#ffab19', dark: '#cf8b17' },
   motion: { name: 'Motion', fill: '#4c97ff', dark: '#3373cc' },
@@ -189,7 +190,7 @@ export function createBlockInstance(type) {
   for (const [key, schema] of Object.entries(def.params)) {
     params[key] = schema.default;
   }
-  const block = { id: crypto.randomUUID(), type, params };
+  const block = { id: uuid(), type, params };
   if (def.hasChildren) block.children = [];
   return block;
 }
@@ -199,7 +200,7 @@ export function createBlockInstance(type) {
 // whatever's currently saved on the record until the user hits Save.
 export function cloneBlockTree(blocks) {
   return blocks.map((block) => {
-    const copy = { id: crypto.randomUUID(), type: block.type, params: { ...block.params } };
+    const copy = { id: uuid(), type: block.type, params: { ...block.params } };
     if (block.children) copy.children = cloneBlockTree(block.children);
     return copy;
   });

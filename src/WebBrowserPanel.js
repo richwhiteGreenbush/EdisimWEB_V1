@@ -11,6 +11,7 @@ import {
   EDIT_ICON_MARGIN,
 } from './config.js';
 
+import { uuid } from './Uuid.js';
 const PIXELS_TO_FEET = WEB_BROWSER_WIDTH / WEB_BROWSER_DOM_WIDTH;
 const CLICK_MOVE_THRESHOLD = 6; // px -- beyond this, a pointerdown->pointerup is a look-drag, not a click
 const CLICK_TIME_THRESHOLD = 500; // ms
@@ -272,7 +273,7 @@ export class WebBrowserManager {
 
 export function placeWebBrowser({ scene, camera, registry, groundHeightAt, webBrowserManager, worldStore }) {
   const { x, z } = nextPlacementXZ(camera, registry.count);
-  const id = crypto.randomUUID();
+  const id = uuid();
   const record = {
     id,
     kind: 'web-browser',

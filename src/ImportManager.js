@@ -10,6 +10,7 @@ import {
   MODEL_TARGET_HEIGHT,
 } from './config.js';
 
+import { uuid } from './Uuid.js';
 const MODEL_ROOT_SET = new Set(MODEL_ROOT_EXTENSIONS);
 const MODEL_AUX_SET = new Set(MODEL_AUX_EXTENSIONS);
 const IMAGE_SET = new Set(IMAGE_EXTENSIONS);
@@ -160,7 +161,7 @@ export class ImportManager {
     this.scene.add(object3D);
 
     const files = [file, ...mtlFiles.map((m) => m.file)];
-    const id = crypto.randomUUID();
+    const id = uuid();
     const record = {
       id,
       kind: ext === 'obj' ? 'obj' : 'gltf',
@@ -190,7 +191,7 @@ export class ImportManager {
     faceCamera(mesh, this.camera);
     this.scene.add(mesh);
 
-    const id = crypto.randomUUID();
+    const id = uuid();
     const record = {
       id,
       kind: isGif ? 'gif' : 'image',

@@ -1,6 +1,7 @@
 import { applyWorldTheme } from './SceneSetup.js';
 import { WEB_BROWSER_DEFAULT_URL } from './config.js';
 
+import { uuid } from './Uuid.js';
 // The ready-made worlds behind Menu > Load World.
 //
 // A preset world is just a LIST OF RECORDS -- exactly the same record shape that
@@ -5978,7 +5979,7 @@ function toRecord(item, groundHeightAt) {
   const y = item.absoluteY ? item.y : groundHeightAt(item.x, item.z) + (item.y || 0);
   const s = item.scale || 1;
   const base = {
-    id: crypto.randomUUID(),
+    id: uuid(),
     createdAt: Date.now(),
     transform: {
       position: [item.x, y, item.z],
@@ -6012,7 +6013,7 @@ export function buildPresetWorldRecords(name, { groundHeightAt }) {
 
   const records = [
     {
-      id: crypto.randomUUID(),
+      id: uuid(),
       kind: 'world-theme',
       theme: layout.theme,
       createdAt: Date.now(),

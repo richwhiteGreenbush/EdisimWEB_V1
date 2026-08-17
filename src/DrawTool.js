@@ -2,6 +2,7 @@ import { inflateFromCanvas } from './BalloonInflator.js';
 import { nextPlacementXZ, faceCamera } from './Placement.js';
 import { PALETTE_SWATCHES } from './config.js';
 
+import { uuid } from './Uuid.js';
 const SWATCHES = PALETTE_SWATCHES;
 const MIN_BRUSH_SIZE = 2;
 const MAX_BRUSH_SIZE = 28;
@@ -186,7 +187,7 @@ export class DrawTool {
     this.scene.add(mesh);
 
     const blob = await new Promise((resolve) => this.canvas.toBlob(resolve, 'image/png'));
-    const id = crypto.randomUUID();
+    const id = uuid();
     const record = {
       id,
       kind: 'balloon',

@@ -9,6 +9,7 @@ import {
   CONNECT_TOUCH_EPSILON,
 } from './config.js';
 
+import { uuid } from './Uuid.js';
 // Create Model: the student assembles a model out of simple shapes, then "renders" the
 // connected cluster into one ordinary placed object.
 //
@@ -126,7 +127,7 @@ export function livePrimitives(registry) {
 }
 
 export async function placePrimitive({ shape, scene, camera, registry, groundHeightAt }) {
-  const id = crypto.randomUUID();
+  const id = uuid();
   const record = {
     id,
     kind: 'primitive',
@@ -262,7 +263,7 @@ export async function renderModelFromCluster({ rootId, registry, worldStore, men
   // position = the group transform applied to each part's local one), which is where an
   // "Edit Model" option would start. Rendering is one-way for now.
   const record = {
-    id: crypto.randomUUID(),
+    id: uuid(),
     kind: 'built-model',
     createdAt: Date.now(),
     parts,

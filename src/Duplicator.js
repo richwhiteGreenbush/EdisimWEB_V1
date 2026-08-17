@@ -1,5 +1,6 @@
 import { BLOCK_DEFS, DUPLICATE_BLOCK } from './BlockDefs.js';
 
+import { uuid } from './Uuid.js';
 // Backs the "duplicate" program block: makes a second, independent copy of a placed
 // object, wherever that object currently is.
 //
@@ -31,7 +32,7 @@ export function stripDuplicateBlocks(blocks) {
   const out = [];
   for (const block of blocks || []) {
     if (block.type === DUPLICATE_BLOCK) continue;
-    const copy = { id: crypto.randomUUID(), type: block.type, params: { ...block.params } };
+    const copy = { id: uuid(), type: block.type, params: { ...block.params } };
     if (BLOCK_DEFS[block.type]?.hasChildren) {
       copy.children = stripDuplicateBlocks(block.children);
       // A loop left holding nothing is dropped rather than carried over. `repeat 4
@@ -52,7 +53,7 @@ export function stripDuplicateBlocks(blocks) {
 function cloneRecord(record, transform) {
   const copy = {
     ...record,
-    id: crypto.randomUUID(),
+    id: uuid(),
     createdAt: Date.now(),
     transform,
   };

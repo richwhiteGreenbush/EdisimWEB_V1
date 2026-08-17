@@ -10,6 +10,7 @@ import {
   PALETTE_SWATCHES,
 } from './config.js';
 
+import { uuid } from './Uuid.js';
 // A light orb is a Group (core glow sphere + soft halo + an actual PointLight), all
 // as children -- so Size/Move/Program act on it exactly like any other placed object
 // (moving/scaling the group carries the light along for free) with no special-casing
@@ -56,7 +57,7 @@ export function placeLightOrb({ scene, camera, registry, groundHeightAt, color }
   group.position.set(x, groundY + ORB_HOVER_HEIGHT, z);
   scene.add(group);
 
-  const id = crypto.randomUUID();
+  const id = uuid();
   const record = {
     id,
     kind: 'light-orb',
