@@ -980,6 +980,51 @@ Composition lessons that cost a rebuild each:
   and clipped by the bezel; the browser panel at 41° covered an activity board at 47°. A 70°
   *vertical* fov is only ~51° either side on 16:9, so 49 is not "just inside".
 
+### A Bug's Life, and building a world around CHALLENGES
+
+`BugProps.js` + `bugsLayout()`. The only preset laid out as a **workshop** rather than as a
+place to look at: an avenue from the spawn to the nest, five `tutorial-board` building
+challenges down the left, five `activity-board` coding challenges down the right, and the
+whole middle strip deliberately empty. That emptiness is the design — a fresh construction
+piece lands `PRIMITIVE_SPAWN_DISTANCE` ahead of the student and spirals out, so anything in
+the middle is something to build round. My World found that out; this world is laid out to
+it from the start, with every prop pushed to the sides and the far end.
+
+**The scale is inverted.** Every other world shrinks the scenery to fit a 5ft person; this
+one leaves the person at 5ft and grows the world to about **60×** around them, so a grass
+blade is a fifty-foot tower and a breadcrumb is a boulder. Not the literal 300× an
+ant-to-human ratio gives: at 300× one blade is past the world bound and past the fog, and
+you lose the sky — at which point it stops being a meadow and becomes a cave.
+
+**What makes an ant read as an ant**, in order: a genuinely narrow **petiole** (waist)
+between the middle and rear sections; **elbowed** antennae, bent sharply partway, not smooth
+feelers; and six legs on the **middle section only**. Two things nearly cost it:
+
+- **Thick dark legs make a spider.** The first pass had them at 0.11 radius in the darkest
+  tone available, and six heavy black legs splayed round a body is unmistakably the wrong
+  animal. They are wiry now and the same colour as the body.
+- **Near-black detail on a near-black silhouette is not detail.** The antennae were drawn in
+  the darkest tone and vanished against the body and the soil. They carry half the
+  identification, so they are the *lightest* tone on the model, thicker than instinct says,
+  and have a bead at the elbow to say "this bends here".
+
+Traps that generalise:
+
+- **A curved stem has to be sampled along a real curve.** `grassBlade` first placed each
+  segment at its own height and rotated it by the local slope — but the sideways
+  displacement grows far faster than the vertical spacing, so by halfway up the pieces no
+  longer touched and a clump read as green dashes hanging in mid-air. It now walks a
+  `QuadraticBezierCurve3` and derives each segment's rotation FROM the two points it lies
+  between, which cannot come apart.
+- **A hole needs a real crater, not a dark spot.** `antHill`'s pellets stop well short of
+  the middle; ringing them all the way in left a dome with a smudge on top.
+- **Anything inside a cutaway chamber must sit in FRONT of the void's own front face.** The
+  granary's seeds were at the slab's mid-depth, which is *inside* the dark box, so the
+  chamber came out empty while the identically-built nursery next to it showed its eggs.
+- **A grid of boxes is pixel art.** `nestCutaway`'s soil face staggers alternate courses by
+  half a cell and varies every lump's size; on a straight grid the vertical joints line up
+  all the way down and a wall of earth reads as Minecraft.
+
 ### Photo textures, but only on the big flat surfaces
 
 `SurfaceTextures.js` loads photographic maps from `public/textures/` for the handful of

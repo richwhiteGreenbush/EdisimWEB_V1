@@ -21,6 +21,7 @@ import * as Rome from './RomeProps.js';
 import * as Andes from './AndesProps.js';
 import * as Taj from './TajProps.js';
 import * as Moscow from './MoscowProps.js';
+import * as Bug from './BugProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -343,6 +344,24 @@ export const PROP_BUILDERS = {
   'square-paving': Moscow.squarePaving,
   'snow-drift': Moscow.snowDrift,
   'birch-tree': Moscow.birchTree,
+
+  // A Bug's Life
+  ant: Bug.ant,
+  aphid: Bug.aphid,
+  ladybird: Bug.ladybird,
+  'ant-hill': Bug.antHill,
+  'nest-cutaway': Bug.nestCutaway,
+  'pheromone-trail': Bug.pheromoneTrail,
+  'food-item': Bug.foodItem,
+  'grass-blade': Bug.grassBlade,
+  'grass-clump': Bug.grassClump,
+  clover: Bug.clover,
+  'dandelion-clock': Bug.dandelionClock,
+  'fallen-leaf': Bug.fallenLeaf,
+  twig: Bug.twig,
+  'pebble-field': Bug.pebbleField,
+  toadstool: Bug.toadstool,
+  'water-drop': Bug.waterDrop,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

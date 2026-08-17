@@ -5485,6 +5485,355 @@ function redSquareLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// A Bug's Life
+// ---------------------------------------------------------------------------
+
+// An ant colony, at ant scale, laid out as a WORKSHOP rather than as a place to look at.
+//
+// It is the only preset built around challenges first and scenery second, so the shape of
+// it is different from every other world here: an avenue running from the spawn down to
+// the nest, with five building challenges along the left and five coding challenges along
+// the right, and the whole middle strip left deliberately EMPTY. That empty strip is the
+// point -- a fresh construction piece lands PRIMITIVE_SPAWN_DISTANCE ahead of the student
+// and spirals out from there, so anything standing in the middle is something to build
+// round. My World learned that lesson; this world is laid out to it from the start.
+//
+// Everything else is pushed out to the sides and the far end, which is also what makes the
+// scale read: the grass towers over you at the edges of the avenue rather than in it.
+function bugsLayout() {
+  const items = [];
+  const SP = { x: 0, z: 132 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+  // Boards face the middle of the avenue, but angled a little back UP it toward the
+  // arrival -- square to the centre line they are edge-on from the spawn and a student
+  // walks past five blank rectangles before seeing a single word.
+  const faceAvenue = (x, z) => facing(x, z, 0, z + 34);
+  const CARD = { width: 10.5, height: 8.4, postHeight: 11.5 };
+
+  // --- Welcome ------------------------------------------------------------
+  items.push(
+    prop('welcome-board', 0, 100, {
+      rotY: face(0, 100),
+      options: {
+        eyebrow: '🐜  A BUG’S LIFE',
+        lead: 'You are the size of an ant.',
+        lines: ['BUILD on the left,', 'CODE on the right.'],
+        footnote: 'That blade of grass is really only as tall as your hand',
+      },
+    }),
+  );
+  items.push(
+    prop('standing-sign', 30, 116, {
+      rotY: face(30, 116),
+      options: {
+        lines: ['A BUG’S LIFE'],
+        subtitle: 'An ant colony, sixty times life size — ten challenges down the avenue',
+        width: 17, height: 4.4,
+      },
+    }),
+  );
+  items.push(...browserStation(-22, 114, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- The nest -----------------------------------------------------------
+  items.push(prop('ant-hill', 0, -62, { options: { radius: 44, height: 26, seed: 11 } }));
+  items.push(prop('nest-cutaway', -66, -40, { rotY: facing(-66, -40, 0, 40), options: { width: 46, height: 30, depth: 4, seed: 13 } }));
+  items.push(
+    prop('info-placard', -44, -20, {
+      rotY: facing(-44, -20, 0, 30),
+      options: {
+        eyebrow: 'Cut through the nest', title: 'Who lives where', accent: '#8a6f4a',
+        body: 'The brood is kept near the top where the sun warms the soil, and workers carry the eggs up and down through the day to keep them at the right temperature. The seed store is in the middle. The queen is deep down, and she is the only one laying — every worker you can see is her daughter. The rubbish heap is kept as far from the food as the nest allows.',
+      },
+    }),
+  );
+  items.push(
+    prop('info-placard', 40, -30, {
+      rotY: facing(40, -30, 0, 30),
+      options: {
+        eyebrow: 'Nobody is in charge', title: 'How a colony decides', accent: '#5f9a6a',
+        body: 'There is no leader. An ant that finds food walks home laying a scent trail, and other ants that cross it follow it and lay more. A short route gets walked more often, so it gets stronger faster — and the colony ends up using the shortest path without a single ant ever comparing two routes. The queen gives no orders at all; she lays eggs.',
+      },
+    }),
+  );
+
+  // --- The food run -------------------------------------------------------
+  // A trail from the food out on the right, curving back to the nest, with the foragers on
+  // it. This is the object of half the coding challenges, so it is placed where a student
+  // can stand beside it and still read the board that talks about it.
+  items.push(prop('pheromone-trail', 34, -8, { rotY: 0.5, options: { length: 92, curve: 16, dots: 30, seed: 17 } }));
+  items.push(prop('food-item', 72, 26, { options: { kind: 'crumb', size: 7, seed: 19 } }));
+  items.push(prop('food-item', 82, 12, { options: { kind: 'seed', size: 5, seed: 21 } }));
+  items.push(prop('food-item', 66, 40, { options: { kind: 'berry', size: 6, seed: 23 } }));
+  items.push(prop('food-item', 88, 32, { options: { kind: 'sugar', size: 5, seed: 25 } }));
+  items.push(prop('food-item', 58, 12, { options: { kind: 'leaf-piece', size: 6, seed: 27 } }));
+  items.push(
+    prop('info-placard', 62, 52, {
+      rotY: facing(62, 52, 0, 60),
+      options: {
+        eyebrow: 'Fifty times its own weight', title: 'Carrying it home', accent: '#c48a3a',
+        body: 'An ant can lift about fifty times what it weighs. Muscle strength goes up with the CROSS-SECTION of a muscle, but weight goes up with volume — so halving an animal\'s size makes it four times weaker and eight times lighter. Being small is why an ant is strong. Scaled up to your size it would be no stronger than you are.',
+      },
+    }),
+  );
+
+  // Foragers on the trail, all facing the way they are walking.
+  const foragers = [[62, 20, 2.4], [46, 6, 2.6], [30, -14, 2.9], [16, -34, 3.0], [-8, -44, 3.4]];
+  foragers.forEach(([x, z, r], i) => {
+    items.push(prop('ant', x, z, { rotY: r, options: { length: 5.5, seed: 30 + i * 5 } }));
+  });
+  items.push(prop('ant', -18, -50, { rotY: 0.6, options: { length: 6.6, soldier: true, color: 0x5a2c14, seed: 61 } }));
+  items.push(prop('ant', 12, -52, { rotY: 4.0, options: { length: 5.2, seed: 67 } }));
+
+  // --- The aphid herd -----------------------------------------------------
+  items.push(prop('clover', -74, 16, { options: { height: 20, seed: 31 } }));
+  items.push(prop('clover', -62, 30, { options: { height: 16, seed: 33 } }));
+  [[-76, 22], [-70, 12], [-80, 12], [-66, 22]].forEach(([x, z], i) => {
+    items.push(prop('aphid', x, z, { rotY: i * 1.6, options: { length: 2.6, seed: 70 + i * 3 } }));
+  });
+  items.push(prop('ant', -68, 20, { rotY: -1.2, options: { length: 5.5, seed: 79 } }));
+  items.push(
+    prop('info-placard', -52, 34, {
+      rotY: facing(-52, 34, 0, 60),
+      options: {
+        eyebrow: 'Farming, fifty million years before us', title: 'The aphid herd', accent: '#7fb04a',
+        body: 'Aphids drink sap and give off a sugary drop called honeydew. Ants stroke them with their antennae to ask for it, carry them to fresh plants, and drive off ladybirds that try to eat them. Some species even take aphid eggs down into the nest for the winter. It is herding, and the aphids are the cattle.',
+      },
+    }),
+  );
+
+  // --- The water drop, and the things to build across it -----------------
+  items.push(prop('water-drop', 40, 72, { options: { radius: 14, seed: 59 } }));
+  items.push(prop('twig', 66, 84, { rotY: 0.9, options: { length: 56, thickness: 2.8, seed: 43 } }));
+  items.push(prop('fallen-leaf', 62, 60, { rotY: 1.9, options: { length: 34, color: 0x8a6a2c, seed: 41 } }));
+  items.push(prop('fallen-leaf', -52, 66, { rotY: 0.4, options: { length: 30, color: 0x9a7a34, seed: 45 } }));
+  items.push(prop('ladybird', 62, 60, { y: 2.0, rotY: 2.2, options: { length: 7, spots: 7, seed: 7 } }));
+  items.push(
+    prop('info-placard', 30, 88, {
+      rotY: face(30, 88),
+      options: {
+        eyebrow: 'Why it is a dome and not a puddle', title: 'One drop of water', accent: '#5fa8c4',
+        body: 'Water molecules pull on each other harder than they pull on soil, so a small drop holds itself in a bead instead of spreading out. At your size that skin is strong enough to trap you — which is why ants cross water on a bridge, or on each other. Some species really do link legs into a living raft and float.',
+      },
+    }),
+  );
+
+  // --- The meadow ---------------------------------------------------------
+  // Grass around the outside only. Inside the avenue it would be scenery to build round.
+  // Two rings. The far one gives the horizon; the near one -- just outside the boards, at
+  // 60 to 80ft -- is what actually sells the scale, because a fifty-foot blade only reads
+  // as fifty feet when it is close enough to tower. With only the far ring the avenue came
+  // out as a wide brown yard with a green fringe.
+  const clumps = [
+    [-62, 118, 50], [64, 112, 46], [-72, 88, 54], [74, 84, 48], [-66, 40, 52],
+    [68, 36, 44], [-74, -10, 50], [76, -14, 46], [-60, -60, 48], [62, -64, 52],
+    [-96, 108, 52], [96, 104, 48], [-118, 62, 56], [120, 58, 50], [-128, 6, 54],
+    [130, 2, 46], [-112, -56, 50], [116, -60, 54], [-70, -96, 44], [72, -100, 48],
+    [-16, -118, 52], [24, -126, 46], [-150, 40, 42], [150, 30, 44], [0, 154, 40],
+    [-64, 140, 46], [70, 136, 42], [-142, -20, 40], [144, -24, 44],
+  ];
+  clumps.forEach(([x, z, h], i) => {
+    items.push(prop('grass-clump', x, z, { options: { height: h, count: 6 + (i % 3), spread: 8, seed: 200 + i * 11 } }));
+  });
+
+  const dandelions = [[-88, 78, 42], [92, 70, 38], [-104, -30, 44], [104, -36, 40], [-40, -104, 38]];
+  dandelions.forEach(([x, z, h], i) => items.push(prop('dandelion-clock', x, z, { options: { height: h, seed: 300 + i * 7 } })));
+
+  const clovers = [[-84, 96, 18], [86, 92, 16], [-100, 34, 19], [98, 30, 17], [-90, -70, 18], [94, -74, 16]];
+  clovers.forEach(([x, z, h], i) => items.push(prop('clover', x, z, { options: { height: h, seed: 400 + i * 5 } })));
+
+  const shrooms = [[-108, 84, 24, 0xc4402e], [-96, 96, 18, 0xd8873a], [108, 80, 22, 0xb8543c], [-118, -74, 20, 0xc4402e]];
+  shrooms.forEach(([x, z, h, c], i) => items.push(prop('toadstool', x, z, { options: { height: h, capColor: c, seed: 500 + i * 9 } })));
+
+  const pebbles = [[-74, 52, 14], [76, -20, 16], [-58, -78, 12], [64, -84, 15], [-124, 96, 13], [126, 90, 14]];
+  pebbles.forEach(([x, z, s], i) => items.push(prop('pebble-field', x, z, { options: { spread: s + 4, count: 6, size: s * 0.5, seed: 600 + i * 7 } })));
+
+  // ========================================================================
+  // FIVE BUILDING CHALLENGES -- down the left of the avenue
+  // ========================================================================
+
+  items.push(
+    prop('tutorial-board', -34, 76, {
+      rotY: faceAvenue(-34, 76), options: {
+        kicker: '🔨  BUILD IT', number: 1, title: 'A bridge over the drop', accent: '#c2521f',
+        intro: 'Menu ▸ Create Model. Every piece lands in front of you in build yellow — click the hammer floating above it.',
+        steps: [
+          { lead: 'Deck', text: 'A Cube. Grab a corner and stretch it long and thin — wider than the water, and about a step across.' },
+          { lead: 'Two piers', text: 'A Cylinder stretched tall, one at each end of where the deck will go. Stand them in the soil, not in the water.' },
+          { lead: 'Lift the deck', text: 'Drag the GREEN ball above the deck straight UP until it clears the piers, then slide it over them.' },
+          { lead: 'Kerbs', text: 'Two more Cubes, squashed thin, laid along each edge so nothing rolls off.' },
+          { lead: 'Connect, then Render', text: 'Connect every piece to the deck, then press Render Model. Now it is one object.' },
+        ],
+        tip: 'The green ball decides lift-or-slide from the first inch you drag it: pull UP to raise, sideways to slide. If it slides when you meant to lift, let go and start the drag straight upward.',
+        ...CARD,
+      },
+    }),
+  );
+
+  items.push(
+    prop('tutorial-board', -44, 50, {
+      rotY: faceAvenue(-44, 50), options: {
+        kicker: '🔨  BUILD IT', number: 2, title: 'Build a worker ant', accent: '#a8541f',
+        intro: 'Walk up to a real one on the trail first and look at it side-on. Three parts, and a waist you could snap.',
+        steps: [
+          { lead: 'Gaster', text: 'A Sphere stretched into an egg, lying on its side. This is the big rear end.' },
+          { lead: 'The waist', text: 'A Cylinder squashed very thin and very short, in front of it. Make it thinner than you think — this is the bit that makes it an ant.' },
+          { lead: 'Middle and head', text: 'A Sphere for the middle, a smaller Sphere in front for the head, and two tiny Spheres on the sides of the head for eyes.' },
+          { lead: 'Six legs', text: 'A Cylinder squashed to a rod. Three a side, and ALL SIX on the middle part only — never on the gaster.' },
+          { lead: 'Antennae', text: 'Two more rods, bent at the elbow: one going up and out, a shorter one angled off the end of it.' },
+        ],
+        tip: 'Three parts and six legs is an insect. Two parts and eight legs is a spider. Get the waist and the elbowed antennae and everyone will know what you built.',
+        ...CARD,
+      },
+    }),
+  );
+
+  items.push(
+    prop('tutorial-board', -48, 22, {
+      rotY: faceAvenue(-48, 22), options: {
+        kicker: '🔨  BUILD IT', number: 3, title: 'A grain store', accent: '#8a6f2a',
+        intro: 'The colony keeps its seeds in a dry chamber. Build one, then park a food item inside it.',
+        steps: [
+          { lead: 'Floor', text: 'A Cube squashed flat and stretched wide. Everything else stands on this.' },
+          { lead: 'Three walls', text: 'A Cube stretched tall and thin. One at the back, one each side. Leave the fourth side open as a doorway.' },
+          { lead: 'Roof', text: 'A Pyramid, stretched to overhang the walls. Lift it with the green ball until it sits on top of them.' },
+          { lead: 'A step at the door', text: 'A short Cylinder laid on its side, so an ant can get in with a seed.' },
+          { lead: 'Connect, then Render', text: 'Connect the walls to the floor and the roof to the walls, then Render Model.' },
+        ],
+        tip: 'A piece you have lifted keeps its height when you slide it sideways, so raise the roof once and then line it up. That is the whole reason the green handle exists.',
+        ...CARD,
+      },
+    }),
+  );
+
+  items.push(
+    prop('tutorial-board', -46, -6, {
+      rotY: faceAvenue(-46, -6), options: {
+        kicker: '🔨  BUILD IT', number: 4, title: 'A ladder to the leaf', accent: '#5f7a2a',
+        intro: 'A fallen leaf is a floor from down here. Build something to get up onto one.',
+        steps: [
+          { lead: 'Two rails', text: 'A Cylinder stretched long and thin. Make a second one beside it, about a body-width apart.' },
+          { lead: 'Rungs', text: 'Short Cylinders laid across, evenly spaced. Six or seven is plenty.' },
+          { lead: 'Connect first', text: 'Connect every rung to both rails BEFORE you tilt anything. It is far easier while it is lying flat.' },
+          { lead: 'Lean it', text: 'Open Rotate/Move Shape and drag an upright ring. It clicks round in 15 degree steps — 45 degrees is three clicks.' },
+          { lead: 'Render', text: 'Press Render Model and walk up it.' },
+        ],
+        tip: 'A ring seen exactly edge-on cannot be grabbed — it is a hairline down the middle of the piece. Take two steps sideways and it opens into a circle you can hold.',
+        ...CARD,
+      },
+    }),
+  );
+
+  items.push(
+    prop('tutorial-board', -38, -34, {
+      rotY: faceAvenue(-38, -34), options: {
+        kicker: '🔨  BUILD IT', number: 5, title: 'Invent your own bug', accent: '#6b3fa0',
+        intro: 'No instructions this time. Four shapes, and one rule to break on purpose or keep on purpose.',
+        steps: [
+          { lead: 'Decide what it is', text: 'Insect: three body parts, six legs, two antennae. Spider: two parts, eight legs, no antennae. Pick one and stick to it.' },
+          { lead: 'Give it a job', text: 'A digger needs shovels on the front. A jumper needs huge back legs. A hunter needs eyes that face forward. The job decides the shape.' },
+          { lead: 'Make it one colour family', text: 'Apply a colour to every piece from the same corner of the picker. A bug in six unrelated colours reads as a pile of shapes.' },
+          { lead: 'Render, then program it', text: 'Render Model, then click it and give it a walk from the boards across the avenue.' },
+        ],
+        tip: 'Real insects are almost all symmetrical left-to-right. Build one side, then build the other to match — and if you get bored of matching, that asymmetry is exactly what makes a fiddler crab look odd.',
+        ...CARD,
+      },
+    }),
+  );
+
+  // ========================================================================
+  // FIVE CODING CHALLENGES -- down the right of the avenue
+  // ========================================================================
+
+  items.push(
+    activity(34, 76, {
+      number: 1, rotY: faceAvenue(34, 76), accent: '#4c97ff',
+      title: 'Follow the scent trail',
+      target: 'Click any ant on the glowing trail → Program.',
+      steps: [
+        ctrlStep('repeat 22 times'),
+        moveStep('move forward 6 feet', 1),
+        moveStep('rotate 5 degrees', 1),
+        ctrlStep('wait 0.1 seconds', 1),
+      ],
+      tip: 'A little forward and a little turn, over and over, draws a curve — which is exactly the shape of the trail. Make the rotate bigger and the curve gets tighter. Make it 0 and the ant walks straight off the edge of the trail.',
+    }),
+  );
+
+  items.push(
+    activity(44, 50, {
+      number: 2, rotY: faceAvenue(44, 50), accent: '#c48a3a',
+      title: 'The forager’s round trip',
+      target: 'Click an ant near the food → Program.',
+      steps: [
+        moveStep('move forward 34 feet'),
+        ctrlStep('wait 1 seconds'),
+        lookStep('say found it'),
+        ctrlStep('wait 2 seconds'),
+        moveStep('go back to start'),
+      ],
+      tip: 'Go back to start puts it exactly where it began — position, turn and size, all at once. It is the undo button for a program that has wandered off, and it is worth knowing before you need it.',
+    }),
+  );
+
+  items.push(
+    activity(48, 22, {
+      number: 3, rotY: faceAvenue(48, 22), accent: '#ffab19',
+      title: 'Tell the whole colony',
+      target: 'Two ants. The first three blocks on ONE, the last two on ANOTHER.',
+      steps: [
+        lookStep('say food this way'),
+        ctrlStep('wait 1 seconds'),
+        lookStep('say food this way'),
+        ctrlStep('when an object says food this way'),
+        moveStep('glide 30 feet over 3 seconds', 1),
+      ],
+      tip: 'The second ant does nothing when you press play — it is waiting. It only moves when it hears the words, and they have to match exactly. Put the same two blocks on five ants and one scout starts the whole column.',
+    }),
+  );
+
+  items.push(
+    activity(46, -6, {
+      number: 4, rotY: faceAvenue(46, -6), accent: '#9966ff',
+      title: 'Carry the crumb home',
+      target: 'Click the bread crumb itself → Program.',
+      steps: [
+        ctrlStep('repeat 8 times'),
+        moveStep('glide 7 feet over 1 seconds', 1),
+        lookStep('change size by -9 %', 1),
+        ctrlStep('wait 0.5 seconds'),
+        lookStep('set size to 100 %'),
+      ],
+      tip: 'Watch the last two blocks. Change size BY takes another slice off whatever is left, so eight of them do not remove 72% — they leave about half. Set size TO measures from the size it started at, so 100% is always the whole crumb back.',
+    }),
+  );
+
+  items.push(
+    activity(38, -34, {
+      number: 5, rotY: faceAvenue(38, -34), accent: '#e0455f',
+      title: 'The ladybird takes off',
+      target: 'Click the ladybird on the fallen leaf → Program.',
+      steps: [
+        ctrlStep('repeat 14 times'),
+        moveStep('move up by 3 feet', 1),
+        moveStep('rotate 20 degrees', 1),
+        lookStep('set opacity to 25 %', 1),
+        ctrlStep('wait 0.15 seconds', 1),
+        moveStep('go back to start'),
+      ],
+      tip: 'Move up is the one motion block that ignores which way a thing is facing — up is up. Set opacity fades it into the sky without deleting it, and go back to start brings it down again solid. Try taking that last block out and see where it ends up.',
+    }),
+  );
+
+  // --- Lighting -----------------------------------------------------------
+  items.push(orb(0, -62, 30, ORB_WARM));
+  items.push(orb(-66, -40, 22, ORB_WHITE));
+  items.push(orb(72, 26, 14, ORB_WARM));
+  items.push(orb(0, 60, 26, ORB_WHITE));
+
+  return { theme: 'bugs', spawn: { ...SP, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + materialization
 // ---------------------------------------------------------------------------
 
@@ -5572,6 +5921,11 @@ export const PRESET_WORLDS = {
     label: 'Red Square',
     hint: "Moscow in winter — St Basil's, the Kremlin wall, GUM and Lenin's tomb",
     build: redSquareLayout,
+  },
+  bugs: {
+    label: "A Bug's Life",
+    hint: 'An ant colony at ant scale — five building challenges and five coding challenges',
+    build: bugsLayout,
   },
   empty: {
     label: 'My World',

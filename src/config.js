@@ -663,6 +663,35 @@ export const WORLD_THEMES = {
   // sun is also BLUE, not white: the ground ramp is deliberately cold, and the sun is
   // weak and warm against it, which is the contrast that makes the cathedral's paint
   // work. Fog is close, because a winter afternoon there genuinely is hazy.
+  // A Bug's Life: a summer lawn, seen from ant height.
+  //
+  // The ground ramp is SOIL, not grass, and that is the whole trick of the theme. Down
+  // among the stems you are standing on bare earth and leaf litter; a green ground would
+  // put the student on top of the lawn looking down at it, which is the one viewpoint this
+  // world exists to avoid. All the green is up in the props, towering overhead.
+  //
+  // `flatRadius` is large and `amplitude` low because this is a CONSTRUCTION world before
+  // it is anything else -- pieces have to sit flat next to each other over a wide area, the
+  // same reason My World is nearly level.
+  bugs: {
+    groundDetail: 'ground-soil.jpg',
+    sky: 0x8ec8ea,
+    fogNear: 95,
+    fogFar: 380,
+    groundLow: 0x4a3a26,
+    groundHigh: 0x8a7048,
+    amplitude: 1.0,
+    flatRadius: 78,
+    blendRadius: 165,
+    hemiSky: 0xcfe6ff,
+    hemiGround: 0x6a5a3c,
+    hemiIntensity: 1.7,
+    sunColor: 0xfff6dd,
+    sunIntensity: 2.5,
+    sunPosition: [110, 140, 80],
+    stars: false,
+  },
+
   redsquare: {
     groundDetail: 'ground-regolith.jpg',
     sky: 0x9db6cc,

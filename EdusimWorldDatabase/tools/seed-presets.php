@@ -368,6 +368,28 @@ $WORLDS = [
             . "real glass, lit from inside, and it turns in the wind.\n\n"
             . "Two coding challenges: raise the cathedral out of the snow, and run a parade past the tomb.",
     ],
+    'bugs' => [
+        'title' => "A Bug's Life",
+        'tags'  => 'nature, animals, science, official, starter, building',
+        'description' =>
+            "An ant colony, and you are the size of an ant. A blade of grass is a fifty-foot tower, a pebble "
+            . "is a boulder and a breadcrumb is something you would need help to carry.\n\n"
+            . "This one is a workshop rather than a place to look at. An avenue runs from where you arrive "
+            . "down to the nest, with FIVE BUILDING challenges along the left and FIVE CODING challenges "
+            . "along the right — bridge the water drop, build a worker ant, raise a grain store, lean a "
+            . "ladder up to a fallen leaf, and invent a bug of your own; then send an ant down the scent "
+            . "trail, run a forager's round trip, make one ant signal another, carry a crumb home, and get "
+            . "the ladybird off the leaf. The whole middle of the avenue is left empty on purpose, because "
+            . "that is where your own pieces land.\n\n"
+            . "Cut into the soil beside the mound is a section through the nest: the nursery near the top "
+            . "where the sun warms it, the seed store in the middle, the queen deep down, and the rubbish "
+            . "heap kept well away from the food. There is no leader anywhere in it. An ant that finds food "
+            . "walks home laying a scent trail; a shorter route gets walked more often, so it gets stronger "
+            . "faster, and the colony ends up on the best path without a single ant ever comparing two "
+            . "routes.\n\n"
+            . "Out on the clover there is a herd of aphids being farmed for honeydew — real agriculture, "
+            . "fifty million years older than ours.",
+    ],
 ];
 
 // ---------------------------------------------------------------------------
