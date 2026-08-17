@@ -2726,20 +2726,39 @@ function seaLayout() {
   // coralGarden). Without that the gardens all sat on the sand around the rocks' feet and
   // the rocks themselves stayed bare grey, which is exactly backwards: on a real reef the
   // rock IS old coral and barely a square inch of it is uncovered.
+  // THE HEIGHTS ARE UP BY ABOUT A THIRD on the two ridges, and the two small heads by the
+  // spawn are deliberately left alone.
+  //
+  // A ten-foot mound thirty-five feet away stands under ten degrees above a 5ft student's eye
+  // line, which is a rock, not a reef. What the arrival view has to say is that there is a
+  // WALL of coral in front of you and a somewhere-else on the far side of it -- the cave in
+  // it, the shark cruising along it and the open sand beside it all depend on that reading.
+  // Height costs nothing here either: a bommie's triangle count goes with its RADIUS, since
+  // that is what sets the crust count and the shell's ring spacing.
   const bommies = [
-    [-42, -14, 9, 10, 401, 30], [-28, -15, 8, 11, 409, 28], [-18, -21, 7, 8, 419, 24],
-    [13, -25, 8, 10, 431, 28], [24, -19, 7, 8.5, 439, 24], [33, -13, 6, 6.5, 443, 20],
-    [-36, -38, 8, 9, 449, 24], [-16, -46, 7, 8, 457, 22], [6, -50, 8, 9, 463, 24],
-    [27, -43, 7, 7.5, 467, 20], [44, -30, 7, 8, 479, 20], [-50, -24, 8, 9, 487, 22],
+    [-42, -14, 9, 14, 401, 30], [-28, -15, 8, 15, 409, 28], [-18, -21, 7, 11, 419, 24],
+    [13, -25, 8, 14, 431, 28], [24, -19, 7, 11.5, 439, 24], [33, -13, 6, 9, 443, 20],
+    [-36, -38, 8, 12.5, 449, 24], [-16, -46, 7, 11, 457, 22], [6, -50, 8, 12.5, 463, 24],
+    [27, -43, 7, 10.5, 467, 20], [44, -30, 7, 11, 479, 20], [-50, -24, 8, 12.5, 487, 22],
     [-32, 3, 4, 3, 491, 12], [31, -1, 3.5, 2.5, 493, 10],
   ];
   for (const [x, z, radius, height, seed, count] of bommies) {
     items.push(prop('coral-bommie', x, z, { options: { radius, height, seed } }));
-    // Smaller colonies on the mounds than on the sand. A garden draped over a nine-foot
-    // rock is seen against the rock, so a colony sized for open sand looks like a slab
-    // stuck on rather than something growing out of it.
+    // `mound` is the mound's OWN height, not a fraction of it: coralGarden and coralBommie
+    // now share one height function (see moundHeight in SeaProps), so the garden lands on the
+    // rock exactly, and the small settling allowance is inside that function rather than
+    // being fudged here.
+    //
+    // The counts are up by about half, because with the colonies actually ON the rock the
+    // mound is what a student looks at rather than something they look past. Colonies are
+    // still smaller than on open sand: a garden draped over a nine-foot rock is seen against
+    // the rock, so a colony sized for open sand looks like a slab stuck on rather than
+    // something growing out of it.
     items.push(prop('coral-garden', x, z, {
-      options: { radius, count, height: height > 6 ? 0.78 : 0.6, mound: height * 0.95, seed: seed + 1 },
+      options: {
+        radius, count: Math.round(count * 1.25), height: height > 6 ? 0.95 : 0.76,
+        mound: height, seed: seed + 1,
+      },
     }));
   }
 
@@ -2753,7 +2772,10 @@ function seaLayout() {
   items.push(prop('reef-cave', -5, -21, { options: { width: 17, height: 11, mouth: 5.5, mouthHeight: 6.5, recess: 5, seed: 43 } }));
   // The cave gets a garden like every other mound. Bare rock around a hole reads as a
   // quarry; a real ledge mouth is as encrusted as everything else on the reef.
-  items.push(prop('coral-garden', -5, -21, { options: { radius: 8.5, count: 26, height: 1.0, mound: 10, seed: 44 } }));
+  // The cave is NOT a bommie -- its rock is a ring of lumps round a hole, not a dome -- so
+  // this garden is draped lower and wider than the mound's own dimensions suggest. Sized to
+  // the rock's full height it hangs colonies over the cave mouth, in mid-water.
+  items.push(prop('coral-garden', -5, -21, { options: { radius: 10, count: 34, height: 1.0, mound: 6.5, seed: 44 } }));
   items.push(prop('moray-eel', -5, -19.6, { y: 1.1, rotY: 0.12, options: { length: 8.5, seed: 11 } }));
   items.push(
     prop('info-placard', -14, -9, {
@@ -2786,8 +2808,8 @@ function seaLayout() {
   // second one is much further out and smaller, and it is doing a job: a single animal at a
   // known size gives the fog nothing to measure itself against, and a second one half-lost
   // in it is what makes the water read as deep.
-  items.push(prop('reef-shark', 21, -25, { y: 15, rotY: -2.05, rotX: 0.08, options: { length: 8.5, seed: 5 } }));
-  items.push(prop('reef-shark', -26, -60, { y: 19, rotY: 1.15, rotX: -0.05, options: { length: 7, seed: 23 } }));
+  items.push(prop('reef-shark', 21, -25, { y: 18, rotY: -2.05, rotX: 0.08, options: { length: 8.5, seed: 5 } }));
+  items.push(prop('reef-shark', -26, -60, { y: 21, rotY: 1.15, rotX: -0.05, options: { length: 7, seed: 23 } }));
   items.push(
     prop('info-placard', 15, -2, {
       rotY: -0.6,
@@ -2851,11 +2873,19 @@ function seaLayout() {
     // Note the HEIGHT, not the count. Dropped to 0.4 these came out as scattered coloured
     // chips -- a colony a few inches across has no shape left to read, so a drift of them
     // looks like litter on the sand rather than like life on it. Fewer and bigger.
-    [-9, 11, 4, 7, 0.7, 607], [15, 12, 4, 7, 0.65, 613], [-19, 6, 3.5, 6, 0.65, 617],
-    [4, 2, 3, 5, 0.6, 619], [26, -3, 3.5, 6, 0.65, 631],
+    [-9, 11, 4, 6, 1.15, 607], [15, 12, 4, 6, 1.1, 613], [-19, 6, 3.5, 5, 1.05, 617],
+    [4, 2, 3, 4, 1.0, 619], [26, -3, 3.5, 5, 1.05, 631],
   ];
+  // The five gardens between the spawn and the reef take a MUTED palette. A sand flat is not
+  // a reef wall: the species that live out on open carbonate sand are drab -- olives, ochres,
+  // dull rose -- and a handful of full-strength reef colours scattered across bare pale sand
+  // reads as litter dropped on it rather than as life growing out of it. The reef's own
+  // colour then arrives all at once when a student reaches the wall, which is the point.
+  const SAND_PALETTE = [0x9a8b5c, 0xa8905e, 0x8d9464, 0xb09a72, 0x9c7e72, 0xa38a86, 0x7f8f74];
   for (const [x, z, radius, count, height, seed] of gardens) {
-    items.push(prop('coral-garden', x, z, { options: { radius, count, height, seed } }));
+    items.push(prop('coral-garden', x, z, {
+      options: { radius, count, height, seed, ...(z > 0 ? { palette: SAND_PALETTE } : {}) },
+    }));
   }
 
   // Specimen colonies, big enough to be worth walking up to.
@@ -2925,7 +2955,7 @@ function seaLayout() {
     const radius = 92 + ((i * 7) % 4) * 9;
     items.push(
       prop('seagrass-patch', Math.cos(angle) * radius, -14 + Math.sin(angle) * radius, {
-        options: { radius: 11, count: 70, height: 7 + (i % 3) * 1.6, seed: 251 + i * 13, color: 0x3f6b40, drift: 0.65 },
+        options: { radius: 11, count: 46, height: 7 + (i % 3) * 1.6, seed: 251 + i * 13, color: 0x3f6b40, drift: 0.65 },
       })
     );
   }
@@ -2934,15 +2964,15 @@ function seaLayout() {
   // Spread through the whole volume rather than laid out on the floor, because that is the
   // difference between a world with fish in it and a world that is under water.
   const schools = [
-    ['tang', 11, 5, -30, 5, 0.95, 4.5, 0.7, 89],
-    ['yellow', 8, -20, -26, 4, 0.85, 4, -0.5, 311],
-    ['anthias', 16, -30, -10, 9, 0.55, 4.5, 1.2, 313],
-    ['damsel', 14, 3, -14, 3, 0.42, 3, 2.1, 317],
+    ['tang', 9, 5, -30, 5, 0.95, 4.5, 0.7, 89],
+    ['yellow', 7, -20, -26, 4, 0.85, 4, -0.5, 311],
+    ['anthias', 12, -30, -10, 9, 0.55, 4.5, 1.2, 313],
+    ['damsel', 11, 3, -14, 3, 0.42, 3, 2.1, 317],
     ['butterfly', 6, 25, -30, 6, 0.75, 3.5, -1.4, 331],
-    ['tang', 9, -40, -30, 11, 0.9, 5, 0.2, 337],
-    ['anthias', 18, 16, -44, 7, 0.5, 5, 2.6, 347],
-    ['damsel', 12, -12, -36, 4, 0.45, 3.5, -2.2, 349],
-    ['yellow', 7, 34, -34, 8, 0.8, 4, 1.7, 353],
+    ['tang', 8, -40, -30, 11, 0.9, 5, 0.2, 337],
+    ['anthias', 13, 16, -44, 7, 0.5, 5, 2.6, 347],
+    ['damsel', 10, -12, -36, 4, 0.45, 3.5, -2.2, 349],
+    ['yellow', 6, 34, -34, 8, 0.8, 4, 1.7, 353],
   ];
   for (const [species, count, x, z, y, length, radius, heading, seed] of schools) {
     items.push(prop('reef-fish-school', x, z, { y, options: { species, count, length, radius, heading, seed, rise: 4 } }));
@@ -2974,7 +3004,7 @@ function seaLayout() {
       rotY: -1.48,
       accent: '#1f7fa8',
       title: 'Send the shark on patrol',
-      target: 'Click the big shark overhead → Program. (Look up — it is 15 feet above you.)',
+      target: 'Click the big shark overhead → Program. (Look up — it is 18 feet above you.)',
       steps: [
         ctrlStep('forever'),
         ctrlStep('repeat 40 times', 1),

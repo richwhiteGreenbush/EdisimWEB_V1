@@ -1123,14 +1123,104 @@ Traps this world hit that generalise:
   cellular web a real caustic pattern is. Every frequency must be an integer multiple of
   2π/size or the sheet's seam draws a straight line across the sky.
 
-**Performance** (measured before the i5/i7 target was set; there is real headroom here
-now, and the reef is the obvious place to spend it): **274 draw calls, 488k
-triangles, 6 transparent meshes, 1 point light, 89 textures, ~1.2ms of CPU render**, 175ms
-to build and 620ms to load — the lightest-rendering populated world in the app by draw
-calls and by CPU, against the Park's 777 calls / 544k tris / 3.1ms. Three choices bought
-it: every reef garden of 20–30 colonies merges to one vertex-coloured mesh, a whole shoal of
-fish merges to one, and the ceiling is one opaque quad rather than the obvious transparent
-one.
+#### The rebuild: NO THIN SHEETS, NO OPEN ENDS, and a section that changes shape
+
+Rebuilt against the i5/i7 target, the same pass Dinosaur Island had. The world was **271
+calls / 484k drawn** and is now **277 calls / 1.53M drawn / 763k of geometry / 1.35ms of
+CPU / 6 transparent meshes / 1 point light / 86 textures**, 160ms to build and 1.4s to load.
+Draw calls barely moved, because every prop still merges to one or two meshes.
+
+**Three things were capping the whole file and they only make sense together.**
+
+- **Everything was `flatShading: true`.** It reads as low-poly art, and — exactly as on
+  Dinosaur Island — it was also hiding the crossings where a dozen swept tubes intersect.
+- **Every fin, blade and frond was a flat extrusion rendered `DoubleSide`.** A shark's
+  dorsal at 0.07ft thick with a square edge is a piece of card, and edge-on it vanishes.
+  `solidSurface()` replaces them all with closed lens-section solids and `DoubleSide` is
+  gone from every animal in the file.
+- **Every body was a constant-aspect sweep.** `taperedTube` sweeps a CIRCLE, so lateral
+  compression could only be faked by scaling the finished sweep — one ratio for the whole
+  animal. But a fish's section changes shape ALONG its length: a shark is round amidships,
+  wider than deep across the head, and a thin vertical blade at the tail stalk.
+  **`bodySweep()` splines width, depth above the axis and depth below it independently**,
+  and it carries more realism than any amount of tessellation.
+
+**The gap rules, which are the answer to "leave no open spaces", and every one is structural
+rather than remembered:** `chain()` emits a tube per span, a socket ball at every interior
+node sized from the BEND (`1/cos(phi/2)`, not from the fattest nearby radius) and a cap at
+each open end; a tube stopping at a real thickness gets a ball and one tapering to 0 must
+not; `spike()` is rooted; `dome()` sinks its equator; and `solidSurface()` closes its own
+rim with BOTH windings — eighty triangles against a whole class of inside-out bug.
+
+Traps this rebuild hit, most of which generalise:
+
+- **`computeVertexNormals()` on a NON-INDEXED geometry can only compute FACE normals.**
+  Everything from `PolyhedronGeometry` is non-indexed, so every rock in this world was
+  flat-shaded whatever the material said, and subdividing only made the facets smaller.
+  `mergeVertices()` first is the whole fix — and it drops the vertex count sixfold.
+- **A wrapped grid's duplicated SEAM column needs its normals welded.** A swept body or a
+  lathe has to duplicate the vertices at u=0 as u=1, because one vertex cannot carry both
+  ends of the texture coordinate — and `computeVertexNormals` then treats the copies as
+  unrelated and creases the surface exactly where it should be smoothest. On a reef mound
+  that is a hard line from the apex to the sand, visible from across the world.
+- **A garden draped over a mound and the mound itself must read ONE height function.** The
+  first pass had the rock as a heap of random lumps and the garden assuming a smooth dome;
+  they disagreed by several feet and a third of every draped garden hung in open water
+  beside its own rock. `moundHeight()` is now shared, so the mound can be as irregular as it
+  likes. Making the rock a clean half-ellipsoid instead was the SECOND mistake — that reads
+  as a giant marshmallow, and satellites seated at a fraction of the local height sit
+  *inside* it and contribute nothing.
+- **Countershading cannot be a function of height alone.** A pectoral fin is a plate held
+  well below the body's centre line, so every vertex on it — top face and bottom alike —
+  sits at a height the belly rule calls white, and both pectorals rendered as solid white
+  paddles. What countershading IS, is which way a surface faces, so anything outboard of the
+  body takes its tone from its own **normal** instead.
+- **`mergeColored` OVERWRITES a part's existing vertex colours**, which wiped a finished sea
+  fan to white the moment it was handed back as one part. `mergeParts()` in this file adds
+  `keepColor` and a per-part `tint` — and the tint is applied BEFORE the part's transform,
+  so "distance from the axis" is measured from an axis that is still where it was authored.
+- **A relief tile has to be sized to the SURFACE, not to the number of parts.** A mound
+  shell's u runs once round fifty feet and its v across nine, so a square repeat of 6 put a
+  nine-foot stone cell on the rock — which is not grain, it is another lump. Same arithmetic
+  stretched the shark's denticles 3:1 into lengthwise streaks down its flank.
+- **Encrusting growth is a COLOUR problem, not a geometry one.** There is almost no bare
+  rock on a living reef, and covering a nine-foot mound in solids costs hundreds of them —
+  fourteen mounds later that is the world's whole budget spent on scenery. A per-vertex
+  paint of irregular patches does it for free. Two calibration notes: six saturated hues at
+  full strength turns every mound into a pastel Easter egg, and the patch SCALE is a spatial
+  frequency in feet — at 0.5 one patch spans twelve feet and a mound comes out as one flat
+  wash.
+- **A branching recursion cannot draw a net**, because it can only ever divide. A gorgonian's
+  branches REJOIN, and without those cross-links a sea fan is a small purple tree. Link every
+  node rather than only the tips, and collect the candidate pairs and SHUFFLE them before
+  capping — an in-order pass spends the whole allowance on the first sub-branch the
+  depth-first walk reaches, and meshes one corner solid while the rest stays bare.
+- **A ceiling of caustics is a contrast problem.** A caustic web genuinely is a net of bright
+  lines, and drawn at full strength that is what the sky reads as: lace wallpaper. Thirty
+  feet of water diffuses it into soft dapple, so the highlight only ever sits a little above
+  the water colour. Inverting the exponent to broaden the bright regions is the other wrong
+  answer — most of the sheet goes bright and the pattern reads as dark speckles on white.
+- **A sprawled octopus's web sags into the seabed.** Its arms are already almost on the sand,
+  so a catenary of any realistic depth buried the one feature that separates an octopus from
+  a spider. Clamp it above the floor.
+- **Papillae scattered in unrotated coordinates on a mantle that IS rotated** hang in the
+  water above the animal like flies. Keep the mantle's frame as a matrix and place onto it.
+- **Colour on open sand is litter.** The five gardens between the spawn and the reef take a
+  muted olive-and-ochre palette, because a handful of full-strength reef colours scattered
+  on bare pale sand reads as rubbish dropped on it — and the reef's own colour then arrives
+  all at once when a student reaches the wall, which is the point.
+- **The reef has to be a WALL.** A ten-foot mound thirty-five feet away stands under ten
+  degrees above a 5ft eye line, which is a rock. Height is also free here: a bommie's cost
+  goes with its RADIUS, since that sets the crust count and the shell's ring spacing.
+
+**`tools/export-preset-world.mjs` exists because of this rebuild.** A preset world is a list
+of records and building it touches no geometry, so it runs in node — except that the ground
+height under each object comes from raycasting the real terrain mesh, which needs a renderer
+and a rendered frame. The tool calls `SceneSetup`'s own `terrainHeightAt` (exported for
+exactly this) and builds TWICE: once to discover which theme the layout asked for, and once
+for real. Skip that and every object comes out a foot off the sea floor, grounded against
+the default theme's hills. Validated against the committed `dinosaur.json`: every prop,
+option and x/z identical, y within 1/8 inch (analytic vs raycast-interpolated terrain).
 
 ### The four world landmarks: Colosseum / Machu Picchu / Taj Mahal / Red Square
 

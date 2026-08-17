@@ -63,7 +63,13 @@ function pockNoise(x, z) {
 // Flattens out to exactly 0 within the theme's flatRadius (so the spawn point and
 // whatever sits at the middle of a world are on level ground), then eases up to full
 // hill height by blendRadius.
-function terrainHeightAt(theme, worldX, worldZ) {
+//
+// EXPORTED for one reason: tools/export-preset-world.mjs. Every placement path in the app
+// gets its ground height by raycasting the real mesh, which is right, and which needs a
+// renderer, a canvas and a rendered frame. Exporting a preset world to a .json for the
+// gallery needs the same numbers with none of that -- and re-deriving them in the tool
+// would be a copy of this function free to drift away from it.
+export function terrainHeightAt(theme, worldX, worldZ) {
   const radius = Math.hypot(worldX, worldZ);
   const falloff = smoothstep(theme.flatRadius, theme.blendRadius, radius);
   if (falloff === 0) return 0;

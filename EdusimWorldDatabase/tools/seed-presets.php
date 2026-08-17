@@ -163,12 +163,18 @@ $WORLDS = [
         'title' => 'Under the Sea',
         'tags'  => 'ocean, nature, official, animals',
         'description' =>
-            "A tropical coral reef thirty feet down, modelled from a photograph. A reef wall of coral gardens "
-            . "on one side and open white sand on the other, with sunbeams coming down through the surface, "
-            . "marine snow drifting in the water and reef sharks cruising overhead.\n\n"
-            . "There is a moray eel in a cave in the reef, an octopus, and a sea star on the sand. Like New "
-            . "York, this world is hidden in the app — the only way in is the billboard behind the Park's "
-            . "nature centre.",
+            "A tropical coral reef thirty feet down, modelled from a photograph. A wall of coral-covered rock "
+            . "on one side and open white sand on the other, with sunbeams coming down through a rippling "
+            . "surface, marine snow drifting in the water and reef sharks cruising overhead.\n\n"
+            . "Four animals are built to be walked up to and looked at closely: a Caribbean reef shark you "
+            . "stand underneath and see the mouth of, a green moray gaping in its cave — it has no gill covers, "
+            . "so that open mouth is it breathing — an octopus sprawled on the rubble with its arms webbed and "
+            . "its bar-pupilled eye, and sea stars on the sand you have to crouch to see. Around them: a giant "
+            . "clam with its mantle out, sea fans, anemones full of clownfish, sponges, urchins and shoals of "
+            . "reef fish through the whole water column.\n\n"
+            . "Two coding challenges: send the shark on patrol, and make the octopus change colour.\n\n"
+            . "Like 1940's New York, this world is hidden in the app — the only way in is the billboard behind "
+            . "the Park's nature centre.",
     ],
 
     /*
