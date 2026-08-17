@@ -437,18 +437,30 @@ img.brand-mark {
 
 /* ---------- hero ---------- */
 
-/* The vertical rhythm here is tuned so the screenshot below the buttons CLEARS the
-   fold on a 720px laptop. At the original 64px/40px it began 7px below it, so the
-   entire first screen was empty sky and a visitor had no reason to think there was
-   anything under it. A visible slice of the picture is the thing that says scroll. */
+/* The bottom padding used to be 110px, tuned so a slice of the screenshot below the
+   buttons cleared the fold on a 720px laptop -- a visible sliver of picture being the
+   thing that says "scroll". The screenshot, the three chips and the fine print are gone
+   now, so that 110px is 110px of empty green with nothing behind it to reveal. What
+   carries the same job instead is the pillars section immediately below, whose own white
+   card now crosses the fold. */
 .hero {
   position: relative;
-  padding: 30px 0 110px;
+  padding: 30px 0 56px;
   background:
     radial-gradient(ellipse 90% 60% at 20% -10%, rgba(255,255,255,0.5), transparent),
-    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 55%, var(--grass-top) 55%, var(--grass-bottom) 100%);
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 76%, var(--grass-top) 76%, var(--grass-bottom) 100%);
   overflow: hidden;
 }
+
+/* The horizon moved from 55% to 76% when the screenshot came out, and that is a
+   LEGIBILITY fix rather than a taste one. It is a hard stop at a percentage of the hero's
+   own height, so shortening the hero drags it up the page -- at 55% of the new height it
+   cut straight through .hero-sub, leaving four lines of dark ink on the dark grass band
+   at roughly 2:1. .hero-sub takes the page's ink colour precisely because it was sitting
+   on pale sky (see its own note below), so the two numbers are coupled: move one and
+   check the other. 76% puts the whole paragraph back on sky and leaves the horizon just
+   under it, with the buttons on the grass where their own fills carry them. Checked at
+   1280x720 and 390x844. */
 
 .hero::before,
 .hero::after {
@@ -501,10 +513,11 @@ img.brand-mark {
    admitted rather than hidden: rounded corners, a white rim and a real shadow make it a
    card sitting in the sky instead of a mismatched patch of one.
 
-   `max-width` is deliberately modest. The hero's vertical rhythm is tuned so a slice of
-   the screenshot below clears the fold on a 720px laptop (see the note above .hero), and
-   this element replaces both the old eyebrow chip and a three-line h1 -- so it can spend
-   what those cost and no more. The `min()` keeps it off the edges on a phone. */
+   `max-width` is deliberately modest: this element replaces both the old eyebrow chip and
+   a three-line h1, so it can spend what those cost and no more. It was also once holding
+   the hero short enough for the screenshot below to peek above the fold; that screenshot
+   is gone, but the width is still the right one for a logo card. The `min()` keeps it off
+   the edges on a phone. */
 /* `h1.hero-logo`, not `.hero-logo` -- `.hero h1` above sets `max-width: 16ch`, which on
    a single class loses to nothing and quietly won: 16ch of Fredoka at the clamp's top
    size is about 520px, so the card rendered at that width whatever this rule asked for.
@@ -594,27 +607,6 @@ img.brand-mark {
 .browser-frame img {
   border-radius: var(--radius-md);
   width: 100%;
-}
-
-.hero-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 28px;
-  justify-content: center;
-  margin-top: 8px;
-}
-
-.hero-stat {
-  background: rgba(255,255,255,0.9);
-  border-radius: var(--radius-md);
-  padding: 14px 22px;
-  font-family: "Fredoka", sans-serif;
-  color: var(--ink);
-  box-shadow: var(--shadow-pop);
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
 /* ---------- section scaffolding ---------- */
@@ -2076,36 +2068,6 @@ img.brand-mark {
 /* ==========================================================================
    Pillar-three support: the worlds arrive with things already wired to program
    ========================================================================== */
-
-/* The hero's three chips are anchors now, not captions -- they are the first place
-   the three pillars are named, so they have to be clickable. */
-.hero-stat {
-  text-decoration: none;
-  border: 3px solid transparent;
-  transition: transform 0.15s ease, border-color 0.15s ease;
-}
-
-a.hero-stat:hover {
-  transform: translateY(-3px);
-  border-color: var(--ink);
-}
-
-.hero-stat b {
-  font-family: "Fredoka", sans-serif;
-  color: var(--accent, var(--orange));
-}
-
-/* Pale, not ink. This line sits at the very bottom of the hero, which is the deep
-   shadowed end of the logo's field -- dark ink on it ran at about 1.5:1 and simply
-   disappeared. Everything else down there is already light: the three chips are white
-   cards and the screenshot is in a dark frame. */
-.hero-fine {
-  margin: -14px 0 0;
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: #e8f4fd;
-  text-shadow: 0 1px 2px rgba(8, 26, 44, 0.55);
-}
 
 .activity-strip {
   display: grid;
