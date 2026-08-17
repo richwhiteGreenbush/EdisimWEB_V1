@@ -17,20 +17,22 @@ import { WORLD_LINK_PARAM, WORLD_LINK_BASE } from './config.js';
 // it somewhere else.
 //
 // ---------------------------------------------------------------------------
-// Why WORLD_LINK_BASE is root-relative, and what that means for the Railway copy
+// Why WORLD_LINK_BASE is root-relative, and why the app has to live beside the gallery
 // ---------------------------------------------------------------------------
 //
 // The fetch has to be SAME-ORIGIN, and not for tidiness: the gallery is served over plain
 // http (edusim3dweb.com has no TLS), and a page served over https may not fetch an http
-// url at all. Browsers block it outright as mixed content -- the same wall the in-world
-// browser panel runs into, and there is no client-side way round either of them.
+// url at all. Browsers block it outright as mixed content, and there is no client-side way
+// round it.
 //
-// So this only works where the app and the gallery share an origin, which is why deploy.sh
-// now also publishes the app to the gallery's own host. On the Railway copy the fetch
-// resolves to a path that is not there, 404s, and reports that plainly. It does not fail
-// silently and it does not try the absolute address, because trying it would produce a
-// mixed-content console error that looks like a bug in this file rather than the hosting
-// fact that it is. When the gallery gets a certificate, both copies work.
+// That is the whole reason the app is deployed to /app/ on this host rather than to a
+// separate one. Root-relative -- `/worlds/download.php?id=` -- resolves to the gallery
+// from /app/ and from an origin root alike, which is why this is the one url in the app
+// that is deliberately NOT relative to the bundle the way StartupAssets.js's are.
+//
+// It deliberately does not fall back to an absolute address if the fetch fails. Trying one
+// would produce a mixed-content console error that reads like a bug in this file rather
+// than the hosting fact it is; a plain 404 with the reason in a toast is more use.
 
 const ID_PATTERN = /^[0-9]{1,9}$/;
 

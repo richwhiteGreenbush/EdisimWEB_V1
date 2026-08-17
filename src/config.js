@@ -757,13 +757,18 @@ export const WEB_BROWSER_DOM_HEIGHT = 585; // px -- keeps the same 4:2.6 aspect 
 // workaround -- see the web browser panel notes in CLAUDE.md. Every preset world seeds
 // its spawn-point panel from this same constant.
 //
-// KNOWN LIMITATION, and it is not a bug in this file: edusim3dweb.com has no HTTPS
-// (port 443 is not open), while the app is served from Railway over HTTPS. A browser
-// refuses to load an http: iframe inside an https: page -- "Mixed Content ... blocked"
-// -- so on the Railway deployment this panel comes up blank. It works on any http
-// origin, including the local Apache mirror serve-local.sh runs. The fix is to enable
-// SSL for the domain at pair Networks; this line then becomes https: and works
-// everywhere. Nothing in the app can work around it.
+// This USED to come up blank in production and no longer does, which is worth recording
+// because the reason had nothing to do with this file. edusim3dweb.com has no HTTPS (port
+// 443 is not open), and the app was served from Railway over HTTPS -- and a browser
+// refuses to load an http: iframe inside an https: page ("Mixed Content ... blocked").
+// Now that the app is served from /app/ on this same http host, both ends are http, the
+// iframe is same-origin, and the panel simply works. It always did on the local Apache
+// mirror, which is why this looked like a deployment quirk rather than a wall.
+//
+// The direction of the constraint is the thing to remember: enabling SSL at pair Networks
+// is still worth doing -- it is what brings immersive VR back (navigator.xr is
+// secure-context-only) -- but this line has to become https: in the same change, or the
+// panel goes blank again for exactly the old reason with the roles reversed.
 export const WEB_BROWSER_DEFAULT_URL = 'http://edusim3dweb.com';
 
 // --- Opening a shared world from a link ------------------------------------
@@ -776,10 +781,11 @@ export const WORLD_LINK_BASE = '/worlds/download.php?id=';
 
 // The shared world gallery, opened in a new tab by Menu > Load World > Get More Worlds.
 //
-// The mixed-content limitation above does NOT apply here, and the difference is worth
+// The mixed-content rule described above does NOT apply here, and the difference is worth
 // stating because the two look alike: that one is an http: IFRAME inside an https: page,
-// which browsers block. This is a top-level navigation into a new tab, which they do not.
-// So this link works from the Railway deployment even while the browser panel does not.
+// which browsers block. This is a top-level navigation into a new tab, which they do not
+// -- so this link kept working through the whole period the browser panel was blank, and
+// would keep working if the app were ever served over https again.
 export const WORLD_GALLERY_URL = 'http://edusim3dweb.com/worlds/';
 export const EDIT_ICON_SIZE = 0.7; // feet, billboard sprite size
 export const EDIT_ICON_MARGIN = 0.6; // feet above the panel's bounding-box top

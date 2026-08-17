@@ -120,17 +120,19 @@ fixed base (`WORLD_LINK_BASE`) cannot point anywhere but the gallery, so there i
 allowlist to maintain and no way to aim it elsewhere.
 
 **The fetch must be SAME-ORIGIN, and that is a hosting fact, not a preference.** The
-gallery is served over plain http (edusim3dweb.com has no TLS) and the Railway copy of the
-app is https — and **a page served over https may not fetch an http url at all.** Browsers
-block it as mixed content, exactly as they block the in-world browser panel's iframe, and
-nothing client-side gets round either. So `deploy.sh` publishes the **built app to the
-gallery's own host at `/app/`**, and `EWD_APP_OPEN_URL` points the button there. On the
-Railway copy a `?world=` link 404s and says so plainly; it deliberately does not try the
-absolute address, because that produces a mixed-content console error that looks like a bug
-in this code rather than the hosting fact it is. When the domain gets a certificate the two
-copies become interchangeable.
+gallery is served over plain http (edusim3dweb.com has no TLS), and **a page served over
+https may not fetch an http url at all** — browsers block it as mixed content and nothing
+client-side gets round it. That is the entire reason the app is deployed to **`/app/` in
+the gallery's own docroot** rather than to a host of its own: it is what makes
+`WORLD_LINK_BASE` resolvable. It deliberately does not fall back to an absolute address if
+the fetch fails, because that produces a mixed-content console error that reads like a bug
+in this code rather than the hosting fact it is.
 
-**Every link now points at `/app/`, and Railway is a live deployment nothing links to.**
+### The app is served from ONE place, and every link says so
+
+`http://edusim3dweb.com/app/`. The Railway deployment it used to run on is retired; nothing
+in the repo configures it and no link points at it.
+
 `EWD_APP_URL` was the one deliberately-absolute constant in `lib/config.php`; now that the
 app is a directory in the same docroot it is `'../app/'`, like `EWD_SITE_URL` and
 `EWD_GUIDE_URL` beside it, and the gallery emits no absolute links at all except Google
@@ -143,18 +145,31 @@ files are also published to GitHub Pages, where a relative `app/` is a dead end.
 carry the **trailing slash** on purpose — `/app` alone is a 301, and that is a wasted round
 trip on the button whose job is to start the app.
 
-**The two Railway-only capabilities are the argument for TLS here.** Immersive VR
-(`navigator.xr`) and clipboard writes are secure-context APIs and are simply absent on plain
-http; both already degrade (side-by-side stereo, a select-and-copy fallback). `crypto.randomUUID`
-was a third and did *not* degrade — see `src/Uuid.js`.
+**One capability came back and one is gone until there is TLS.** Serving the app over http
+means the in-world browser panels pointed at `WEB_BROWSER_DEFAULT_URL` — blank for the whole
+time the app was https — **now work**, because an http iframe in an http page is not mixed
+content. Immersive VR is the opposite: `navigator.xr` is secure-context-only, so with no
+https copy anywhere it is unreachable and `VRView` always takes the side-by-side stereo path.
+`crypto.randomUUID` was a third secure-context API and, unlike those two, did *not* degrade —
+it threw during boot and rendered a blank page, which is what `src/Uuid.js` exists to prevent.
+**If the domain ever gets a certificate, `WEB_BROWSER_DEFAULT_URL` must become `https:` in
+the same change** or the panels go blank again for the old reason with the roles reversed.
 
-**Two things that had to change to serve the app off the origin root:**
+**Two things that had to change to serve the app from a subdirectory:**
 
 - **`vite.config.js` sets `base: './'`.** The default `'/'` writes `/assets/index-xxxx.js`
   into the built page, which is right at a root and a 404 one directory down.
 - **`StartupAssets.js`'s urls are relative** (`tree/…`, not `/tree/…`). They are fetched by
-  url at runtime, so a leading slash looks one directory too high under `/app/`.
-  `SurfaceTextures.js` already did this correctly.
+  url at runtime, so a leading slash resolves against the **domain root** — which under
+  `/app/` is the marketing site, where the file is not. `SurfaceTextures.js` already did
+  this correctly. `fetchAsFile()` now strips a leading slash itself rather than relying on
+  each call site: the first pass converted the tree urls by hand and missed the billboard,
+  so the Park's welcome banner 404'd in production for weeks. **The failure is invisible in
+  dev**, because `npm run dev` serves the app at an origin root where both spellings work —
+  which is the whole argument for putting the guard in the one funnel they share.
+
+  `WORLD_LINK_BASE` is the deliberate opposite: root-relative, because it points at the
+  *gallery*, not at the bundle.
 
 **The link is stripped from the address bar before the world loads** (`history.replaceState`
 in `takeLinkedWorldId`). Loading replaces everything, so a link left in the url would wipe
@@ -285,9 +300,9 @@ page opened without `noopener` can reach back through `window.opener` and naviga
 out from under the student. And **the mixed-content limitation on
 `WEB_BROWSER_DEFAULT_URL` does not apply to it** — that one is an `http:` *iframe* inside an
 `https:` page, which browsers block; this is a top-level navigation into a new tab, which
-they do not. The link works from the Railway deployment even while the in-world browser
-panel pointed at the same host does not — which is also why every `http://edusim3dweb.com/app/`
-link in `docs/` is fine on the https GitHub Pages mirror.
+they do not. That distinction is why this link kept working through the whole period the
+in-world browser panel pointed at the same host was blank — and it is also why every
+`http://edusim3dweb.com/app/` link in `docs/` is fine on the **https** GitHub Pages mirror.
 
 **The Park is the boot world** (`config.js`'s `BOOT_WORLD`). A first visit — or any
 visit where `rehydrateAll()` comes back with an empty registry — builds it via the same

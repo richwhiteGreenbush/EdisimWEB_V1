@@ -119,12 +119,9 @@ ewd_define('EWD_ADMIN_PASSWORD_HASH', '');
 ewd_define('EWD_SITE_URL', '../');
 ewd_define('EWD_GUIDE_URL', '../guide/index.html');
 
-// The app used to be the ONE absolute link here, because it was deployed to Railway and
-// there was no copy of it on this server to point at. There is now: deploy.sh publishes
-// the built bundle to /app/ on this host, so this joins the two above and is relative.
-//
-// The Railway deployment still exists and still works -- it is simply no longer what any
-// link points at. Nothing here depends on it.
+// The app used to be the ONE absolute link here, because it was hosted elsewhere and there
+// was no copy of it on this server to point at. Every deployment now goes to /app/ on this
+// host, so this joins the two above and is relative.
 //
 // Trailing slash on purpose: `/app` without one is a 301 to `/app/`, and that is a wasted
 // round trip on the one button whose whole job is to start the app quickly.
