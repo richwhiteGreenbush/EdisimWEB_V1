@@ -389,11 +389,32 @@ img.brand-mark {
   flex: none;
 }
 
-/* A 360px handset cannot hold brand + "Play Now" + burger, and the launch button is
-   the one thing on this bar that must never be dropped -- so the wordmark goes first. */
+/* A 360px handset cannot hold brand + the launch button + burger, and the launch button
+   is the one thing on this bar that must never be dropped -- so the wordmark goes first.
+   Measured with the current "▶ Launch Edusim" label: no overflow at 360, 390 or 430. */
 @media (max-width: 430px) {
   .brand span:not(.brand-mark) { display: none; }
   .nav-cta.btn { padding: 10px 14px; }
+}
+
+/* The whole label is ONE flex item, and it has to be. `.btn` is `display: inline-flex`
+   with `gap: 8px`, so a bare `<span>Edusim</span>` beside the text becomes a second flex
+   item: the gap then applies between "Launch" and "Edusim" while "▶ Launch" is separated
+   by an ordinary word space, and the label renders visibly lopsided. Wrapping both in
+   .nav-cta-label leaves the button with a single item, so `gap` never applies inside it
+   and the space in " Edusim" is just a space. (Putting the space outside the span is not
+   an alternative -- leading and trailing whitespace in a flex item is stripped.) */
+.nav-cta-label { white-space: nowrap; }
+
+/* 900px is where the burger gives way to six horizontal links, and it is the tightest
+   the full bar ever gets. "▶ Launch Edusim" is nearly twice the width of the old
+   "Play Now", and between 900 and 939 that difference is exactly enough to break
+   "1 · Build it" onto a second line -- measured: the link row goes 32px -> 49px at 930
+   and is fine again at 940. Dropping one word here is cheaper than shrinking the type or
+   the gaps, and costs no meaning: the wordmark is at the other end of the same bar.
+   The ceiling is 979 rather than 939 so a wider font fallback has somewhere to go. */
+@media (min-width: 900px) and (max-width: 979px) {
+  .nav-cta-word { display: none; }
 }
 
 /* Landscape tablet and up: back to one horizontal row. */

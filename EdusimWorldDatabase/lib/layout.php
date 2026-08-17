@@ -104,7 +104,11 @@ function ewd_header(array $opts = []): void
       <li><a href="<?= e(EWD_GUIDE_URL) ?>" target="_blank" rel="noopener noreferrer">Hands-On Guide</a></li>
       <li><a href="<?= e(EWD_SITE_URL) ?>" target="_blank" rel="noopener noreferrer">Main site</a></li>
     </ul>
-    <a class="btn btn-primary nav-cta" href="<?= e(EWD_APP_URL) ?>" target="_blank" rel="noopener noreferrer">Play Now</a>
+    <?php /* Same button and same label as the marketing site's nav -- one bar, one name
+             for the thing it opens. "Edusim" is a span so the narrow-band rule in
+             database.css can drop it; this nav carries four links to the marketing
+             page's six, so it has more room, but the two stay in step deliberately. */ ?>
+    <a class="btn btn-primary nav-cta" href="<?= e(EWD_APP_URL) ?>" target="_blank" rel="noopener noreferrer"><span class="nav-cta-label">▶ Launch<span class="nav-cta-word"> Edusim</span></span></a>
     <label class="nav-burger" for="nav-toggle"><span class="burger-box" aria-hidden="true"></span>Menu</label>
   </div>
 </nav>
