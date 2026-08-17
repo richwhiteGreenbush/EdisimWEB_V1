@@ -209,6 +209,12 @@ $WORLDS = [
             . "is wider than the whole walkable world. What that keeps is every proportion you can compare: "
             . "Menkaure really is less than half the height of the other two, and the Sphinx really is as long "
             . "as Menkaure's base is wide. Every sign gives the real figure.\n\n"
+            . "Look closely at three things. The obelisks are carved rather than printed: the glyphs are cut "
+            . "INTO the granite in sunk relief, which is the technique Egypt used outdoors because raised "
+            . "carving goes flat by noon — and the paint still survives down in the cuts, in the six mineral "
+            . "colours an Egyptian workshop actually had. The Sphinx's flanks are ribbed in horizontal bands: "
+            . "that is geology, not damage, where soft and hard limestone layers erode at different rates. And "
+            . "every pyramid stands in a great apron of its own fallen casing.\n\n"
             . "Two coding challenges: raise the obelisk, and sail the ship of the sun.",
     ],
     'solar' => [
@@ -263,6 +269,12 @@ $WORLDS = [
             . "real helicopter needs a tail rotor. Being wrong in interesting ways for a very long time is how "
             . "engineering actually proceeds. The cart is the exception: a replica was built in 2004 and it drove.\n\n"
             . "Look at the open notebooks — the writing runs backwards, because Leonardo was left-handed.\n\n"
+            . "Then look at the cart's big horizontal gear. It has real teeth, and there are iron pegs set "
+            . "between some of them and empty holes where the others would go: that is the program. Change which "
+            . "pegs are in and the cart drives a different path, which is why it gets called the first robot. "
+            . "The aerial screw is one continuous linen helix wound round its mast, and the ornithopter's wings "
+            . "are membrane stretched between finger bones, scalloped at the trailing edge exactly like a bat's "
+            . "— Leonardo studied bats because a membrane wing is something a person could actually build.\n\n"
             . "Two coding challenges: turn the aerial screw, and drive the cart.",
     ],
     'ellis' => [
@@ -275,7 +287,12 @@ $WORLDS = [
             . "It is deliberately not grand. First and second class were inspected in their cabins and walked "
             . "straight off at Manhattan; only steerage came here, to a queue, a numbered tag pinned to your "
             . "coat, and a doctor who looked at your eyes for thirty seconds. Read the manifest board and the "
-            . "line-inspection sign — and look at Liberty's feet, where the broken chain is.\n\n"
+            . "line-inspection sign — and look at Liberty's feet, where the broken chain is. Almost nobody "
+            . "sees it, because you cannot from the ground: she is stepping out of a broken shackle, and the "
+            . "statue marks the end of slavery as much as independence.\n\n"
+            . "By the doctor's desk there is a board showing the chalk letters — E for eyes, H for heart, X for "
+            . "suspected mental illness. A letter chalked on your coat meant you were pulled aside for a second "
+            . "look. About two in a hundred were sent back.\n\n"
             . "Two coding challenges: bring the ship alongside, and light the torch.",
     ],
     'capitol' => [

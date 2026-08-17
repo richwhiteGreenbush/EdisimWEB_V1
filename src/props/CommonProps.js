@@ -101,14 +101,35 @@ export function standingSign({
 
     ctx.fillStyle = ink;
     ctx.textAlign = 'center';
+
+    // SHRINK TO FIT. Both the title and the subtitle were drawn at a fixed fraction of the
+    // panel height with no measurement, so any string too long for the board simply ran off
+    // BOTH edges and was clipped mid-word -- Ellis Island's "1907 - twelve million people
+    // came through this door" arrived as "07 - twelve million people came through this do".
+    // The same fixed-size mistake `welcomeBoard` and `organelleTag` each had, and the same
+    // fix: measure, and step the size down until it fits the drawable width.
+    const fit = (text, size, maxWidth, weight = '', family = 'Georgia, "Times New Roman", serif') => {
+      let s = size;
+      for (let i = 0; i < 24; i++) {
+        ctx.font = `${weight}${s}px ${family}`;
+        if (ctx.measureText(text).width <= maxWidth) break;
+        s *= 0.94;
+      }
+      return s;
+    };
+    const inner = w - 80;
     const titleSize = subtitle ? h * 0.3 : h * 0.4;
-    ctx.font = `bold ${titleSize}px Georgia, "Times New Roman", serif`;
     const startY = subtitle ? h * 0.42 : h * 0.62;
-    lines.forEach((line, i) => ctx.fillText(line, w / 2, startY + i * titleSize * 1.1));
+    lines.forEach((line, i) => {
+      const s = fit(line, titleSize, inner, 'bold ');
+      ctx.font = `bold ${s}px Georgia, "Times New Roman", serif`;
+      ctx.fillText(line, w / 2, startY + i * titleSize * 1.1);
+    });
 
     if (subtitle) {
       ctx.fillStyle = accent;
-      ctx.font = `${h * 0.15}px "Helvetica Neue", Arial, sans-serif`;
+      const s = fit(subtitle, h * 0.15, inner, '', '"Helvetica Neue", Arial, sans-serif');
+      ctx.font = `${s}px "Helvetica Neue", Arial, sans-serif`;
       ctx.fillText(subtitle, w / 2, h * 0.78);
     }
   });
@@ -153,26 +174,41 @@ export function bench({ length = 5, woodColor = 0x8a5a32 } = {}) {
 
 // Lamp post with a real PointLight inside the globe, so it genuinely lights the
 // ground under it rather than only looking lit.
-export function lampPost({ height = 11, color = 0xffe6b0, intensity = 1.6 } = {}) {
-  const iron = standard({ color: 0x24272b, roughness: 0.55, metalness: 0.5, ...relief('metal', { seed: 41, repeat: 3 }) });
+//
+// `lit` is the one option worth knowing about, and it defaults to TRUE so every world
+// saved before it existed behaves exactly as it did. Pass false in a DAYTIME world.
+// A point light is a per-fragment forward-pass cost -- the most expensive thing an
+// integrated GPU is asked for here -- and a street furnished with a dozen lamps was
+// spending a dozen of them lighting a scene the sun already lights. Ellis Island is set
+// on a bright cold morning and was carrying ten, which was more point lights than any
+// other world in the app including the ones set at night. Unlit, the globe is plain
+// glass rather than emissive, which is also what a lamp looks like in daylight.
+export function lampPost({ height = 11, color = 0xffe6b0, intensity = 1.6, lit = true } = {}) {
   const g = group();
 
-  g.add(cyl(0.32, 0.44, 0.5, iron, 0, 0.25, 0, 18));
-  g.add(cyl(0.14, 0.2, height, iron, 0, height / 2 + 0.4, 0, 16));
+  // The ironwork merges to ONE mesh. Three `cyl` calls added to a group is three draw
+  // calls, and these are placed by the dozen.
+  const iron = [];
+  iron.push({ geometry: new THREE.CylinderGeometry(0.32, 0.44, 0.5, 18), color: 0x24272b, position: [0, 0.25, 0] });
+  iron.push({ geometry: new THREE.CylinderGeometry(0.14, 0.2, height, 16), color: 0x2b2f34, position: [0, height / 2 + 0.4, 0] });
+  iron.push({ geometry: new THREE.CylinderGeometry(0.32, 0.12, 0.5, 16), color: 0x24272b, position: [0, height + 1.35, 0] });
+  g.add(mergedMesh(iron, { roughness: 0.55, metalness: 0.5, ...relief('metal', { seed: 41, repeat: 3 }) }));
 
   const globe = new THREE.Mesh(
-    new THREE.SphereGeometry(0.6, 24, 16),
-    standard({ color: 0xfff4d8, emissive: new THREE.Color(color), emissiveIntensity: 2.4, roughness: 0.4 })
+    new THREE.SphereGeometry(0.6, 20, 14),
+    lit
+      ? standard({ color: 0xfff4d8, emissive: new THREE.Color(color), emissiveIntensity: 2.4, roughness: 0.4 })
+      : standard({ color: 0xe8eef0, roughness: 0.28, metalness: 0.1 }),
   );
   globe.position.y = height + 0.7;
-  globe.userData.isGlowMesh = true;
+  if (lit) globe.userData.isGlowMesh = true;
   g.add(globe);
 
-  g.add(cyl(0.32, 0.12, 0.5, iron, 0, height + 1.35, 0, 16));
-
-  const light = new THREE.PointLight(color, intensity, 34, 2);
-  light.position.y = height + 0.7;
-  g.add(light);
+  if (lit) {
+    const light = new THREE.PointLight(color, intensity, 34, 2);
+    light.position.y = height + 0.7;
+    g.add(light);
+  }
 
   return g;
 }

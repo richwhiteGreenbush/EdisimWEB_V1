@@ -1473,6 +1473,179 @@ for real. Skip that and every object comes out a foot off the sea floor, grounde
 the default theme's hills. Validated against the committed `dinosaur.json`: every prop,
 option and x/z identical, y within 1/8 inch (analytic vs raycast-interpolated terrain).
 
+### LoftKit, and the rebuild of Ancient Egypt / Ellis Island / Da Vinci's Studio
+
+`src/props/LoftKit.js` is the shared solid-modelling kit those three worlds were rebuilt on.
+It exists because all three failed in the *same* three ways, and one copy of the answer is
+better than three: a hull that is a scaled tube, detail laid on a curved surface as separate
+solids, and cloth built as a zero-thickness `DoubleSide` plane.
+
+**CityProps keeps its own private originals and that is deliberate.** It is verified and
+shipped, and refactoring 3,500 lines to import from here would risk world 9 for no gain a
+student can see. Two implementations of `bodyLoft` therefore exist; the drift risk is
+accepted and recorded rather than traded for that one.
+
+**What it provides**: `solidLoft` (a closed solid whose SECTION CHANGES SHAPE along a
+curving axis, with a `warp` callback), `loftSampler` (+ `tAtD`/`uAtB` inverses so anything
+applied to a loft is placed by asking the loft where its own surface is), `grooveAt`,
+`sweepProfile` on parallel-transport frames, `mouldedRing`, `extrudeOutline`, `revolve`,
+`solidSurface`, `chain`/`spike`/`dome`, `gearWheel`, `tintGeometry`/`weather`, `mergeParts`,
+`smoothed`.
+
+Five bugs came out of this rebuild that are worth more than the models, because each one is
+invisible in the obvious way and each cost a real amount of looking:
+
+- **AN ODD PERMUTATION FLIPS HANDEDNESS, SO EVERY `axis: 'y'` LOFT WAS INSIDE OUT.** `'z'` is
+  the identity; `'y'` and `'x'` move the third coordinate into another slot, which is a
+  single transposition, and a mirrored basis reverses every cross product — so triangles
+  wound counter-clockwise in the loft's frame come out clockwise in the world. Under a
+  `FrontSide` material that does NOT look like a missing surface: the outward faces are
+  culled and you see the far inner wall lit by its own inverted normals, which reads as a
+  dark, muddy, roughly-right shape. It survived a first inspection on the Statue of Liberty
+  and was only caught on the Sphinx, whose nemes came out flat dark brown while its vertex
+  colours *measured lighter than the body's*. Fixed by XOR-ing the winding with the axis's
+  handedness, not by re-ordering the mapping — re-ordering silently swaps which lateral `w`
+  and `up`/`dn` mean and breaks every existing caller.
+- **A CAP MUST NOT SHARE VERTICES WITH THE SIDES.** `computeVertexNormals` averages every
+  face touching a vertex, so an extruded block's corners blended their two side normals with
+  the cap's and tilted them diagonally outward. A plain rectangular block then shades like a
+  pillow, and a wall built of them reads as a grid of **diamond studs** rather than as
+  masonry — which is exactly how the valley temple and every mastaba first came out.
+  Duplicating the rim for the caps costs 2n vertices and buys flat faces.
+- **A CENTRE FAN, NOT A FAN FROM VERTEX 0.** A vertex fan is correct only for a CONVEX
+  outline, and two of the shapes this kit exists to extrude are a GEAR and an eleven-pointed
+  STAR FORT. Fanning a gear from a vertex on its root circle throws triangles straight across
+  the tooth gaps.
+- **A WARPED LOFT'S END CAP IS A VISIBLE ROSETTE.** The fan runs from the section's
+  *un-warped* centre out to the *warped* rim, so wherever a warp is running the cap shows as
+  a ring of scalloped wedges. It is still closed — but it has to finish somewhere you cannot
+  see it. The Sphinx's body ended 0.7ft outside the chest meant to cover it and had a stone
+  rosette sitting between its front paws.
+- **A WARP THAT RECOVERS HEIGHT FROM THE SECTION IS AXIS-SPECIFIC.** `bandWarp` gets a
+  point's height from `sin(2πu) × half-height`, which is right on a loft running along Z
+  because its `up`/`dn` *are* the vertical. Reused on a loft running along Y those are DEPTH,
+  and the same expression produces rings concentric about the vertical axis: the Sphinx's
+  breast came out with a radial fan carved into it that read unmistakably as a scallop shell.
+  On a vertical loft the height is simply `d`.
+
+**Nyquist bit twice more, and the symptom was different both times.** The Sphinx's weathering
+bands ran thirteen 0.9ft bands over the ~23 samples the +X flank gets from 46 sides — under
+two samples each — and the body rendered as a featureless bar of soap rather than as anything
+faceted. The nemes ran eighteen pleats at three samples each and rendered *dark*, because an
+under-sampled warp computes garbage normals from near-degenerate quads. **A flank spans only
+HALF a section's u range**, which is the arithmetic that catches people out: sides ÷ 2 is the
+budget, not sides.
+
+**Under a bright sky a dark surface cannot render dark.** The Ellis theme carries a
+1.45-intensity hemisphere over a 2.2 sun, and a black hull authored at 0.10 albedo measured
+about 45% grey on screen — so the steamship read as battleship grey and no amount of adjusting
+the paint BANDS touched it, because the bands were never wrong. Ship's paint also is not
+metallic: metalness 0.22 plus a `metal` relief at repeat 12 scattered a specular sheen across
+the whole flank. This is the exact inverse of the CityProps `metalness: 0.9` trap.
+
+**A WINDOW HAS TO BE BUILT FORWARD OF A SOLID WALL.** There is no CSG here, so a lofted brick
+body has no opening in it and anything placed at a z inside the wall plane is sealed in the
+brickwork. Ellis's three great Registry Room windows had their reveal 1.35ft back and their
+glazing 0.5ft back and rendered as **bare brick with a stone frame round nothing**. Same rule
+as Machu Picchu's niches: dark panel a hair proud, glazing proud of that, mullions proud of
+that, architrave projecting furthest — the frame's own shadow is what reads as a recess.
+
+**A DECK CANNOT BE WIDER THAN THE HULL AT ITS OWN STATION.** The steamship's planking was
+laid `beam × 1.7` wide and `halfL × 1.5` long on a hull whose ends taper to 2.7ft, so at both
+ends it hung feet out past the plating as one pale slab covering the black topsides. Clipping
+each plank to the hull's own half-width along its run is what `tAtD` is for. The same fix
+applies to the solar barque.
+
+**A LOFT IS A CLOSED SOLID, SO ITS TOP IS THE DECK.** A white sheer strake defined only by
+HEIGHT painted the whole weather deck as well as the sides — and at the bow, where the section
+is narrow and tall, that came out as a broad flat white wedge reading as polystyrene stuck to
+the front of the ship. Qualify the band by how far OUT the point is, not just how high.
+
+**Paint bands follow the LOCAL SHEER, not absolute height.** The hull's sheer rises 3.5ft
+toward the stem, so bands fixed in world Y are right amidships and wrong at both ends.
+
+#### What each world's models actually needed
+
+**Ancient Egypt.** The obelisk was **36 triangles** — a four-sided prism with a photograph of
+glyphs on it, for the most heavily carved object in Egypt. It is now a lofted shaft carrying
+real **sunk relief** (`sunkRelief`), which is the technique Egypt used outdoors because raised
+carving goes flat by noon; the paint survives *in the cuts*, recovered in the tint by
+comparing a point's radius against the section's nominal one. **Egypt was polychrome**, and
+the six-mineral palette (Egyptian blue, malachite, red and yellow ochre, carbon black, gypsum
+white) is one a student can learn — it is by far the most striking thing the palette widening
+added, and it is visible on the Dream Stela from across the plateau.
+
+The Sphinx's weathering bands are grooves derived from the section's own height, so they
+cannot float off the flank the way eight box beams did. **The height budget is the thing to
+get right**: the back is 44ft and the nemes tops out at 66ft, so the body takes two thirds and
+the head and neck the rest. Built with the body's back at 13.0 of a 13.2 total the head had
+nowhere to go and sat sunk into the shoulders.
+
+Pyramids gained the RUIN — courses of visibly different heights, blocks missing from the
+arrises, a rubble apron of fallen casing, a worn broken summit. Two traps: the notches were
+placed on the CORNER diagonals at the face's half-width, but a square's corner is
+`half × √2` from the axis, so every one floated *outside* the stone and six pyramids came out
+furry; and the entrance's relieving gable was sized off `baseWidth`, which on Khufu made two
+11ft slabs leaning off the side of the monument.
+
+**Ellis Island.** Liberty's drapery was fourteen boxes stuck round a tapered tube; it is now a
+fold field warping one lofted robe. **The drift has to be almost nothing** — 0.16·sin(2.1h) +
+0.28h walked each fold half way round her and produced a barley-twist column. **Two fold
+families at counts sharing no common factor** (8 and 19) is what separates cloth from fluting.
+And the applied face features had to go: she stands 223ft off, so her head is six feet tall and
+subtends about two degrees, at which size a modelled eyeball is one pixel and a DARK solid one
+pixel across is a smudge. The two "sleeve gathering" domes at the top of the chest were the
+loudest mistake in the file — a pair of dark hemispheres at chest height on a female figure
+reads as exactly one thing.
+
+`lampPost` gained an additive `lit` option (default TRUE, so every saved world is untouched).
+Ellis was carrying **ten point lights on street lamps in a world set on a bright morning** —
+more than either night world — and unlit it drops to two.
+
+`standingSign` now shrinks its title and subtitle to fit. It drew both at a fixed fraction of
+the panel height with no measurement, so "1907 — twelve million people came through this door"
+arrived as "07 — twelve million people came through this do". Shared prop, so this quietly
+fixes every world that has ever passed it a long line.
+
+**Da Vinci's Studio.** This world was **199 draw calls for 63,000 triangles** — the worst
+ratio in the app — because the small props each added legs and panels to a Group one mesh at a
+time: a codex stand was FIVE meshes for 126 triangles. It is 185 calls for three times the
+geometry now.
+
+**A gear is its teeth.** The cart's gear train was a brass disc with 24 boxes round the rim, so
+the machine this world calls the first robot — whose entire point is that it is PROGRAMMED by
+pegs set between gear teeth — had no teeth a peg could sit between. `gearWheel` cuts root
+circle, flanks and tips as one closed outline, and the cart now shows iron pegs in some gaps
+and empty holes in the others, which is what makes it a thing you could change.
+
+**The aerial screw is ONE helicoid**, not 56 box planks whose Euler order had to be defeated
+(the old file's own comment records that the first attempt "rendered as an exploding heap of
+splinters"). Sweep a radial line up a helix and the surface a screw sail IS falls out, with
+real thickness and no orientation arithmetic anywhere.
+
+`baulk()` and `lashing()` are why the frames read as worked timber: a Renaissance machine is
+mortised square stock tied with cord, and a world built from cylinders reads as scaffolding
+poles.
+
+#### Performance, measured
+
+| World | records | calls | drawn | geometry | textures | meshes | transparent | lights |
+|---|---|---|---|---|---|---|---|---|
+| Ancient Egypt | 65 (65) | 125 (114) | 731k (191k) | 612k (163k) | 36 (28) | 100 (97) | 3 (3) | 3 (3) |
+| Da Vinci's Studio | 59 (59) | **185 (199)** | 259k (63k) | 169k (54k) | 56 (35) | **133 (160)** | 3 (3) | 3 (3) |
+| Ellis Island | 57 (58) | 134 (122) | 312k (74k) | 226k (74k) | 28 (18) | 129 (133) | 4 (5) | **2 (13)** |
+
+Baselines in brackets. All three sit well inside the ~1.5M / <1000 envelope, and Egypt's
+612k is the highest — of which the **date palm is 26k planted fifteen times, about 390k, or
+two thirds of the world's geometry for a backdrop at x = 98..154**. That is the araucaria trap
+again ("a background prop's cost is multiplied by its placement count") and it is recorded here
+as the first thing to trim if this world ever needs headroom.
+
+**`tools/export-preset-world.mjs`** exported all three; `vite.config.js` carries a dev-only
+`captureSink` plugin (`apply: 'serve'`) so a rendered frame can be POSTed to disk, because a
+canvas can make a data URL but a page has no filesystem and a sandboxed viewer blocks a
+download the page starts itself.
+
 ### The four world landmarks: Colosseum / Machu Picchu / Taj Mahal / Red Square
 
 `RomeProps.js`, `AndesProps.js`, `TajProps.js`, `MoscowProps.js`. Ordinary presets in every

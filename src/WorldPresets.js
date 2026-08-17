@@ -4300,8 +4300,13 @@ function ellisLayout() {
   items.push(prop('manifest-board', 30, 74, { rotY: face(30, 74), options: { ship: 'SS PRINZESSIN', date: '17 APRIL 1907', souls: '1,806', seed: 37 } }));
 
   // --- Landscape and lamps ------------------------------------------------
+  // UNLIT, and there are six rather than ten. This world is a bright cold MORNING, and a
+  // lamp post's PointLight is a per-fragment forward-pass cost -- the most expensive thing
+  // an integrated GPU is asked for here. Ten of them plus three orbs made Ellis Island the
+  // heaviest-lit world in the app, including the two set at night, to light a scene the sun
+  // already lights. Unlit they are still street furniture and still cast shadows.
   const lamps = [[-30, 84], [30, 84], [-30, 56], [30, 54], [-14, 30], [16, 30]];
-  lamps.forEach(([x, z], i) => items.push(prop('lamp-post', x, z, { options: { height: 13, seed: 100 + i } })));
+  lamps.forEach(([x, z], i) => items.push(prop('lamp-post', x, z, { options: { height: 13, seed: 100 + i, lit: false } })));
   const benches = [[-38, 68, 0.4], [38, 66, -0.4], [-40, 44, 0.9]];
   benches.forEach(([x, z, r]) => items.push(prop('bench', x, z, { rotY: face(x, z) + Math.PI + r, options: { length: 5 } })));
   [[-8, 92, 0], [10, 90, 0], [0, 70, 0], [-4, 52, 0.1]].forEach(([x, z, r], i) => {
@@ -4322,7 +4327,7 @@ function ellisLayout() {
   items.push(prop('steamship', 92, 44, { rotY: -1.5, options: { length: 78, funnels: 1, seed: 47 } }));
   items.push(prop('manifest-board', -34, 76, { rotY: face(-34, 76), options: { ship: 'SS KROONLAND', date: '18 APRIL 1907', souls: '1,142', seed: 49 } }));
   const lamps3 = [[-46, 96], [46, 96], [-14, 74], [16, 74]];
-  lamps3.forEach(([x, z], i) => items.push(prop('lamp-post', x, z, { options: { height: 13, seed: 150 + i } })));
+  lamps3.forEach(([x, z], i) => items.push(prop('lamp-post', x, z, { options: { height: 13, seed: 150 + i, lit: false } })));
   items.push(prop('bench', -18, 84, { rotY: face(-18, 84) + Math.PI, options: { length: 5 } }));
   items.push(prop('bench', 18, 84, { rotY: face(18, 84) + Math.PI, options: { length: 5 } }));
   items.push(prop('planter', -24, 92, { options: { size: 3 } }));
@@ -4370,9 +4375,12 @@ function ellisLayout() {
   );
 
   // --- Lighting -----------------------------------------------------------
+  // Two orbs, not three. The third sat at Liberty's own position 34ft up, which on a statue
+  // whose whole job is to be a SILHOUETTE across the water did nothing but put a bright ball
+  // in the sky beside her -- the Moon's lesson, and Under the Sea's: open air gives an orb
+  // nothing to be attached to. She is lit by the sun like everything else out there.
   items.push(orb(0, 26, 7, ORB_WARM));
   items.push(orb(-6, 40, 6, ORB_WHITE));
-  items.push(orb(-132, -68, 34, ORB_WARM));
 
   return { theme: 'ellis', spawn: { ...SP, yaw: 0 }, items };
 }
