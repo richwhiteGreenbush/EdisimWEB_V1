@@ -1105,6 +1105,63 @@ Composition lessons that cost a rebuild each:
   and clipped by the bezel; the browser panel at 41° covered an activity board at 47°. A 70°
   *vertical* fov is only ~51° either side on 16:9, so 49 is not "just inside".
 
+### Inside an Animal Cell, and Inside a Twister
+
+`CellProps.js` / `cellLayout()` and `StormProps.js` / `twisterLayout()`. Both are gallery
+worlds: they are in `PRESET_WORLDS` (so they can be built and exported) and deliberately
+**not** in `MENU_WORLDS`.
+
+**A prop can now ship WITH a program on it, and the twister is why.** `prop()` takes a
+`program`, `toRecord()` passes it through, and `WorldStore.addAndRun()` starts it on load
+with no new code path — so the funnel is turning before anybody clicks anything, it gets a
+green ▶ like any other programmed object, and a student can open it and change the number.
+It survives export into a world file, which is verified rather than assumed: the downloaded
+copy rehydrates with the runner active. Blocks go through `createBlockInstance()` and never
+an object literal, so every param comes from the block's own schema — a hand-written block
+that omits one renders an empty field the moment the editor opens it.
+
+**`forever` yields once per pass ON TOP of the yield from the block inside it**, so one
+turn of `forever { rotate N }` costs two frames and the effective rate is **N/2 per frame**.
+That is deliberate in the runner (it is what stops a `forever` holding an empty body from
+hanging the tab) and it silently halves every program written this way. Measure it; do not
+compute it.
+
+**A surface of revolution spun about its own axis is pixel-identical at every angle.** A
+smooth grey cone rotating at any speed is a smooth grey cone standing still, so "animate the
+tornado" is a GEOMETRY problem before it is an animation one. `helicalShell()` corrugates
+the funnel into ribs whose phase shifts with height — a helix, not flutes — and the three
+nested shells are wound at *different* rates so they shear past one another. Two
+sub-vortices spiral up the outside and the debris at the base is individual chunks rather
+than a haze. Any one of those alone would carry the spin; none of them would.
+
+**A CUTAWAY shell cannot use `FrontSide`.** Looking into an opening means looking at the
+*inside* of the far wall, and the inside of a sphere is its back faces: culled, so the whole
+interior vanishes and all that is left is the two rim arcs of the cut. The nucleus rendered
+as a pair of purple claws with a ball floating between them until this was found. The
+lungs' `FrontSide` rule is for CLOSED shells and does not transfer — `shellMaterial()` takes
+a `cutaway` flag for exactly this.
+
+**A near sign competes with a far landmark on ANGLE, not on size.** The welcome board is
+12ft wide on 9.2ft posts, so from 14ft its top subtends ~25° — *more* than the 50ft nucleus
+does from 108ft — and it hid the hero object of the world completely. The fix is to push the
+board back, not to shrink it. Both worlds had this and both are fixed by distance.
+
+**`rotY` cannot lay an upright model down.** The mitochondrion was authored along Y with the
+layout meant to tip it; `rotY` spins about the vertical, so it stayed a barrel on end however
+much it was turned. A record carries only `rotX`/`rotY` and the base-on-ground convention
+fights `rotX`, so the tipping belongs inside the builder.
+
+**Damage carries no identity on its own.** The farmhouse tore all four walls evenly and came
+out as a ring of grey battlements — unmistakably a ruined castle. One INTACT gable end with a
+chimney and a window is what makes it a house; the storm side then tears away from there.
+
+Two more, both cheap to re-hit: `welcomeBoard` and `organelleTag` drew their text at a fixed
+size with no measurement, so an over-long line ran off both edges clipped mid-word — both now
+shrink to fit, and `welcomeBoard` measures *before* `blockH` so the vertical centring still
+holds. And the cell's scale is consistent across the five main organelles with every label
+stating the real micrometre figure; the free ribosomes are the one exception and **their own
+label says so**, because at true scale they are three inches across.
+
 ### A Bug's Life, and building a world around CHALLENGES
 
 `BugProps.js` + `bugsLayout()`. The only preset laid out as a **workshop** rather than as a
