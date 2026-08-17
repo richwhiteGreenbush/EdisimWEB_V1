@@ -29,6 +29,8 @@ import * as Warren from './WarrenProps.js';
 import * as Cologne from './CologneProps.js';
 import * as Whimsy from './WhimsyProps.js';
 import * as Station from './StationProps.js';
+import * as Sky from './SkyProps.js';
+import * as Observatory from './ObservatoryProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -462,6 +464,38 @@ export const PROP_BUILDERS = {
   'eva-suit': Station.evaSuit,
   'antenna-dish': Station.antennaDish,
   'mars-globe': Station.marsGlobe,
+
+  // The Constellations. The five `sky-*` keys and `milky-way` / `moon-in-sky` are shared
+  // with the Telescope Observatory -- the same night sky hangs over both worlds, which is
+  // the point of them being props rather than something baked into a theme.
+  'constellation-board': Sky.constellationBoard,
+  'sky-constellation': Sky.skyConstellation,
+  'sky-star': Sky.skyStar,
+  'armillary-sphere': Sky.armillarySphere,
+  'sky-wheel-stand': Sky.skyWheelStand,
+  'sky-wheel-disc': Sky.skyWheelDisc,
+  'spectral-row': Sky.spectralRow,
+  'polaris-sight': Sky.polarisSight,
+  'milky-way': Sky.milkyWay,
+  'moon-in-sky': Sky.moonInSky,
+  meteor: Sky.meteor,
+  'chart-table': Sky.chartTable,
+  'red-lamp': Sky.redLamp,
+
+  // Telescope Observatory
+  'observatory-drum': Observatory.observatoryDrum,
+  'observatory-dome': Observatory.observatoryDome,
+  'great-telescope': Observatory.greatTelescope,
+  'dome-catwalk': Observatory.domeCatwalk,
+  'control-desk': Observatory.controlDesk,
+  'observatory-wing': Observatory.observatoryWing,
+  'student-dome': Observatory.studentDome,
+  'dobsonian-telescope': Observatory.dobsonianTelescope,
+  'mesquite-tree': Observatory.mesquiteTree,
+  'desert-shrub': Observatory.desertShrub,
+  'dry-grass': Observatory.dryGrass,
+  'all-sky-camera': Observatory.allSkyCamera,
+  'radio-dish': Observatory.radioDish,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

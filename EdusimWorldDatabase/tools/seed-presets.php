@@ -531,6 +531,63 @@ $WORLDS = [
             . "all turn the same way), and make a plank of debris climb and tumble.",
     ],
 
+    'constellations' => [
+        'title' => 'The Constellations',
+        'tags'  => 'space, science, official, outdoors, coding',
+        'description' =>
+            "A dark observing field on a winter night, with eight constellations on walk-up boards "
+            . "down an avenue — and the same eight stars overhead, in the same arrangement, because "
+            . "both come out of one table of real positions, magnitudes and colours.\n\n"
+            . "THE BOARDS ARE NOT POSTERS. Each one carries its constellation as real glowing stars "
+            . "standing an inch off the panel, sized by how bright the star actually is and coloured "
+            . "by how hot it actually is: Betelgeuse orange, Rigel blue-white, Aldebaran amber. Read "
+            . "Orion on the board, then look up and find the same three belt stars in the sky.\n\n"
+            . "TURN ROUND. You arrive facing SOUTH, which is where the winter constellations are — "
+            . "so the pole is behind you. Polaris is hanging over the entrance with an iron sighting "
+            . "tube aimed straight at it, and the tube's angle is a number worth knowing: the height "
+            . "of the pole star above your horizon IS your latitude. The two pointer stars in the Big "
+            . "Dipper really do line up on it.\n\n"
+            . "The sky is ONE SEASON, on purpose. Scorpius and Cygnus are on their boards but not "
+            . "overhead, because a summer constellation is up in the daytime in winter — a placard "
+            . "explains it and the turning star wheel is the tool that answers \"what is up tonight\". "
+            . "A row of seven glowing globes shows the whole spectral sequence, O to M, hottest to "
+            . "coolest, with a real star named for each.\n\n"
+            . "THREE THINGS ARE ALREADY MOVING and all three are ordinary Edusim programs you can "
+            . "open: the brass armillary sphere turning at the head of the avenue, the star wheel "
+            . "going round a year, and a meteor crossing the sky every few seconds. Speed the sphere "
+            . "up and watch a day go past; shorten the meteor's wait and you have a shower.",
+    ],
+
+    'observatory' => [
+        'title' => 'Telescope Observatory',
+        'tags'  => 'science, space, official, machines, building',
+        'description' =>
+            "A working observatory on a dry hilltop at dusk, modelled from photographs. The shutter "
+            . "is open, the telescope is tracking, and you can walk in through the door and stand "
+            . "under it.\n\n"
+            . "THE DOME AND THE TELESCOPE TURN TOGETHER, and that is the whole idea of the world. "
+            . "They are two separate objects running the same program — `forever { rotate 0.05 }` — "
+            . "so the open slit stays in front of the tube instead of drifting off it, which is what "
+            . "a dome is actually FOR. Open the dome's program, change 0.05 to 3, and watch the slit "
+            . "run away and leave the telescope staring at the inside of the roof.\n\n"
+            . "The instrument is a 36-inch reflector on an equatorial fork: a concrete pier, a "
+            . "four-foot toothed drive wheel that turns once a day against the sky's own turn, "
+            . "counterweights, and an OPEN truss tube — a big telescope is a skeleton, because a "
+            . "closed tube traps warm air in the light path. Look up the open end and the four thin "
+            . "vanes across the top ring are holding the secondary mirror, facing back down at the "
+            . "big one. Nobody looks through it: the light goes to a cooled camera, and the astronomer "
+            . "sits at the desk inside reading the two screens.\n\n"
+            . "Outside there is a second student dome, a radio dish sweeping the sky, an all-sky "
+            . "cloud camera, a weather mast, and a wooden Dobsonian on the lawn — the cheap kind "
+            . "anybody can own, which is the point of it being there. Placards cover why domes sit "
+            . "on dry hills, why the vents are open hours before dark, why every light on site is "
+            . "red, and how a 36-inch mirror gathers about seventeen thousand times as much light as "
+            . "your eye.\n\n"
+            . "Turn round when you come out. Orion is behind you, at exactly the bearing the "
+            . "telescope is pointed — and the screen inside says the target is M42, the nebula in "
+            . "its sword.",
+    ],
+
     'bugs' => [
         'title' => "A Bug's Life",
         'tags'  => 'nature, animals, science, official, starter, building',

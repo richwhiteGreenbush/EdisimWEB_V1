@@ -54,6 +54,46 @@ placement spiral's radius grows as `SPAWN_SPACING·√n`, and if that ever excee
 camera instead of fanning out in front of it. If either constant changes, re-check
 this relationship.
 
+### The hardware target, and the quality bar that follows from it
+
+**The target machine is an Intel Core i5 or i7 Chromebook** — Iris Xe / UHD integrated
+graphics, a real desktop-class CPU, 8GB+ of shared RAM. Not a Celeron, not a phone, not
+a bottom-of-the-cart loaner. Every budget in this file is set against that machine, and
+the earlier notes that read "this app has to run on school Chromebooks" were written
+against a much weaker assumption.
+
+**So the quality bar goes up, deliberately.** These worlds are meant to be *more*
+capable and the models in them *higher fidelity* than the first pass allowed. Where a
+prop was coarsened to save triangles and the coarsening is visible — a faceted limb, a
+silhouette that reads as a polygon, a detail dropped that carried the identification —
+the fidelity is now the right call. The old counts are a **floor to build up from, not a
+ceiling to stay under**. When a rebuild makes something read better up close, take it.
+
+**What that does NOT relax, because none of it was ever about triangle count:**
+
+- **Merging stays mandatory.** Draw calls are CPU and driver cost, and that cost did not
+  move — a faster CPU raises the ceiling, it does not remove the wall. Integrated
+  graphics is memory-bandwidth-bound, so state changes and per-mesh overhead still hurt
+  far more per unit than geometry does. A hundred small meshes remains the wrong answer
+  at any triangle budget; a hundred *thousand* triangles in one merged mesh is cheap.
+- **Transparency and point lights stay expensive.** Both are fill-rate and per-light
+  forward-pass costs, which is exactly where an integrated GPU falls over regardless of
+  how good the CPU is. The Under the Sea and New York transparency counts (6 and 21
+  meshes) and light counts (1 and 4) are still the discipline to aim at.
+- **Every mesh is still drawn twice**, main pass plus the sun's shadow map.
+- **Texture memory still comes out of system RAM** on shared-memory graphics. Fresh
+  textures per prop stay small for the disposal reason (see `relief()`), and that
+  reason is about correctness, not about VRAM.
+
+**Revised working budgets, stated as targets to verify rather than as measurements.**
+The per-world figures recorded further down are real, taken with `renderer.info`; these
+are the headroom that opens up on the new target and they have **not** been confirmed on
+the hardware yet. Treat roughly **1.5M triangles** and **under ~1000 draw calls** as the
+new envelope, against the current spread of 95k–592k triangles and 134–777 calls. Measure
+on an actual i5/i7 Chromebook before trusting a world that lands near the top of it, and
+record what you find here the way every other world's numbers are recorded — **"measured
+rather than assumed" is the rule that does not change.**
+
 ### Terrain: a height-displaced, vertex-colored plane, retinted per theme
 
 `SceneSetup.js` builds the ground as a subdivided `PlaneGeometry` (`TERRAIN_SEGMENTS`
@@ -519,9 +559,10 @@ idempotent, so pointing two material slots at one texture is safe.
 
 `mergeColored()`/`mergedMesh()` collapse many small solids into one vertex-colored
 geometry (a 30-book shelf, a 40-part wire wheel, a whole arcaded wall) so the scene
-stays at a few hundred draw calls. **Merging is not optional polish** — every mesh is
-drawn twice (main pass + the sun's shadow map), so anything the layouts place *many* of
-must be one mesh. Trees, benches and info placards were each originally 6–15 meshes;
+stays at a few hundred draw calls. **Merging is not optional polish, and the i5/i7 target
+does not soften this** — every mesh is drawn twice (main pass + the sun's shadow map), and
+draw-call overhead is CPU and driver cost that a bigger triangle budget does nothing to
+pay off. Anything the layouts place *many* of must be one mesh. Trees, benches and info placards were each originally 6–15 meshes;
 merging them took the Park from ~1430 draw calls to ~1125. Three traps:
 
 - **`mergeGeometries()` refuses a mix of indexed and non-indexed inputs**, and three.js
@@ -881,7 +922,8 @@ Traps this world hit, several of which generalise:
   return portal passed every overlap sweep and hid half the sign — found only by standing
   where a student stands and looking, the same lesson as the activity boards.
 
-**Performance, measured rather than assumed** (this app has to run on school Chromebooks):
+**Performance, measured rather than assumed** (see the hardware-target section above —
+these numbers predate the move to an i5/i7 target and sit well inside it):
 394 draw calls, 235k triangles, 21 transparent meshes, **4 point lights**, 102 textures,
 ~2.1ms of CPU render — the lightest-rendering populated world in the app, against the Park's
 748 calls / 578k tris / 4.6ms. Three choices bought that: every prop merges to one or a few
@@ -998,7 +1040,8 @@ Traps this world hit that generalise:
   cellular web a real caustic pattern is. Every frequency must be an integer multiple of
   2π/size or the sheet's seam draws a straight line across the sky.
 
-**Performance** (this app has to run on school Chromebooks): **274 draw calls, 488k
+**Performance** (measured before the i5/i7 target was set; there is real headroom here
+now, and the reef is the obvious place to spend it): **274 draw calls, 488k
 triangles, 6 transparent meshes, 1 point light, 89 textures, ~1.2ms of CPU render**, 175ms
 to build and 620ms to load — the lightest-rendering populated world in the app by draw
 calls and by CPU, against the Park's 777 calls / 544k tris / 3.1ms. Three choices bought
@@ -1234,6 +1277,115 @@ Traps, most of them re-runs:
 
 **Performance**: Whimsical World is 40 records / 134 draw calls / 127k triangles; Space Station
 Survival is 44 / 156 / 95k. Both world files are well under 20 KB.
+
+### The Constellations and Telescope Observatory, and how to render NIGHT
+
+`SkyProps.js` / `constellationsLayout()` and `ObservatoryProps.js` / `observatoryLayout()`.
+Gallery worlds — in `PRESET_WORLDS`, deliberately not in `MENU_WORLDS`. They are the app's first
+**dark** worlds, and they share a sky: `milky-way`, `moon-in-sky`, `sky-constellation` and
+`sky-star` are `SkyProps` keys used by both layouts.
+
+**ONE TABLE OF REAL STARS FEEDS FOUR THINGS.** `CONSTELLATIONS` in `SkyProps.js` holds eight
+figures as chart-accurate positions plus real magnitudes and spectral classes, and it is used
+by the walk-up board, by the giant sky pattern, by the planisphere's printed disc and by the
+`chart-table`'s paper map. That it is ONE table is why they agree: Orion on the board is the
+same Orion overhead with Betelgeuse the same red. Anything that edits star data edits it once.
+
+**A `MeshBasicMaterial` SPHERE IS A FLAT DISC**, and that ruined the first pass of this world.
+An unlit material gives every pixel the same colour, so a star core rendered as a hard-edged
+coloured button and a bigger translucent sphere around it added a second hard edge — a row of
+buttons with rings, nothing reading as light. What the eye recognises as a star is the
+*gradient*, so the bloom is a **textured quad**: one painted radial falloff with four faint
+diffraction spikes, merged per figure, tinted per star by `map × vertexColors` (the multiply
+this file usually warns about, used deliberately, exactly as the flower beds do). Stars keep a
+small sphere core as well, which is what gives a board's stars presence as objects standing off
+its face.
+
+**In a dark world every surface that carries information must be emissive or unlit.** A lit
+panel at night is a dim panel. Every board, placard, chart and screen in both worlds is
+emissive; every star, label, milky way and moon is `MeshBasicMaterial` with `fog: false`, or the
+sky fades to the fog colour and the constellations dissolve.
+
+**Neither theme is as dark as night really is.** Both were tuned down and then brought back up:
+at a physically plausible hemisphere fill the observing field read as a void with signs floating
+in it, and a student could not see the ground they were walking on. What matters is what a
+dark-adapted eye *reports* — you can see your feet, and colour is nearly gone.
+
+**A NIGHT WORLD NEEDS A COMPASS DECISION, and it is not reversible.** North in The
+Constellations is **+Z**, which is behind a student who spawns facing −Z. Facing away from the
+pole means facing SOUTH, which is where the bright winter constellations are — so the arrival
+view is Orion, given away before anything is read, and Polaris, Ursa Major and Cassiopeia are
+over the entrance, which makes "turn round" an instruction with a payoff. The Polaris sight
+stands 16ft *behind* the spawn.
+
+**The sky is ONE SEASON, and that is a correctness rule.** Orion and Scorpius are never up
+together. Hanging all eight figures overhead at once would put a plainly false sky over a world
+whose whole job is teaching what is really up there, so only the winter and circumpolar figures
+are in the sky, a placard says exactly why, and the planisphere is the tool that answers it.
+
+**The Moon is FULL, after two failed phases.** A phase is a range of longitudes, so which part
+of it faces the camera depends on where the layout hung it and how the prop is turned — every
+angle but the intended one gave a bright ball with a dark bite out of one corner. Painting the
+dark side near-black made it a *hole in the sky* (darker than the sky itself); erasing its alpha
+made it a hole wherever the sky was dark, which is most of both worlds. A full Moon reads
+correctly from every angle and is right for both — a full Moon rises as the Sun sets.
+
+**The Milky Way is three quads showing three THIRDS of one texture**, not three copies of it.
+The sheet is faded to nothing at `u = 0` and `u = 1`; with three copies every panel ended at
+full brightness and the band had two hard diagonal cuts across the sky. It also has to be tipped
+most of the way to horizontal and run roughly north-south through the zenith: hung upright and
+east-west it crossed one corner of the frame as a tapering wedge, which the eye insists on
+reading as a comet.
+
+**The dome and the telescope are SEPARATE OBJECTS running the same program**, and that is the
+observatory's whole idea. `observatory-drum` is fixed (door, walls, stone base), `observatory-dome`
+sits on it with an `absoluteY` and `forever { rotate 0.05 }`, and `great-telescope` carries the
+same number — so the slit stays in front of the tube, which is what a dome is FOR. The drum's
+door and the dome's slit are both authored on +Z but given *different* yaws: a building whose
+door and shutter line up perfectly reads as one object.
+
+**A FLAT SIGN ON A ROUND WALL MUST BE TANGENT, AND PLACED BY AZIMUTH.** Both wall signs were
+first positioned in Cartesian coordinates with a hand-guessed yaw, and because a chord cuts
+inside the circle it joins, one end of each sank into the corrugation — the Greenbush wordmark
+rendered as "GREENBUS", clipped dead straight by the wall it was mounted on. `observatoryDrum`'s
+`mount(object3D, azimuth, y)` fixes it by construction: a tangent's points are all further from
+the axis than the point it touches. Note the yaw is the azimuth *itself*, not its negative —
+`CylinderGeometry` measures theta from +Z as `x = r·sinθ`, the same convention `rotation.y` uses.
+
+**Astrological sign characters (U+2648…) are COLOUR EMOJI.** A canvas draws them from an emoji
+font that ignores `fillStyle`, so twelve engraved brass zodiac sectors came out as twelve purple
+stickers on the hero model. Anything drawn on a canvas texture here has to be ordinary text or
+drawn geometry — which also applies to the Greenbush mark, drawn in code rather than shipped as
+an image file so the world file stays a few kilobytes.
+
+**Two coplanar rings z-fight, and it looks like a material bug.** The armillary's zodiac band was
+built at the ecliptic ring's exact radius; the two shimmered violet along their whole
+intersection. The band now sits inside the ring, which is also what the real instrument looks
+like — the ring is structure, the band is the plate it carries.
+
+**Interior scale is set by what has to FIT.** The dome started at a photo-accurate 26ft, which is
+right for a real 36-inch and wrong for this app: a student who walks in is already at the
+telescope with nowhere to stand back. At 30ft it is a room. The truss length is likewise set by
+clearance rather than by optics — lengthen it and the tube goes through its own roof, which is
+invisible outside and unmissable from the floor. The floor stays at ground level, the shell sets
+`castShadow = false` (or the dome caps the building), and curved zero-thickness shells set
+`receiveShadow = false`.
+
+**All three orbs are INSIDE the dome and there are none on the site.** A 30° slit at dusk is
+nowhere near enough to read a room by, and the interior is the whole reason the building has a
+door. Outdoors gets one hooded red lamp, which is what a real observatory site allows itself —
+and both worlds have a placard on why: red light barely touches rhodopsin, and dark adaptation
+takes twenty to thirty minutes to build and one glance at white light to destroy.
+
+**An orb is a visible glowing ball.** One hung on the arrival sightline reads as a bright
+artifact floating beside the hero model rather than as lighting — and one placed at the
+armillary's own position sits *inside* the rings next to the Earth at the centre of the
+instrument.
+
+**Performance**: The Constellations is 40 records / ~185 draw calls / 71k triangles / 29
+transparent meshes / 4 point lights; Telescope Observatory is 45 / ~290 / 202k / 13 / 5. Both
+world files are about 15 KB — the whole star and sky machinery costs nothing to store because
+every star is a name and a number in `CONSTELLATIONS`, rebuilt on load.
 
 ### A Bug's Life, and building a world around CHALLENGES
 
@@ -1508,10 +1660,19 @@ is not optional decoration: the swept tubes are authored in absolute bird coordi
 flattening the belly by 0.6 around the default origin does not squash the belly, it drops
 it half a foot through the floor.
 
-**Segment counts are deliberately low** — 4.4k triangles a bird, ~7.8k for the Park's
-pair, against 11.5k before a pass over every sweep and sphere. These are read from across
-a pond on a school Chromebook, where an 18-segment sweep and a 26-segment one are the same
-goose. The Park is 752 draw calls / 592k triangles / 3.5ms with the new pair in it, against
+**Segment counts here are low because of VIEWING DISTANCE, not because of the budget** —
+4.4k triangles a bird, ~7.8k for the Park's pair, against 11.5k before a pass over every
+sweep and sphere. These are read from across a pond, where an 18-segment sweep and a
+26-segment one are the same goose. That argument is perceptual and survives the move to
+an i5/i7 target unchanged: spending triangles on detail nobody can resolve buys nothing
+at any budget.
+
+**The inverse is now the live question, though.** `canada-goose` is registered as a
+standalone prop, so one can be placed anywhere — including somewhere a student walks
+right up to it, which is exactly where 18 segments *does* show. A near-field rebuild at
+higher segment counts is well within the new envelope and is the kind of fidelity the
+hardware-target section is asking for; the pond pair is simply not the case that needs
+it. The Park is 752 draw calls / 592k triangles / 3.5ms with the new pair in it, against
 748 / 578k before: two extra draw calls for the whole flock.
 
 ### Startup assets always re-fetch, never store bytes

@@ -958,6 +958,114 @@ export const WORLD_THEMES = {
     sunPosition: [70, 58, 150],
     stars: false,
   },
+
+  constellations: {
+    // A dark observing field under a full sky of stars, and it is the FIRST theme in this app
+    // where the world is genuinely night. Three things follow from that, and none of them is
+    // just "turn the numbers down".
+    //
+    // 1. THE DIRECTIONAL LIGHT IS THE MOON, not the sun. So it is cool rather than warm
+    //    (moonlight is reflected sunlight and physically almost the same colour, but the eye
+    //    reads dim light as blue, and every photograph of a moonlit landscape comes out
+    //    blue), it is weak, and it comes in from one side low enough to model the ground.
+    //    At full sun intensity the field looks like a golf course at noon with a black sky
+    //    over it, which is the one thing this world cannot be.
+    // 2. IT IS NOT AS DARK AS IT SHOULD BE, deliberately. Real moonlight is about 1/400,000
+    //    of daylight; a physically honest night is a black screen. What this is tuned to is
+    //    what a dark-adapted eye REPORTS -- you can see the ground, you can read a sign held
+    //    close, and colour is nearly gone. Hence a hemisphere fill that is a fifth of a
+    //    daylight world's and a ground ramp that is dark but not black.
+    // 3. EVERY SIGN IN THE WORLD IS EMISSIVE, in the props rather than here. A theme cannot
+    //    fix an unlit panel at night, and the boards in this world are the whole lesson.
+    //
+    // No `groundDetail` photo. Every ground map that ships with this project was shot in
+    // daylight, and neutralized down to this brightness it contributes nothing but noise --
+    // while a mown observing field is meant to read as an absence of features anyway, so
+    // that the sky is the only thing with detail in it.
+    sky: 0x060a16,
+    // Fog well back. It is doing two jobs at once: softening the far edge of the ground plane
+    // (a hard line where the terrain stops is far more obvious at night, since there is no
+    // haze to hide it) while leaving the constellations untouched -- every star, label and
+    // glow in SkyProps.js sets `fog: false` precisely so the sky is never fogged.
+    fogNear: 110,
+    fogFar: 420,
+    // Dark, but NOT black, and the difference is the whole tuning of this theme. At the first
+    // pass's 0x16200f over a 0.55 hemisphere the field read as a void with signs floating in
+    // it -- a student could not see the ground they were walking on, which is a different
+    // thing from a world being night-time. This is roughly what a dark-adapted eye reports
+    // from a mown field under a half moon: you can see where your feet are and almost no
+    // colour at all.
+    groundLow: 0x1c2814,
+    groundHigh: 0x3a4a26,
+    groundRoughness: 1,
+    // Broad and level where the exhibits are, rising gently beyond. An observing site is
+    // chosen for a flat horizon, and every board here is a rigid panel on two posts.
+    amplitude: 3.0,
+    flatRadius: 78,
+    blendRadius: 168,
+    // A cold blue fill at a fifth of daylight strength. The ground colour comes almost
+    // entirely from this rather than from the moon, which is what makes the field read as
+    // being under an open sky rather than under a single lamp.
+    hemiSky: 0x2b3f66,
+    hemiGround: 0x1a2216,
+    hemiIntensity: 0.92,
+    sunColor: 0xc6d8ff,
+    // 0.95, and the number was worked down from 2.2. Anything above about 1.3 and the field
+    // has daylight shadows on it; below about 0.7 and the armillary sphere's rings stop
+    // catching any light at all and the hero of the world disappears.
+    sunIntensity: 0.95,
+    // Low and to the north-west, and it MATCHES where the layout hangs the Moon -- the light
+    // in this world has a visible source in the sky, which no other world here can say.
+    sunPosition: [-150, 95, 120],
+    stars: true,
+  },
+
+  observatory: {
+    // The blue hour on a dry hilltop: the sun is just down, the sky is deep enough for the
+    // first stars, and the dome is still catching the last light off the horizon.
+    //
+    // THIS IS A COMPROMISE AND IT IS THE RIGHT ONE. Full night would be the honest setting
+    // for an observatory and it would also hide the building, which is the thing this world
+    // is FOR -- a black corrugated wall against a black sky is the Mars-props failure at
+    // building scale. Full day would show the building and throw away the point of it. Dusk
+    // is the only setting where a silver dome reads against the sky AND the shutter's open
+    // slit reads as dark, which is what makes it obvious the dome is open.
+    groundDetail: 'ground-soil.jpg',
+    sky: 0x1b2b4a,
+    // Wide, because a hilltop site is chosen for its distance from everything, and the
+    // outbuildings need air between them.
+    fogNear: 140,
+    fogFar: 520,
+    // Dry grass and caliche, read at dusk: brown-gold, well down in value.
+    // Lighter than a literal dusk. At the first pass's 0x33301f the foreground read as tarmac
+    // and a student could not see the path they were standing on -- the same correction the
+    // constellations theme needed, for the same reason: what matters is what a dark-adapted eye
+    // reports, not what a light meter would.
+    groundLow: 0x413c26,
+    groundHigh: 0x6e6342,
+    groundRoughness: 1,
+    // Effectively flat over the whole site. Every building here is a rigid drum or a long
+    // shed, and the dome is a 27ft cylinder that cannot straddle a slope -- the museum,
+    // library, Mars and New York rule.
+    amplitude: 1.0,
+    flatRadius: 110,
+    blendRadius: 190,
+    // A fairly strong blue fill, and it is doing most of the work. At dusk the whole sky is
+    // the light source, which is why nothing on the site has a hard shadow -- and it is also
+    // what gets INSIDE the dome, where the sun cannot reach through a 30-degree slit.
+    hemiSky: 0x4a679a,
+    hemiGround: 0x463f2a,
+    hemiIntensity: 1.5,
+    // The last of the sunset: warm, weak and very low, so it rakes across the corrugated
+    // walls and the dome's ribs. That raking is what makes sheet metal read as sheet metal,
+    // and it is the same trick the Elizabeth Tower's pilasters need.
+    // Warm, but not as orange as a real last-light. At 0xffb877 the galvanised dome came out
+    // bronze, and a silver dome is half of what this building is.
+    sunColor: 0xffc793,
+    sunIntensity: 1.5,
+    sunPosition: [-190, 52, 60],
+    stars: true,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger

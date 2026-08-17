@@ -7189,6 +7189,474 @@ function twisterLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// The Constellations
+// ---------------------------------------------------------------------------
+
+// A dark observing field with eight constellation boards down an avenue, an armillary sphere
+// turning at the head of it, and the winter sky itself hanging overhead.
+//
+// THE WHOLE WORLD IS BUILT ON ONE COMPASS DECISION: north is +Z, which is BEHIND a student who
+// spawns facing -Z. That is not arbitrary and it is not reversible without redoing every
+// number in here.
+//
+//  * Facing away from the pole means facing SOUTH, and the south is where the bright winter
+//    constellations are. So the arrival view is Orion, dead ahead and high -- the single most
+//    recognisable thing in the sky, given away for free before a student has read anything.
+//  * Polaris, Ursa Major and Cassiopeia are therefore behind, over the entrance, which turns
+//    "turn round" into an actual instruction with an actual payoff. The Polaris sight stands
+//    16ft BEHIND the spawn aimed north, so it is the thing a student finds the moment they
+//    look back, with the pole star directly above it.
+//
+// THE SKY IS ONE SEASON, and that is a correctness decision rather than a stylistic one.
+// Orion and Scorpius are never up together -- one is a winter sky and the other a summer one --
+// so hanging all eight figures overhead at once would put a plainly false sky over a world
+// whose whole job is teaching what is really up there. Only the winter and circumpolar figures
+// are in the sky; the other four are on their boards, and a placard says exactly why. That
+// gap is what the planisphere is for.
+function constellationsLayout() {
+  const items = [];
+  const SP = { x: 0, z: 76 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- The hero: an armillary sphere, turning -----------------------------
+  // 42ft ahead and dead centre. At radius 5.2 the sphere is 12ft across on a 5ft pedestal, so
+  // it stands about 17 degrees wide and 15 tall from the spawn -- a monument rather than an
+  // ornament, and comfortably inside a 16:9 screen's ~51 degrees either side.
+  //
+  // 0.14 degrees written is 0.07 a FRAME, because `forever` yields once per pass on top of
+  // the yield from `rotate` itself. That is about 4 degrees a second: a full turn in a minute
+  // and a half. Slow enough to notice rather than watch, which is what the real sky does.
+  items.push(prop('armillary-sphere', 0, 34, {
+    rotY: Math.PI, // its polar axis is authored toward +Z, and north here is +Z
+    options: { radius: 5.2, latitude: 39, seed: 33 },
+    program: [block('forever', {}, [block('rotate', { degrees: 0.14 })])],
+  }));
+
+  // --- The eight boards, as an avenue -------------------------------------
+  // Two columns fanning outward with distance, which is what keeps a near board from hiding a
+  // far one, and every one of them turned to face the spawn. The angles off the arrival
+  // sightline run 39, 31, 25 and 16 degrees from front to back -- all inside the frame, none
+  // of them in the middle of it where the armillary is.
+  const BOARDS = [
+    ['orion', -28, 42, '#6f9bd1'],
+    ['taurus', 28, 42, '#d19b6f'],
+    ['ursaMajor', -38, 12, '#7fb8d9'],
+    ['cassiopeia', 38, 12, '#a98fd0'],
+    ['cygnus', -42, -18, '#79c2b0'],
+    ['leo', 42, -18, '#d9b45f'],
+    ['scorpius', -36, -46, '#d1786f'],
+    ['crux', 36, -46, '#8fa5d9'],
+  ];
+  BOARDS.forEach(([figure, x, z, accent], i) => {
+    items.push(prop('constellation-board', x, z, {
+      rotY: face(x, z),
+      options: { figure, accent, seed: 11 + i * 7 },
+    }));
+  });
+
+  // --- The sky ------------------------------------------------------------
+  // Every one of these floats, so they take an absoluteY and their own `tilt` -- a pattern
+  // hung 100ft up and seen from 200ft out is met at a steep angle, and a record carries only
+  // rotX (applied about the WORLD x-axis, after the yaw), which would roll a figure rather
+  // than tip it. See the note on skyConstellation().
+  //
+  // Orion sits at 26 degrees of altitude and spans 20, so it runs from 16 to 36 degrees: in
+  // frame on arrival without the student touching the mouse, which is the whole point of
+  // putting it there.
+  // 11 degrees left of the centre line rather than on it. Its name plate hangs 41ft below the
+  // pattern, which on the axis put the label at exactly the altitude of the armillary's top
+  // ring: the label and the hero of the world were fighting over one patch of sky.
+  items.push(prop('sky-constellation', -40, -124, {
+    y: 102, absoluteY: true, rotY: facing(-40, -124, SP.x, SP.z),
+    options: { figure: 'orion', span: 82, tilt: 0.44, roll: -0.15, seed: 21 },
+  }));
+  items.push(prop('sky-constellation', 68, -112, {
+    y: 150, absoluteY: true, rotY: facing(68, -112, SP.x, SP.z),
+    options: { figure: 'taurus', span: 68, tilt: 0.628, roll: 0.35, seed: 22 },
+  }));
+  // Ursa Major and Cassiopeia flank the pole, BEHIND the spawn. Ursa Major's roll is set so
+  // its two pointer stars really do lead the eye to where Polaris has been hung -- the board
+  // beside it promises they do.
+  items.push(prop('sky-constellation', 68, 176, {
+    y: 118, absoluteY: true, rotY: facing(68, 176, SP.x, SP.z),
+    options: { figure: 'ursaMajor', span: 88, tilt: 0.75, roll: Math.PI / 2, seed: 23 },
+  }));
+  items.push(prop('sky-constellation', -66, 172, {
+    y: 112, absoluteY: true, rotY: facing(-66, 172, SP.x, SP.z),
+    options: { figure: 'cassiopeia', span: 72, tilt: 0.74, roll: -1.0, seed: 24 },
+  }));
+  // Polaris: due north, 37 degrees up from the spawn and 39 from the sight below it.
+  items.push(prop('sky-star', 0, 190, {
+    y: 90, absoluteY: true, rotY: facing(0, 190, SP.x, SP.z),
+    options: { magnitude: 1.98, spectral: 'F', size: 5.2, label: 'POLARIS', sub: 'the pole star', tilt: 0.64 },
+  }));
+
+  // Turned to run NORTH-SOUTH (rotY = 90 degrees puts its length along Z) and centred nearly
+  // overhead, which is both where the winter Milky Way actually is -- it passes through Orion's
+  // half of the sky and on over the zenith -- and the only orientation that reads as a band.
+  // Running east-west it crossed one corner of the frame as a tapering wedge, which the eye
+  // insists on reading as a comet.
+  items.push(prop('milky-way', 0, 20, {
+    y: 168, absoluteY: true, rotY: Math.PI / 2,
+    options: { length: 460, width: 115, tilt: 0.85, opacity: 0.5, seed: 81 },
+  }));
+
+  // The Moon, hung where the world's own light comes FROM. The `constellations` theme puts its
+  // directional light at [-150, 90, -60] -- low, ahead and well to the left -- so this is the
+  // one world in the app where the light has a visible source in the sky, and the lit limb of
+  // the Moon and the lit sides of everything on the ground agree.
+  items.push(prop('moon-in-sky', -212, -16, {
+    y: 128, absoluteY: true, options: { radius: 15, seed: 91 },
+  }));
+
+  // A meteor, flying. rotX tips its facing DOWN: `glide` follows the object's own +Z, and a
+  // record's rotX is applied about the world x-axis after the yaw, so with this yaw a negative
+  // rotX is what makes it descend rather than climb.
+  items.push(prop('meteor', 96, -26, {
+    y: 138, absoluteY: true, rotY: -1.9, rotX: -0.22,
+    options: { length: 30, seed: 101 },
+    program: [block('forever', {}, [
+      block('glide', { feet: 170, seconds: 1.3 }),
+      block('goHome'),
+      block('wait', { seconds: 4 }),
+    ])],
+  }));
+
+  // --- The instruments ----------------------------------------------------
+  // The planisphere, as its two props: a fixed stand carrying the date scale and an index
+  // that never moves, and the printed sky disc that turns inside it. The disc's rate is
+  // deliberately faster than the armillary's -- this one is a demonstration of a whole year
+  // going past, not of one night.
+  items.push(prop('sky-wheel-stand', -16, -34, { rotY: face(-16, -34), options: { radius: 4.2, height: 3.3, seed: 51 } }));
+  items.push(prop('sky-wheel-disc', -16, -34, {
+    y: 3.45, rotY: face(-16, -34),
+    options: { radius: 4.2, seed: 52 },
+    program: [block('forever', {}, [block('rotate', { degrees: 0.5 })])],
+  }));
+
+  items.push(prop('spectral-row', 17, -34, { rotY: face(17, -34), options: { length: 14, seed: 61 } }));
+
+  // The Polaris sight, 16ft BEHIND the spawn and aimed north up the +Z axis at the star hung
+  // above it. Its own reading plate is on the +Z face, which is the side a student stands on
+  // to look through the tube -- you get behind a sight, not in front of it.
+  items.push(prop('polaris-sight', 0, 92, { rotY: 0, options: { altitude: 39, height: 4.4, seed: 71 } }));
+
+  items.push(prop('chart-table', -10, 66, { rotY: face(-10, 66), options: { width: 4.6, seed: 111 } }));
+
+  // --- Words --------------------------------------------------------------
+  // 25 degrees off the arrival sightline and 35ft out, not the usual 40-plus. At 45 degrees a
+  // 12ft board has its outer half outside the ~48 degrees a 16:9 screen actually sees -- which
+  // is what the first pass did, and it clipped the one board a student is meant to read first.
+  items.push(prop('welcome-board', -15, 44, {
+    rotY: face(-15, 44),
+    options: {
+      width: 10,
+      eyebrow: '✦  THE CONSTELLATIONS',
+      lead: 'Eight boards down the field. The same stars are overhead.',
+      lines: ['Orion is straight ahead.', 'Now turn round and find Polaris.'],
+      footnote: 'The brass sphere at the head of the avenue is already running a program',
+    },
+  }));
+  items.push(...browserStation(24, 58, { faceX: SP.x, faceZ: SP.z }));
+
+  items.push(prop('info-placard', -11, 30, {
+    rotY: face(-11, 30),
+    options: {
+      title: 'Why the whole sky turns',
+      body: 'Nothing up there is moving the way it looks like it is. The Earth spins once a day, and because you are standing on it, everything else appears to swing the opposite way — 15 degrees every hour. Point at a star, wait an hour, and you are pointing 15 degrees off. The only exception is Polaris: it sits almost exactly above the North Pole, on the axis the Earth spins about, so it stays put while the entire rest of the sky wheels around it. Every trail in a long night-time photograph is a circle centred on that one star.',
+    },
+  }));
+  items.push(prop('info-placard', 11, 30, {
+    rotY: face(11, 30),
+    options: {
+      title: 'You are looking into the past',
+      body: 'Light is fast but the sky is enormous, so everything you can see up there is out of date. The Moon is a second and a half old. The Sun is eight minutes. Sirius is nine years — light that left it when you were small. Betelgeuse in Orion is about 550 years, so you are seeing it as it was before anybody had sailed to America, and Deneb in Cygnus is around 1,500. The stars in one constellation are nowhere near each other: they are at wildly different distances and only look like a group because we are all looking from one spot.',
+    },
+  }));
+  items.push(prop('info-placard', -22, -8, {
+    rotY: face(-22, -8),
+    options: {
+      title: 'Tonight is a WINTER sky',
+      body: 'Four of the eight boards show constellations you cannot see this evening, and that is not a mistake. As the Earth goes round the Sun, the night side of the planet faces a different part of space each season — so Scorpius and Cygnus are up there right now in the daytime, lost in sunlight, and they will be back on summer nights when Orion is the one that has gone. Crux never appears at all from this latitude. The star wheel down the field is the tool that answers "what is up tonight": line the date against the hour and read off the sky.',
+    },
+  }));
+  items.push(prop('info-placard', 22, -8, {
+    rotY: face(22, -8),
+    options: {
+      title: 'Why every lamp here is red',
+      body: 'Your eyes take twenty to thirty minutes in the dark to reach full sensitivity, as a chemical called rhodopsin builds up in them — and one glance at a white light destroys it in a second. Red light barely touches rhodopsin, so observers use red torches and red lamps for everything, and the lamps on this field are hooded to throw their light down rather than sideways. It is worth trying for yourself on a clear night: wait half an hour without looking at a phone and the number of stars you can see roughly triples.',
+    },
+  }));
+
+  // --- Two programming challenges -----------------------------------------
+  items.push(activity(16, 30, {
+    number: 1,
+    title: 'Speed up the whole sky',
+    target: 'the brass armillary sphere',
+    rotY: face(16, 30),
+    accent: '#d9b45f',
+    steps: [
+      ctrlStep('forever'),
+      moveStep('rotate 0.14 degrees', 1),
+    ],
+    tip: 'This one is ALREADY running — click the sphere and choose Program to read it. The real sky takes 24 hours to come back round. Change 0.14 to 6 and watch a day go by in seconds, or make it negative and run time backwards.',
+  }));
+
+  items.push(activity(-22, 6, {
+    number: 2,
+    title: 'Throw a shooting star',
+    target: 'the meteor high on your left',
+    rotY: face(-22, 6),
+    accent: '#79c2b0',
+    steps: [
+      ctrlStep('forever'),
+      moveStep('glide 170 feet over 1.3 seconds', 1),
+      moveStep('go back to start', 1),
+      ctrlStep('wait 4 seconds', 1),
+    ],
+    tip: '`go back to start` is what makes it repeat instead of leaving the world — the meteor is put back where it began. Shorten the wait and you have a meteor shower. Real ones are grains of dust the size of this full stop, burning up sixty miles above you.',
+  }));
+
+  // --- Field furniture ----------------------------------------------------
+  for (const [x, z] of [[-26, 30], [26, 28], [-30, -4]]) {
+    items.push(prop('bench', x, z, { rotY: face(x, z), options: { length: 5, woodColor: 0x5f4a33 } }));
+  }
+  items.push(prop('red-lamp', -22, 14, { options: { height: 9, seed: 121 } }));
+  items.push(prop('red-lamp', 22, 14, { options: { height: 9, seed: 122 } }));
+
+  // Two orbs only. This world's darkness IS the exhibit, and every board in it is emissive
+  // for exactly that reason -- a scattering of warm orbs would light the field up and throw
+  // the sky away with it.
+  // NOT at (0, 34): that is the armillary sphere's own position, and an orb hung 12ft up there
+  // sits INSIDE the rings as a white ball floating next to the Earth at the centre of the
+  // instrument. It reads as a modelling mistake, because it is one.
+  // Both OFF the arrival sightline. An orb is a visible glowing ball -- that is what the app's
+  // own light source looks like -- so one hung on the centre line reads as a bright artifact
+  // floating next to the hero model rather than as lighting.
+  items.push(orb(-17, 33, 8, ORB_WHITE));
+  items.push(orb(19, -28, 9, ORB_BLUE));
+
+  return { theme: 'constellations', spawn: { ...SP, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
+// Telescope Observatory
+// ---------------------------------------------------------------------------
+
+// A working observatory at dusk, modelled from photographs: a ribbed silver dome on a
+// corrugated drum with its shutter open, and a 36-inch reflector standing under the slit.
+//
+// THE DOME AND THE TELESCOPE SHARE A ROTATION RATE, and that is the world's one big idea.
+// They are separate objects with separate programs, both `forever { rotate 0.05 }`, so they
+// turn together and the open slit stays in front of the tube -- which is what a dome is FOR,
+// and something no placard says nearly as well. Change one and they come apart, which is
+// itself worth discovering.
+//
+// The drum's door and the dome's slit are both authored on the +Z face, but they are given
+// DIFFERENT yaws on purpose: the door faces the arrival so a student can walk in, while the
+// dome and the telescope are turned 26 degrees off it. A building whose door and shutter line
+// up perfectly is a building that looks like one object.
+function observatoryLayout() {
+  const items = [];
+  const SP = { x: 0, z: 92 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // A 30ft dome, not the 26ft the first pass had. The building was the right size for a real
+  // 36-inch and the wrong size for this app: with a 13ft interior radius a student who walks in
+  // is already at the telescope, with no room anywhere to stand back and see the whole
+  // instrument. Two extra feet of radius is what makes it a room rather than a cupboard.
+  const DOME = { x: 0, z: 26, radius: 15, wall: 12, aim: 0.45 };
+
+  // --- The building -------------------------------------------------------
+  // 66ft from the spawn. The dome's top is 25ft up, which is 17 degrees from eye height, and
+  // the drum is 26ft wide -- about 23 degrees. It fills the arrival frame without needing the
+  // student to look up, which for a building whose whole interest is at the top is the number
+  // that matters.
+  items.push(prop('observatory-drum', DOME.x, DOME.z, {
+    rotY: 0, // the door faces +Z, straight back at the spawn
+    options: { radius: DOME.radius, wallHeight: DOME.wall, seed: 7 },
+  }));
+  items.push(prop('observatory-dome', DOME.x, DOME.z, {
+    y: DOME.wall, rotY: DOME.aim,
+    options: { radius: DOME.radius + 0.4, shutter: 0.30, seed: 9 },
+    program: [block('forever', {}, [block('rotate', { degrees: 0.05 })])],
+  }));
+  items.push(prop('great-telescope', DOME.x, DOME.z, {
+    rotY: DOME.aim,
+    options: { aperture: 3.6, elevation: 38, latitude: 31, seed: 13 },
+    program: [block('forever', {}, [block('rotate', { degrees: 0.05 })])],
+  }));
+  // The gallery round the inside, with its gap over the doorway so nothing crosses the way in.
+  items.push(prop('dome-catwalk', DOME.x, DOME.z, {
+    rotY: 0, options: { radius: DOME.radius - 0.8, height: 8.2, gap: 0.42, seed: 17 },
+  }));
+  items.push(prop('control-desk', -8.5, 17.5, { rotY: facing(-8.5, 17.5, DOME.x, DOME.z), options: { width: 7.6, seed: 23 } }));
+
+  // --- The rest of the site -----------------------------------------------
+  items.push(prop('observatory-wing', 30, 34, { rotY: 0, options: { length: 34, width: 14, height: 9.5, seed: 29 } }));
+  items.push(prop('student-dome', -38, 14, { rotY: face(-38, 14), options: { radius: 7, wallHeight: 7.5, seed: 31 } }));
+  items.push(prop('radio-dish', 48, -20, {
+    rotY: face(48, -20),
+    options: { radius: 8, seed: 59 },
+    program: [block('forever', {}, [block('rotate', { degrees: 0.09 })])],
+  }));
+  items.push(prop('all-sky-camera', -22, 50, { options: { height: 5.5, seed: 53 } }));
+  items.push(prop('weather-mast', -30, 62, { options: { height: 12 } }));
+  items.push(prop('dobsonian-telescope', 16, 66, {
+    rotY: face(16, 66) + 0.6, options: { tubeLength: 5.4, elevation: 52, seed: 37 },
+  }));
+
+  // The path in. Two runs rather than one long strip, because the flagstone prop lays its
+  // rows along its own Z and a single 60ft slab of it reads as a runway.
+  items.push(prop('path-stones', 0, 62, { options: { length: 26, width: 6, seed: 17 } }));
+  items.push(prop('path-stones', 0, 44, { options: { length: 24, width: 6, seed: 23 } }));
+
+  // --- Vegetation ---------------------------------------------------------
+  for (const [x, z, h, seed] of [[-52, 44, 14, 41], [44, 58, 12, 42], [-46, -22, 15, 43]]) {
+    items.push(prop('mesquite-tree', x, z, { options: { height: h, seed } }));
+  }
+  for (const [x, z, r, seed] of [[-24, 34, 2.8, 44], [22, 46, 2.4, 45], [-16, 78, 2.2, 46], [34, 8, 3.0, 47]]) {
+    items.push(prop('desert-shrub', x, z, { options: { radius: r, seed } }));
+  }
+  for (const [x, z, seed] of [[-14, 40, 48], [12, 34, 49], [26, 70, 50]]) {
+    items.push(prop('dry-grass', x, z, { options: { radius: 1.8, height: 2.4, blades: 26, seed } }));
+  }
+
+  // --- The sky ------------------------------------------------------------
+  // Orion is hung where the telescope is actually POINTING -- 0.45 radians east of north at
+  // 38 degrees up, which is behind the student. The control screen inside says the target is
+  // M42, the nebula in Orion's sword, so a student who reads the screen and then walks out and
+  // turns round is looking at the thing the dome is looking at. That agreement is the reason
+  // these numbers are written as one set rather than picked twice.
+  items.push(prop('sky-constellation', 65, 227, {
+    y: 122, absoluteY: true, rotY: facing(65, 227, SP.x, SP.z),
+    options: { figure: 'orion', span: 90, tilt: 0.663, roll: -0.2, seed: 26 },
+  }));
+  items.push(prop('sky-star', -52, 214, {
+    y: 96, absoluteY: true, rotY: facing(-52, 214, SP.x, SP.z),
+    options: { magnitude: 1.98, spectral: 'F', size: 3.0, label: 'POLARIS', sub: 'the dome’s own north', tilt: 0.60 },
+  }));
+  // Faint, not the full band: at dusk the sky is still bright enough that the Milky Way is
+  // only just beginning to show, and a blazing galaxy over a lit horizon is the one thing that
+  // would give the time of day away as invented.
+  items.push(prop('milky-way', 0, 30, {
+    y: 172, absoluteY: true, rotY: Math.PI / 2,
+    options: { length: 440, width: 108, tilt: 0.85, opacity: 0.3, seed: 82 },
+  }));
+  // A waxing gibbous Moon, ahead and to the right at 33 degrees. Its painted terminator puts
+  // the dark limb on its right, so the lit side faces the sunset away to the left -- which is
+  // where this theme's sun is, and the only arrangement that is not quietly wrong.
+  items.push(prop('moon-in-sky', 95, -55, {
+    y: 118, absoluteY: true, options: { radius: 14, seed: 92 },
+  }));
+
+  // --- Words --------------------------------------------------------------
+  // BEHIND the spawn, at the gate a visitor came in through -- not in front of them. At its
+  // first position, 18ft ahead and 47 degrees off the sightline, a 9ft sign was both clipped by
+  // the frame edge AND sitting on top of the welcome board behind it. Anything within about
+  // 20ft of the spawn and past 40 degrees off-axis cannot fit on screen.
+  items.push(prop('standing-sign', 14, 100, {
+    rotY: face(14, 100),
+    options: {
+      lines: ['PRAIRIE RIDGE OBSERVATORY'],
+      subtitle: 'EAST DOME OPEN · PLEASE KEEP LIGHTS RED',
+      width: 9,
+      height: 2.6,
+      postHeight: 6.2,
+      face: '#1d2b3a',
+    },
+  }));
+  items.push(prop('welcome-board', -19, 60, {
+    rotY: face(-19, 60),
+    options: {
+      eyebrow: '🔭  TELESCOPE OBSERVATORY',
+      lead: 'The shutter is open and the telescope is tracking.',
+      lines: ['Walk in through the door.', 'The dome turns. Watch it.'],
+      footnote: 'The dome and the telescope run the same program — that is the whole trick',
+    },
+  }));
+  items.push(...browserStation(20, 70, { faceX: SP.x, faceZ: SP.z }));
+
+  items.push(prop('info-placard', -12, 46, {
+    rotY: face(-12, 46),
+    options: {
+      title: 'Why a dome turns',
+      body: 'A dome is not a roof, it is a shield with one gap in it. The telescope has to see out, but the wind must not get in — moving air shakes a 36-inch mirror enough to smear every star into a blur. So the dome carries a single slit, rides on wheels round a circular track, and follows the telescope all night. Everything else stays shut. Watch this one: it is turning at the same rate as the telescope inside it, which is why the slit stays in front of the tube instead of drifting off it.',
+    },
+  }));
+  items.push(prop('info-placard', 12, 46, {
+    rotY: face(12, 46),
+    options: {
+      title: 'Nobody looks through it',
+      body: 'There is no eyepiece on this telescope and no chair at the top of it. The light goes to a camera cooled to well below freezing, and the astronomer sits at the desk inside reading numbers off a screen — often in another building, sometimes in another country. That is not laziness: a camera can stare at one faint galaxy for an hour and add up every photon, and an eye cannot add anything up at all. The eye is still the better instrument for one job, which is enjoying it.',
+    },
+  }));
+  items.push(prop('info-placard', -9, 12, {
+    rotY: facing(-9, 12, 0, 40),
+    options: {
+      title: 'How much more it sees than you do',
+      body: 'A dark-adapted pupil is about 7 millimetres across. This mirror is 36 inches — 914 millimetres — and light-gathering goes with AREA, so it collects roughly seventeen thousand times as much light as one eye. That is the difference between seeing four thousand stars and seeing a hundred million. The mirror is glass with a coating of aluminium a few hundred atoms thick, and it is a shallow bowl, not a lens: big lenses sag under their own weight, which is why every large telescope built in the last century has been a mirror.',
+    },
+  }));
+  items.push(prop('info-placard', 36, 20, {
+    rotY: face(36, 20),
+    options: {
+      title: 'Why observatories live on dry hills',
+      body: 'Air is the enemy. Every warm patch of it between the mirror and the star bends the light a little differently, and the result is a star that boils instead of sitting still — which is all twinkling actually is. So sites are chosen high, dry and far from cities: less air overhead, less water vapour in it, no streetlights. The vents round the bottom of this dome are opened hours before dark so the whole building cools to the outside temperature. A dome even a couple of degrees warm than the night air ruins its own view.',
+    },
+  }));
+
+  // --- Two programming challenges -----------------------------------------
+  items.push(activity(-24, 22, {
+    number: 1,
+    title: 'Turn the dome',
+    target: 'the silver dome overhead',
+    rotY: face(-24, 22),
+    accent: '#6f9bd1',
+    steps: [
+      ctrlStep('forever'),
+      moveStep('rotate 0.05 degrees', 1),
+    ],
+    tip: 'It is ALREADY running, and so is the telescope, on exactly the same number. Click the dome, choose Program, and change 0.05 to 3 — then watch the slit run away from the telescope and leave it staring at the inside of the roof. Now you know why the two are wired together.',
+  }));
+
+  items.push(activity(24, 56, {
+    number: 2,
+    title: 'Sweep the sky with the little telescope',
+    target: 'the wooden Dobsonian by the path',
+    rotY: face(24, 56),
+    accent: '#d9b45f',
+    steps: [
+      ctrlStep('forever'),
+      moveStep('rotate 12 degrees', 1),
+      ctrlStep('wait 1 seconds', 1),
+    ],
+    tip: 'Thirty steps of 12 degrees is a full circle, so it comes back to where it started. Real observers do exactly this — sweep, stop, look, sweep — because a telescope only sees a patch of sky the width of your little fingernail.',
+  }));
+
+  // --- Furniture and light ------------------------------------------------
+  for (const [x, z] of [[-30, 40], [26, 62]]) {
+    items.push(prop('bench', x, z, { rotY: face(x, z), options: { length: 5, woodColor: 0x6b5a3f } }));
+  }
+  items.push(prop('red-lamp', 14, 44, { options: { height: 9, seed: 123 } }));
+
+  // ALL THREE ORBS ARE INSIDE THE DOME, and there is none out on the site at all. The shutter
+  // lets some sky in and the shell casts no shadow, but a 30-degree slit at dusk is nowhere near
+  // enough to read a room by -- and the interior is the whole reason this building has a door,
+  // so it gets the entire lighting budget. Outdoors there is a hooded red lamp and that is
+  // deliberate: an observatory site at night IS dark, and every real one keeps it that way.
+  //
+  // They hang at 10-11ft, not up at the dome's springing: ORB_LIGHT_DISTANCE with decay 2 is
+  // nearly spent by 12ft, so a light at the top of a dome leaves the floor at the edge of its
+  // own cone and the telescope in silhouette.
+  items.push(orb(10, 21, 10, ORB_WARM));
+  items.push(orb(-10, 31, 10, ORB_WHITE));
+  items.push(orb(0, 38, 11, ORB_WARM));
+
+  return { theme: 'observatory', spawn: { ...SP, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + materialization
 // ---------------------------------------------------------------------------
 
@@ -7316,6 +7784,16 @@ export const PRESET_WORLDS = {
     label: 'Inside a Twister',
     hint: 'An EF4 turning over wheat country, with the storm above it and the farm it hit',
     build: twisterLayout,
+  },
+  constellations: {
+    label: 'The Constellations',
+    hint: 'A winter observing field — eight star boards, an armillary sphere, and the real sky overhead',
+    build: constellationsLayout,
+  },
+  observatory: {
+    label: 'Telescope Observatory',
+    hint: 'A hilltop dome at dusk with its shutter open — walk in and stand under a 36-inch reflector',
+    build: observatoryLayout,
   },
   empty: {
     label: 'My World',
