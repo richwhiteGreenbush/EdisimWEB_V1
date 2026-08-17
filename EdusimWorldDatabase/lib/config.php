@@ -119,10 +119,16 @@ ewd_define('EWD_ADMIN_PASSWORD_HASH', '');
 ewd_define('EWD_SITE_URL', '../');
 ewd_define('EWD_GUIDE_URL', '../guide/index.html');
 
-// The app is the ONE link that has to stay absolute: it is deployed to Railway, a
-// different host entirely, and there is no copy of it on this server to point at. If it
-// ever moves onto this domain, this becomes relative like the two above.
-ewd_define('EWD_APP_URL', 'https://edisimwebv1-production.up.railway.app');
+// The app used to be the ONE absolute link here, because it was deployed to Railway and
+// there was no copy of it on this server to point at. There is now: deploy.sh publishes
+// the built bundle to /app/ on this host, so this joins the two above and is relative.
+//
+// The Railway deployment still exists and still works -- it is simply no longer what any
+// link points at. Nothing here depends on it.
+//
+// Trailing slash on purpose: `/app` without one is a 301 to `/app/`, and that is a wasted
+// round trip on the one button whose whole job is to start the app quickly.
+ewd_define('EWD_APP_URL', '../app/');
 
 // The origin used to build ABSOLUTE urls: the share links and the Open Graph tags, both
 // of which are read by someone else's server and cannot be relative.
@@ -139,17 +145,13 @@ ewd_define('EWD_APP_URL', 'https://edisimwebv1-production.up.railway.app');
 ewd_define('EWD_CANONICAL_ORIGIN', 'http://edusim3dweb.com');
 ewd_define('EWD_CANONICAL_BASE', EWD_CANONICAL_ORIGIN . '/worlds/');
 
-// The copy of the app that "Open this world in Edusim" points at, and it is deliberately
-// NOT EWD_APP_URL.
+// The copy of the app that "Open this world in Edusim" points at. It now holds the same
+// value as EWD_APP_URL, and it is still a separate constant on purpose.
 //
-// That button hands the app a world id and the app fetches the file back out of this
-// gallery, which means the two have to share an origin: this host has no TLS, and a page
-// served from Railway over https may not fetch an http url -- browsers block it as mixed
-// content and there is no client-side way round it. So deploy.sh publishes a second copy
-// of the built app one directory up, at /app/, and that is the one that can open a world
-// from a link.
-//
-// Relative, like every other same-host link in this file, so it stays correct on the local
-// Apache mirror. EWD_APP_URL is untouched: "Play Now" and every other plain link to the
-// app still goes to Railway.
+// This one carries a REQUIREMENT the other does not: that button hands the app a world id
+// and the app fetches the file back out of this gallery, so the two have to share an
+// origin. This host has no TLS, and a page served over https may not fetch an http url --
+// browsers block it as mixed content and there is no client-side way round it. Whatever
+// EWD_APP_URL is ever pointed at, this must stay on this host or the feature breaks in a
+// way that shows up only in a browser console.
 ewd_define('EWD_APP_OPEN_URL', '../app/');

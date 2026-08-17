@@ -13,10 +13,13 @@
 #
 set -uo pipefail
 
-# `--prod` points at the two real deployments. They are different hosts -- the site is on
-# pair Networks and the app is on Railway -- so aiming both at one origin silently tests
-# the wrong thing (the marketing page answers `/` with a 200 that means nothing about the
-# app being there).
+# `--prod` points at the real deployment. The app used to live on a different host
+# (Railway) and now sits at /app/ on this one, so APP is a SUBPATH of SITE in production
+# and an origin ROOT locally -- deliberately, since those are the two layouts the bundle
+# has to work under and `base: './'` in vite.config.js is what makes both resolve.
+#
+# It still has to be spelled out rather than defaulted to "$SITE", because the marketing
+# page answers `/` with a 200 that means nothing about the app being there.
 #
 # The canonical origin is edusim3dweb.com. edusim3d.me is an alias that 301s to it, and
 # pointing SITE there fails EVERY check for a reason that has nothing to do with the
@@ -26,7 +29,7 @@ set -uo pipefail
 if [ "${1:-}" = "--prod" ]; then
   SITE="http://edusim3dweb.com"
   ALIAS="http://edusim3d.me"
-  APP="https://edisimwebv1-production.up.railway.app"
+  APP="http://edusim3dweb.com/app"
   TIMEOUT="${TIMEOUT:-30}"
 fi
 
@@ -80,10 +83,11 @@ rm -f "$home_html"
 
 section "World gallery"
 check "gallery"              "$SITE/worlds/"             200
-# The gallery must not send visitors off to the old GitHub Pages copy. Everything on this
-# host is relative; the only absolute link left is the app, which really is on Railway.
+# The gallery must not send visitors off to the old GitHub Pages copy. Every link it emits
+# is now relative -- including the app, which used to be the one absolute exception and is
+# now a directory on this same host. Google Fonts is the only off-site host left.
 gal_html="$(curl -s --max-time "$TIMEOUT" "$SITE/worlds/")"
-stray="$(printf '%s' "$gal_html" | grep -oE 'href="https?://[^"]+"' | grep -v 'railway\.app' | grep -v 'fonts\.g' | sort -u || true)"
+stray="$(printf '%s' "$gal_html" | grep -oE 'href="https?://[^"]+"' | grep -v 'fonts\.g' | sort -u || true)"
 if [ -z "$stray" ]; then
   printf '  \033[32mok\033[0m   %-46s none\n' "off-site links in the gallery"; pass=$((pass+1))
 else
@@ -193,10 +197,12 @@ if [ -n "${ALIAS:-}" ]; then
   esac
 fi
 
-section "Edusim app (as Railway serves it)"
+section "Edusim app"
 check "app index"            "$APP/"                     200
-# Vite builds with base "/", so the bundle is referenced from the origin root. A 404 here
-# is the failure that mounting it on a subpath would cause.
+# The bundle is referenced as `./assets/...` (vite.config.js sets base: './'), so this
+# resolves against whatever directory the app is mounted in -- an origin root locally, a
+# subpath in production. The regex drops the leading dot and re-roots it on $APP, which is
+# what makes one check cover both layouts.
 asset=$(curl -s "$APP/" | grep -oE '/assets/[A-Za-z0-9._-]+\.js' | head -1)
 [ -n "$asset" ] && check "main bundle"  "$APP$asset"     200
 check "maple tree model"     "$APP/tree/MapleTree.obj"   200

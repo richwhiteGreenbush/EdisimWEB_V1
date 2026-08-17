@@ -174,9 +174,10 @@ ewd_header([
                  file straight out of this gallery and loads it. No download, no file
                  picker, no three-step instructions.
 
-                 It points at EWD_APP_OPEN_URL -- the copy of the app on THIS host -- and
-                 not at EWD_APP_URL on Railway, because the fetch has to be same-origin.
-                 See the note on that constant in lib/config.php. -->
+                 It points at EWD_APP_OPEN_URL specifically -- the copy of the app on THIS
+                 host -- because the fetch has to be same-origin. Both constants happen to
+                 hold the same value now, but only this one is REQUIRED to. See the note on
+                 it in lib/config.php. -->
             <a class="btn btn-primary" href="<?= e(EWD_APP_OPEN_URL . '?world=' . (int)$world['id']) ?>">
               ▶ Open this world in Edusim
             </a>

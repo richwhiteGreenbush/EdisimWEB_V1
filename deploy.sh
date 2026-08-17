@@ -72,6 +72,12 @@ fi
 # --- The marketing site ----------------------------------------------------------
 # Static files with no server-side state, so --delete is safe: anything on the server
 # that is not in docs/ is a leftover from an older deploy and should go.
+#
+# EXCEPT the other two payloads, which are subdirectories of this same docroot and are
+# NOT in docs/. Both must be excluded or --delete removes them: `worlds/` is every world
+# a student has shared, and `app/` is the app itself. `./deploy.sh all` happens to upload
+# them again afterwards, which is what hid this -- but `./deploy.sh site` on its own does
+# not, and would leave the site standing with the gallery and the app deleted.
 if [ "$WHAT" = "all" ] || [ "$WHAT" = "site" ]; then
   say "Marketing site  ->  $REMOTE_HOST:$REMOTE_SITE"
   ssh $SSH_OPTS "$REMOTE_USER@$REMOTE_HOST" "mkdir -p '$REMOTE_SITE'"
@@ -80,6 +86,7 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "site" ]; then
     --exclude '.DS_Store' \
     --exclude '_preview-check.html' \
     --exclude 'worlds/' \
+    --exclude 'app/' \
     -e "ssh $SSH_OPTS" \
     "$HERE/docs/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_SITE/"
 fi

@@ -15,9 +15,20 @@ import { MODEL_TARGET_HEIGHT } from './config.js';
 // why only the three loaders live here now. Their `startup-*` record kinds are
 // unchanged, so worlds saved before the Park existed still rehydrate.
 
+// Every url here names a file shipped in `public/`, so it must resolve RELATIVE to
+// wherever the bundle is mounted -- an origin root, or /app/ on the gallery's host. A
+// leading slash instead looks for it at the domain root, which under /app/ is the
+// marketing site: the fetch 404s and the asset silently never appears.
+//
+// The strip is here rather than at each call site because this is the one funnel they all
+// go through, and the failure is invisible in dev (where the app IS at a root) and shows
+// up only as a missing object in production. Two of the three loaders were already
+// converted by hand and the third was missed, which is precisely the argument for making
+// the guard structural instead of remembering it each time.
 async function fetchAsFile(url, name, type) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
+  const relative = url.replace(/^\/+/, '');
+  const res = await fetch(relative);
+  if (!res.ok) throw new Error(`Failed to fetch ${relative}: ${res.status}`);
   const blob = await res.blob();
   return new File([blob], name, { type: type || blob.type });
 }
@@ -39,8 +50,8 @@ function tagShadows(object3D) {
 
 export async function loadLibraryModel() {
   const [objFile, mtlFile] = await Promise.all([
-    fetchAsFile('/library/mini-library.obj', 'mini-library.obj'),
-    fetchAsFile('/library/mini-library.mtl', 'mini-library.mtl'),
+    fetchAsFile('library/mini-library.obj', 'mini-library.obj'),
+    fetchAsFile('library/mini-library.mtl', 'mini-library.mtl'),
   ]);
   const { manager, urlMap } = buildBatchLoadingManager([objFile, mtlFile]);
   try {
@@ -57,10 +68,6 @@ export async function loadLibraryModel() {
 // (tree_Mesh / leaves / leaves.001, confirmed by inspecting the file) are matched
 // here to the loose bark/leaf/mask textures that came with it.
 export async function loadTreeModel() {
-  // RELATIVE, not '/tree/…'. These are fetched by url at runtime, and the app is served
-  // both from an origin root (Railway) and from /app/ on the gallery's host, where a
-  // leading slash would look for the model one directory too high. SurfaceTextures.js
-  // already uses a relative base for the same reason.
   const objFile = await fetchAsFile('tree/MapleTree.obj', 'MapleTree.obj');
   const { manager, urlMap } = buildBatchLoadingManager([objFile]);
   let object3D;
@@ -98,6 +105,6 @@ export async function loadTreeModel() {
 }
 
 export async function loadBillboardImage() {
-  const file = await fetchAsFile('/NewEdusim.png', 'NewEdusim.png', 'image/png');
+  const file = await fetchAsFile('NewEdusim.png', 'NewEdusim.png', 'image/png');
   return loadImagePlane(file, { isGif: false });
 }

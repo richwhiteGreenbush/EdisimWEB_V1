@@ -7,7 +7,7 @@
 A single-user 3D sandbox that runs entirely in a browser — no download, no account,
 no backend, no ads.
 
-[**▶ Play**](https://edisimwebv1-production.up.railway.app) ·
+[**▶ Play**](http://edusim3dweb.com/app/) ·
 [Website](https://richwhitegreenbush.github.io/EdisimWEB_V1/) ·
 [Tutorials](https://richwhitegreenbush.github.io/EdisimWEB_V1/guide/tutorials.html) ·
 [Hands-On Guide](https://richwhitegreenbush.github.io/EdisimWEB_V1/guide/) ·

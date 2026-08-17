@@ -123,13 +123,30 @@ allowlist to maintain and no way to aim it elsewhere.
 gallery is served over plain http (edusim3dweb.com has no TLS) and the Railway copy of the
 app is https — and **a page served over https may not fetch an http url at all.** Browsers
 block it as mixed content, exactly as they block the in-world browser panel's iframe, and
-nothing client-side gets round either. So `deploy.sh` now publishes a **second copy of the
-built app to the gallery's own host at `/app/`**, and `EWD_APP_OPEN_URL` points the button
-there. `EWD_APP_URL` is untouched — Play Now and every other plain link still goes to
-Railway. On the Railway copy a `?world=` link 404s and says so plainly; it deliberately
-does not try the absolute address, because that produces a mixed-content console error
-that looks like a bug in this code rather than the hosting fact it is. When the domain
-gets a certificate the two copies become interchangeable.
+nothing client-side gets round either. So `deploy.sh` publishes the **built app to the
+gallery's own host at `/app/`**, and `EWD_APP_OPEN_URL` points the button there. On the
+Railway copy a `?world=` link 404s and says so plainly; it deliberately does not try the
+absolute address, because that produces a mixed-content console error that looks like a bug
+in this code rather than the hosting fact it is. When the domain gets a certificate the two
+copies become interchangeable.
+
+**Every link now points at `/app/`, and Railway is a live deployment nothing links to.**
+`EWD_APP_URL` was the one deliberately-absolute constant in `lib/config.php`; now that the
+app is a directory in the same docroot it is `'../app/'`, like `EWD_SITE_URL` and
+`EWD_GUIDE_URL` beside it, and the gallery emits no absolute links at all except Google
+Fonts (`smoke-test.sh` asserts exactly that). `EWD_APP_OPEN_URL` holds the same value and
+is still a separate constant, because only *it* carries the same-origin requirement above —
+whatever `EWD_APP_URL` is ever repointed at, that one has to stay on this host.
+
+`docs/` is the exception that keeps an absolute `http://edusim3dweb.com/app/`: the same
+files are also published to GitHub Pages, where a relative `app/` is a dead end. The links
+carry the **trailing slash** on purpose — `/app` alone is a 301, and that is a wasted round
+trip on the button whose job is to start the app.
+
+**The two Railway-only capabilities are the argument for TLS here.** Immersive VR
+(`navigator.xr`) and clipboard writes are secure-context APIs and are simply absent on plain
+http; both already degrade (side-by-side stereo, a select-and-copy fallback). `crypto.randomUUID`
+was a third and did *not* degrade — see `src/Uuid.js`.
 
 **Two things that had to change to serve the app off the origin root:**
 
@@ -269,7 +286,8 @@ out from under the student. And **the mixed-content limitation on
 `WEB_BROWSER_DEFAULT_URL` does not apply to it** — that one is an `http:` *iframe* inside an
 `https:` page, which browsers block; this is a top-level navigation into a new tab, which
 they do not. The link works from the Railway deployment even while the in-world browser
-panel pointed at the same host does not.
+panel pointed at the same host does not — which is also why every `http://edusim3dweb.com/app/`
+link in `docs/` is fine on the https GitHub Pages mirror.
 
 **The Park is the boot world** (`config.js`'s `BOOT_WORLD`). A first visit — or any
 visit where `rehydrateAll()` comes back with an empty registry — builds it via the same

@@ -2,13 +2,17 @@
 #
 # Run everything this project deploys, on this machine, the way it is actually served.
 #
-# There are three deployed things and they live in two different places, so this script
-# reproduces both:
+# All three deployed things now live on one host, in one docroot, so port 8080 is the
+# whole production layout. Port 8081 is not a deployment -- see note 3 below:
 #
 #   port 8080   the pair Networks site -- docs/ at the root, EdusimWorldDatabase/ at
-#               /worlds, Apache + PHP 8.2 over FastCGI          (edusim3d.me)
-#   port 8081   the Edusim app itself -- the dist/ bundle at an
-#               ORIGIN ROOT, which is how Railway serves it     (…up.railway.app)
+#               /worlds, and the dist/ bundle at /app, Apache
+#               + PHP 8.2 over FastCGI                          (edusim3dweb.com)
+#   port 8081   the same bundle again, at an ORIGIN ROOT. Not a
+#               deployment any more -- it is the check that
+#               `base: './'` still resolves from a root as well
+#               as from a subdirectory, which is the difference
+#               between the two mounts and easy to break.
 #
 # WHY THIS EXISTS RATHER THAN `php -S` AND `npm run preview`:
 #
@@ -19,8 +23,9 @@
 #   2. PHP here is FastCGI, NOT mod_php. That distinction is the bug class above: the
 #      mod_php-only directives (php_flag, php_value) are a fatal 500 under FastCGI and
 #      silently fine under mod_php, and pair runs FastCGI (its fcgi-bin/php8_wrapper.sh).
-#   3. The app has to be at an origin ROOT. Vite builds with base "/", so mounting the
-#      bundle on a subpath would 404 every asset -- a failure Railway would never show.
+#   3. The app is served from a SUBDIRECTORY (/app) as well as from an origin root, and
+#      only one of those two 404s every asset when `base` in vite.config.js is wrong.
+#      `npm run preview` shows the root case alone, which is the one that stays working.
 #
 # Nothing is installed and nothing system-wide is touched. Both ports are above 1024, so
 # no sudo.
@@ -44,7 +49,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RUN="/private/tmp/edusim-local-server"
 SITE="$RUN/site"          # docs/ + EdusimWorldDatabase/ -- the pair Networks layout
-APP="$RUN/app"            # dist/ -- the Railway layout
+APP="$RUN/app"            # dist/ again, at an origin root -- see the note above
 SITE_PORT="${SITE_PORT:-8080}"
 APP_PORT="${APP_PORT:-8081}"
 FPM_PORT="${FPM_PORT:-9082}"
@@ -79,14 +84,26 @@ stop_all() {
 # every world seeded into the local gallery on the next sync.
 sync_all() {
   mkdir -p "$SITE" "$APP"
+  # `worlds/` and `app/` are excluded because they are not part of docs/ -- they are the
+  # other two payloads, rsynced in below. Without the excludes, --delete wipes each of
+  # them on every sync (they survived only by being written afterwards, which is exactly
+  # the kind of order dependency that breaks the first time these lines are reordered).
   rsync -a --delete --exclude '.DS_Store' --exclude '_preview-check.html' \
-    --exclude 'worlds/' "$HERE/docs/" "$SITE/"
+    --exclude 'worlds/' --exclude 'app/' "$HERE/docs/" "$SITE/"
   rsync -a --delete --exclude '.DS_Store' \
     --exclude 'data/worlds.sqlite*' --exclude 'data/worlds/*.json' \
     --exclude 'uploads/screenshots/*' --exclude 'lib/config.local.php' \
     "$HERE/EdusimWorldDatabase/" "$SITE/worlds/"
   mkdir -p "$SITE/worlds/data/worlds" "$SITE/worlds/uploads/screenshots"
-  [ -d "$HERE/dist" ] && rsync -a --delete "$HERE/dist/" "$APP/"
+  # The bundle goes to BOTH places deploy.sh puts it: an origin root, and /app/ on the
+  # site. The second is not a nicety -- "Open this world in Edusim" hands the app a world
+  # id and the app fetches the file back out of the gallery, which only works while the
+  # two share an origin. Without a local /app/ that whole flow is untestable here and the
+  # smoke test's link checks can only ever run against production.
+  if [ -d "$HERE/dist" ]; then
+    rsync -a --delete "$HERE/dist/" "$APP/"
+    rsync -a --delete "$HERE/dist/" "$SITE/app/"
+  fi
 }
 
 FORCE_BUILD=""
@@ -207,7 +224,7 @@ AddType application/wasm    .wasm
     </Directory>
 </VirtualHost>
 
-# --- The Edusim app, as Railway serves it ------------------------------------
+# --- The same bundle at an origin root, so both mounts are exercised ---------
 <VirtualHost *:$APP_PORT>
     DocumentRoot "$APP"
     <Directory "$APP">
@@ -230,5 +247,6 @@ sleep 1
 
 printf '\n  marketing site   http://localhost:%s/\n' "$SITE_PORT"
 printf '  world gallery    http://localhost:%s/worlds/\n' "$SITE_PORT"
-printf '  Edusim app       http://localhost:%s/\n' "$APP_PORT"
+printf '  Edusim app       http://localhost:%s/app/\n' "$SITE_PORT"
+printf '  …at an origin root http://localhost:%s/\n' "$APP_PORT"
 printf '  logs             ./serve-local.sh logs\n\n'
