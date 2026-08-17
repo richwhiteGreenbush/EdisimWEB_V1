@@ -57,7 +57,11 @@ export async function loadLibraryModel() {
 // (tree_Mesh / leaves / leaves.001, confirmed by inspecting the file) are matched
 // here to the loose bark/leaf/mask textures that came with it.
 export async function loadTreeModel() {
-  const objFile = await fetchAsFile('/tree/MapleTree.obj', 'MapleTree.obj');
+  // RELATIVE, not '/tree/…'. These are fetched by url at runtime, and the app is served
+  // both from an origin root (Railway) and from /app/ on the gallery's host, where a
+  // leading slash would look for the model one directory too high. SurfaceTextures.js
+  // already uses a relative base for the same reason.
+  const objFile = await fetchAsFile('tree/MapleTree.obj', 'MapleTree.obj');
   const { manager, urlMap } = buildBatchLoadingManager([objFile]);
   let object3D;
   try {
@@ -67,9 +71,9 @@ export async function loadTreeModel() {
   }
 
   const [barkTexture, leafTexture, leafMask] = await Promise.all([
-    loadTexture('/tree/maple_bark.png'),
-    loadTexture('/tree/maple_leaf.png'),
-    loadTexture('/tree/maple_leaf_Mask.png', { srgb: false }),
+    loadTexture('tree/maple_bark.png'),
+    loadTexture('tree/maple_leaf.png'),
+    loadTexture('tree/maple_leaf_Mask.png', { srgb: false }),
   ]);
 
   object3D.traverse((node) => {

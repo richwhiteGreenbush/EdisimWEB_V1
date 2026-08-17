@@ -138,3 +138,18 @@ ewd_define('EWD_APP_URL', 'https://edisimwebv1-production.up.railway.app');
 // lib/config.local.php if this is ever hosted somewhere else.
 ewd_define('EWD_CANONICAL_ORIGIN', 'http://edusim3dweb.com');
 ewd_define('EWD_CANONICAL_BASE', EWD_CANONICAL_ORIGIN . '/worlds/');
+
+// The copy of the app that "Open this world in Edusim" points at, and it is deliberately
+// NOT EWD_APP_URL.
+//
+// That button hands the app a world id and the app fetches the file back out of this
+// gallery, which means the two have to share an origin: this host has no TLS, and a page
+// served from Railway over https may not fetch an http url -- browsers block it as mixed
+// content and there is no client-side way round it. So deploy.sh publishes a second copy
+// of the built app one directory up, at /app/, and that is the one that can open a world
+// from a link.
+//
+// Relative, like every other same-host link in this file, so it stays correct on the local
+// Apache mirror. EWD_APP_URL is untouched: "Play Now" and every other plain link to the
+// app still goes to Railway.
+ewd_define('EWD_APP_OPEN_URL', '../app/');

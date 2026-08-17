@@ -766,6 +766,14 @@ export const WEB_BROWSER_DOM_HEIGHT = 585; // px -- keeps the same 4:2.6 aspect 
 // everywhere. Nothing in the app can work around it.
 export const WEB_BROWSER_DEFAULT_URL = 'http://edusim3dweb.com';
 
+// --- Opening a shared world from a link ------------------------------------
+
+// `?world=24` on the app's own address opens world 24 out of the gallery directly, with no
+// download and no file picker. See WorldLink.js for why the parameter carries an ID rather
+// than a url, and why this base has to be root-relative.
+export const WORLD_LINK_PARAM = 'world';
+export const WORLD_LINK_BASE = '/worlds/download.php?id=';
+
 // The shared world gallery, opened in a new tab by Menu > Load World > Get More Worlds.
 //
 // The mixed-content limitation above does NOT apply here, and the difference is worth

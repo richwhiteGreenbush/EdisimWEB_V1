@@ -132,6 +132,45 @@ if [ -n "$first" ]; then
 fi
 rm -f "$tmp"
 
+section "Open-a-world-from-a-link"
+# The one-click flow: the world page links to a copy of the app on THIS origin, and that
+# copy fetches the world file back out of the gallery. Both halves are checked, because
+# the whole thing only works while they share an origin -- the gallery has no TLS, and an
+# https page may not fetch an http url.
+check "app on the site's own origin"  "$SITE/app/"                 200
+app_html="$(mktemp)"
+curl -s --max-time "$TIMEOUT" "$SITE/app/" -o "$app_html"
+# base is './' so the bundle is referenced relative to /app/, not from the origin root.
+# With Vite's default base this 404s, which is exactly how mounting on a subpath fails.
+app_asset=$(grep -oE '\./assets/[A-Za-z0-9._-]+\.js' "$app_html" | head -1 | sed 's|^\./||')
+if [ -n "$app_asset" ]; then
+  check "its bundle (relative base)"  "$SITE/app/$app_asset"       200
+else
+  printf '  \033[31mFAIL\033[0m %-46s no ./assets/*.js in the page\n' "its bundle (relative base)"; fail=$((fail+1))
+fi
+rm -f "$app_html"
+# Fetched by url at runtime, so it has to resolve relative to /app/ too.
+check "a runtime asset under /app/"   "$SITE/app/tree/MapleTree.obj" 200
+
+# The button itself, on a real world page, and the file it will fetch.
+first_world=$(echo "$ids" | head -1)
+if [ -n "$first_world" ]; then
+  wp="$(mktemp)"
+  curl -s --max-time "$TIMEOUT" "$SITE/worlds/world.php?id=$first_world" -o "$wp"
+  if grep -q "\.\./app/?world=$first_world" "$wp"; then
+    printf '  \033[32mok\033[0m   %-46s ../app/?world=%s\n' "world page links into the app" "$first_world"; pass=$((pass+1))
+  else
+    printf '  \033[31mFAIL\033[0m %-46s no ../app/?world= link on the page\n' "world page links into the app"; fail=$((fail+1))
+  fi
+  # og:image is what makes a shared link unfurl with a picture.
+  if grep -q 'property="og:image"' "$wp"; then
+    printf '  \033[32mok\033[0m   %-46s present\n' "world page carries og:image"; pass=$((pass+1))
+  else
+    printf '  \033[31mFAIL\033[0m %-46s missing\n' "world page carries og:image"; fail=$((fail+1))
+  fi
+  rm -f "$wp"
+fi
+
 section "Things that must NOT be reachable"
 # These are the .htaccess rules. A 200 here is a security bug, not a cosmetic one.
 check "lib/ config"          "$SITE/worlds/lib/config.php"        403 404

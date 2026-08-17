@@ -1261,3 +1261,32 @@ input[type="file"]:focus {
 @media (max-width: 520px) {
   .share-row { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* "Rather have the file?" — the download, demoted to a disclosure under the one-click
+   Open button. It stays reachable because it is the fallback when a link cannot open the
+   app (no internet, a locked-down device, a copy of Edusim on another host) and because
+   a teacher handing out a world on a USB stick still needs the file itself. */
+.detail-alt {
+  margin-top: 14px;
+  border-top: 1px dashed rgba(30, 42, 58, 0.18);
+  padding-top: 12px;
+}
+
+.detail-alt > summary {
+  cursor: pointer;
+  font: 700 0.86rem/1 "Nunito", system-ui, sans-serif;
+  color: var(--ink-soft);
+  list-style: none;
+}
+
+.detail-alt > summary::-webkit-details-marker { display: none; }
+
+.detail-alt > summary::before {
+  content: "▸ ";
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.detail-alt[open] > summary::before { content: "▾ "; }
+
+.detail-alt > summary:hover { color: var(--denim); }

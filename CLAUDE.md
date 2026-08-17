@@ -106,6 +106,54 @@ frame from `main.js`'s animate loop to drive per-frame updates (currently just
 animated-GIF canvas redraws); `remove()`/`clear()` dispose geometry/material/texture
 and call each item's `tick.dispose()`.
 
+### Opening a shared world from a link
+
+`?world=24` on the app's own address loads world 24 straight out of the gallery — no
+download, no file picker. `WorldLink.js` reads it, `main.js` acts on it during boot, and
+the gallery's world page carries the button (`▶ Open this world in Edusim`).
+
+**The parameter carries an ID, never a URL, and that is the security design.** A parameter
+naming an arbitrary address turns every copy of Edusim into something that will fetch and
+display whatever a link tells it to, from a url that still begins with the real app's
+address — the exact shape a convincing phishing link wants. An integer resolved against a
+fixed base (`WORLD_LINK_BASE`) cannot point anywhere but the gallery, so there is no
+allowlist to maintain and no way to aim it elsewhere.
+
+**The fetch must be SAME-ORIGIN, and that is a hosting fact, not a preference.** The
+gallery is served over plain http (edusim3dweb.com has no TLS) and the Railway copy of the
+app is https — and **a page served over https may not fetch an http url at all.** Browsers
+block it as mixed content, exactly as they block the in-world browser panel's iframe, and
+nothing client-side gets round either. So `deploy.sh` now publishes a **second copy of the
+built app to the gallery's own host at `/app/`**, and `EWD_APP_OPEN_URL` points the button
+there. `EWD_APP_URL` is untouched — Play Now and every other plain link still goes to
+Railway. On the Railway copy a `?world=` link 404s and says so plainly; it deliberately
+does not try the absolute address, because that produces a mixed-content console error
+that looks like a bug in this code rather than the hosting fact it is. When the domain
+gets a certificate the two copies become interchangeable.
+
+**Two things that had to change to serve the app off the origin root:**
+
+- **`vite.config.js` sets `base: './'`.** The default `'/'` writes `/assets/index-xxxx.js`
+  into the built page, which is right at a root and a 404 one directory down.
+- **`StartupAssets.js`'s urls are relative** (`tree/…`, not `/tree/…`). They are fetched by
+  url at runtime, so a leading slash looks one directory too high under `/app/`.
+  `SurfaceTextures.js` already did this correctly.
+
+**The link is stripped from the address bar before the world loads** (`history.replaceState`
+in `takeLinkedWorldId`). Loading replaces everything, so a link left in the url would wipe
+the student's work again on every refresh — including the refresh they do to try to get
+back what they just lost.
+
+**It resets the player; Load World File does not.** There the student chose a file while
+standing somewhere and moving them would be rude. A link is the opposite: they may have
+arrived from another world entirely and be standing 150ft out in fog that no longer exists,
+and a world file carries no spawn of its own. `player.resetTo()` with no arguments is the
+app's own default spot.
+
+**Failure leaves the existing world alone**, because the fetch and the parse both happen
+*before* `loadFromRecords` wipes anything. A dead link toasts the reason and rehydrates
+whatever was already saved.
+
 ### Two independent persistence systems — don't conflate them
 
 **`config.js`'s `DB_NAME` is still `'3dcoder-world'` and must stay that way.** The project

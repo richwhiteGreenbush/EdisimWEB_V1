@@ -50,8 +50,13 @@ export async function exportWorldToFile(records) {
   }
 }
 
-export async function readWorldFile(file) {
-  const text = await file.text();
+// The one place a world file's TEXT becomes records, whatever brought the text in.
+//
+// Split out of readWorldFile so that opening a world from a link (WorldLink.js) and
+// opening one from the file picker cannot drift into validating different things -- the
+// link path is the one that runs without a human having chosen the file, so it is the one
+// that most needs the same checks.
+export function parseWorldPayload(text) {
   let payload;
   try {
     payload = JSON.parse(text);
@@ -62,4 +67,8 @@ export async function readWorldFile(file) {
     throw new Error('That file is not an Edusim world save.');
   }
   return payload.records.map(deserializeRecord);
+}
+
+export async function readWorldFile(file) {
+  return parseWorldPayload(await file.text());
 }

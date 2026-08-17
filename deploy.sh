@@ -28,6 +28,7 @@ REMOTE_USER="${REMOTE_USER:-richwhite}"
 REMOTE_HOST="${REMOTE_HOST:-richwhite.pairserver.com}"
 REMOTE_SITE="${REMOTE_SITE:-/usr/home/richwhite/public_html/edusim3d.me}"
 REMOTE_DB="${REMOTE_DB:-/usr/home/richwhite/public_html/edusim3d.me/worlds}"
+REMOTE_APP="${REMOTE_APP:-/usr/home/richwhite/public_html/edusim3d.me/app}"
 
 SSH_KEY="${SSH_KEY:-$HOME/.ssh/edusim_pairserver}"
 SSH_OPTS="-i $SSH_KEY -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15"
@@ -41,6 +42,7 @@ for arg in "$@"; do
     -n|--dry-run) DRY="--dry-run" ;;
     site) WHAT="site" ;;
     db)   WHAT="db" ;;
+    app)  WHAT="app" ;;
     *) echo "unknown argument: $arg" >&2; exit 2 ;;
   esac
 done
@@ -80,6 +82,33 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "site" ]; then
     --exclude 'worlds/' \
     -e "ssh $SSH_OPTS" \
     "$HERE/docs/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_SITE/"
+fi
+
+# --- The app, on the site's own origin --------------------------------------------
+# A SECOND copy of the built app, beside the gallery rather than instead of Railway.
+#
+# This is what makes "Open this world in Edusim" possible at all. That button hands the
+# app a world id and the app fetches the file from the gallery -- and a fetch has to be
+# same-origin here, because edusim3dweb.com has no TLS and a page served over https may
+# not fetch an http url. Browsers block it as mixed content and nothing client-side can
+# get round it. Served from the gallery's own host, both ends are plain http and the
+# fetch is same-origin, so it simply works.
+#
+# The Railway copy stays exactly as it is: it is still where "Play Now" and every other
+# link points, and it is the one that gets a certificate for free. When the domain here
+# gets one too, the two become interchangeable and this can go back to being a mirror.
+if [ "$WHAT" = "all" ] || [ "$WHAT" = "app" ]; then
+  if [ ! -d "$HERE/dist" ]; then
+    echo "No dist/ to deploy. Run: npm run build" >&2
+    exit 1
+  fi
+  say "Edusim app      ->  $REMOTE_HOST:$REMOTE_APP"
+  ssh $SSH_OPTS "$REMOTE_USER@$REMOTE_HOST" "mkdir -p '$REMOTE_APP'"
+  rsync -az --human-readable --itemize-changes $DRY \
+    --delete \
+    --exclude '.DS_Store' \
+    -e "ssh $SSH_OPTS" \
+    "$HERE/dist/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_APP/"
 fi
 
 # --- The world database ----------------------------------------------------------

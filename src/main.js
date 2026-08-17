@@ -23,6 +23,7 @@ import { ConstructionManager } from './ConstructionManager.js';
 import { PrimitiveMenu } from './PrimitiveMenu.js';
 import { BuildGizmo } from './BuildGizmo.js';
 import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD } from './config.js';
+import { takeLinkedWorldId, fetchLinkedWorld } from './WorldLink.js';
 
 const canvas = document.getElementById('scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -253,9 +254,29 @@ programManager.onDuplicate = (id, offset) => duplicatePlacedObject({ id, offset,
 // says` hat in the world -- is ProgramManager's own job and needs nothing from here.
 programManager.onSay = (id, object3D, text) => speechBubbles.show(id, object3D, text);
 
+// `?world=24` on the address opens that world out of the gallery. Read -- and stripped
+// from the url -- BEFORE anything is built, so the boot world is never built just to be
+// thrown away a moment later, and so a refresh cannot replay the link. See WorldLink.js.
+const linkedWorldId = takeLinkedWorldId();
+
 worldStore
   .rehydrateAll()
-  .then(() => {
+  .then(async () => {
+    if (linkedWorldId) {
+      menu.toast('Opening the shared world…');
+      const records = await fetchLinkedWorld(linkedWorldId);
+      await worldStore.loadFromRecords(records);
+      // Back to the app's own starting spot, which resetTo()'s defaults already are.
+      //
+      // Load World File deliberately does NOT do this -- there the student chose the file
+      // while standing somewhere, and moving them would be rude. A link is the opposite
+      // case: they may have arrived from another world entirely and be standing 150ft out
+      // in the fog of a world that no longer exists, and a shared world file carries no
+      // spawn of its own to put them at.
+      player.resetTo();
+      menu.toast('Shared world opened — this replaced what was here before.', { tone: 'success' });
+      return;
+    }
     // First visit (or a cleared/evicted IndexedDB) drops the student straight into the
     // Park. The check is "nothing came back at all", not "no startup-* records came
     // back": every preset world is built from `preset-prop` records, so the narrower
@@ -269,7 +290,18 @@ worldStore
       return loadPresetWorld(BOOT_WORLD);
     }
   })
-  .catch((err) => console.error('World initialization failed:', err));
+  .catch(async (err) => {
+    console.error('World initialization failed:', err);
+    if (linkedWorldId) {
+      // The link is the only thing that failed. Leave the student somewhere rather than
+      // on an empty plane: whatever was already saved has survived, because the failure
+      // happened before loadFromRecords wiped anything.
+      menu.toast(err?.message || 'Could not open that world.', { tone: 'error' });
+      if (registry.count === 0) {
+        await loadPresetWorld(BOOT_WORLD).catch(() => {});
+      }
+    }
+  });
 
 // Constructed after `menu` because its notices toast through it, and before the resize
 // handler and animate loop, both of which hand it every frame/size change.

@@ -170,22 +170,32 @@ ewd_header([
         <div class="side-card">
           <h3>Get this world</h3>
           <div class="detail-actions">
-            <a class="btn btn-primary" href="<?= e('download.php?id=' . (int)$world['id']) ?>">
-              ⬇ Download the world file
-            </a>
-            <a class="btn btn-ghost" href="<?= e(EWD_APP_URL) ?>" target="_blank" rel="noopener noreferrer">
-              Open Edusim
+            <!-- One click: this opens the app with ?world=<id>, and the app fetches the
+                 file straight out of this gallery and loads it. No download, no file
+                 picker, no three-step instructions.
+
+                 It points at EWD_APP_OPEN_URL -- the copy of the app on THIS host -- and
+                 not at EWD_APP_URL on Railway, because the fetch has to be same-origin.
+                 See the note on that constant in lib/config.php. -->
+            <a class="btn btn-primary" href="<?= e(EWD_APP_OPEN_URL . '?world=' . (int)$world['id']) ?>">
+              ▶ Open this world in Edusim
             </a>
           </div>
-          <ol class="load-steps" style="margin-top:18px;">
-            <li>Download the file above.</li>
-            <li>Open Edusim and choose <strong>Menu ▸ Load World ▸ Load World File</strong>.</li>
-            <li>Pick the file you just downloaded.</li>
-          </ol>
           <p class="hint" style="margin-top:12px;">
-            Loading a world <strong>replaces</strong> what is currently in your copy of
-            Edusim. Save your own world first if you want to keep it.
+            It opens straight into Edusim — no download and no file picker. Opening a world
+            <strong>replaces</strong> whatever is currently in your copy, so use
+            <strong>Menu ▸ Load World ▸ Save World</strong> first if you want to keep what
+            you have.
           </p>
+          <details class="detail-alt">
+            <summary>Rather have the file?</summary>
+            <p class="hint" style="margin:10px 0 0;">
+              <a href="<?= e('download.php?id=' . (int)$world['id']) ?>">⬇ Download the world file</a>
+              — then in Edusim choose <strong>Menu ▸ Load World ▸ Load World File</strong>
+              and pick it. Worth doing if you want to keep a copy, hand it round on a USB
+              stick, or open it somewhere with no internet.
+            </p>
+          </details>
         </div>
 
         <div class="side-card">

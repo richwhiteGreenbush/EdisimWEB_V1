@@ -1,6 +1,14 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  // RELATIVE asset urls, not the default '/'.
+  //
+  // The app is now served from two places: the origin root on Railway, and /app/ on the
+  // gallery's own host (deploy.sh publishes it there so "Open this world in Edusim" can
+  // fetch same-origin -- see WorldLink.js). With the default base the built bundle is
+  // referenced as /assets/index-xxxx.js, which is correct at the root and a 404 one
+  // directory down. './' is correct in both places.
+  base: './',
   optimizeDeps: {
     include: [
       'three',
