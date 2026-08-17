@@ -24,6 +24,9 @@ import * as Moscow from './MoscowProps.js';
 import * as Bug from './BugProps.js';
 import * as Cell from './CellProps.js';
 import * as Storm from './StormProps.js';
+import * as London from './LondonProps.js';
+import * as Warren from './WarrenProps.js';
+import * as Cologne from './CologneProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -397,6 +400,36 @@ export const PROP_BUILDERS = {
   'hay-bale': Storm.hayBale,
   'snapped-tree': Storm.snappedTree,
   'ef-scale-board': Storm.efScaleBoard,
+
+  // Big Ben & Westminster
+  'elizabeth-tower': London.elizabethTower,
+  'westminster-wing': London.westminsterWing,
+  'victoria-tower': London.victoriaTower,
+  'westminster-bridge': London.westminsterBridge,
+  'thames-water': London.thamesWater,
+  'embankment-wall': London.embankmentWall,
+  'embankment-lamp': London.embankmentLamp,
+  'phone-box': London.phoneBox,
+  routemaster: London.routemaster,
+  'plane-tree': London.planeTree,
+
+  // A Rabbit's Den
+  rabbit: Warren.rabbit,
+  'warren-cutaway': Warren.warrenCutaway,
+  'burrow-entrance': Warren.burrowEntrance,
+  'meadow-clump': Warren.meadowClump,
+  'meadow-flowers': Warren.meadowFlowers,
+  'bramble-thicket': Warren.brambleThicket,
+  'hawthorn-tree': Warren.hawthornTree,
+  butterfly: Warren.butterfly,
+  'chalk-boulder': Warren.chalkBoulder,
+
+  // Cologne Cathedral
+  'cologne-cathedral': Cologne.cologneCathedral,
+  'restoration-crane': Cologne.restorationCrane,
+  'scaffold-bay': Cologne.scaffoldBay,
+  domplatte: Cologne.domplatte,
+  'altstadt-house': Cologne.altstadtHouse,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

@@ -368,6 +368,72 @@ $WORLDS = [
             . "real glass, lit from inside, and it turns in the wind.\n\n"
             . "Two coding challenges: raise the cathedral out of the snow, and run a parade past the tomb.",
     ],
+    'london' => [
+        'title' => 'Big Ben & Westminster',
+        'tags'  => 'landmarks, history, official, outdoors, machines',
+        'description' =>
+            "The Elizabeth Tower seen from the south bank of the Thames — the view every photograph of it "
+            . "is taken from — with the Palace of Westminster running away to the left and the bridge "
+            . "crossing in front.\n\n"
+            . "Almost all the modelling is in the tower. The four clock dials carry their real Roman "
+            . "numerals (this clock uses IV, not the IIII most clock faces use) and the Latin line that "
+            . "runs under each one: DOMINE SALVAM FAC REGINAM NOSTRAM VICTORIAM PRIMAM. Above them is the "
+            . "open belfry with its louvres, and above that the steep gilded cast-iron spire with the "
+            . "Ayrton Light at the top — lit, on the real building, whenever Parliament is sitting.\n\n"
+            . "BIG BEN IS THE BELL. The name belongs to the 13.7-tonne hour bell inside the belfry, not to "
+            . "the tower, which was simply the Clock Tower until 2012. That bell cracked within weeks of "
+            . "being hung in 1859; rather than recast it they turned it slightly, fitted a lighter hammer "
+            . "and left the crack, which is why its note has been slightly off ever since.\n\n"
+            . "A Routemaster drives a circuit along the embankment — click it and choose Program to see how "
+            . "it is done. It is four glides and four right-angle turns, which is exactly enough to close a "
+            . "square. Shown at about half size; the real tower is 316 feet.",
+    ],
+
+    'warren' => [
+        'title' => "A Rabbit's Den",
+        'tags'  => 'nature, animals, science, official, outdoors',
+        'description' =>
+            "A rabbit warren dug into a chalk bank, with the bank cut open so you can see what is normally "
+            . "underground. Everything is at about four times life size — a real rabbit is sixteen inches "
+            . "nose to tail, and at that size you could neither walk round one nor see any of it.\n\n"
+            . "The rabbits are the point. Look at where the eyes are: high up and far round the SIDES of "
+            . "the head, so a rabbit sees nearly all the way round itself without turning. The blind spot "
+            . "is directly in front of its nose, which is why the whiskers are as wide as the body — that "
+            . "is how it judges whether a gap is big enough in the dark. The hind foot is long and lies "
+            . "FLAT along the ground rather than standing on toes, and the white tail is a signal flag: "
+            . "flashed while running, it tells every other rabbit in the field to bolt. One adult is "
+            . "sitting up alert, one is feeding with its ears laid back, and two kits are out by a burrow "
+            . "mouth — young rabbits have ears that are still too short for their heads.\n\n"
+            . "In the cut bank you can follow the runs: the wide ones are corridors, the narrow blind ones "
+            . "are bolt holes that stop just under the turf so a rabbit can burst out of the ground "
+            . "anywhere at all. Low down is the nesting chamber, lined with grass and with fur the doe "
+            . "pulls from her own chest.\n\n"
+            . "A butterfly flies a slow circuit over the meadow; its program is four glides and four turns.",
+    ],
+
+    'cologne' => [
+        'title' => 'Cologne Cathedral',
+        'tags'  => 'landmarks, history, official, outdoors, indoors',
+        'description' =>
+            "The Cathedral of St Peter, seen across the Domplatte from the west — the only view that shows "
+            . "both spires at once.\n\n"
+            . "LOOK THROUGH THE SPIRES. They are openwork: a lattice of carved stone ribs with nothing "
+            . "filling the gaps between them, so you can see sky straight through. That is engineering, not "
+            . "decoration — a solid stone spire this tall would be far too heavy for the tower under it and "
+            . "would catch the wind like a sail. When they were finished in 1880 they were the tallest "
+            . "structures on earth.\n\n"
+            . "It took 632 years. The foundation stone went down in 1248; work stopped around 1560 with the "
+            . "choir finished and the south tower a stump with a medieval crane still standing on it — and "
+            . "that crane stayed there, visible over the city, for nearly three hundred years. Building "
+            . "restarted in 1842 from the original drawings, which had survived, and finished in 1880.\n\n"
+            . "The stone is almost black, and that is the sandstone reacting with rain and air rather than "
+            . "dirt: cleaning it does not last, because the dark crust simply reforms. So the restoration "
+            . "never really ends — masons work their way round the building replacing what has decayed, and "
+            . "by the time they reach the end they start again. The tower crane on the north side turns "
+            . "slowly all day, which is as true to this building as the spires are.\n\n"
+            . "Shown at a size that fits the world; the real cathedral is 515 feet tall and 474 feet long.",
+    ],
+
     'cell' => [
         'title' => 'Inside an Animal Cell',
         'tags'  => 'science, biology, official, indoors',

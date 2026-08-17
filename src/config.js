@@ -673,6 +673,89 @@ export const WORLD_THEMES = {
   // `flatRadius` is large and `amplitude` low because this is a CONSTRUCTION world before
   // it is anything else -- pieces have to sit flat next to each other over a wide area, the
   // same reason My World is nearly level.
+  london: {
+    // Westminster on an overcast afternoon. The Elizabeth Tower is honey-coloured Anston
+    // limestone with a gilded spire, and both of those are WARM -- so the sky is a cool
+    // flat grey-blue and the sun is weak and low. That is not just atmosphere: a bright
+    // blue sky behind a pale gold tower flattens it, and the whole point of this world is
+    // one building's silhouette and surface detail.
+    sky: 0x93a3b4,
+    fogNear: 150,
+    fogFar: 520,
+    // Wet paving and river mud rather than grass. The ground here is embankment, road and
+    // bridge deck, so it is a made surface everywhere a student walks.
+    groundDetail: 'ground-regolith.jpg',
+    groundLow: 0x5c6068,
+    groundHigh: 0x8d9199,
+    // Effectively flat over the whole site. Every object in this world is a rigid building
+    // or a bridge deck tens of feet long -- the museum/library/Mars rule.
+    amplitude: 0.6,
+    flatRadius: 120,
+    blendRadius: 190,
+    hemiSky: 0xc6d4e2,
+    hemiGround: 0x6b6d72,
+    hemiIntensity: 1.75,
+    sunColor: 0xffeed6,
+    sunIntensity: 1.7,
+    // Low and from the south-west, which is what rakes across the tower's pilasters and
+    // makes the stonework read as relief rather than as a flat panel.
+    sunPosition: [-150, 110, 130],
+    stars: false,
+  },
+
+  warren: {
+    // A summer meadow, early evening. Rabbits are grey-brown and so is bare earth, which
+    // is the whole colour problem of this world: the hero model and the ground it sits on
+    // are the same colour family. So the grass is pushed green and bright and the soil in
+    // the burrow cutaway is pushed dark, leaving the animal's own tones in the middle.
+    groundDetail: 'ground-soil.jpg',
+    sky: 0x9fc4e8,
+    fogNear: 110,
+    fogFar: 400,
+    groundLow: 0x46672c,
+    groundHigh: 0x87a844,
+    // Gently rolling, and flat where the warren is cut open. A downland bank is what a
+    // real warren is dug into.
+    amplitude: 4.5,
+    flatRadius: 52,
+    blendRadius: 150,
+    hemiSky: 0xd8ecff,
+    hemiGround: 0x5e7434,
+    hemiIntensity: 1.7,
+    sunColor: 0xffe6b8,
+    sunIntensity: 2.6,
+    // Low warm evening sun -- when rabbits are actually out, and it rakes across fur.
+    sunPosition: [-160, 90, 120],
+    stars: false,
+  },
+
+  cologne: {
+    // The Domplatte on a bright cold day.
+    //
+    // Cologne Cathedral is famously BLACK -- its sandstone weathers almost to soot -- and
+    // a black building needs a bright background or it is a silhouette with no detail,
+    // which is exactly the Mars-props failure at cathedral scale. So this is the lightest
+    // sky in the app, with a strong sun and a very high hemisphere fill: the fill is what
+    // gets into the openwork of the spires and stops them reading as solid.
+    sky: 0xb9cfe4,
+    fogNear: 170,
+    fogFar: 620,
+    groundDetail: 'ground-regolith.jpg',
+    groundLow: 0x9a958c,
+    groundHigh: 0xc6c0b4,
+    // The Domplatte is a paved plaza. Flat, over a wide radius, for the same reason.
+    amplitude: 0.5,
+    flatRadius: 135,
+    blendRadius: 195,
+    hemiSky: 0xdfeeff,
+    hemiGround: 0xa39c90,
+    hemiIntensity: 2.1,
+    sunColor: 0xfff4e2,
+    sunIntensity: 2.4,
+    sunPosition: [120, 150, 110],
+    stars: false,
+  },
+
   cell: {
     // Inside an animal cell. The student is suspended in cytosol, so like `voyage` this
     // is a VOLUME rather than a landscape -- close fog is most of what sells that, and

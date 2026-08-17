@@ -5852,6 +5852,369 @@ function bugsLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// Cologne Cathedral
+// ---------------------------------------------------------------------------
+
+// The west front seen across the Domplatte, which is the only view of this building that
+// shows both spires at once and is the one every photograph is taken from.
+//
+// THE SPAWN IS 150FT OUT, and that number is set by HEIGHT, not by taste -- the same
+// arithmetic Red Square needed. The spires reach 172ft; the camera's fov is 70 VERTICAL, so
+// half of it is 35 degrees, and to get the tips inside the frame from eye height needs
+// about 172/tan(35) = 245ft, or rather less with the pitch a student naturally uses. At
+// 150ft they fill the view from top to bottom, which for this building is the right answer:
+// it is meant to be overwhelming, and a cathedral you can see all of comfortably is a
+// cathedral you have been shown too far away.
+function cologneLayout() {
+  const items = [];
+  const SP = { x: 0, z: 150 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- The square ---------------------------------------------------------
+  items.push(prop('domplatte', 0, 40, { y: 0.3, absoluteY: true, options: { width: 220, depth: 230, seed: 35 } }));
+
+  // --- The hero -----------------------------------------------------------
+  // `facing() + PI`, NOT `facing()`.
+  //
+  // facing() turns an object so its own +Z points AT the target, and that is right for a
+  // sign or a bench whose front is its +Z face. This building is 154ft deep and its front
+  // is at the OTHER end: the west front sits at local z ~ 0 and the nave runs away from it
+  // in +Z. Pointed at the spawn by the usual rule, the nave came toward the student and
+  // they arrived twenty-five feet from the apse -- a black wall filling the whole frame,
+  // with both spires 180ft behind it.
+  //
+  // Anything longer than it is wide needs this checked rather than assumed.
+  // 148ft, not the 172 a straight 1/3 gives.
+  //
+  // The arithmetic is forced, not aesthetic. To fit a building of height H in a 70-degree
+  // VERTICAL fov from eye height you need about (H-5)/tan(35) of run-up: at 172ft that is
+  // 240ft, and the furthest a student can stand from a building at z=-6 is about 200ft
+  // before WORLD_BOUND_RADIUS stops them. So at a true third the spires could never be
+  // seen whole from anywhere in the world -- which for a building whose entire identity is
+  // its spires is the one failure that matters. 148ft needs 205ft and fits.
+  //
+  // This is Red Square's lesson stated as a formula: distance is set by HEIGHT, and when
+  // the distance is not available the height has to give. The placard carries the real
+  // 515ft either way.
+  items.push(prop('cologne-cathedral', 0, -6, {
+    rotY: facing(0, -6, SP.x, SP.z) + Math.PI,
+    options: { length: 150, height: 148, navWidth: 28, seed: 5 },
+  }));
+
+  // --- The animated object ------------------------------------------------
+  // The restoration crane, slewing.
+  //
+  // A crane is the one piece of plant that turns about the VERTICAL, which is the only axis
+  // the `rotate` block drives -- the same constraint that stopped Big Ben's clock hands
+  // being animated. It is also genuinely characteristic: there has been scaffolding
+  // somewhere on this cathedral continuously since it was finished, and the local saying is
+  // that the world ends when the work does.
+  //
+  // 0.25 degrees a step is 0.125 a FRAME, because `forever` yields once per pass on top of
+  // the yield from `rotate` -- so about 7.5 degrees a second, a full slew in 48 seconds.
+  // A crane that whips round is a fairground ride.
+  items.push(prop('restoration-crane', -46, -6, {
+    options: { height: 66, jib: 40, seed: 15 },
+    program: [block('forever', {}, [block('rotate', { degrees: 0.25 })])],
+  }));
+  items.push(prop('scaffold-bay', -30, -44, {
+    rotY: Math.PI / 2,
+    options: { width: 26, height: 44, depth: 5, seed: 25 },
+  }));
+
+  // --- The old town, ringing the square -----------------------------------
+  // Ordinary buildings, and their job is entirely comparative: a 172ft cathedral is only
+  // enormous next to something a person recognises the size of.
+  //
+  // Pushed WELL out to the sides. At x = +/-86 they stood only 80ft from the arrival and
+  // 40ft tall, so they subtended more than the cathedral did from 156ft and framed the
+  // view like two cliffs -- the near-sign-versus-far-landmark problem again, in buildings.
+  // Out at 120-135 they ring the square instead, which is the job they are here for.
+  const HOUSES = [
+    [-126, 96, 0.35, 0xb8a68c, 45], [-104, 124, 0.2, 0xa89478, 46], [-56, 146, 0.05, 0xc2b096, 47],
+    [62, 144, -0.15, 0xb09a80, 48], [112, 118, -0.4, 0xc6b49a, 49], [134, 70, -0.9, 0xaa9880, 50],
+  ];
+  for (const [x, z, rotY, color, seed] of HOUSES) {
+    items.push(prop('altstadt-house', x, z, {
+      rotY: face(x, z) + rotY,
+      options: { width: 17, height: 34 + (seed % 3) * 5, depth: 18, color, seed },
+    }));
+  }
+
+  // --- Words --------------------------------------------------------------
+  items.push(
+    prop('welcome-board', 34, 128, {
+      rotY: face(34, 128),
+      options: {
+        eyebrow: '⛪  COLOGNE CATHEDRAL',
+        lead: 'The Cathedral of St Peter, at a third of life size.',
+        lines: ['Look through the spires.', 'They are stone lace, not stone.'],
+        footnote: 'Begun in 1248 and finished in 1880 — 632 years',
+      },
+    }),
+  );
+  items.push(...browserStation(-24, 132, { faceX: SP.x, faceZ: SP.z }));
+
+  items.push(prop('info-placard', 20, 96, {
+    rotY: face(20, 96),
+    options: {
+      title: 'Six hundred and thirty-two years',
+      body: 'The foundation stone went down in 1248. Work stopped around 1560 with the choir finished and the south tower a stump with a medieval crane left standing on it — and that crane stayed there, visible over the city, for nearly three hundred years. Building restarted in 1842 using the original drawings, which had survived, and finished in 1880. For four years afterwards it was the tallest building in the world.',
+    },
+  }));
+  items.push(prop('info-placard', -22, 92, {
+    rotY: face(-22, 92),
+    options: {
+      title: 'Why the spires have holes in them',
+      body: 'They are openwork: a lattice of carved stone ribs with nothing filling the gaps. That is not decoration but engineering — a solid stone spire this tall would be far too heavy for the tower beneath it, and it would catch the wind like a sail. Stand where you can see sky through one and you are looking at the reason it is still standing.',
+    },
+  }));
+  items.push(prop('info-placard', 0, 84, {
+    rotY: face(0, 84),
+    options: {
+      title: 'The black is not dirt any more',
+      body: 'Cologne’s sandstone reacts with rain and air to grow a dark crust, and the building has been almost black for a century. Cleaning it does not last — the crust simply reforms — and in places the crust is now protecting the stone underneath. So the restoration you can see happening never really ends: masons work their way round the building replacing what has decayed, and by the time they reach the end they start again.',
+    },
+  }));
+
+  items.push(orb(0, 60, 8, ORB_WARM));
+
+  return { theme: 'cologne', spawn: { ...SP, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
+// A Rabbit's Den
+// ---------------------------------------------------------------------------
+
+// A warren in a downland bank, at about 4x life size.
+//
+// The composition is a THREE-QUARTER approach to the cut bank rather than a square-on one.
+// A cutaway seen dead-on is a flat picture; from an angle you read the depth of the tunnels
+// and can see that the chamber is genuinely behind the face. The hero rabbit sits out on
+// the turf between the student and the bank, so it is the first thing in the frame and the
+// warren is what it is sitting in front of.
+function warrenLayout() {
+  const items = [];
+  const SP = { x: 26, z: 58 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- The bank, cut open -------------------------------------------------
+  items.push(prop('warren-cutaway', -12, -18, {
+    rotY: -0.45,
+    options: { width: 46, height: 21, depth: 15, seed: 11 },
+  }));
+
+  // --- The hero -----------------------------------------------------------
+  // Sitting up, which is the pose that shows every field mark at once: ears up, haunch
+  // clear of the body line, the long hind foot flat on the ground, eye high on the side.
+  items.push(prop('rabbit', 10, 20, {
+    rotY: facing(10, 20, SP.x, SP.z) + 0.35,
+    options: { length: 5.4, pose: 'sit', seed: 7 },
+  }));
+  // A second adult feeding, so the two poses can be compared.
+  items.push(prop('rabbit', -22, 16, {
+    rotY: 1.9,
+    options: { length: 5.0, pose: 'feed', seed: 9 },
+  }));
+  // Two kits by the burrow mouth.
+  items.push(prop('rabbit', -30, 2, { rotY: 0.8, options: { length: 5.2, pose: 'kit', seed: 13 } }));
+  items.push(prop('rabbit', -34, 6, { rotY: 2.4, options: { length: 5.2, pose: 'kit', seed: 17 } }));
+
+  // --- Burrow mouths in open ground ---------------------------------------
+  items.push(prop('burrow-entrance', -30, 12, { options: { radius: 3.6, seed: 21 } }));
+  items.push(prop('burrow-entrance', 18, -4, { options: { radius: 3.0, seed: 22 } }));
+
+  // --- The animated object ------------------------------------------------
+  // A butterfly flying a square circuit over the meadow.
+  //
+  // `glide` because it is the one block that spans TIME -- `move forward` teleports, and a
+  // butterfly jumping 10ft at a stroke reads as a glitch rather than as flight. It is
+  // placed with a `y` because it flies: a builder's origin is its base centre, so without
+  // one it would be dragged through the grass.
+  items.push(prop('butterfly', -2, 30, {
+    y: 5.5,
+    options: { span: 1.8, color: 0xe8843c, seed: 71 },
+    program: [
+      block('forever', {}, [
+        block('repeat', { count: 4 }, [
+          block('glide', { feet: 14, seconds: 6 }),
+          block('rotate', { degrees: 90 }),
+        ]),
+      ]),
+    ],
+  }));
+
+  // --- Planting -----------------------------------------------------------
+  for (const [x, z, seed] of [[-44, 30, 31], [30, -2, 32]]) {
+    items.push(prop('meadow-clump', x, z, { options: { radius: 9, count: 260, height: 2.8, seed } }));
+  }
+  for (const [x, z, seed] of [[-6, 34, 41], [34, 22, 42]]) {
+    items.push(prop('meadow-flowers', x, z, { options: { radius: 7, count: 36, seed } }));
+  }
+  items.push(prop('bramble-thicket', 34, -24, { options: { radius: 9, canes: 18, seed: 51 } }));
+  items.push(prop('hawthorn-tree', -52, -6, { options: { height: 23, seed: 61 } }));
+
+  // --- Words --------------------------------------------------------------
+  items.push(
+    prop('welcome-board', 40, 40, {
+      rotY: face(40, 40),
+      options: {
+        eyebrow: '🐇  A RABBIT’S DEN',
+        lead: 'Everything here is about four times life size.',
+        lines: ['The bank is cut open.', 'Look inside for the nest.'],
+        footnote: 'A real rabbit is about sixteen inches nose to tail',
+      },
+    }),
+  );
+  items.push(...browserStation(46, 50, { faceX: SP.x, faceZ: SP.z }));
+
+  items.push(prop('info-placard', 20, 34, {
+    rotY: face(20, 34),
+    options: {
+      title: 'Built to be prey',
+      body: 'Almost every part of a rabbit is about not being eaten. Its eyes sit high on the SIDES of its head, so it can see nearly all the way round without turning — the blind spot is directly in front of its nose, which is why it uses those long whiskers to judge gaps. The ears turn independently. The white tail is a signal: flashed while running, it tells every other rabbit in the field to bolt.',
+    },
+  }));
+  items.push(prop('info-placard', -4, 8, {
+    rotY: face(-4, 8),
+    options: {
+      title: 'Inside the warren',
+      body: 'A warren is dug, not found. The wide tunnels are runs, and the small blind ones are bolt holes — escape shafts that stop just under the surface so a rabbit can burst out of the ground anywhere. The chamber low down is the nest: the doe lines it with grass and with fur pulled from her own chest, then blocks the entrance with soil every time she leaves.',
+    },
+  }));
+
+  items.push(orb(-12, 4, 7, ORB_WARM));
+
+  return { theme: 'warren', spawn: { ...SP, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
+// Big Ben & Westminster
+// ---------------------------------------------------------------------------
+
+// A SMALL world: fifteen objects, most of the detail budget in one of them.
+//
+// The whole layout exists to give the Elizabeth Tower an approach and a scale. The student
+// arrives on the south bank looking north across the river, which is the view every
+// photograph of this building is taken from -- the tower stands clear against sky with the
+// Palace running away to the left and the bridge crossing in front.
+function londonLayout() {
+  const items = [];
+  const SP = { x: 4, z: 120 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  const TOWER = { x: -6, z: -34 };
+
+  // --- The river, laid across the middle ----------------------------------
+  // absoluteY: a water plane has nothing to do with the height of the ground under it, and
+  // seated on the terrain it would ripple with the hills.
+  items.push(prop('thames-water', 0, 44, { y: 0.4, absoluteY: true, options: { width: 380, depth: 96, seed: 31 } }));
+  items.push(prop('embankment-wall', 0, 88, { options: { length: 190, height: 3.2, seed: 61 } }));
+  items.push(prop('embankment-wall', -30, -8, { options: { length: 150, height: 4.6, seed: 62 } }));
+
+  // --- The hero -----------------------------------------------------------
+  items.push(prop('elizabeth-tower', TOWER.x, TOWER.z, {
+    rotY: facing(TOWER.x, TOWER.z, SP.x, SP.z),
+    options: { height: 144, base: 18, seed: 3 },
+  }));
+
+  // The Palace runs away to the WEST (left from the arrival), which is the real
+  // relationship and also keeps it out of the tower's silhouette.
+  items.push(prop('westminster-wing', -92, -26, {
+    rotY: facing(-92, -26, SP.x, SP.z),
+    options: { bays: 9, bayWidth: 11, height: 40, depth: 26, seed: 12 },
+  }));
+  items.push(prop('victoria-tower', -168, -20, {
+    options: { height: 88, base: 22, seed: 19 },
+  }));
+
+  // --- The bridge ---------------------------------------------------------
+  // Crossing the river to the right of the tower, so it leads the eye in rather than
+  // cutting across the thing the world is about.
+  items.push(prop('westminster-bridge', 74, 44, {
+    rotY: Math.PI / 2,
+    options: { span: 150, width: 26, arches: 5, deckY: 5.5, seed: 27 },
+  }));
+
+  // --- The animated object ------------------------------------------------
+  // A Routemaster driving a square circuit on the south bank.
+  //
+  // `glide` rather than `move forward` because glide spans TIME -- it is the one block
+  // that interpolates instead of teleporting, so the bus slides rather than jumping 46ft
+  // at a stroke. And `move forward`/`glide` follow the object's own +Z, so the `rotate`
+  // between legs genuinely steers it: four legs and four right-angles close the square
+  // exactly, which is the fact several activity boards in this app teach.
+  //
+  // 11 seconds a leg over 46ft is about 4ft/sec -- a slow bus, deliberately, because the
+  // circuit is small and anything quicker reads as a toy being whipped round a track.
+  items.push(prop('routemaster', 46, 104, {
+    rotY: Math.PI,
+    options: { length: 13, width: 5.2, height: 7.6 },
+    program: [
+      block('forever', {}, [
+        block('repeat', { count: 4 }, [
+          block('glide', { feet: 46, seconds: 11 }),
+          block('rotate', { degrees: 90 }),
+        ]),
+      ]),
+    ],
+  }));
+
+  // --- Street furniture, for scale ----------------------------------------
+  items.push(prop('phone-box', 18, 108, { rotY: face(18, 108), options: { height: 8.2, width: 3 } }));
+  // Two of each, not four and three. The brief caps this world at twenty objects, and
+  // street furniture is the right thing to spend the last slots on rather than the first:
+  // a lamp and a tree are here for scale, and two give that as well as four do.
+  for (const [x, z, seed] of [[-24, 104, 41], [40, 98, 42]]) {
+    items.push(prop('embankment-lamp', x, z, { options: { height: 15, seed } }));
+  }
+  for (const [x, z, seed] of [[-40, 112, 51], [34, 116, 52]]) {
+    items.push(prop('plane-tree', x, z, { options: { height: 26, seed } }));
+  }
+
+  // --- Words --------------------------------------------------------------
+  items.push(
+    prop('welcome-board', 26, 130, {
+      rotY: face(26, 130),
+      options: {
+        eyebrow: '🇬🇧  BIG BEN & WESTMINSTER',
+        lead: 'The Elizabeth Tower, from the south bank.',
+        lines: ['Big Ben is the BELL, not the tower.', 'Watch for the red bus.'],
+        footnote: 'Shown at about half size — the real tower is 316 feet',
+      },
+    }),
+  );
+  items.push(...browserStation(-16, 112, { faceX: SP.x, faceZ: SP.z }));
+
+  items.push(prop('info-placard', -2, 86, {
+    rotY: face(-2, 86),
+    options: {
+      title: 'Big Ben is a bell',
+      body: 'The name belongs to the great hour bell inside the belfry — 13.7 tonnes of it — and not to the tower, which was just called the Clock Tower until 2012. The bell cracked within weeks of being hung in 1859. Rather than recast it again they turned it slightly, fitted a lighter hammer, and left the crack; that is why its note is slightly off, and it has been ever since.',
+    },
+  }));
+  items.push(prop('info-placard', 22, 78, {
+    rotY: face(22, 78),
+    options: {
+      title: 'Reading the clock',
+      body: 'Each of the four dials is 23 feet across and made of 312 pieces of opal glass. The minute hand is 14 feet long and travels about 118 miles a year. Look at the numerals: this clock uses IV, not the IIII most clock faces use. Under each dial runs the Latin line DOMINE SALVAM FAC REGINAM NOSTRAM VICTORIAM PRIMAM — "O Lord, keep safe our Queen Victoria the First".',
+    },
+  }));
+  items.push(prop('info-placard', -54, 84, {
+    rotY: face(-54, 84),
+    options: {
+      title: 'Why it looks medieval but is not',
+      body: 'The old Palace burned down in 1834. What replaced it is Victorian, finished in the 1860s — but Charles Barry and A.W.N. Pugin built it in the Perpendicular Gothic of four centuries earlier, on purpose, so that the new Parliament would look as though it had always been there. Almost every detail you can see, including this bridge’s parapet, was designed to match a building that is younger than the railways.',
+    },
+  }));
+
+  // --- Light ---------------------------------------------------------------
+  items.push(orb(-6, 6, 9, ORB_WARM));
+
+  return { theme: 'london', spawn: { ...SP, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Inside an Animal Cell
 // ---------------------------------------------------------------------------
 
@@ -6492,6 +6855,21 @@ export const PRESET_WORLDS = {
     label: "A Bug's Life",
     hint: 'An ant colony at ant scale — five building challenges and five coding challenges',
     build: bugsLayout,
+  },
+  cologne: {
+    label: 'Cologne Cathedral',
+    hint: 'The Cathedral of St Peter — twin openwork spires, a rose window, and the crane that never leaves',
+    build: cologneLayout,
+  },
+  warren: {
+    label: "A Rabbit's Den",
+    hint: 'A warren cut open in a chalk bank — the nest, the bolt holes, and the rabbits themselves',
+    build: warrenLayout,
+  },
+  london: {
+    label: 'Big Ben & Westminster',
+    hint: 'The Elizabeth Tower from the south bank, with the Palace, the bridge and a bus on its rounds',
+    build: londonLayout,
   },
   cell: {
     label: 'Inside an Animal Cell',
