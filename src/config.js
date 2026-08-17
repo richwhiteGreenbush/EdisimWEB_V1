@@ -176,22 +176,30 @@ export const WORLD_THEMES = {
     // class of mistake as the Mars props that came out as black silhouettes. Cool teal
     // sky over a muted mauve-grey membrane floor makes the tissue colours pop, and the
     // charts (cream paper) read from right across the hall.
-    sky: 0x24485c,
-    fogNear: 80,
-    fogFar: 250,
-    groundLow: 0x3c3849,
-    groundHigh: 0x7d7490,
+    //
+    // The palette was WIDENED rather than changed. Holding to cool-against-warm is still
+    // right and is the whole reason the exhibits read -- but the first pass held it with a
+    // very narrow range, a near-monochrome slate teal over a grey-mauve floor, and a hall
+    // of that reads as fog whatever is standing in it. The sky is more saturated now and
+    // the floor ramp runs a much wider spread, from a deep plum in the hollows to a warm
+    // lilac on the rises: still cool, still nothing like the tissue colours, but with
+    // enough range that the ground has form and the fog has somewhere to go.
+    sky: 0x1d5070,
+    fogNear: 84,
+    fogFar: 260,
+    groundLow: 0x332c46,
+    groundHigh: 0x9b8fae,
     // Nearly flat, and flat over a very wide radius: this is an exhibition hall floor
     // with plinths, chart posts and a 30ft tunnel on it, and every one of those is a
     // rigid object that straddles a slope badly.
     amplitude: 2.2,
     flatRadius: 88,
     blendRadius: 155,
-    hemiSky: 0xbfe4f2,
-    hemiGround: 0x4c4557,
-    hemiIntensity: 1.55,
-    sunColor: 0xfff2e4,
-    sunIntensity: 2.2,
+    hemiSky: 0xc9ecf8,
+    hemiGround: 0x554b63,
+    hemiIntensity: 1.62,
+    sunColor: 0xfff4e6,
+    sunIntensity: 2.25,
     sunPosition: [60, 115, 50],
     stars: false,
   },

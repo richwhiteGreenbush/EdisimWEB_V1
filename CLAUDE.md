@@ -891,6 +891,156 @@ whose last sentence is clipped is worse than one set a point smaller. `wrapLines
 split out of `wrapText()` to make that measurable. This is shared, so it silently
 improves any over-long placard in the older worlds too.
 
+#### The rebuild: HALF WHOLE AND HALF SECTIONED, and grooves instead of rings
+
+Rebuilt against the i5/i7 target, the same pass Dinosaur Island, Under the Sea and New York
+each had. The world was **442 calls / 310k drawn / 35 transparent / 24 point lights / 90
+records** and is now **385 calls / 633k drawn / 17 transparent / 16 point lights / 88 textures
+/ 76 records**, 852ms to build. Draw calls went DOWN, transparency and lighting halved, and
+the geometry doubled — every number that costs an integrated GPU moved the right way.
+
+**Every primary organ is now HALF WHOLE AND HALF SECTIONED, and that one decision drove
+most of the rest.** A lung, a kidney, a stomach and a cell each teach two unrelated things —
+what the outside looks like and what is inside it — and the first pass tried to show both at
+once by making the outside *see-through*: five translucent lung lobes, a 55%-opacity stomach
+wall, a 22%-opacity cell membrane. That is why this world had the highest transparency and the
+highest light count in the app, and it did not even work: a see-through surface loses most of
+its apparent colour, so the lungs read as glass bulbs with sticks in them and the cell as a
+bubble with confetti in it. A cut face is opaque, costs nothing, shows far more, and is what a
+real specimen is. The cuts also stay honest — `cutOutline` closes the section over a flat face,
+so every one of these is still a closed solid.
+
+**An organ's identity lives in its SECTION, not in its size.** `organLoft` is the helper the
+file turns on: a closed solid whose cross-section changes *shape* along a curving axis, with
+control points splined station to station and each ring resampled by a closed Catmull-Rom.
+`taperedTube` sweeps a circle and `SphereGeometry` scales an ellipsoid, so with either of them
+the only thing that can vary along the length is scale — which is exactly why the first pass
+came out as a hall of eggs. A liver is a dome on top of a flat plate meeting at a knife-sharp
+anterior border; a lung is domed laterally and flat against the mediastinum; neither is
+expressible as an ellipsoid at any resolution.
+
+**A GROOVE IS A MODULATION OF ONE SURFACE, and that is how "leave no open spaces" became
+structural here.** `organLoft`'s `warp` callback supplies every fissure, sulcus, hilum, rugal
+fold, haustral pucker, tracheal ring and coronary sulcus in the world, and a displacement of a
+surface cannot open a gap in it. The first pass built all of those as separate solids laid on
+top, and each one had to be sized against a radius it did not own: the stomach's rugae hung
+outside the antrum like loose bangles, the lung lobes had daylight between them from every
+angle, and the tracheal cartilages read as a spring balanced on a wishbone.
+
+Five more helpers back it up, and none has a path that leaves an open ring: `shellLoft`
+(returns `{outer, inner}` so a sectioned hollow organ can be two tissues, with real wall
+thickness at the cut mouth), `vessel` (ONE smooth sweep, capped only at free ends — a vessel
+is a continuous curve, so unlike an animal's limb it has no interior joins to close),
+`vesselTree` (sockets at bifurcations), `blister` and `tint`.
+
+Traps this rebuild hit, most of which generalise:
+
+- **`mergeVertices` + `computeVertexNormals` on a merged organ DESTROYS it.** Every part
+  arriving at the merge already carries correct smooth normals, and `mergeColored` passes the
+  normal attribute straight through. Re-welding afterwards throws away `organLoft`'s seam weld
+  — so a hard line runs up the flank of every organ — and where a cut face has left zero-area
+  triangles it computes garbage normals from them and smears those across the neighbours. A
+  whole lung rendered as creased fabric. It is also 300ms per organ, which at eighteen
+  exhibits is the difference between a world that loads and one a student waits for.
+- **A cut outline's kept points are one CYCLICALLY contiguous run.** Scanning 0..n-1 and
+  pushing every point past the plane looks equivalent and is not: the moment the run wraps
+  past index 0 the array comes out as `[0, 6, 7, …]`, the outline crosses itself, and the loft
+  renders as a folded curtain you can see through.
+- **A per-vertex tint MULTIPLIES, so it cannot turn red into blue.** The heart's red-left /
+  blue-right convention is applied across one solid with the boundary in the interventricular
+  sulcus — which means the colour change lands on a real landmark instead of on the seam
+  between two balls, which is what the first pass had. It only works because the ventricular
+  mass is painted with a WHITE sentinel and the tint supplies the actual colour; painted
+  myocardium red first, the tint could only ever produce darker reds.
+- **EVERY WARP FREQUENCY IS BOUNDED BY THE SAMPLE COUNT.** The brain's gyral field ran at 26
+  cycles over 66 rows — two and a half samples per ridge, under Nyquist — so instead of gyri it
+  produced aliasing and the brain rendered as a crumpled paper bag with tears in it. Nine
+  samples per cycle is what makes a ridge a ridge, and where detail has to be finer the sample
+  count goes up rather than the frequency.
+- **A SULCUS IS A NARROW CUT, not the trough of a wave.** Feeding a wave field straight in as
+  a displacement gives rolling undulation, which at any amplitude reads as a dented pillow
+  because the ridges and the valleys are the same width. Cutting only where the field crosses
+  ZERO turns the same field into a branching network of clefts between broad gyri — and the
+  transfer function has to be a GAUSSIAN, not a clamped ramp on `|field|`, because anything
+  built on an absolute value has a kink at zero, which is the bottom of every sulcus, so each
+  one came out as a hard crease.
+- **Cleft WIDTH is bounded by the mesh, not by anatomy.** A real sulcus is ~3mm on a 14cm
+  brain, which at this model's twelvefold enlargement is one quad. These gyri are deliberately
+  broader and fewer than a real cortex's.
+- **Several independent displacements that each look reasonable can exceed the section
+  radius**, at which point the surface passes through its own axis and turns inside out. The
+  brain clamps the total to a third of the local radius.
+- **`blister` must be a CLOSED sphere, never a partial one.** A partial sphere's rim is a hole
+  and its inside is back faces, so unless the rim is completely buried you see straight
+  through it — and half the time it is not, because the pons is fatter than the brainstem it
+  bulges from and an adrenal gland is wider than the pole of the kidney it caps. Both rendered
+  as pale wedges with holes in them. `sink` now flattens a closed sphere instead of cutting it.
+  Same rule killed the neuron's target cell, which was rendering as an odd floating hoop.
+- **A `CircleGeometry` cannot be displaced into a dimpled surface.** It is a triangle fan with
+  one centre vertex and no interior vertices, so displacing it just swings each rim vertex
+  about the centre and shreds the fan into loose triangles standing at angles. The villi
+  patch's mucosal floor left half a dozen of them lying on the ground like dropped petals; it
+  is a low cylinder now.
+- **A capillary net GRAZES its alveolus, and the tolerance either side is inches.** At 2.05
+  against a cluster reaching 2.28 each ring was buried and only the arc crossing the front
+  showed, so a net read as one red bar and one blue bar laid across the sac; at 2.62 they
+  cleared it entirely and read as three hoops orbiting it, like a diagram of an atom.
+- **A shellLoft's two cut rims wind opposite ways, and so do its two end annuli.** Each of the
+  four strips faces a different direction, so one winding rule cannot serve all of them — and
+  getting one wrong does not make it invisible, it makes it *lit from behind*, so it renders
+  as a hard black band along the cut.
+- **A sectioned face wants FLAT PLATES, not solids.** The kidney's medullary pyramids were
+  real cones and its calyces real hemispherical cups, and eight of those stacked up an arc read
+  unmistakably as a spine with vertebrae. A section shows *cut* surfaces, so a triangle drawn
+  in the plane says "pyramid" and a solid does not. The pyramids also have to be broad-based
+  and short: taller than wide — which is what the word suggests — they are a row of shark's
+  teeth.
+- **A vessel has to come from somewhere.** The four renal vessels ran halfway to the midline
+  and stopped, so the exhibit had four fat coloured bars floating between the kidneys. Two
+  short trunks for the aorta and the vena cava turn that into a circuit.
+- **Work out which way the model is LYING.** The rib cage is a row of hoops spread along Z with
+  the spine on top — a cage on its back — which puts the breastbone down the middle of the
+  tunnel floor, not upright at one end where the first pass parked it, twenty feet from the
+  nearest cartilage it was meant to join. Vertebral BODIES are drums whose axis runs along the
+  spine, so they lie on their sides; left upright they are a stack of coins seen end on.
+- **A cutaway has to open TOWARD THE APPROACH.** The cell's wedge was centred on the section's
+  u = 0, which is +X, so the exhibit presented a smooth pale ball to everybody who walked up to
+  it. Section fraction 0.75 is +Z, and the covered range has to wrap past 1.
+- **A wide shallow dome at eye height is seen edge on, so what a student looks at is its
+  UNDERSIDE.** The lungs' diaphragm rendered as a black smile slung under the exhibit until
+  its skirt was run down to the plinth top, leaving no underside to see.
+- **A missing import silently deletes a whole class of exhibit.** `buildProp` throws and
+  `WorldStore` catches per record, so dropping `box` from the import list took out all nine
+  anatomy charts and the only symptom was a record count nine short and nine console lines.
+
+**The palette was WIDENED, which is the second half of this pass.** Anatomical models are
+polychrome and the first pass was not: nearly everything was one of four warm red-browns, so a
+liver, a kidney and a heart read as the same object three times. Specimen colour is a code a
+student can learn — scarlet is oxygenated, indigo is not, yellow is nerve, green is bile,
+blue-white is cartilage — and `TISSUE` now uses the whole of it. On top of that, **one accent
+hue per body SYSTEM** (respiratory sky blue, circulatory crimson, digestive amber, urinary
+green, nervous violet, skeletal bone, cellular magenta) is carried by every exhibit's plinth
+ring, name plate and placards. It is the cheapest legibility in the world: from the far end of
+the hall the only thing a student can resolve is a coloured ring, so a violet one means nervous
+system before a single word is readable. The `voyage` theme itself kept its cool-against-warm
+logic — that is still the whole reason the exhibits read — but over a much wider range, since a
+near-monochrome slate hall reads as fog whatever is standing in it.
+
+**Four kinds of prop were REMOVED to pay for the organs**, and none of them was about human
+anatomy: four park benches, the project's own logo banner reused as an entrance sign, the two
+charts that drew in two dimensions what the rebuilt models now show in three a few feet away,
+and eight of the twenty-four light orbs. Orbs are the most expensive thing in this world — a
+per-fragment forward-pass cost on integrated graphics — and each chart is a 768×1024 canvas
+texture out of shared system memory.
+
+**Per-prop, measured**: brain 33.2k triangles (was 4.8k), lungs 31.9k (was 15.2k), cell 31.1k
+(was 9.2k), intestines 22.1k (was 11.3k), neuron 20.9k (was 8.1k), heart 19.7k (was 10.3k),
+villi 19.0k (was 6.2k), DNA 17.1k (was 7.4k), stomach 16.9k (was 8.5k), rib cage 16.3k (was
+5.2k), kidneys 15.3k (was 8.0k), alveoli 12.8k (was 11.7k), micro-sub 11.7k (was 4.8k), artery
+tunnel 10.2k (was 3.9k), liver 9.7k (was 3.7k), blood cells 7.5k (was 5.1k), plinth 1.3k,
+chart 0.13k. There is well over half the envelope spare, recorded as headroom rather than
+spent.
+
 The museum's paintings are generated **in the style of** a movement (De Stijl, Colour
 Field, Post-Impressionist, Ukiyo-e, Pointillist, Geometric Abstraction) rather than
 copied from a specific canvas — that's the educational point (each frame's built-in

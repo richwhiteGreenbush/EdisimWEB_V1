@@ -132,8 +132,15 @@ $WORLDS = [
         'tags'  => 'biology, science, official, indoors',
         'description' =>
             "You have been shrunk. Walk in along an artery — a real tube you pass through, not a picture of one "
-            . "— and out into a hall of organs the size of cars: lungs you can see the bronchial tree inside, a "
-            . "stomach, a liver, kidneys, a heart and a brain.\n\n"
+            . "— under a rib cage with its cartilage and breastbone, and out into a hall of organs the size of "
+            . "cars.\n\n"
+            . "Every one of them is half whole and half cut open, the way a real anatomy hall shows you both at "
+            . "once: one lung sectioned so you can walk up to the bronchial tree standing inside it, a stomach "
+            . "opened down the front with its folds showing, a kidney sliced to a pale rind over dark pyramids, "
+            . "a cell with a wedge taken out of it. The heart is one piece with the red side and the blue side "
+            . "meeting along the real groove between them. Each system has its own colour — sky blue for "
+            . "breathing, crimson for blood, amber for digestion, violet for nerves — so you can tell from "
+            . "across the hall which exhibits belong together.\n\n"
             . "Whole body systems are on labelled charts instead, because a system is a set of relationships "
             . "and a diagram carries those better than a model does. Everything is enlarged about fifteen to "
             . "twenty times, and every placard says the real size. Make the heart beat, or launch the micro-sub.",
