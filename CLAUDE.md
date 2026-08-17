@@ -1005,16 +1005,117 @@ Traps this world hit, several of which generalise:
   return portal passed every overlap sweep and hid half the sign — found only by standing
   where a student stands and looking, the same lesson as the activity boards.
 
-**Performance, measured rather than assumed** (see the hardware-target section above —
-these numbers predate the move to an i5/i7 target and sit well inside it):
-394 draw calls, 235k triangles, 21 transparent meshes, **4 point lights**, 102 textures,
-~2.1ms of CPU render — the lightest-rendering populated world in the app, against the Park's
-748 calls / 578k tris / 4.6ms. Three choices bought that: every prop merges to one or a few
-vertex-coloured meshes, marquee bulbs are *painted* on the sign canvas everywhere except
-the one marquee a student stands directly under, and the lamps' lit glass is **opaque and
-merged into a single mesh per lamp**. A dozen lamps at three translucent glass meshes apiece
-was 36 transparent draws — the largest block of transparency in any world here — for glass
-at opacity 0.92 that was visually indistinguishable from solid.
+Three choices keep this world the lightest-rendering populated one in the app: every prop
+merges to one or a few vertex-coloured meshes, marquee bulbs are *painted* on the sign
+canvas everywhere except the one marquee a student stands directly under, and the lamps'
+lit glass is **opaque and merged into a single mesh per lamp**. A dozen lamps at three
+translucent glass meshes apiece was 36 transparent draws — the largest block of
+transparency in any world here — for glass at opacity 0.92 that was visually
+indistinguishable from solid.
+
+#### The rebuild: LOFTED HULLS, MITRED MOULDINGS, and five cars instead of ten
+
+Rebuilt against the i5/i7 target, the same pass Dinosaur Island and Under the Sea had. The
+world was **383 calls / 234k drawn / 21 transparent** and is now **396 calls / 667k drawn /
+12 transparent / 4 point lights / 57 records**. Draw calls barely moved and transparency
+went DOWN, because every prop still merges to one or a few meshes and there are half as
+many vehicles.
+
+**The whole file was axis-aligned boxes, and for a city of stone that is nearly
+defensible.** A building IS a box; the interesting part of one is its mouldings. It was
+never defensible for the object this world is actually about. A 1948 automobile has no flat
+panel anywhere on it — the hood crowns, the fenders are pontoons swept over the wheels, the
+roof falls into the deck in a single curve — and the hero cab is parked 24ft from the spawn
+*facing the student*, which is as close as anything in this app is ever looked at. It read
+as a carton on four cylinders.
+
+Four helpers replace the boxes, and between them they make the gap rule STRUCTURAL rather
+than remembered: `bodyLoft()` (a closed hull whose section changes shape along its length),
+`sweepProfile()` (a closed outline swept on a **parallel-transport** frame — not Frenet,
+which flips through the inflection every wheel arch has), `mouldedRing()` (a moulding
+mitred round a rectangle) and `extrudeOutline()`. None of them has a path that leaves an
+open ring or an unmatched edge.
+
+**The car is two lofted hulls and everything else is applied to their own surface
+functions.** The lower hull is one closed solid from tail to nose — deck, doors, cowl, hood
+and the prow the grille hangs on — whose superellipse roundness changes along the length:
+near-rectangular with a soft corner through the doors, a broad shallow crown over the hood,
+fully round at the prow. The cabin is a second hull rooted four inches INSIDE it at the belt
+line, and the glass is applied to the cabin's own surface, so **the body colour left showing
+between the panes IS the pillar** — it cannot be a hair out of line with the roof it holds
+up, because it is the roof.
+
+`mouldedRing()` is most of what separates the rebuilt buildings from the first pass, and the
+trick that makes the mitre exact is that a profile point standing `out` proud of every face
+traces a rectangle of half-size `(halfW + out, halfD + out)` — so a cornice is just a stack
+of rectangles and the corners meet at 45° with no mitre arithmetic anywhere.
+
+**Encrusting soot is a COLOUR problem, not a geometry one.** `soot()` runs on the merged
+geometry, multiplying vertex colours by broad blotching plus vertical grime that strengthens
+toward the bottom of the elevation. Real coursed masonry is never one flat colour and sooty
+1949 New York least of all; as geometry that would be hundreds of solids per facade.
+
+Traps this rebuild hit, most of which generalise:
+
+- **A patch lying on a faceted loft has to clear the host's SAGITTA, not its surface.** Both
+  the patch and the body approximate the same smooth section at *different* sample spacings,
+  so between two of the patch's samples its quad cuts inside the body's by about
+  `r(1 - cos(π/sides))` — 0.017ft on a 2.3ft cabin at 26 sides. Lifted the 0.004 that looks
+  generous on paper, every roof in the world z-fought into a black-and-yellow checkerboard,
+  which reads as a texture bug rather than a depth one.
+- **A windscreen and a fastback backlight sit on the section's CROWN (u = ¼), not its flank
+  (u = 0).** Both are surfaces swept by the top of the section as z advances. Centred on the
+  equator by mistake they land down the side of the car where the doors are, and the symptom
+  is "the cabin has no glass at all".
+- **Translucent glass needs something dark behind it.** Every pane is a slab on the cabin's
+  own surface, and what you see through it is the cabin — which, once the cabin was painted
+  body colour, was yellow. The windows read as dirty plastic. One inset dark loft is the fix.
+- **A prow that tapers to a point has nowhere to hang a grille.** A 1948 front end is
+  essentially the grille: the body carries a full section right up to a gently bowed face.
+  Run the loft to a rounded tip and every chrome bar ends up buried inside the bodywork.
+- **A bumper is wider than the nose and hangs below the fender crowns, so its ends have
+  nothing behind them.** The blade stood in mid-air past the corner of the bodywork with
+  daylight above and below. The valance APRON under the grille is what a real car closes
+  that with, and it doubles as the thing the blade bolts to. Same for the headlights: seated
+  0.12ft too high they float clear of the wing, which is the loudest possible "these are two
+  separate objects".
+- **A lathe is built about +Y, so its detailing lives on the +Y face** — `rotateZ(+90°)`
+  sends that inboard and seals the whitewall and hubcap inside the car. The symptom is a
+  wheel that is a plain black disc, which looks like a missing material rather than a sign
+  error. And the whitewall is a BAND: run it from hubcap to tread and the wheel is a pale
+  disc with a thin dark rim, which is a modern low-profile tyre and the exact opposite of
+  what these cars ran.
+- **`extrudeOutline` lays its UVs out in FEET**, which is right for a curb carrying a tiling
+  bump map and wrong for a canvas awning whose stripe must span the awning exactly once —
+  clamped past u = 1 the whole canopy came out as one flat off-white slab.
+- **A scallop lathed about Y is a saucer.** The awning valance has to be a scalloped
+  *outline* extruded through its own thickness, or every tab lies flat instead of hanging.
+- **A bus needs TUMBLEHOME or its wheels cannot be seen.** At a boxy section the body is full
+  width to the ground and the wheels, which sit inboard, are sealed inside the skirt. Rounding
+  the section below the waist frees them — and then pinches the underside to a keel, so a
+  flat-bottomed skirt has to go back inside it or the wheels emerge from an edge and read as
+  hanging in space. Its end stations also carry a full section: tapered to nothing, the front
+  bumper had no bodywork within four feet of it.
+- **`surfacePatch` can only lie on a loft's swept SIDES, never its end cap.** Asking for the
+  bus's windscreen gave a band across the roof; the screens at each end are flat panels.
+- **`detail: 'far'` is what makes eight background towers affordable.** A window a student can
+  walk up to earns a frame, mullion, transom, moulded sill and lintel; one on the next street
+  at 130ft earns its reveal and a sill, and nothing else survives the distance.
+
+**Five cars, down from ten** (three cabs, two sedans, plus the bus, which is a different
+vehicle and the only thing on the street giving the cars a size to be judged against). Each
+car is about nine times the model it was, and a street packed kerb to kerb spends that
+entirely on cars nobody walks up to while hiding the road, the kerbs and the markings under
+a solid rank of metal. The two the activity boards name are both still there, which is the
+one constraint here that is not a matter of taste.
+
+**Per-prop, measured**: taxi 25.8k triangles (was 2.4k), sedan 25.0k, bus 7.1k, bishop's
+crook lamp 5.0k (was 2.3k), near city building 8.6k (was 3.0k), far city building 4.6k,
+Broadway theatre 20.9k (was 12.7k), Bond building 22.9k (was 13.4k), theatre front 12.5k,
+subway entrance 6.5k (was 1.4k), storefront row 2.4k, street 2.3k. There is still roughly
+half the envelope spare, which is recorded here as headroom rather than spent: the models
+read correctly at the distances they are actually seen from, and tessellation nobody can
+resolve buys nothing at any budget.
 
 ### Under the Sea, and how to make a world feel like a VOLUME
 

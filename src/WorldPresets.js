@@ -2472,6 +2472,10 @@ function newYorkLayout() {
   // Taller than everything on the block, and set well back, so they read as the next
   // streets over rather than as this one. Without them the sky comes down to the rooftops
   // and a 400ft ground plane reads as a film set.
+  // `detail: 'far'` on every one of these. A window a student can walk up to is worth a
+  // frame, a mullion, a transom, a moulded sill and a lintel; one on the next street over
+  // at a hundred and thirty feet is worth its reveal and a sill, and nothing else survives
+  // the distance anyway. Eight towers multiply that difference by eight.
   for (const [x, z, w, d, h, style, seed] of [
     [-80, 26, 44, 44, 118, 'setback', 81],
     [-76, -14, 40, 40, 96, 'stone', 84],
@@ -2482,7 +2486,7 @@ function newYorkLayout() {
     [-30, 128, 46, 40, 92, 'stone', 99],
     [34, 132, 42, 40, 84, 'brick', 102],
   ]) {
-    items.push(prop('city-building', x, z, { options: { width: w, depth: d, height: h, style, seed } }));
+    items.push(prop('city-building', x, z, { options: { width: w, depth: d, height: h, style, detail: 'far', seed } }));
   }
 
   // --- primary model 4: the street lights -----------------------------------------------------
@@ -2510,19 +2514,26 @@ function newYorkLayout() {
   // Northbound traffic keeps to x < 0 and faces -Z (rotY = PI); southbound mirrors it.
   // The hero cab is stopped mid-block 24ft from the spawn, FACING the student, so the
   // grille, the headlights, the whitewalls and the roof flag are all the first thing seen.
+  //
+  // FIVE cars, down from ten. The rebuild made each one about nine times the model it was,
+  // and a street packed kerb to kerb spends that entirely on cars a student never walks up
+  // to -- while also hiding the road, the kerbs and the markings under a solid rank of
+  // metal. Five is enough to read as traffic: two lanes occupied, one car facing the
+  // student, one going the other way, and one far enough up the block to give the avenue
+  // some depth. The two the activity boards name are both still here, which is the one
+  // constraint that is not a matter of taste.
   items.push(prop('taxi-cab', 12, 24, { y: NY_ROAD, options: { fleetNumber: '2-B-71', seed: 7 } }));
   items.push(prop('taxi-cab', -13, 6, { y: NY_ROAD, rotY: Math.PI, options: { fleetNumber: '4-A-19', seed: 11 } }));
   items.push(prop('taxi-cab', 13, -26, { y: NY_ROAD, options: { fleetNumber: '1-C-08', seed: 13 } }));
-  items.push(prop('taxi-cab', -13, 66, { y: NY_ROAD, rotY: Math.PI, options: { fleetNumber: '3-B-44', seed: 17 } }));
-  items.push(prop('taxi-cab', 5, -60, { y: NY_ROAD, options: { fleetNumber: '5-D-62', seed: 23 } }));
 
   // The two-tone sedan in the foreground of the photograph -- cream over red.
-  items.push(prop('sedan-car', 5, 38, { y: NY_ROAD, options: { bodyColor: 0xb8342a, topColor: 0xe6dcc2, seed: 5 } }));
-  items.push(prop('sedan-car', -5, -6, { y: NY_ROAD, rotY: Math.PI, options: { bodyColor: 0x232a38, seed: 9 } }));
-  items.push(prop('sedan-car', 5, 4, { y: NY_ROAD, options: { bodyColor: 0x1c1b19, seed: 21 } }));
-  items.push(prop('sedan-car', -5, 40, { y: NY_ROAD, rotY: Math.PI, options: { bodyColor: 0x5a2836, coupe: true, seed: 29 } }));
-  items.push(prop('sedan-car', 13, 74, { y: NY_ROAD, options: { bodyColor: 0x2f4436, seed: 31 } }));
-  items.push(prop('city-bus', -13, -44, { y: NY_ROAD, rotY: Math.PI, options: { route: '7  BROADWAY', seed: 4 } }));
+  items.push(prop('sedan-car', 5, 40, { y: NY_ROAD, options: { bodyColor: 0xb8342a, topColor: 0xe6dcc2, seed: 5 } }));
+  items.push(prop('sedan-car', -5, -8, { y: NY_ROAD, rotY: Math.PI, options: { bodyColor: 0x232a38, seed: 9 } }));
+
+  // The bus is deliberately kept: it is a different vehicle, it is the only thing on the
+  // street that gives the cars a size to be judged against, and it is parked far enough up
+  // the block that it costs the near view nothing.
+  items.push(prop('city-bus', -13, -46, { y: NY_ROAD, rotY: Math.PI, options: { route: '7  BROADWAY', seed: 4 } }));
 
   // --- street furniture ---------------------------------------------------------------------------
   // ONE signal, on the east corner of the crossing. The south side of this block is
@@ -2639,7 +2650,7 @@ function newYorkLayout() {
         moveStep('move forward 1 feet', 2),
         moveStep('rotate 180 degrees', 1),
       ],
-      tip: 'The cab is facing you, so the FIRST leg is a plus. Turning it round does not change which way move Z pushes it — that is why the second loop uses minus one. Try wait 0.05 seconds inside a loop to slow it to a crawl.',
+      tip: 'Both loops say the same thing, because move forward follows whichever way the cab is pointing right now — and the rotate 180 in the middle is what turns it round. Try wait 0.05 seconds inside a loop to slow it to a crawl.',
     })
   );
   items.push(

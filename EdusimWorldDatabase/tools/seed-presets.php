@@ -154,8 +154,15 @@ $WORLDS = [
         'tags'  => 'city, history, official, vehicles',
         'description' =>
             "Broadway at Times Square in the summer of 1949, modelled from a colour photograph. Walk the street "
-            . "between the taxis and the buses, look up at the BOND sign, and read the marquees — the films on "
-            . "them were really playing that year.\n\n"
+            . "between the cabs, look up at the BOND sign with its two stone colossi four storeys over the "
+            . "roadway, and read the marquees — the films on them were really playing that year.\n\n"
+            . "The yellow cab is built to be walked right up to: a one-piece body with a crowned hood and "
+            . "pontoon fenders swept over the wheels, a split windscreen, whitewall tyres, a chrome grille and "
+            . "the checkerboard on its doors. Around it, cast-iron bishop's crook lamp posts, a subway stair "
+            . "with its green globes, a newsstand, striped shop awnings and carved stone cornices on every "
+            . "building.\n\n"
+            . "Two coding challenges: send the cab down Broadway and back, and fill the avenue with copies "
+            . "of it.\n\n"
             . "In the app this world is hidden: it has no menu entry at all, and the only way in is to find the "
             . "billboard behind the Library and click it. Downloading it here is the other way in.",
     ],
