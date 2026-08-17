@@ -760,6 +760,18 @@ img.brand-mark {
     var(--paper);
 }
 
+.world-grid-note {
+  max-width: 62ch;
+  margin: 0 auto 30px;
+  padding: 14px 20px;
+  border: 2px dashed color-mix(in srgb, var(--green) 42%, #fff);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--green) 7%, #fff);
+  color: var(--ink-soft);
+  text-align: center;
+  font-size: 0.95rem;
+}
+
 .world-grid {
   display: grid;
   gap: 34px;
@@ -882,6 +894,40 @@ img.brand-mark {
   font-size: 0.84rem;
   font-weight: 700;
   color: var(--ink);
+}
+
+/* One click from the card into that exact world: /app/?world=<id>.
+   FILLED, where the chips beside it are tinted outlines. The chips are labels and this is
+   the only thing in the card you can DO, so it has to win the card outright -- a third
+   pale accent-coloured pill in the same stack would read as one more label.
+   It carries the world's NAME rather than "open this world", because 22 identical link
+   texts on one page is what a screen reader reads out 22 times.
+
+   No auto margin here, deliberately: .world-chips already carries `margin: auto 0 0`, so
+   the free space in the card collects above the chips and pushes the chips AND this link
+   down together as one block. Giving this one an auto top margin as well would split the
+   gap between the two and leave the chips stranded up under the paragraph. */
+.world-open {
+  display: block;
+  margin-top: 18px;
+  padding: 11px 16px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--accent, var(--green));
+  color: #fff;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 0.98rem;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: var(--shadow-pop);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.world-open:hover,
+.world-open:focus-visible {
+  transform: translateY(-2px);
+  filter: brightness(1.07);
 }
 
 /* How to switch worlds: a CSS replica of the in-app menu, so it stays crisp at any

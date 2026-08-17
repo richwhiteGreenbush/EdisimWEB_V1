@@ -186,6 +186,26 @@ app's own default spot.
 *before* `loadFromRecords` wipes anything. A dead link toasts the reason and rehydrates
 whatever was already saved.
 
+**Every world card on the marketing page carries one of these links** (`.world-open` in
+`docs/index.html`, 22 of them). Three things about that block:
+
+- **The card → id map is keyed by TITLE, not by position.** The grid gets reordered and
+  worlds get inserted; a positional map would silently point a card at the wrong world
+  instead of failing. The two gallery worlds with no card are **My World** (an empty
+  sandbox — nothing to show) and **1940's New York**, which is deliberate: its only door is
+  a billboard behind the Library, and the section text three paragraphs up promises the
+  reader that at least one world is not on the list.
+- **Link text is the world's own name**, not "open this world". Twenty-two identical link
+  texts on one page is what a screen reader reads out twenty-two times.
+- **The `.world-open` button takes no auto margin.** `.world-chips` already carries
+  `margin: auto 0 0`, so the card's free space collects above the chips and pushes the
+  chips *and* the button down together. Give the button an auto top margin as well and the
+  free space is split between them, stranding the chips up under the paragraph.
+
+The `.menu-mock` further down is `aria-hidden="true"` — a decorative replica of the in-app
+menu — so the world names in it stay plain text. Focusable links inside `aria-hidden`
+content are an accessibility bug, not a missed opportunity.
+
 ### Two independent persistence systems — don't conflate them
 
 **`config.js`'s `DB_NAME` is still `'3dcoder-world'` and must stay that way.** The project
