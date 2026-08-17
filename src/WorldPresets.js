@@ -5852,6 +5852,432 @@ function bugsLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// Space Station Survival
+// ---------------------------------------------------------------------------
+
+// A construction deck in low Mars orbit, laid out around FIVE BUILDING CHALLENGES.
+//
+// THE DECK IS A PLAN. Each challenge board stands beside a colour-coded bay painted on the
+// plating, and the bay is where that build goes -- so "build a solar wing in bay 2" names
+// somewhere a student can walk to and stand in. That is the difference between a build
+// challenge and a suggestion, and it is what A Bug's Life's avenue of boards was reaching
+// for without having anywhere to put the results.
+//
+// The middle of the deck is kept CLEAR for the same reason it is in My World: a fresh
+// construction piece lands PRIMITIVE_SPAWN_DISTANCE (10ft) ahead of the student and spirals
+// outward, so anything parked there is something to build around. Every finished module is
+// pushed to the far side or the flanks.
+function stationLayout() {
+  const items = [];
+  const SP = { x: 0, z: 86 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- Mars ---------------------------------------------------------------
+  // A 150ft sphere sunk so only its upper cap clears the deck. absoluteY and a large
+  // negative y: that is what makes it a world being ORBITED rather than a ball parked next
+  // to the station, and it is placed BEYOND the deck so the horizon of the planet and the
+  // edge of the plating are not fighting for the same line.
+  //
+  // It is the animated object: a planet turning about its own vertical is exactly what
+  // `rotate` drives. 0.08 degrees is 0.04 a FRAME (forever yields on top of rotate's own
+  // yield), which is about 2.4 degrees a second -- one rotation in two and a half minutes.
+  // Slow enough to be noticed rather than watched.
+  //
+  // ITS CENTRE HAS TO BE ABOVE THE DECK'S HORIZON, and that is not a framing preference,
+  // it is the only arrangement that reads as a sphere. A flat deck with the eye 5ft above it
+  // hides everything below about -2 degrees whatever size the deck is, so a planet centred
+  // below that line is cut through ABOVE its own equator -- and a circle cut above its
+  // equator is a dome. Every version that sat Mars low came out as a hill: at radius 150 and
+  // 320ft it was a hill close up, at radius 400 and 780ft it was a hill 700ft wide.
+  //
+  // 340ft of radius at ~780ft away spans about 48 degrees across and sits with its centre
+  // ~6 degrees UP, so the visible part runs from the deck edge to 28 degrees and curves back
+  // in on both sides. The bottom third stays hidden behind the deck, which is what a real
+  // window over a planet looks like, and the top clears the 35-degree half-fov with room.
+  items.push(prop('mars-globe', 0, -690, {
+    y: 86,
+    absoluteY: true,
+    options: { radius: 340, seed: 75 },
+    program: [block('forever', {}, [block('rotate', { degrees: 0.08 })])],
+  }));
+
+  // --- The deck -----------------------------------------------------------
+  items.push(prop('station-deck', 0, 10, { y: 0.06, absoluteY: true, options: { width: 230, depth: 230, seed: 45 } }));
+
+  // --- The station itself, ringing the working area ------------------------
+  items.push(prop('docking-node', 0, -46, { options: { radius: 8, seed: 15 } }));
+  items.push(prop('station-module', -30, -46, {
+    rotY: Math.PI / 2,
+    options: { length: 40, radius: 6.5, bay: 'habitat', seed: 3 },
+  }));
+  items.push(prop('station-module', 30, -46, {
+    rotY: Math.PI / 2,
+    options: { length: 40, radius: 6.5, bay: 'lab', seed: 4 },
+  }));
+  items.push(prop('station-module', 0, -76, {
+    options: { length: 34, radius: 6, bay: 'store', seed: 5 },
+  }));
+  items.push(prop('station-cupola', 0, -22, { options: { radius: 7.5, seed: 9 } }));
+
+  items.push(prop('truss-segment', -62, -38, { rotY: Math.PI / 2, options: { length: 34, size: 6, bays: 5, seed: 33 } }));
+  items.push(prop('truss-segment', 62, -38, { rotY: Math.PI / 2, options: { length: 34, size: 6, bays: 5, seed: 34 } }));
+  items.push(prop('solar-array', -76, -48, { rotY: 0.2, options: { span: 46, width: 12, seed: 21 } }));
+  items.push(prop('solar-array', 76, -48, { rotY: -0.2, options: { span: 46, width: 12, seed: 22 } }));
+  items.push(prop('radiator-panel', -50, -74, { rotY: 0.4, options: { span: 28, width: 9, panels: 3, seed: 27 } }));
+  items.push(prop('radiator-panel', 50, -74, { rotY: -0.4, options: { span: 28, width: 9, panels: 3, seed: 28 } }));
+  items.push(prop('antenna-dish', -34, -12, { rotY: 0.6, options: { radius: 7, seed: 69 } }));
+  items.push(prop('robotic-arm', 34, -12, { rotY: -1.2, options: { reach: 34, seed: 39 } }));
+
+  // --- The human-scale things ---------------------------------------------
+  items.push(prop('eva-suit', -14, 30, { rotY: face(-14, 30), options: { height: 7.4, seed: 63 } }));
+  items.push(prop('eva-suit', 15, 34, { rotY: face(15, 34) + 0.5, options: { height: 7.2, seed: 64 } }));
+
+  for (const [x, z, bay, seed] of [[-40, 12, 'store', 57], [42, 10, 'power', 58], [-26, 6, 'lab', 59]]) {
+    items.push(prop('cargo-pod', x, z, { rotY: seed * 0.4, options: { size: 7, bay, seed } }));
+  }
+  for (const [x, z, bay, seed] of [[-38, 44, 'lab', 81], [36, 46, 'habitat', 82], [-20, 60, 'power', 83], [22, 62, 'store', 84]]) {
+    items.push(prop('supply-crate', x, z, { rotY: seed * 0.3, options: { size: 3.6, bay, seed } }));
+  }
+
+  // --- FIVE BUILDING BAYS + their boards -----------------------------------
+  // Bay marking, then the board beside it. The bay's colour and the board's accent are the
+  // same value, which is the whole point of colour-coding the deck.
+  //
+  // THE FIVE BAYS ARE AN AVENUE, NOT A RING, and the middle of the deck is empty on purpose.
+  // Two separate rules force it. A fresh construction piece lands PRIMITIVE_SPAWN_DISTANCE
+  // ahead of the student and spirals out from there, so anything in the middle is something
+  // to build round -- the lesson My World and A Bug's Life each learned. And the arrival view
+  // is the station against Mars: the first pass had bay 3 at (-2, 34), two degrees off the
+  // sightline and 52ft out, where a 10.5ft board hid the entire station behind it.
+  const BAYS = [
+    { n: 1, bay: 'habitat', x: -52, z: 66, accent: '#3f8fd9' },
+    { n: 2, bay: 'power', x: 52, z: 66, accent: '#f2b134' },
+    { n: 3, bay: 'dock', x: -56, z: 28, accent: '#9a6fd9' },
+    { n: 4, bay: 'lab', x: 56, z: 28, accent: '#4fbf7a' },
+    { n: 5, bay: 'store', x: -58, z: -6, accent: '#e0553f' },
+  ];
+  for (const b of BAYS) {
+    items.push(prop('deck-bay', b.x, b.z - 20, { y: 0.14, absoluteY: true, options: { size: 20, bay: b.bay, number: b.n } }));
+  }
+
+  const CARD = { width: 10.5, height: 8.4, postHeight: 11, postColor: 0x9aa2ab };
+
+  items.push(prop('tutorial-board', BAYS[0].x, BAYS[0].z, {
+    rotY: face(BAYS[0].x, BAYS[0].z),
+    options: {
+      kicker: '🔧  BUILD IT · BAY 1',
+      number: 1,
+      title: 'A habitation module',
+      intro: 'Menu ▸ Create Model. Each piece lands in front of you in build yellow — click the hammer floating above it.',
+      steps: [
+        { lead: 'Body', text: 'A Cylinder. Drag a top corner until it is about 4× as long as it is wide, then lay it down with the rotate rings. White.' },
+        { lead: 'Two end caps', text: 'A Sphere squashed to a shallow dome on each end. White.' },
+        { lead: 'Colour band', text: 'A Cylinder, barely thicker than the body but very short, slid round the middle. Blue.' },
+        { lead: 'A window', text: 'A small Cylinder pushed through the wall so both ends show. Pale blue.' },
+        { lead: 'Connect, then Render', text: 'Join every piece to the body, then press Render Model.' },
+      ],
+      tip: 'The rotate rings turn about the WORLD axes and do not follow the piece — so the flat amber ring always spins it on the spot and the upright ones always tip it, whatever state it is already in.',
+      accent: BAYS[0].accent,
+      ...CARD,
+    },
+  }));
+
+  items.push(prop('tutorial-board', BAYS[1].x, BAYS[1].z, {
+    rotY: face(BAYS[1].x, BAYS[1].z),
+    options: {
+      kicker: '🔧  BUILD IT · BAY 2',
+      number: 2,
+      title: 'A solar array wing',
+      intro: 'Look at the real ones out on the truss first. A wing is a mast, a spine, and a wide flat blanket of cells.',
+      steps: [
+        { lead: 'Mast', text: 'A Cylinder, tall and thin. Grey.' },
+        { lead: 'Blanket', text: 'A Cube. Squash it almost flat, then stretch it long and wide. Dark blue.' },
+        { lead: 'Second blanket', text: 'Duplicate is not a build tool — make another and lift it into place with the green handle so the two are level.' },
+        { lead: 'Spine', text: 'A thin Cube running the length of each blanket, tucked under it.' },
+        { lead: 'Connect, then Render', text: 'Join both wings to the mast and press Render Model.' },
+      ],
+      tip: 'To get both wings at the SAME height, build one, then raise the second with the green handle until its shadow lines up with the first.',
+      accent: BAYS[1].accent,
+      ...CARD,
+    },
+  }));
+
+  items.push(prop('tutorial-board', BAYS[2].x, BAYS[2].z, {
+    rotY: face(BAYS[2].x, BAYS[2].z),
+    options: {
+      kicker: '🔧  BUILD IT · BAY 3',
+      number: 3,
+      title: 'A docking node',
+      intro: 'The hub in the middle of the station. A ball with a port sticking out of every side — walk round the real one and count them.',
+      steps: [
+        { lead: 'Hub', text: 'A Sphere, squashed very slightly so it is wider than it is tall. White.' },
+        { lead: 'Four ports', text: 'A short fat Cylinder pushed half into the hub. One on each side — front, back, left, right.' },
+        { lead: 'A fifth port', text: 'One more on top, pointing straight up.' },
+        { lead: 'Target rings', text: 'A very thin Cylinder on the end of one port, a little wider than it. Purple.' },
+        { lead: 'Connect, then Render', text: 'Join every port to the hub and press Render Model.' },
+      ],
+      tip: 'Root each port a little way INSIDE the hub rather than resting it on the surface — two curved surfaces touching at a point always leave a visible notch.',
+      accent: BAYS[2].accent,
+      ...CARD,
+    },
+  }));
+
+  items.push(prop('tutorial-board', BAYS[3].x, BAYS[3].z, {
+    rotY: face(BAYS[3].x, BAYS[3].z),
+    options: {
+      kicker: '🔧  BUILD IT · BAY 4',
+      number: 4,
+      title: 'A greenhouse lab',
+      intro: 'Survival means growing food. Build a module you can see into — this one is mostly window.',
+      steps: [
+        { lead: 'Frame', text: 'Four thin Cubes standing as corner posts, with two more laid across the top.' },
+        { lead: 'Glazing', text: 'A Cube squashed thin, hung on the OUTSIDE of the frame. Pale green. One per side.' },
+        { lead: 'Roof', text: 'Two flat Cubes leaned against each other into a shallow peak.' },
+        { lead: 'Racks inside', text: 'Two long thin Cubes stacked, green on top for the crop.' },
+        { lead: 'Connect, then Render', text: 'Join it all to one corner post and press Render Model.' },
+      ],
+      tip: 'Hang the glass OUTSIDE the frame, not inside it. A box with panels tucked in disappears — you end up looking at a solid slab.',
+      accent: BAYS[3].accent,
+      ...CARD,
+    },
+  }));
+
+  items.push(prop('tutorial-board', BAYS[4].x, BAYS[4].z, {
+    rotY: face(BAYS[4].x, BAYS[4].z),
+    options: {
+      kicker: '🔧  BUILD IT · BAY 5',
+      number: 5,
+      title: 'Your own supply lander',
+      intro: 'No steps for this one. Everything that reaches this station arrives on something — design it.',
+      steps: [
+        { lead: 'It needs legs', text: 'Three or four, splayed out. Anything that lands has a wide base or it falls over.' },
+        { lead: 'It needs a tank', text: 'Round or capsule-shaped, and bigger than you think.' },
+        { lead: 'It needs an engine', text: 'A Cone, point down, under the tank.' },
+        { lead: 'Give it a colour code', text: 'Use one of the five bay colours so a crew knows what is inside.' },
+        { lead: 'Then program it', text: 'Once it is rendered, click it and give it forever ▸ move up by 0.2 feet. Now it is landing — or leaving.' },
+      ],
+      tip: 'Build it in this bay, then walk back to the cupola and look at it from there. If you cannot tell what it is from fifty feet away, it needs a stronger silhouette, not more detail.',
+      accent: BAYS[4].accent,
+      ...CARD,
+    },
+  }));
+
+  // --- Words --------------------------------------------------------------
+  items.push(
+    prop('welcome-board', -22, 76, {
+      rotY: face(-22, 76),
+      options: {
+        eyebrow: '🛰  SPACE STATION SURVIVAL',
+        lead: 'You are on the construction deck, in orbit over Mars.',
+        lines: ['Five bays. Five things to build.', 'The colours tell you which is which.'],
+        footnote: 'Mars is turning below you — that is a program you can open',
+      },
+    }),
+  );
+  items.push(...browserStation(20, 78, { faceX: SP.x, faceZ: SP.z }));
+
+  items.push(prop('info-placard', -8, 12, {
+    rotY: face(-8, 12),
+    options: {
+      title: 'Why everything is white',
+      body: 'Sunlight in orbit is fierce and there is no air to carry heat away, so a spacecraft cooks in the sun and freezes in shadow. White blankets reflect most of what hits them; the gold foil is many layers of thin plastic with vacuum between them, which is one of the best insulators there is. The big white panels out on the truss are radiators — they are turned EDGE-ON to the sun on purpose, so they can dump heat without collecting any.',
+    },
+  }));
+  items.push(prop('info-placard', 8, 12, {
+    rotY: face(8, 12),
+    options: {
+      title: 'Reading the colours',
+      body: 'Every module carries a band, and every bay on this deck is painted to match: blue for habitation, green for the labs, amber for power, red for stores, purple for docking. Real stations do this because in an emergency you have to know what you are looking at before you can read anything written on it. Build in the bay whose colour matches the job.',
+    },
+  }));
+
+  // Light. Deliberately sparse: hard shadows and near-black fill are what make hardware
+  // look like hardware, and a scattering of warm orbs would undo the whole theme.
+  items.push(orb(0, -34, 12, ORB_WHITE));
+  items.push(orb(-58, 40, 9, ORB_WARM));
+  items.push(orb(58, 40, 9, ORB_WARM));
+
+  return { theme: 'station', spawn: { ...SP, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
+// Whimsical World
+// ---------------------------------------------------------------------------
+
+// A storybook landscape laid out around FIVE CODING CHALLENGES.
+//
+// The shape is a horseshoe: the carousel dead ahead at the far end, the five boards ringing
+// the open middle, and each board's target object standing near it. That pairing is the
+// whole layout rule here -- a board that names an object twenty feet away is a board a
+// student reads and then loses, so every one of them has its subject in the same glance.
+//
+// The middle is left clear on purpose. A fresh construction piece lands
+// PRIMITIVE_SPAWN_DISTANCE ahead of the student and spirals out, and while this world is
+// about coding rather than building, a student who wants to add something of their own
+// should not have to put it inside a mushroom.
+function whimsyLayout() {
+  const items = [];
+  const SP = { x: 0, z: 74 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- The hero, animated -------------------------------------------------
+  // A carousel is the one elaborate model in this app that `rotate` can drive properly,
+  // because it turns about the vertical -- see the note at the top of WhimsyProps.
+  //
+  // 0.5 degrees is 0.25 a FRAME: `forever` yields once per pass on top of the yield from
+  // `rotate`, so one turn of the loop costs two frames. About 15 degrees a second, a full
+  // turn in 24 -- a fairground carousel pace rather than a washing machine.
+  items.push(prop('carousel', 0, -22, {
+    options: { radius: 13, horses: 8, seed: 3 },
+    program: [block('forever', {}, [block('rotate', { degrees: 0.5 })])],
+  }));
+
+  // --- The five challenge targets, each beside its own board ---------------
+  items.push(prop('hot-air-balloon', -40, 6, { y: 3, options: { height: 24, hue: 0xf2545b, seed: 51 } }));
+  items.push(prop('wind-up-toy', 38, 12, { rotY: Math.PI, options: { height: 7, hue: 0x4fc3d9, seed: 61 } }));
+  items.push(prop('mushroom-house', -34, 40, { options: { height: 15, hue: 0xf2545b, seed: 11 } }));
+  items.push(prop('giant-flower', 34, 44, { options: { height: 13, hue: 0xe86bb5, seed: 71 } }));
+
+  // --- Scenery ------------------------------------------------------------
+  items.push(prop('rainbow-arch', 0, -58, { y: 2, options: { span: 74, bands: 7, thickness: 1.8 } }));
+  items.push(prop('mushroom-house', -58, 8, { options: { height: 19, hue: 0x7a6ff0, seed: 12 } }));
+  items.push(prop('mushroom-house', 56, -18, { options: { height: 13, hue: 0xf2a541, seed: 13 } }));
+  items.push(prop('spiral-tower', -66, -34, { options: { height: 34, hue: 0x7a6ff0, seed: 101 } }));
+  items.push(prop('spiral-tower', 62, -42, { options: { height: 27, hue: 0x4fc3d9, seed: 102 } }));
+
+  for (const [x, z, h, hue, seed] of [
+    [-24, -6, 20, 0x6fcf72, 21], [26, -8, 17, 0xf7d154, 22], [-48, -20, 22, 0x4fc3d9, 23],
+    [46, -28, 19, 0xe86bb5, 24], [-42, 54, 16, 0x6fcf72, 25], [28, 60, 18, 0xf2a541, 26],
+  ]) {
+    items.push(prop('lollipop-tree', x, z, { options: { height: h, hue, seed } }));
+  }
+
+  for (const [x, z, r, hue, seed] of [
+    [-52, 52, 4.5, 0x7a6ff0, 81], [48, 50, 3.5, 0x4fc3d9, 82], [12, -44, 5.0, 0xe86bb5, 83],
+    [-18, -40, 4.0, 0xf7d154, 84],
+  ]) {
+    items.push(prop('gumdrop-rock', x, z, { options: { radius: r, hue, seed } }));
+  }
+
+  for (const [x, z, h, hue, seed] of [[-30, 22, 11, 0xf7d154, 72], [30, 26, 10, 0x7a6ff0, 73]]) {
+    items.push(prop('giant-flower', x, z, { options: { height: h, hue, seed } }));
+  }
+
+  // Floating islands and clouds, up in the air. absoluteY: a thing that hovers has nothing
+  // to do with the height of the ground under it.
+  items.push(prop('floating-island', -70, 20, { y: 44, absoluteY: true, options: { radius: 11, hue: 0x6fcf72, seed: 41 } }));
+  items.push(prop('floating-island', 72, 4, { y: 56, absoluteY: true, options: { radius: 8, hue: 0x4fc3d9, seed: 42 } }));
+  for (const [x, z, y, w, seed] of [[-30, -60, 62, 20, 91], [36, -66, 70, 16, 92], [0, 30, 74, 22, 93]]) {
+    items.push(prop('cloud-puff', x, z, { y, absoluteY: true, options: { width: w, seed } }));
+  }
+
+  items.push(prop('stepping-stones', 0, 34, { options: { count: 11, spacing: 5.5, hue: 0x4fc3d9, seed: 111 } }));
+
+  // --- Words --------------------------------------------------------------
+  items.push(
+    // OFF THE CENTRE LINE. The carousel is 96ft away and about 16ft tall, so from the
+    // spawn it subtends roughly 6 degrees -- while this board, 12ft ahead and 11ft to its
+    // top, subtends 28. Anything on that sightline hides the hero of the world outright.
+    prop('welcome-board', -19, 44, {
+      rotY: face(-24, 58),
+      options: {
+        eyebrow: '🎠  WHIMSICAL WORLD',
+        lead: 'Five things here are waiting to be told what to do.',
+        lines: ['Find the five ⚡ boards.', 'The carousel is already running.'],
+        footnote: 'Click anything, choose Program, and change a number',
+      },
+    }),
+  );
+  items.push(...browserStation(17, 64, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- FIVE CODING CHALLENGES ---------------------------------------------
+  // Every sequence has been run. `move forward` and `glide` follow the object's own +Z, so
+  // a `rotate` between them genuinely steers -- which is what makes challenge 2 close a
+  // square exactly. `move up by` is the one motion block that is NOT relative to facing.
+  items.push(activity(-16, 34, {
+    number: 1,
+    title: 'Fly the balloon',
+    target: 'the red hot-air balloon',
+    rotY: face(-16, 34),
+    accent: '#f2545b',
+    steps: [
+      ctrlStep('forever'),
+      moveStep('move up by 0.4 feet', 1),
+      ctrlStep('wait 0.1 seconds', 1),
+      moveStep('move up by -0.4 feet', 1),
+      ctrlStep('wait 0.1 seconds', 1),
+    ],
+    tip: 'Up is always up, whichever way a thing is pointing — that is the one movement block that ignores facing. Make the two numbers different and the balloon drifts away.',
+  }));
+
+  items.push(activity(16, 34, {
+    number: 2,
+    title: 'Walk the wind-up toy in a square',
+    target: 'the blue wind-up toy',
+    rotY: face(16, 34),
+    accent: '#4fc3d9',
+    steps: [
+      ctrlStep('forever'),
+      ctrlStep('repeat 4 times', 1),
+      moveStep('glide 12 feet over 3 seconds', 2),
+      moveStep('rotate 90 degrees', 2),
+    ],
+    tip: '360 divided by 4 is 90, which is why it comes back to exactly where it started. Try repeat 3 with rotate 120, or repeat 6 with rotate 60.',
+  }));
+
+  items.push(activity(-34, 54, {
+    number: 3,
+    title: 'Grow the toadstool',
+    target: 'the red mushroom house',
+    rotY: face(-34, 54),
+    accent: '#f2a541',
+    steps: [
+      ctrlStep('forever'),
+      lookStep('change size by 8 %', 1),
+      ctrlStep('wait 0.4 seconds', 1),
+      lookStep('change size by -8 %', 1),
+      ctrlStep('wait 0.4 seconds', 1),
+    ],
+    tip: 'Plus 8 then minus 8 does NOT come back to the same size — each one is a percentage of whatever it is now. Watch it slowly shrink, then work out why.',
+  }));
+
+  items.push(activity(34, 58, {
+    number: 4,
+    title: 'Make the flower change colour',
+    target: 'the pink giant flower',
+    rotY: face(34, 58),
+    accent: '#e86bb5',
+    steps: [
+      ctrlStep('forever'),
+      lookStep('change color to 🟣', 1),
+      ctrlStep('wait 1 seconds', 1),
+      lookStep('change color to 🟡', 1),
+      ctrlStep('wait 1 seconds', 1),
+    ],
+    tip: 'Add a third colour and a third wait and you have a traffic light. Take the waits out and see what happens — it is still working, just too fast to see.',
+  }));
+
+  // Off to the side of the carousel rather than in front of it, for the same reason.
+  items.push(activity(22, -4, {
+    number: 5,
+    title: 'Speed up the carousel',
+    target: 'the carousel itself',
+    rotY: face(22, -4),
+    accent: '#7a6ff0',
+    steps: [
+      ctrlStep('forever'),
+      moveStep('rotate 0.5 degrees', 1),
+    ],
+    tip: 'This one is ALREADY running — click the carousel and choose Program to read it. Change 0.5 to 6 and hold on. A negative number turns it the other way.',
+  }));
+
+  items.push(orb(0, -22, 10, ORB_WARM));
+  items.push(orb(-38, 30, 8, ORB_ROSE));
+
+  return { theme: 'whimsy', spawn: { ...SP, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Cologne Cathedral
 // ---------------------------------------------------------------------------
 
@@ -6855,6 +7281,16 @@ export const PRESET_WORLDS = {
     label: "A Bug's Life",
     hint: 'An ant colony at ant scale — five building challenges and five coding challenges',
     build: bugsLayout,
+  },
+  station: {
+    label: 'Space Station Survival',
+    hint: 'A construction deck over Mars with five building bays — modules, solar wings, a cupola',
+    build: stationLayout,
+  },
+  whimsy: {
+    label: 'Whimsical World',
+    hint: 'A storybook landscape with five coding challenges — a carousel, a balloon, a wind-up toy',
+    build: whimsyLayout,
   },
   cologne: {
     label: 'Cologne Cathedral',

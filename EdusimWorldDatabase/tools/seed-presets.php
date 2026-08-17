@@ -434,6 +434,57 @@ $WORLDS = [
             . "Shown at a size that fits the world; the real cathedral is 515 feet tall and 474 feet long.",
     ],
 
+    'whimsy' => [
+        'title' => 'Whimsical World',
+        'tags'  => 'coding, programming, official, outdoors, beginner',
+        'description' =>
+            "A candy-coloured meadow with a working carousel at the end of a path of stepping stones. "
+            . "Everything here is a programming challenge, and the carousel is already turning when you "
+            . "arrive — so the first thing you see in this world is a program running.\n\n"
+            . "FIVE BOARDS, five challenges, and each one names the exact blocks to snap together:\n\n"
+            . "1. Fly the balloon — lift the hot-air balloon off the ground with `move up by`.\n"
+            . "2. Walk the wind-up toy in a square — `repeat 4` around a `glide` and a `rotate 90`, which "
+            . "is the one program every student should write once. Four sides, and 360 divided by four "
+            . "is the turn.\n"
+            . "3. Grow the toadstool — `changeSize` inside a loop, so a mushroom house swells and "
+            . "shrinks.\n"
+            . "4. Make the flower change colour — `changeColor` with a `wait` between, which is how you "
+            . "make anything in Edusim blink.\n"
+            . "5. Speed up the carousel — open the program that is ALREADY RUNNING and change one number. "
+            . "Changing something that works is a different skill from writing something from nothing, "
+            . "and it is the easier one to start with.\n\n"
+            . "One thing worth knowing before you write your own: a `forever` loop yields once per pass on "
+            . "top of the block inside it, so `forever { rotate 10 }` turns about five degrees a frame, not "
+            . "ten. Measure it rather than working it out — that is what the carousel is for.\n\n"
+            . "Nothing here is fragile. Click any object, choose Program, and change a number.",
+    ],
+
+    'station' => [
+        'title' => 'Space Station Survival',
+        'tags'  => 'space, science, building, official, engineering',
+        'description' =>
+            "A construction deck in low Mars orbit. The planet fills the sky ahead of you — 340 feet of it "
+            . "at about 780 feet away — and the station is being assembled around you out of modules, "
+            . "trusses, solar arrays and radiators.\n\n"
+            . "THIS WORLD IS A BUILD YARD. Five marked bays are painted on the deck, each with a colour and "
+            . "a number, and each with a board beside it setting out what to construct there out of "
+            . "primitives from Menu ▸ Create Model:\n\n"
+            . "1. HABITAT (blue) — a habitation module: a long cylinder, two domed end caps, a colour band "
+            . "and a window pushed right through the wall.\n"
+            . "2. POWER (amber) — a solar array wing, and the challenge is getting both blankets level. "
+            . "The green handle lifts a piece off the ground; nothing else can.\n"
+            . "3. DOCK (purple) — a docking node: a hub with a port on every side. Walk round the real one "
+            . "in the middle of the station and count them first.\n"
+            . "4. LAB (green) — a greenhouse lab, which is where the food comes from.\n"
+            . "5. STORE (red) — your own supply lander, with no worked example anywhere in the world.\n\n"
+            . "THE COLOURS ARE THE INSTRUCTIONS. Every cargo pod, crate and deck bay carries the same five "
+            . "colours, so you can tell at a glance what belongs where — and the hardware itself is white "
+            . "for a reason a placard explains: white reflects sunlight, and in vacuum there is no air to "
+            . "carry heat away, so a dark station would cook.\n\n"
+            . "Mars turns slowly the whole time you are there. Its program is one `forever` around one "
+            . "`rotate`, and you can open it and speed it up like anything else.",
+    ],
+
     'cell' => [
         'title' => 'Inside an Animal Cell',
         'tags'  => 'science, biology, official, indoors',

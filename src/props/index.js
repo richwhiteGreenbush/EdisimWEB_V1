@@ -27,6 +27,8 @@ import * as Storm from './StormProps.js';
 import * as London from './LondonProps.js';
 import * as Warren from './WarrenProps.js';
 import * as Cologne from './CologneProps.js';
+import * as Whimsy from './WhimsyProps.js';
+import * as Station from './StationProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -430,6 +432,36 @@ export const PROP_BUILDERS = {
   'scaffold-bay': Cologne.scaffoldBay,
   domplatte: Cologne.domplatte,
   'altstadt-house': Cologne.altstadtHouse,
+
+  // Whimsical World
+  carousel: Whimsy.carousel,
+  'mushroom-house': Whimsy.mushroomHouse,
+  'lollipop-tree': Whimsy.lollipopTree,
+  'rainbow-arch': Whimsy.rainbowArch,
+  'floating-island': Whimsy.floatingIsland,
+  'hot-air-balloon': Whimsy.hotAirBalloon,
+  'wind-up-toy': Whimsy.windUpToy,
+  'giant-flower': Whimsy.giantFlower,
+  'gumdrop-rock': Whimsy.gumdropRock,
+  'cloud-puff': Whimsy.cloudPuff,
+  'spiral-tower': Whimsy.spiralTower,
+  'stepping-stones': Whimsy.steppingStones,
+
+  // Space Station Survival
+  'station-module': Station.stationModule,
+  'station-cupola': Station.stationCupola,
+  'docking-node': Station.dockingNode,
+  'solar-array': Station.solarArray,
+  'radiator-panel': Station.radiatorPanel,
+  'truss-segment': Station.trussSegment,
+  'robotic-arm': Station.roboticArm,
+  'station-deck': Station.stationDeck,
+  'deck-bay': Station.deckBay,
+  'cargo-pod': Station.cargoPod,
+  'supply-crate': Station.supplyCrate,
+  'eva-suit': Station.evaSuit,
+  'antenna-dish': Station.antennaDish,
+  'mars-globe': Station.marsGlobe,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

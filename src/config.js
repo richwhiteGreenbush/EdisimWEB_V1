@@ -673,6 +673,83 @@ export const WORLD_THEMES = {
   // `flatRadius` is large and `amplitude` low because this is a CONSTRUCTION world before
   // it is anything else -- pieces have to sit flat next to each other over a wide area, the
   // same reason My World is nearly level.
+  whimsy: {
+    // A storybook afternoon. This is the only theme in the app where the environment is
+    // allowed to be as loud as the objects in it -- everywhere else the sky is chosen to
+    // lose to the exhibits, but here there are no exhibits, only a world that is supposed
+    // to be delightful. So: a warm periwinkle sky and grass that is frankly too green.
+    //
+    // The one restraint is that the ground stays a SINGLE cheerful green rather than
+    // rainbow. Every prop in this world is saturated and multicoloured, and a multicoloured
+    // ground under them would leave nothing for the eye to rest on and no silhouette
+    // anywhere -- the same reason the cell's cytosol is grey.
+    sky: 0x9ec8f5,
+    fogNear: 130,
+    fogFar: 460,
+    groundLow: 0x4f9c3f,
+    groundHigh: 0x8fd45c,
+    // Rolling, and quite a lot of it: the hills ARE the whimsy here, and a flat plane with
+    // candy on it reads as a shop display rather than as a landscape.
+    amplitude: 6.5,
+    flatRadius: 46,
+    blendRadius: 165,
+    hemiSky: 0xe4f2ff,
+    hemiGround: 0x6aa845,
+    hemiIntensity: 1.9,
+    sunColor: 0xfff6e0,
+    sunIntensity: 2.5,
+    sunPosition: [110, 150, 90],
+    stars: false,
+  },
+
+  station: {
+    // Low Mars orbit. Black sky, stars, and a sun with no atmosphere to soften it.
+    //
+    // TWO THINGS ARE DELIBERATE AND BOTH ARE ABOUT COLOUR, which this world is meant to be
+    // led by. First, the hemisphere fill is warm ORANGE-BROWN rather than the usual sky
+    // blue: the nearest large object is Mars, it fills a third of the view, and the light
+    // bouncing off it is the planet's own colour. That single choice is what makes white
+    // station hardware look like it is in orbit rather than on a stand in a hall.
+    //
+    // Second, hemiIntensity is LOW. In space there is no atmosphere to scatter light, so
+    // shadows are nearly black and the contrast is brutal -- and that hard edge is most of
+    // what makes hardware read as hardware. Lit like an overcast day it looks like plastic.
+    sky: 0x05060a,
+    // Fog effectively off. Vacuum does not fade anything, and a fogged starfield is the one
+    // thing that instantly says "this is a room with a painted ceiling".
+    fogNear: 900,
+    fogFar: 2000,
+    // THE GROUND IS THE VOID, not the floor. This is the one theme whose terrain is
+    // painted out rather than painted: the floor a student stands on is the `station-deck`
+    // prop, which is 230ft square and ENDS, and everything past its edge has to be space.
+    // Left at deck grey the terrain ran on to the horizon and did the one thing this world
+    // cannot afford -- it gave Mars a flat line to sit on, so a planet 700ft across read as
+    // a hill behind a car park. Two shades a hair apart rather than one flat black, because
+    // the ramp is what stops a large unlit plane banding.
+    groundLow: 0x080a0e,
+    groundHigh: 0x10131a,
+    // Dead flat. The student is standing on a deck, not on ground.
+    amplitude: 0,
+    flatRadius: 190,
+    blendRadius: 195,
+    hemiSky: 0xffd9b0,
+    hemiGround: 0x8a4a2a,
+    // 0.75, not the 0.55 realism wants. Vacuum really does give near-black shadows, but at
+    // 0.55 the deck a student is standing on was too dark to read the bay markings by --
+    // and those markings are how this world tells them where each build goes.
+    hemiIntensity: 1.0,
+    sunColor: 0xfff4e8,
+    sunIntensity: 3.2,
+    // The sun is on the STUDENT'S side of the world, which is unusual here and is entirely
+    // about Mars. A planet is lit by the same directional light as everything else, so a sun
+    // behind it lights its far side and hands the arrival view a dark disc; only the
+    // hemisphere fill was keeping it visible at all. Raked round to +Z and well to the right,
+    // it lights the near face, leaves a terminator down the left limb, and picks out the
+    // modules' near sides at the same time.
+    sunPosition: [280, 140, 160],
+    stars: true,
+  },
+
   london: {
     // Westminster on an overcast afternoon. The Elizabeth Tower is honey-coloured Anston
     // limestone with a gilded spire, and both of those are WARM -- so the sky is a cool

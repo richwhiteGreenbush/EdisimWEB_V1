@@ -507,8 +507,12 @@ export function tutorialBoard({
   width = 9,
   height = 7.6,
   postHeight = 10.6,
+  // Dark iron by default, because that is what a board stands on in every outdoor world
+  // here. Somewhere with no weather to rust in wants its own answer -- Space Station
+  // Survival passes station grey, since two brown posts on a plated deck read as timber.
+  postColor = 0x39332b,
 } = {}) {
-  const post = standard({ color: 0x39332b, roughness: 0.7, metalness: 0.3, ...relief('metal', { seed: 73, repeat: 3 }) });
+  const post = standard({ color: postColor, roughness: 0.7, metalness: 0.3, ...relief('metal', { seed: 73, repeat: 3 }) });
   const g = group();
 
   // Posts outside the panel, not inset -- every line here is left-aligned and starts a

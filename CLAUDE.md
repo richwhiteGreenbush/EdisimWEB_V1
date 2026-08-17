@@ -1162,6 +1162,79 @@ holds. And the cell's scale is consistent across the five main organelles with e
 stating the real micrometre figure; the free ribosomes are the one exception and **their own
 label says so**, because at true scale they are three inches across.
 
+### Whimsical World and Space Station Survival
+
+`WhimsyProps.js` / `whimsyLayout()` and `StationProps.js` / `stationLayout()`. Gallery worlds
+— in `PRESET_WORLDS`, deliberately not in `MENU_WORLDS`. One is five *coding* challenges, the
+other five *building* challenges, and both are led by colour.
+
+**The best first coding challenge is CHANGING a program, not writing one.** The carousel is
+already turning when a student arrives (a `program` on the prop, the mechanism the twister
+introduced), and board 5 is "open it and change one number". Four boards ask for a program
+from nothing; the fifth asks for an edit, and it is the one that works for the student who
+has never done either. It also means the first thing anyone sees in this world is a program
+running, which no amount of signage says as well.
+
+**A planet you are orbiting has to have its CENTRE above the horizon.** Not a framing
+preference — the only arrangement that reads as a sphere. A flat deck with the eye 5ft above
+it hides everything below about −2°, so a planet centred lower is cut *above* its own
+equator, and a circle cut above its equator is a dome. Mars was built three times and the
+first two were hills: radius 150 at 320ft was a hill close up, radius 400 at 780ft was a hill
+700ft wide. 340ft at ~780ft with the centre ~6° up spans 48° across, reaches 28° up, and
+curves back in on both sides.
+
+**The station theme paints the TERRAIN OUT.** `groundLow`/`groundHigh` are near-black, so the
+only floor is the 230ft-square `station-deck` prop and everything past its edge is space. Left
+at deck grey the terrain ran to the horizon and gave Mars a flat line to sit on — which is the
+other half of why it read as a hill. It is the one theme whose ground is not meant to be seen.
+
+**The sun is on the student's side here**, which no other outdoor world does. A planet takes
+the same directional light as everything else, so a sun behind it lights its far side and
+hands the arrival view a dark disc.
+
+Traps, most of them re-runs:
+
+- **A partial `SphereGeometry`'s phi is measured from −X, not +Z.** The EVA suits' gold
+  visors were authored around phi = 0 and sat on each suit's left ear, so every one presented
+  a blank white ball to anyone walking up. And a visor must be BIGGER than the helmet it
+  covers — at a hair under, it is sealed inside the shell, the same mistake as a window on
+  the inner face of a wall.
+- **A dish must open toward the walk-up, and then it needs `DoubleSide`.** Turned the wrong
+  way, `antennaDish` rendered as a smooth white egg on a post (`MarsProps`' relay dish, again).
+  Turned the right way it rendered as a hoop with three spokes and no dish, because the
+  surface you now see is the cap's *inside* — its back faces. Note `BufferGeometry.rotateX`
+  turns about the geometry's origin, so a cap has to be seated with its vertex at the origin
+  before it is tipped.
+- **A window module built as mullions with panes between them and nothing behind is a box.**
+  The cupola's six dark panes *were* its drum — a blue shipping container on a white pedestal.
+  A cupola is a white pressure vessel that happens to have windows, so the solid wall goes in
+  first and the glass sits proud of it, narrower and shorter than its bay.
+- **Draw a planet from soft fills, never outlines.** Craters and shield volcanoes as stroked
+  circles — which is how a crater is drawn on a *diagram* — turned Mars into a screenful of
+  soap bubbles. A bright crescent offset inside a dark disc, the second attempt, did the same.
+  Filled, faint, slightly elliptical, no rim.
+- **A dark arc under two dark patches is a smile under two eyes.** Valles Marineris at the
+  width and contrast the feature deserves on a map gave the planet a face. It is now a thin
+  scar you notice second.
+- **A large smooth gradient needs grain or the JPEG bands it.** The gallery screenshot came
+  back with broad vertical bands across Mars that are not in the render. A pixel of noise
+  across the texture fixes it and reads as dust.
+- **Axial tilt is what makes a polar cap exist.** Upright, the north pole sits exactly on the
+  top limb and the cap paints a sliver a pixel or two deep. The `rotate` block turns the root
+  about the world vertical, so a tilted child precesses rather than spinning on its own axis —
+  at 0.04°/frame that is one circuit in over two minutes, and the cap is worth the pedantry.
+- **Both worlds' arrival frames had to be cleared twice.** Whimsical World's welcome board sat
+  56° off the sightline (outside the ~51° a 16:9 screen sees) and was clipped by the bezel with
+  a lollipop tree in front of it; the station's bay 3 board sat two degrees off it and hid the
+  entire station. The five bays are now an avenue down both sides with the middle strip empty —
+  which is also what a world full of construction needs, since a fresh piece lands
+  `PRIMITIVE_SPAWN_DISTANCE` ahead and spirals out.
+- `tutorialBoard` takes a `postColor` now. Dark iron is right in every outdoor world and is
+  timber-on-a-deck in orbit.
+
+**Performance**: Whimsical World is 40 records / 134 draw calls / 127k triangles; Space Station
+Survival is 44 / 156 / 95k. Both world files are well under 20 KB.
+
 ### A Bug's Life, and building a world around CHALLENGES
 
 `BugProps.js` + `bugsLayout()`. The only preset laid out as a **workshop** rather than as a
