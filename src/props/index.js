@@ -22,6 +22,8 @@ import * as Andes from './AndesProps.js';
 import * as Taj from './TajProps.js';
 import * as Moscow from './MoscowProps.js';
 import * as Bug from './BugProps.js';
+import * as Cell from './CellProps.js';
+import * as Storm from './StormProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -362,6 +364,39 @@ export const PROP_BUILDERS = {
   'pebble-field': Bug.pebbleField,
   toadstool: Bug.toadstool,
   'water-drop': Bug.waterDrop,
+
+  // Inside an Animal Cell
+  'cell-nucleus': Cell.cellNucleus,
+  mitochondrion: Cell.mitochondrion,
+  'rough-er': Cell.roughER,
+  'smooth-er': Cell.smoothER,
+  'golgi-body': Cell.golgiBody,
+  'membrane-panel': Cell.membranePanel,
+  'membrane-wall': Cell.membraneWall,
+  lysosome: Cell.lysosome,
+  'transport-vesicle': Cell.transportVesicle,
+  'free-ribosome': Cell.freeRibosome,
+  'centriole-pair': Cell.centriolePair,
+  'cytoskeleton-strand': Cell.cytoskeletonStrand,
+  'organelle-tag': Cell.organelleTag,
+
+  // Inside a Twister
+  'tornado-funnel': Storm.tornadoFunnel,
+  'supercell-base': Storm.supercellBase,
+  'rain-curtain': Storm.rainCurtain,
+  'chase-vehicle': Storm.chaseVehicle,
+  'doppler-truck': Storm.dopplerTruck,
+  'storm-probe': Storm.stormProbe,
+  'wrecked-farmhouse': Storm.wreckedFarmhouse,
+  'prairie-barn': Storm.prairieBarn,
+  'grain-silo': Storm.grainSilo,
+  'farm-windmill': Storm.farmWindmill,
+  'wheat-patch': Storm.wheatPatch,
+  'debris-field': Storm.debrisField,
+  'power-pole': Storm.powerPole,
+  'hay-bale': Storm.hayBale,
+  'snapped-tree': Storm.snappedTree,
+  'ef-scale-board': Storm.efScaleBoard,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

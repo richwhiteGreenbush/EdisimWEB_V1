@@ -673,6 +673,93 @@ export const WORLD_THEMES = {
   // `flatRadius` is large and `amplitude` low because this is a CONSTRUCTION world before
   // it is anything else -- pieces have to sit flat next to each other over a wide area, the
   // same reason My World is nearly level.
+  cell: {
+    // Inside an animal cell. The student is suspended in cytosol, so like `voyage` this
+    // is a VOLUME rather than a landscape -- close fog is most of what sells that, and
+    // 45/210 is the second-closest in the app after Under the Sea.
+    //
+    // The palette is picked AGAINST the organelles, which is the rule this project has
+    // now paid for three times (the Mars props that came out as black silhouettes, the
+    // warm "inside the body" sky that turned every organ into one red mush). Every
+    // organelle here is warm and saturated on purpose -- a violet nucleus, red-orange
+    // mitochondria, a teal Golgi, blue ribosomes -- because that is how they are drawn in
+    // every textbook a student will ever meet, and a diagram's colours are the thing they
+    // are actually being asked to remember. So the cytosol is a desaturated blue-grey:
+    // it is the only surface here NOT trying to be identified, and it has to lose.
+    //
+    // No `groundDetail` photo. The cytosol floor is not a material anybody has photographed
+    // and the ground maps that ship with this project are regolith, soil, marble and
+    // wood -- every one of them reads as "outdoors on a planet", which is the one thing
+    // this floor must not.
+    // Lighter than the first pass by a long way. At sky 0x2b3f57 over a 0x37485c floor the
+    // whole world came out as one navy murk with the organelles barely separable from it --
+    // the cytosol is meant to lose to the organelles, but losing is not the same as taking
+    // the exhibits down with it. Everything here is a TRANSLUCENT shell, and a translucent
+    // shell has almost no colour of its own: what you actually see is the background
+    // through it, so the background has to be bright enough to carry them.
+    sky: 0x4a6a8c,
+    fogNear: 55,
+    fogFar: 250,
+    groundLow: 0x53687e,
+    groundHigh: 0x8fa3b8,
+    // Almost flat over a wide radius. Every organelle in here is a rigid closed shell
+    // several tens of feet across, and rolling ground buries one side of each of them --
+    // the same reason the museum, the library and Mars all flatten their floors.
+    amplitude: 1.8,
+    flatRadius: 92,
+    blendRadius: 160,
+    // A high hemisphere fill and a modest sun, because there is no sun inside a cell and
+    // nothing here should read as lit from one direction. The organelles are translucent
+    // shells and it is the fill that gets inside them.
+    hemiSky: 0xd8ecfa,
+    hemiGround: 0x76889c,
+    hemiIntensity: 2.3,
+    sunColor: 0xf2f8ff,
+    sunIntensity: 1.9,
+    sunPosition: [70, 130, 60],
+    stars: false,
+  },
+
+  twister: {
+    // A supercell over open prairie, maybe a mile out.
+    //
+    // This theme has ONE job the others do not: the tornado has to be the darkest thing
+    // in the world, and it is a 90ft column of grey. Against a normal blue sky a grey
+    // funnel reads as a smudge, so the sky is the storm -- a heavy blue-grey that the
+    // funnel is darker still than.
+    //
+    // The ground goes the other way, and that is the whole trick of this world: under a
+    // supercell the sun comes in UNDER the cloud base from the clear west edge, and the
+    // wheat lights up bright gold against a near-black sky. That contrast is what every
+    // photograph of a tornado on the plains is actually of, and it is why the sun here is
+    // strong, warm and LOW (a 34deg elevation) while the sky above it is nearly slate.
+    groundDetail: 'ground-soil.jpg',
+    sky: 0x6b7484,
+    // Wide open country, and the fog is doing perspective rather than mood: far enough
+    // out that the storm is a real distance away, close enough that the horizon is not a
+    // hard line where the ground plane stops.
+    fogNear: 120,
+    fogFar: 430,
+    groundLow: 0x7d7038,
+    groundHigh: 0xc9ab52,
+    // Prairie, so it rolls -- but gently, and flat where the farmstead and the boards are.
+    amplitude: 3.4,
+    flatRadius: 60,
+    blendRadius: 175,
+    // The sky fill is grey rather than blue: under a storm base the light bouncing down
+    // is the cloud's own colour, and a blue hemisphere here made everything look like a
+    // sunny day with a dark object in it.
+    hemiSky: 0x93a0b0,
+    hemiGround: 0x7a6a3e,
+    hemiIntensity: 1.5,
+    sunColor: 0xffd9a0,
+    sunIntensity: 2.8,
+    // LOW and to one side -- 34deg up. This is the shaft of light under the storm base,
+    // and it is what makes the wheat glow and the funnel stand black against it.
+    sunPosition: [-190, 130, 95],
+    stars: false,
+  },
+
   bugs: {
     groundDetail: 'ground-soil.jpg',
     sky: 0x8ec8ea,

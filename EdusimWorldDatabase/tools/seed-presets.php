@@ -368,6 +368,52 @@ $WORLDS = [
             . "real glass, lit from inside, and it turns in the wind.\n\n"
             . "Two coding challenges: raise the cathedral out of the snow, and run a parade past the tomb.",
     ],
+    'cell' => [
+        'title' => 'Inside an Animal Cell',
+        'tags'  => 'science, biology, official, indoors',
+        'description' =>
+            "You have been shrunk about six million times and you are standing in the cytoplasm of a single "
+            . "animal cell. The whole cell would be about a fifth the width of a human hair.\n\n"
+            . "FIVE ORGANELLES are built as walk-around models, and they are the five you get asked about. "
+            . "The NUCLEUS is cut open so you can walk up to the opening and look inside at the nucleolus and "
+            . "the loose threads of chromatin — not neat X-shaped chromosomes, because those only exist while "
+            . "a cell is dividing. Gold rings dotted over its surface are the nuclear pores. A MITOCHONDRION "
+            . "lies open lengthwise beside it so the folded cristae are visible, which is the whole reason it "
+            . "can release as much energy as it does. The ROUGH ER runs right up against the nucleus, because "
+            . "the two are genuinely joined; every blue bead on its sheets is a ribosome, and that is the only "
+            . "thing that makes it rough. The GOLGI BODY is a curved stack of sacs with vesicles pinching off "
+            . "the rim. And a section of the CELL MEMBRANE is built the way it is drawn — two rows of "
+            . "phospholipid heads with their tails meeting in the middle, channel proteins through it, "
+            . "cholesterol wedged between.\n\n"
+            . "Almost everything is at ONE consistent scale, so the sizes are comparable and every label "
+            . "states the real measurement in micrometres. The free ribosomes are the deliberate exception "
+            . "and their label says so: at true scale they would be three inches across.\n\n"
+            . "Two coding challenges are waiting. Send a transport vesicle from the Golgi across to the "
+            . "membrane — the actual route a finished protein takes — and make the mitochondrion pulse, "
+            . "which is closer to what they really do than a static bean suggests.",
+    ],
+
+    'twister' => [
+        'title' => 'Inside a Twister',
+        'tags'  => 'science, weather, official, outdoors, machines',
+        'description' =>
+            "An EF4 tornado crossing open wheat country, with the supercell it came out of hanging overhead "
+            . "and the farm that was in its path still standing — mostly.\n\n"
+            . "THE FUNNEL IS TURNING, and it is turning because of an ordinary Edusim program running on it: "
+            . "click it, choose Program, and you will find `forever { rotate }` with a number you can change. "
+            . "You can see the rotation because the column is corrugated into helical ribs wound at different "
+            . "rates on each layer, with two sub-vortices spiralling up the outside and a ring of debris going "
+            . "round the base. A smooth grey cone would look identical however fast it spun.\n\n"
+            . "Walk the damage. The farmhouse kept one gable end, its chimney and a window, and lost its roof "
+            . "and the wall that faced the storm; the barn is leaning but up; the silo is dented; a line of "
+            . "power poles is snapped at one end and untouched at the other, which is how you read the width "
+            . "of the damage path. The chart by the trucks is the Enhanced Fujita scale — nobody measures a "
+            . "tornado's wind directly, so the wreckage IS the measurement. A Doppler on Wheels is parked "
+            . "facing the storm, which is the one instrument that reads the spin from a mile away.\n\n"
+            . "Two challenges: speed the twister up (or reverse it — real tornadoes in this hemisphere almost "
+            . "all turn the same way), and make a plank of debris climb and tumble.",
+    ],
+
     'bugs' => [
         'title' => "A Bug's Life",
         'tags'  => 'nature, animals, science, official, starter, building',

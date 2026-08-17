@@ -1248,12 +1248,23 @@ local **+Z** — the same forward every prop in `src/props/` is authored to), so
 now genuinely steers. `repeat 4 { move forward 10, rotate 90 }` returns to its exact
 starting point, and several boards teach that as "360 divided by the number of sides".
 
-The replacement constraint is the one to remember: **there is no vertical motion block.**
-`move forward`, `glide` and `goHome` are the whole of Motion besides `rotate`, and none of
-them lifts anything. Five boards used to raise an obelisk, a dome, an ash column, a rain
-curtain and a helicopter on `move Y`; all five are now built from `changeSize`/`setSize`,
-`setOpacity` or `say`/`whenSaid` instead. A board promising a lift would be a board that
-lies, in exactly the way a board promising a circuit used to be.
+**Motion is `move forward` / `move up by` / `glide` / `rotate` / `go back to start`.**
+`move up by` is the one that is NOT relative to facing, deliberately: up is up whichever
+way a thing is pointing, and a lift that tilted with its object would be useless for the
+jobs it exists for — raising a dome onto a building, floating a balloon, dropping rain
+(negative goes down). Everything else follows the object's own +Z, so a `rotate` genuinely
+steers and `repeat 4 { move forward 10, rotate 90 }` closes a square.
+
+There was a period with no vertical block at all, and five boards that had raised an
+obelisk, a dome, an ash column, a rain curtain and a helicopter were rewritten onto
+`changeSize`/`setSize`, `setOpacity` or `say`/`whenSaid`. Those rewrites are still there
+and still work — they were not reverted when `move up by` landed, because a board that
+teaches two blocks at once is not improved by teaching one.
+
+`moveX`/`moveY`/`moveZ` are a different thing entirely and are **retired** — see below.
+Do not confuse `moveY` (retired, world axis, absent from the palette) with `moveUp`
+(current, world axis, in the palette). They do the same arithmetic; only one of them is
+something a student can still find.
 
 `moveX`/`moveY`/`moveZ` still exist in `BLOCK_DEFS` and in the runner, flagged `retired`
 and absent from `PALETTE_ORDER`. **They must stay there.** A block type is persisted

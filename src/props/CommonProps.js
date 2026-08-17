@@ -410,12 +410,33 @@ export function welcomeBoard({
     const bigSize = Math.round(h * 0.185);
     const footSize = Math.round(h * 0.08);
 
+    // The big lines are SHRUNK TO FIT, and every line takes the same reduced size so the
+    // block still reads as one block.
+    //
+    // Without this they are drawn at a fixed size with no measurement at all, so one line
+    // a few words too long simply runs off both edges of the board -- clipped mid-word,
+    // with nothing on screen to say why. A caller cannot predict the limit either, since
+    // it depends on the board's width and on how many lines there are. This is the same
+    // treatment cardTexture() already gives its body text, and for the same reason.
+    //
+    // It is measured HERE, above blockH, because blockH is what centres the whole stack
+    // vertically -- computed from the unfitted size, a shrunk block sits visibly low.
+    const maxLineWidth = w - 130;                 // inside the accent rule, with air
+    let fitted = bigSize;
+    ctx.font = `bold ${fitted}px "Helvetica Neue", Arial, sans-serif`;
+    for (const line of lines) {
+      while (fitted > 12 && ctx.measureText(line).width > maxLineWidth) {
+        fitted -= 2;
+        ctx.font = `bold ${fitted}px "Helvetica Neue", Arial, sans-serif`;
+      }
+    }
+
     // Measured and centred as a block, rather than laid out from a fixed top: the
     // caller decides how many lines there are, and only the total tells us where to start.
     const blockH =
       (eyebrow ? eyebrowSize * 1.9 : 0) +
       (lead ? leadSize * 1.6 : 0) +
-      lines.length * bigSize * 1.2 +
+      lines.length * fitted * 1.2 +
       (footnote ? footSize * 2.1 : 0);
 
     ctx.textAlign = 'center';
@@ -437,11 +458,11 @@ export function welcomeBoard({
 
     // The last line takes the accent colour. On a board whose whole job is one sentence,
     // that is what stops it reading as a paragraph and makes it land as a call to action.
-    ctx.font = `bold ${bigSize}px "Helvetica Neue", Arial, sans-serif`;
+    ctx.font = `bold ${fitted}px "Helvetica Neue", Arial, sans-serif`;
     lines.forEach((line, i) => {
       ctx.fillStyle = i === lines.length - 1 ? accent : ink;
-      ctx.fillText(line, w / 2, y + bigSize);
-      y += bigSize * 1.2;
+      ctx.fillText(line, w / 2, y + fitted);
+      y += fitted * 1.2;
     });
 
     if (footnote) {

@@ -1,5 +1,6 @@
 import { applyWorldTheme } from './SceneSetup.js';
 import { WEB_BROWSER_DEFAULT_URL } from './config.js';
+import { createBlockInstance } from './BlockDefs.js';
 
 import { uuid } from './Uuid.js';
 // The ready-made worlds behind Menu > Load World.
@@ -30,8 +31,24 @@ const ORB_ROSE = '#e0455f';
 // record. `y` is height ABOVE THE TERRAIN at that spot unless `absoluteY` is set.
 // ---------------------------------------------------------------------------
 
-function prop(name, x, z, { y = 0, rotY = 0, rotX = 0, absoluteY = false, scale = 1, options = {} } = {}) {
-  return { kind: 'preset-prop', prop: name, options, x, z, y, rotY, rotX, absoluteY, scale };
+function prop(name, x, z, {
+  y = 0, rotY = 0, rotX = 0, absoluteY = false, scale = 1, options = {}, program = null,
+} = {}) {
+  return { kind: 'preset-prop', prop: name, options, x, z, y, rotY, rotX, absoluteY, scale, program };
+}
+
+// One block for a program shipped ON a prop (see `program` above).
+//
+// Built through createBlockInstance() rather than written as an object literal, and that
+// matters for more than tidiness: it stamps a fresh uuid and fills in EVERY param from
+// the block's own schema. A hand-written `{ type: 'rotate', params: { degrees: 2 } }`
+// looks complete and is not -- the moment a student opens it in the editor, any param
+// the literal forgot renders as an empty field, and re-saving writes that back.
+function block(type, params = {}, children) {
+  const b = createBlockInstance(type);
+  Object.assign(b.params, params);
+  if (children) b.children = children;
+  return b;
 }
 
 function orb(x, z, y, color = ORB_WHITE) {
@@ -5835,6 +5852,554 @@ function bugsLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// Inside an Animal Cell
+// ---------------------------------------------------------------------------
+
+// Laid out as a TOUR with a spine, the way the Park is: the nucleus dead ahead at the far
+// end, the other four main organelles flanking the walk up to it, and the small ones out
+// at the sides. An organelle diagram has no natural front, so without an imposed axis a
+// student arrives in a soup of blobs and has no idea which one they are meant to look at
+// first.
+//
+// The five the brief asks for are the five a student is examined on: nucleus,
+// mitochondrion, rough ER, Golgi, and the membrane itself. Everything else is support.
+function cellLayout() {
+  const items = [];
+  const SP = { x: 0, z: 74 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- Arrival ------------------------------------------------------------
+  // The board sits 24ft out, not the usual 12-14. It is 12ft wide on 9.2ft posts, so from
+  // 14ft away its top edge subtends about 25 degrees -- MORE than the 50ft nucleus does
+  // from 108ft away (about 23), and it hid the hero object of the world completely. Pushed
+  // back to 24ft it drops to about 15 and the nucleus clears it comfortably. The general
+  // rule: a near sign competes with a far landmark on ANGLE, not on size, so the fix is
+  // distance rather than a smaller board.
+  items.push(
+    prop('welcome-board', 0, 50, {
+      rotY: face(0, 50),
+      options: {
+        eyebrow: '🔬  INSIDE AN ANIMAL CELL',
+        lead: 'You have been shrunk about six million times.',
+        lines: ['Five organelles, all to scale.', 'The nucleus is straight ahead.'],
+        footnote: 'The whole cell would be a fifth the width of a human hair',
+      },
+    }),
+  );
+  items.push(...browserStation(9, 64, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- The cell boundary --------------------------------------------------
+  // A ring of curved wall sections. It is what stops this reading as organelles standing
+  // in an open field -- a cell's defining feature is that it HAS an edge.
+  const WALL_R = 108;
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2;
+    const x = Math.cos(a) * WALL_R;
+    const z = Math.sin(a) * WALL_R;
+    items.push(prop('membrane-wall', x, z, {
+      rotY: facing(x, z, 0, 0),
+      options: { span: 72, height: 17, curve: 0.16, seed: 9 + i },
+    }));
+  }
+
+  // --- 1. The nucleus, at the head of the walk ----------------------------
+  // Turned so its cutaway mouth faces the arrival. A cutaway pointed away is a closed
+  // sphere, and the whole reason it is cut open is to be looked into.
+  items.push(prop('cell-nucleus', 0, -34, {
+    rotY: facing(0, -34, SP.x, SP.z),
+    options: { radius: 25, pores: 30, seed: 3 },
+  }));
+  // The tag goes BESIDE the nucleus, not in front of it. Centred on the walk it hangs
+  // squarely over the cutaway mouth and hides the nucleolus and chromatin -- which are the
+  // only reason the thing is cut open. Clear of an object is not the same as readable, and
+  // that cuts both ways.
+  items.push(prop('organelle-tag', 23, -8, {
+    rotY: face(23, -8),
+    y: 7,
+    options: {
+      name: 'Nucleus',
+      realSize: 'really about 6 µm across',
+      job: 'Holds the DNA · controls the cell',
+      width: 13,
+      accent: '#c79ae8',
+    },
+  }));
+  items.push(prop('info-placard', -13, -4, {
+    rotY: face(-13, -4),
+    options: {
+      title: 'The nucleus',
+      body: 'The biggest thing in the cell and the one in charge. The purple shell is a DOUBLE membrane — look for the gold rings, which are nuclear pores: the doorways that let messages out to the ribosomes. The dark ball inside is the nucleolus, where ribosomes are built. The loose pink threads are chromatin — not neat X-shaped chromosomes, because those only exist while a cell is dividing.',
+    },
+  }));
+
+  // --- 2. Mitochondrion ---------------------------------------------------
+  items.push(prop('mitochondrion', -46, 8, {
+    rotY: facing(-46, 8, SP.x, SP.z),
+    options: { length: 34, radius: 7.5, cristae: 12, seed: 8 },
+  }));
+  items.push(prop('organelle-tag', -26, -2, {
+    rotY: face(-26, -2),
+    y: 5,
+    options: {
+      name: 'Mitochondrion',
+      realSize: 'really about 2 µm long',
+      job: 'Releases energy from food',
+      width: 12,
+      accent: '#f2a05c',
+    },
+  }));
+  items.push(prop('info-placard', -34, 24, {
+    rotY: face(-34, 24),
+    options: {
+      title: 'The powerhouse',
+      body: 'It is cut open lengthwise so you can see the folds. Those folds are called cristae, and they are the point: folding the inner membrane back and forth packs an enormous surface area into a tiny space, and that surface is where energy is actually released. A muscle cell has thousands of these. A skin cell has far fewer.',
+    },
+  }));
+  items.push(prop('mitochondrion', -62, -22, {
+    rotY: 0.9,
+    options: { length: 26, radius: 6, cristae: 9, seed: 14 },
+  }));
+
+  // --- 3. Rough ER, wrapped round the nucleus -----------------------------
+  // Placed touching the nucleus on purpose: the rough ER is CONTINUOUS with the nuclear
+  // envelope, and putting it across the room would quietly teach that they are unrelated.
+  items.push(prop('rough-er', 40, -18, {
+    rotY: facing(40, -18, 0, -34),
+    options: { width: 30, depth: 18, sheets: 5, seed: 12 },
+  }));
+  items.push(prop('organelle-tag', 62, -22, {
+    rotY: face(62, -22),
+    y: 5,
+    options: {
+      name: 'Rough ER',
+      realSize: 'sheets about 50 nm thick',
+      job: 'Builds and folds proteins',
+      width: 12,
+      accent: '#6f9ee0',
+    },
+  }));
+  items.push(prop('info-placard', 28, 4, {
+    rotY: face(28, 4),
+    options: {
+      title: 'Why "rough"?',
+      body: 'The blue beads all over it. Each one is a ribosome — the machine that reads the instructions from the nucleus and builds a protein from them. Nothing else makes it rough. Notice the sheets run right up to the nucleus: the rough ER is joined to the nuclear envelope, so a message has almost no distance to travel.',
+    },
+  }));
+  items.push(prop('smooth-er', 62, 6, {
+    rotY: 0.4,
+    options: { extent: 14, strands: 9, seed: 21 },
+  }));
+  items.push(prop('organelle-tag', 80, 16, {
+    rotY: face(80, 16),
+    y: 4,
+    options: {
+      name: 'Smooth ER',
+      realSize: 'tubes about 60 nm across',
+      job: 'Makes fats · no ribosomes',
+      width: 10,
+      accent: '#d9c07a',
+    },
+  }));
+
+  // --- 4. Golgi -----------------------------------------------------------
+  items.push(prop('golgi-body', 34, 34, {
+    rotY: facing(34, 34, SP.x, SP.z),
+    options: { width: 24, sacs: 6, seed: 17 },
+  }));
+  items.push(prop('organelle-tag', 54, 40, {
+    rotY: face(54, 40),
+    y: 4,
+    options: {
+      name: 'Golgi Body',
+      realSize: 'really about 1.5 µm wide',
+      job: 'Packs and ships proteins',
+      width: 12,
+      accent: '#5fd0cf',
+    },
+  }));
+  items.push(prop('info-placard', 21, 44, {
+    rotY: face(21, 44),
+    options: {
+      title: 'The post office',
+      body: 'Proteins arrive from the ER at the bottom of the stack, get finished and labelled as they move up it, and leave from the top wrapped in a bubble — one of the little green vesicles pinching off the edges. The stack is curved, always; that dish shape is how you tell a Golgi from anything else in a picture.',
+    },
+  }));
+
+  // --- 5. The membrane, as a cutaway diagram ------------------------------
+  // Standing on its own out to the side, well clear of the walk, because it is a wall and
+  // a wall across a route is an obstacle.
+  items.push(prop('membrane-panel', -30, 52, {
+    rotY: face(-30, 52),
+    options: { width: 32, height: 14, columns: 28, seed: 5 },
+  }));
+  items.push(prop('organelle-tag', -50, 60, {
+    rotY: face(-50, 60),
+    y: 4,
+    options: {
+      name: 'Cell Membrane',
+      realSize: 'really about 8 nm thick',
+      job: 'Decides what gets in and out',
+      width: 13,
+      accent: '#f0d68c',
+    },
+  }));
+  items.push(prop('info-placard', -46, 56, {
+    rotY: face(-46, 56),
+    options: {
+      title: 'Two layers, tails inward',
+      body: 'This is a slice through the wall you can see curving away all around you, blown up much larger again. Every gold ball is the water-loving head of one phospholipid and the two strands under it are its water-hating tails — which is why they point at each other in the middle. The blue barrels are channel proteins: the doors. Nothing crosses this wall by accident.',
+    },
+  }));
+
+  // --- Supporting organelles ----------------------------------------------
+  items.push(prop('lysosome', 56, -40, { options: { radius: 5, seed: 30 } }));
+  items.push(prop('lysosome', -18, -56, { options: { radius: 4, seed: 31 } }));
+  items.push(prop('lysosome', -74, 4, { options: { radius: 4.4, seed: 32 } }));
+
+  // Loose vesicles drifting between the Golgi and the wall -- the traffic the coding
+  // challenge is one example of. Several, because one in transit reads as a stray bubble
+  // and a stream of them reads as a process.
+  for (const [x, z, r, seed] of [[8, 44, 2.2, 42], [-6, 50, 1.9, 43], [-44, 34, 2.4, 44], [46, 14, 2.0, 45], [-64, -8, 2.2, 46]]) {
+    items.push(prop('transport-vesicle', x, z, { options: { radius: r, cargo: 6, seed } }));
+  }
+  items.push(prop('organelle-tag', 72, -36, {
+    rotY: face(72, -36),
+    y: 3,
+    options: { name: 'Lysosome', realSize: 'about 0.5 µm', job: 'Digests worn-out parts', width: 9, accent: '#e88ab8' },
+  }));
+
+  items.push(prop('centriole-pair', -66, 40, {
+    rotY: 0.6,
+    options: { length: 8, radius: 2.6 },
+  }));
+  items.push(prop('organelle-tag', -82, 46, {
+    rotY: face(-82, 46),
+    y: 3,
+    options: { name: 'Centrioles', realSize: 'about 0.5 µm long', job: 'Pull chromosomes apart', width: 10, accent: '#b9c6d6' },
+  }));
+  items.push(prop('info-placard', -78, 46, {
+    rotY: face(-78, 46),
+    options: {
+      title: 'Nine sets of three',
+      body: 'Count the tubes around one barrel: nine groups of three, every time, in every animal cell anybody has ever looked at. The two barrels sit at right angles to each other. When the cell divides, these move to opposite ends and haul the chromosomes apart.',
+    },
+  }));
+
+  // Free ribosomes, clustered rather than scattered -- about half of a cell's ribosomes
+  // really are loose in the cytosol rather than on the ER, and a group says that where
+  // five lone specks across the world just look like litter.
+  for (const [x, z, s] of [[52, 40, 1], [57, 44, 2], [48, 45, 3], [-52, -44, 4], [24, -56, 5]]) {
+    items.push(prop('free-ribosome', x, z, { options: { radius: 1.5 + (s % 2) * 0.3 } }));
+  }
+  items.push(prop('organelle-tag', 66, 38, {
+    rotY: face(66, 38),
+    y: 4,
+    options: {
+      name: 'Free Ribosomes',
+      // The honesty label. Everything else in this world is at one scale and these are not,
+      // so the tag says it outright rather than letting a student measure them against the
+      // mitochondrion and draw the wrong conclusion.
+      realSize: 'really 25 nm — shown much bigger',
+      job: 'Build proteins loose in the cytosol',
+      width: 12,
+      accent: '#6f9ee0',
+    },
+  }));
+
+  // Cytoskeleton across the open middle -- without it the space between organelles is
+  // empty and a cell reads as a room with furniture in it.
+  //
+  // THIN, and kept off the main walk. At radius 0.45 these read as scaffolding poles and
+  // were the most prominent thing in the arrival frame -- which is exactly backwards, since
+  // they are the one thing here that is meant to be structure rather than subject. A
+  // microtubule is 25nm; even at 0.22 they are enormously oversize already.
+  for (const [x, z, r, seed] of [[-34, 12, 0.7, 55], [40, -6, -0.4, 56], [-46, -34, 1.3, 57], [58, 22, 0.2, 58], [8, -64, 1.0, 59]]) {
+    items.push(prop('cytoskeleton-strand', x, z, { rotY: r, options: { length: 46, radius: 0.22, seed } }));
+  }
+
+  // --- The vesicle the coding challenge moves -----------------------------
+  // Its own record, sitting just off the Golgi's shipping face and pointed at the membrane
+  // panel, so `move forward` sends it the right way with no rotate needed first. Anything
+  // a student is invited to program has to be a thing they can click, which is why it is
+  // not one of the Golgi's own buds.
+  items.push(prop('transport-vesicle', 20, 40, {
+    rotY: facing(20, 40, -30, 52),
+    options: { radius: 3, cargo: 8, seed: 41 },
+  }));
+
+  // --- Challenges ---------------------------------------------------------
+  items.push(activity(-22, 54, {
+    number: 1,
+    title: 'Ship the protein out',
+    target: 'the green transport vesicle by the Golgi',
+    rotY: face(-22, 54),
+    accent: '#2f9c8f',
+    steps: [
+      ctrlStep('repeat 12 times'),
+      moveStep('move forward 4 feet', 1),
+      ctrlStep('wait 0.3 seconds', 1),
+      lookStep('change size by -4 %', 1),
+    ],
+    tip: 'It is already pointing at the cell membrane, so it travels the real route a finished protein takes: Golgi → vesicle → wall. Shrinking as it goes is what happens when it fuses and empties.',
+  }));
+
+  items.push(activity(24, 54, {
+    number: 2,
+    title: 'Make the powerhouse pulse',
+    target: 'the big orange mitochondrion',
+    rotY: face(24, 54),
+    accent: '#d4633c',
+    steps: [
+      ctrlStep('forever'),
+      lookStep('change size by 6 %', 1),
+      ctrlStep('wait 0.4 seconds', 1),
+      lookStep('change size by -6 %', 1),
+      ctrlStep('wait 0.4 seconds', 1),
+    ],
+    tip: 'Mitochondria really do change shape — they stretch, split and join up all day. Change the 6 to 20 and watch it get out of hand.',
+  }));
+
+  // --- Light ---------------------------------------------------------------
+  // Orbs are the app's own fill lighting, and ORB_LIGHT_DISTANCE is nearly spent by ~12ft,
+  // so these sit low and close to what they are meant to light rather than up in the sky
+  // where they would read as floating balls -- the Moon's lesson.
+  items.push(orb(0, -14, 9, ORB_ROSE));
+  items.push(orb(-44, 12, 8, ORB_WARM));
+  items.push(orb(38, -14, 8, ORB_BLUE));
+  items.push(orb(32, 34, 8, ORB_WHITE));
+  items.push(orb(-30, 50, 8, ORB_WARM));
+
+  return { theme: 'cell', spawn: { ...SP, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
+// Inside a Twister
+// ---------------------------------------------------------------------------
+
+// A supercell over wheat country, with the tornado about 110ft out and slightly to the
+// left of the arrival sightline.
+//
+// WHY NOT DEAD AHEAD: at 110ft a 92ft column with a 190ft cloud deck over it fills the
+// whole frame, and a student arrives looking at grey. Offset, they get the funnel, the
+// lit wheat beside it and the wrecked farm in one view -- which is the photograph this
+// world is modelled on. The camera's fov of 70 is VERTICAL, so a 16:9 screen sees about
+// 51 degrees either side; the funnel sits about 22 degrees off, comfortably inside it.
+function twisterLayout() {
+  const items = [];
+  const SP = { x: 0, z: 96 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  const TORNADO = { x: -42, z: -18 };
+
+  // --- Arrival ------------------------------------------------------------
+  items.push(
+    prop('welcome-board', 9, 76, {
+      rotY: face(9, 76),
+      options: {
+        eyebrow: '🌪  INSIDE A TWISTER',
+        lead: 'An EF4 is crossing the wheat.',
+        lines: ['It is turning. Watch the ribs.', 'The farm was in its path.'],
+        footnote: 'Stay out of the debris — or do not, nothing here can hurt you',
+      },
+    }),
+  );
+  items.push(...browserStation(-11, 86, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- 1. The funnel, turning ---------------------------------------------
+  // The program ships ON the record, so it is already rotating when the world finishes
+  // loading -- nobody has to find it and press play. It is an ordinary program: a student
+  // can click the funnel, open it, read it and change the number.
+  //
+  // 0.6 degrees, which is 0.3 a FRAME and not 0.6 -- `forever` yields once per pass over
+  // its children on top of the yield from `rotate` itself, so one turn of the loop costs
+  // two frames. That is deliberate in the runner (it is what stops a `forever` holding an
+  // empty body from spinning the tab to a halt) and it silently halves the rate of every
+  // program written like this one. Measured rather than assumed: 120 ticks gave 21 degrees.
+  //
+  // The result is about 18 degrees a second, one rotation every 20 seconds. Slow, as asked.
+  // Much faster and the helical ribs alias into a flicker instead of reading as a turn.
+  items.push(prop('tornado-funnel', TORNADO.x, TORNADO.z, {
+    options: { height: 94, topRadius: 22, waistRadius: 5.4, seed: 11 },
+    program: [block('forever', {}, [block('rotate', { degrees: 0.6 })])],
+  }));
+
+  // The storm above it. absoluteY, because a cloud deck has nothing to do with the height
+  // of the ground under it -- seated on the terrain it would ripple with the hills.
+  items.push(prop('supercell-base', TORNADO.x, TORNADO.z, {
+    y: 104,
+    absoluteY: true,
+    options: { span: 200, thickness: 17, wallCloud: true, seed: 21 },
+  }));
+  // A second, higher deck further back, so the sky has depth rather than one flat lid.
+  items.push(prop('supercell-base', 40, -120, {
+    y: 128,
+    absoluteY: true,
+    options: { span: 150, thickness: 14, wallCloud: false, seed: 26 },
+  }));
+
+  // Rain trailing behind the storm, on the far side of the funnel from the sun -- which is
+  // where it actually falls, and it keeps the curtain from washing out the lit wheat.
+  items.push(prop('rain-curtain', 30, -78, { rotY: 0.35, options: { width: 90, height: 62, seed: 33 } }));
+  items.push(prop('rain-curtain', -6, -96, { rotY: -0.2, options: { width: 70, height: 55, seed: 34 } }));
+
+  items.push(prop('info-placard', -20, 52, {
+    rotY: face(-20, 52),
+    options: {
+      title: 'What you are looking at',
+      body: 'The funnel is not made of dust — it is CLOUD. Air spiralling inward drops in pressure, the water in it condenses, and that is what turns the column white enough to see. The brown at the bottom is the only part that is dirt. If the pressure is not low enough to condense, a tornado is completely invisible until it picks something up.',
+    },
+  }));
+
+  // --- 2. The wrecked farmstead, in the path ------------------------------
+  // Between the tornado and the spawn, and slightly to the right of the funnel, so the
+  // damage reads as a TRAIL leading back to the thing that caused it rather than as a
+  // separate ruin somewhere else in the field.
+  items.push(prop('wrecked-farmhouse', -6, 26, {
+    rotY: 0.3,
+    options: { width: 24, depth: 17, wallH: 10, seed: 44 },
+  }));
+  items.push(prop('prairie-barn', 34, 6, {
+    rotY: -0.5,
+    options: { width: 26, depth: 18, wallH: 12, lean: 0.07, seed: 51 },
+  }));
+  items.push(prop('grain-silo', 52, 16, { options: { height: 25, radius: 5, seed: 61 } }));
+  items.push(prop('farm-windmill', 22, 34, { options: { height: 26, blades: 16, seed: 71 } }));
+
+  items.push(prop('info-placard', 6, 44, {
+    rotY: face(6, 44),
+    options: {
+      title: 'Read the damage',
+      body: 'The house lost its roof and the wall facing the storm; the barn is still standing but leaning. That difference is how damage surveyors assign a rating after a tornado has gone — nobody measures the wind directly, so the wreckage IS the measurement. Look at the chart by the trucks.',
+    },
+  }));
+
+  // Debris trailing from the funnel toward the farm.
+  for (const [x, z, r, seed] of [[-26, 8, 13, 91], [-14, 18, 11, 92], [2, 30, 12, 93], [16, 20, 10, 94], [-34, -2, 14, 95]]) {
+    items.push(prop('debris-field', x, z, { options: { radius: r, count: 24, seed } }));
+  }
+
+  // Power line, snapped where the funnel crossed it. The poles nearest the tornado are
+  // broken and the far ones are not -- a line of identical poles teaches nothing, a line
+  // that fails at one end shows exactly how wide the damage path was.
+  for (let i = 0; i < 7; i++) {
+    const x = -78 + i * 22;
+    const z = 58;
+    const broken = x < -12;
+    items.push(prop('power-pole', x, z, { options: { height: 20, broken, seed: 101 + i } }));
+  }
+
+  for (const [x, z, seed] of [[-58, 30, 121], [-46, 46, 122], [-70, 8, 123], [-30, -34, 124]]) {
+    items.push(prop('snapped-tree', x, z, { options: { height: 15, seed } }));
+  }
+
+  // --- 3 & 5. The chase vehicles ------------------------------------------
+  // Parked to the RIGHT of the arrival, facing the storm, with the student behind them --
+  // which is where a chase team actually sits, and it puts the science between the student
+  // and the tornado rather than off in a corner.
+  items.push(prop('chase-vehicle', 46, 62, {
+    rotY: facing(46, 62, TORNADO.x, TORNADO.z),
+    options: { length: 15, width: 6.4 },
+  }));
+  items.push(prop('doppler-truck', 66, 46, {
+    rotY: facing(66, 46, TORNADO.x, TORNADO.z),
+    options: { length: 18, width: 7, dishRadius: 6.2 },
+  }));
+  items.push(prop('storm-probe', 30, 52, {}));
+  items.push(prop('storm-probe', 24, 46, {}));
+
+  // `organelle-tag` in a tornado world is deliberate reuse, not a stray paste: it is a
+  // generic floating double-sided name plate and this is the one label here that has to be
+  // readable from both sides. Same reasoning as moonCrater() and moonRocks() serving Mars
+  // and Dinosaur Island -- these keys are persisted, so a second identical builder under a
+  // prettier name would be a permanent duplicate to keep in step.
+  items.push(prop('organelle-tag', 56, 56, {
+    rotY: face(56, 56),
+    y: 6,
+    options: {
+      name: 'Doppler on Wheels',
+      realSize: 'reads wind at 100+ mph',
+      job: 'Measures the spin from a mile away',
+      width: 13,
+      accent: '#7fc4f0',
+    },
+  }));
+  items.push(prop('info-placard', 40, 74, {
+    rotY: face(40, 74),
+    options: {
+      title: 'How the speed is measured',
+      body: 'Radar does not see wind — it sees rain and debris. The dish sends a pulse and listens for what comes back, and the returning signal is squeezed slightly higher in pitch by anything moving toward it and lower by anything moving away. Both at once, right next to each other, means something is turning. That signature is what puts a tornado warning on a phone.',
+    },
+  }));
+
+  // The EF chart, beside the trucks where the measuring happens.
+  items.push(prop('ef-scale-board', 74, 68, {
+    rotY: face(74, 68),
+    options: { width: 12, postHeight: 3.6, highlight: 4 },
+  }));
+
+  // --- Landscape -----------------------------------------------------------
+  // DENSE clumps on a wheat-coloured ground, rather than a thin carpet over everything.
+  //
+  // The theme's own groundLow/groundHigh are already gold, so the field reads as wheat from
+  // the ground colour alone; the patches are there to give it texture where a student
+  // actually stands. Spreading the same stalk budget over radius-20 patches made each one
+  // about one stalk per five square feet -- individually visible poles with bare soil
+  // between them, which is stubble, not crop. Fewer patches, packed harder, sited off the
+  // arrival sightline so nothing near the camera turns into a picket fence.
+  const WHEAT = [
+    [-88, 74], [-52, 84], [46, 86], [82, 68], [104, 44],
+    [-96, 34], [-62, 40], [58, 40], [92, 12],
+    [-100, -8], [-68, -18], [-36, -54], [14, -62], [52, -48], [88, -26],
+    [-30, 64], [34, 62],
+  ];
+  WHEAT.forEach(([x, z], i) => {
+    items.push(prop('wheat-patch', x, z, { options: { radius: 13, count: 520, height: 3.4, seed: 81 + i } }));
+  });
+
+  for (const [x, z, seed] of [[-72, 62, 111], [64, 74, 112], [-20, 70, 113], [80, 36, 114], [-100, 6, 115], [44, -22, 116]]) {
+    items.push(prop('hay-bale', x, z, { rotY: seed * 0.7, options: { radius: 2.4, width: 3.2, seed } }));
+  }
+
+  // --- Challenges ---------------------------------------------------------
+  items.push(activity(-16, 78, {
+    number: 1,
+    title: 'Speed the twister up',
+    target: 'the tornado itself',
+    rotY: face(-16, 78),
+    accent: '#5b6270',
+    steps: [
+      ctrlStep('forever'),
+      moveStep('rotate 0.6 degrees', 1),
+    ],
+    tip: 'This program is ALREADY running on it — click the funnel and choose Program to see it. Change 0.6 to 5 and it becomes a violent one. Try a negative number: real tornadoes in this hemisphere almost always turn one way.',
+  }));
+
+  items.push(activity(18, 78, {
+    number: 2,
+    title: 'Fly the debris',
+    target: 'any plank in a debris field',
+    rotY: face(18, 78),
+    accent: '#8a6a3c',
+    steps: [
+      ctrlStep('forever'),
+      moveStep('move up by 1 feet', 1),
+      moveStep('rotate 25 degrees', 1),
+      ctrlStep('wait 0.1 seconds', 1),
+      moveStep('move up by -0.6 feet', 1),
+    ],
+    tip: 'Up more than down, so it climbs while it tumbles. Swap the numbers around and you have something being sucked into the ground instead.',
+  }));
+
+  // --- Light ---------------------------------------------------------------
+  // Very few, and low. Under a storm base the light is flat and grey; a scattering of warm
+  // orbs would undo the one contrast this world is built on.
+  items.push(orb(46, 60, 7, ORB_WARM));
+  items.push(orb(-6, 30, 8, ORB_WHITE));
+
+  return { theme: 'twister', spawn: { ...SP, yaw: 0 }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + materialization
 // ---------------------------------------------------------------------------
 
@@ -5928,6 +6493,16 @@ export const PRESET_WORLDS = {
     hint: 'An ant colony at ant scale — five building challenges and five coding challenges',
     build: bugsLayout,
   },
+  cell: {
+    label: 'Inside an Animal Cell',
+    hint: 'Shrunk six million times — walk around the nucleus, a mitochondrion, the ER and the Golgi',
+    build: cellLayout,
+  },
+  twister: {
+    label: 'Inside a Twister',
+    hint: 'An EF4 turning over wheat country, with the storm above it and the farm it hit',
+    build: twisterLayout,
+  },
   empty: {
     label: 'My World',
     hint: 'An open green field of your own, with three boards to get you started building',
@@ -5987,6 +6562,15 @@ function toRecord(item, groundHeightAt) {
       scale: [s, s, s],
     },
   };
+
+  // A prop can ship WITH a program already on it, which is how the twister is turning
+  // before anybody clicks anything. It is the ordinary `program` field every saved record
+  // uses, so WorldStore.addAndRun() starts it on load with no new code path, PlayIcon
+  // gives it a green ▶, and a student can open it, read it and change it like any other.
+  //
+  // Only set when there is one: `program: undefined` on every record in every world is a
+  // key that gets written to IndexedDB and serialised into every exported world file.
+  if (item.program?.length) base.program = item.program;
 
   if (item.kind === 'light-orb') return { ...base, kind: 'light-orb', color: item.color };
   // A browser panel carries no files either -- WebBrowserManager.createPanel() rebuilds
