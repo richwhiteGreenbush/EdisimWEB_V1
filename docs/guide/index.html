@@ -99,7 +99,14 @@
     <section class="hub-how">
       <h2>How to use a world card</h2>
       <ol class="steps">
-        <li><strong>Load the world.</strong> <span class="key">☰ Menu</span> → <span class="key">Load World</span> → pick it. You land at the front gate.</li>
+        <!-- Menu > Load World lists FOUR worlds (MENU_WORLDS in src/WorldPresets.js), not
+             the seven these cards cover, so "pick it from the menu" is wrong for three of
+             them. Each card now opens its own world in one click; that is the reliable
+             route and the menu is the alternative, not the other way round. -->
+        <li><strong>Load the world.</strong> Every card has an <span class="key">▶ Open</span> button that
+          drops you straight into that world — one click, nothing to download. Some worlds are also on
+          <span class="key">☰ Menu</span> → <span class="key">Load World</span>; the rest are under
+          <span class="key">Get More Worlds</span> in the same menu. You land at the front gate.</li>
         <li><strong>Go and find the boards.</strong> Two bright <span class="key">⚡ ACTIVITY</span> signs are standing in every world. The photos on the card show you where.</li>
         <li><strong>Click the object the board names.</strong> A little menu opens. Choose <span class="key">Program</span>.</li>
         <li><strong>Drag the blocks together</strong> in the order shown, then hit <span class="key">Save</span>. It starts straight away.</li>

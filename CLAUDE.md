@@ -206,6 +206,30 @@ The `.menu-mock` further down is `aria-hidden="true"` — a decorative replica o
 menu — so the world names in it stay plain text. Focusable links inside `aria-hidden`
 content are an accessibility bug, not a missed opportunity.
 
+**The seven per-world guide cards carry the same link in three places** (`docs/guide/`:
+park 1, museum 2, library 3, moon 4, mars 5, dinosaur 6, voyage 7). The other five guide
+pages — builder, coding, index, teachers, tutorials — are not about one world and keep the
+plain `/app/` link.
+
+**Adding it exposed a stale instruction, which is the more important half.** Every card's
+"Getting there" line read `☰ Menu → Load World → <that world>`, and `MENU_WORLDS` is down to
+four — so The Museum, The Library, On Mars and Fantastic Voyage were each telling a student
+to find a menu entry that is not there. The button is now the route and the menu is the
+alternative, phrased per world from `inMenu`. The guide hub's "How to use a world card" step
+1 said the same thing generically and was corrected the same way. **Anything that changes
+`MENU_WORLDS` has to come back through these eight files**, since they are static HTML with
+no build step and nothing will fail if they drift.
+
+**A link on a printable page needs the address written out.** These cards have a Print
+button, and `@media print` hides `.gfoot` — which is where the typed url lived — so a
+printed card would have named no way into the world at all. `.print-only` carries
+`edusim3dweb.com/app/?world=<id>` and `.gbtn-world` is hidden, since on paper the button is
+just a dead amber lozenge.
+
+`.gbtn-world` **floats** rather than sitting inline-block: these sentences run to three or
+four lines, and an inline-block button on the first one drags that line's height with it
+and leaves a visible gap above the rest. `.howto-warn` therefore needs `clear: both`.
+
 ### Two independent persistence systems — don't conflate them
 
 **`config.js`'s `DB_NAME` is still `'3dcoder-world'` and must stay that way.** The project

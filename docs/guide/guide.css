@@ -105,6 +105,27 @@ a { color: #1f6b8a; }
 .howto { background: #fff; border: 2px dashed var(--line); border-radius: 12px; padding: 0.8rem 1rem; }
 .key { background: #ece5d6; border-radius: 6px; padding: 0.05em 0.4em; font-weight: 700; white-space: nowrap; }
 
+/* The one-click way into this card's own world, inside the "Getting there" box.
+   float, not inline-block: these sentences run to three or four lines and an inline-block
+   button in the middle of the first one drags that whole line's height with it, leaving a
+   visible gap above the text that follows. Floated, the prose wraps around it. */
+.gbtn-world { float: left; margin: 0.1rem 0.8rem 0.4rem 0; }
+
+.howto-warn {
+  display: block;
+  clear: both;
+  margin-top: 0.6rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* A link is useless on paper unless the address is written out, and these cards have a
+   Print button. The footer normally carries the typed url -- but `.gfoot` is
+   `display: none` in print, so on paper it was carried nowhere at all. */
+.print-only { display: none; }
+
 .shots { display: grid; gap: 0.9rem; grid-template-columns: repeat(3, 1fr); margin: 1.3rem 0 1.6rem; }
 .shot { margin: 0; }
 .shot img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 10px; border: 2px solid var(--line); display: block; }
@@ -337,6 +358,13 @@ a { color: #1f6b8a; }
   }
 
   a { color: var(--ink); text-decoration: none; }
+
+  /* On paper the button is a dead amber lozenge, so drop it and print the address the
+     reader can actually type instead. `.gfoot` is hidden above, so without this the
+     printed card names no way into the world at all. */
+  .gbtn-world { display: none !important; }
+  .print-only { display: block; margin-top: 0.4rem; font-weight: 700; }
+
   .shots { grid-template-columns: repeat(3, 1fr); gap: 6mm; }
   .shot img { border: 1px solid #bbb; }
   .qs, .more li, .fact, .legend, .lesson { break-inside: avoid; page-break-inside: avoid; }
