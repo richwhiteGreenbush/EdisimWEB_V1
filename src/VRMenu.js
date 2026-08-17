@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { PRESET_WORLDS } from './WorldPresets.js';
+import { PRESET_WORLDS, isMenuWorld } from './WorldPresets.js';
 import { EYE_HEIGHT } from './config.js';
 
 // The menu, rebuilt as a real object in the 3D scene, for use while VR is running.
@@ -152,8 +152,9 @@ export class VRMenu {
     if (this.openGroup === 'world') {
       // `hidden` presets are skipped here for the same reason as in the DOM menu: their
       // only way in is a portal inside another world.
+      // Same predicate as the flat menu, so the two can never list different worlds.
       for (const [name, preset] of Object.entries(PRESET_WORLDS)) {
-        if (preset.hidden) continue;
+        if (!isMenuWorld(name)) continue;
         rows.push({ id: `preset:${name}`, label: preset.label, indent: true });
       }
       rows.push({ id: 'saveWorld', label: 'Save World', indent: true, leavesVR: true });

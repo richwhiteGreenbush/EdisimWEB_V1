@@ -876,3 +876,17 @@ body.vr-active #toast-host {
   font-size: 11px;
   text-align: center;
 }
+
+/* Get More Worlds. Green against the submenu's blue and the file pair's amber, because it
+   is a third kind of thing again: the only button in this menu that leaves the app. The
+   four worlds above it change what is on screen, the two below it move a world between
+   people, and this one opens a tab. */
+.menu-subitem-more {
+  background: rgba(63, 179, 127, 0.16);
+  border-color: rgba(63, 179, 127, 0.5);
+  color: #a6ecc9;
+}
+
+.menu-subitem-more:hover {
+  background: rgba(63, 179, 127, 0.3);
+}

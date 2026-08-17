@@ -1301,6 +1301,15 @@ img.brand-mark {
   color: #ffd9a3;
 }
 
+/* Get More Worlds. Green, matching `.menu-subitem-more` in the app -- the one button in
+   that menu that leaves the app, as distinct from the worlds above it (which change what
+   is on screen) and the file pair below it (which move a world between people). */
+.menu-mock .mm-more {
+  background: rgba(63, 179, 127, 0.18);
+  border-color: rgba(63, 179, 127, 0.5);
+  color: #a6ecc9;
+}
+
 .menu-mock .mm-vr {
   background: rgba(167, 139, 250, 0.18);
   border-color: rgba(167, 139, 250, 0.42);

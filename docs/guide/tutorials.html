@@ -236,7 +236,7 @@
           <p class="challenge"><b>🎯 Now change something:</b> build a second, smaller rocket
             beside the first, then give the big one
             <span class="blk ctrl mini">repeat 30 times</span> →
-            <span class="blk motion mini">move Y by 0.4 feet</span> and watch it launch.</p>
+            <span class="blk motion mini">move up by 0.4 feet</span> and watch it launch.</p>
         </div>
 
         <div class="tut-media">
@@ -401,32 +401,31 @@
 
           <p class="warnbox">
             ⚠️ <strong>The one rule that catches everybody:</strong>
-            <span class="key">move X</span>, <span class="key">move Y</span> and
-            <span class="key">move Z</span> slide an object along the <em>world's</em>
-            directions, not the way it happens to be facing. Turning something does not change
-            which way it will then travel. That is why a patrol is written as "out, turn round,
-            back" rather than as a circle.
+            <span class="key">move forward</span> and <span class="key">glide</span> follow the
+            way the object is <em>pointing</em>, so a <span class="key">rotate</span> in front of
+            them genuinely steers. <span class="key">move up</span> is the exception — up is up
+            whichever way a thing is facing. If a model sets off sideways, it is not the block
+            that is wrong: the model was built facing a different way from the one you expected.
           </p>
 
-          <p class="challenge"><b>🎯 Now change something:</b> make your model patrol.
-            <span class="blk ctrl mini">forever</span> holding
-            <span class="blk ctrl mini">repeat 20 times</span> →
-            <span class="blk motion mini">move X by 0.3 feet</span>, then
-            <span class="blk motion mini">rotate 180 degrees</span>, then the same pair again.
-            Out, about-turn, back, about-turn, forever.</p>
+          <p class="challenge"><b>🎯 Now change something:</b> drive your model round a square.
+            <span class="blk ctrl mini">repeat 4 times</span> holding
+            <span class="blk motion mini">move forward 10 feet</span> and
+            <span class="blk motion mini">rotate 90 degrees</span>. It finishes exactly where it
+            started, because 360 ÷ 4 = 90. Now try a triangle — what angle do you need?</p>
         </div>
 
         <div class="tut-media">
           <figure>
-            <img src="../assets/screenshots/07_program_editor.png" alt="The drag-and-drop block editor with a repeat block containing a rotate block and a change-colour block." loading="lazy" />
+            <img src="../assets/screenshots/07_program_editor.png" alt="The drag-and-drop block editor with a repeat-4-times block holding move forward 10 feet, wait, and rotate 90 degrees." loading="lazy" />
             <figcaption>Drag from the palette, drop into a block's mouth, press Save.</figcaption>
           </figure>
           <figure class="legend-figure">
             <h4>Block colours</h4>
             <ul class="legendlist">
-              <li><span class="swatch ctrl"></span> <b>Control</b> — repeat, forever, wait, duplicate</li>
-              <li><span class="swatch motion"></span> <b>Motion</b> — move X / Y / Z, rotate</li>
-              <li><span class="swatch look"></span> <b>Looks</b> — change size, change colour</li>
+              <li><span class="swatch ctrl"></span> <b>Control</b> — repeat, forever, wait, when an object says, duplicate</li>
+              <li><span class="swatch motion"></span> <b>Motion</b> — move forward, move up, glide, rotate, go back to start</li>
+              <li><span class="swatch look"></span> <b>Looks</b> — say, change size, set size, set opacity, change colour</li>
             </ul>
             <p class="tiny">A green ▶ floats above anything you have programmed. Tap it to run
               the script again from the top.</p>

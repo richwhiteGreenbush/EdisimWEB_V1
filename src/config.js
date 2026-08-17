@@ -736,6 +736,14 @@ export const WEB_BROWSER_DOM_HEIGHT = 585; // px -- keeps the same 4:2.6 aspect 
 // SSL for the domain at pair Networks; this line then becomes https: and works
 // everywhere. Nothing in the app can work around it.
 export const WEB_BROWSER_DEFAULT_URL = 'http://edusim3dweb.com';
+
+// The shared world gallery, opened in a new tab by Menu > Load World > Get More Worlds.
+//
+// The mixed-content limitation above does NOT apply here, and the difference is worth
+// stating because the two look alike: that one is an http: IFRAME inside an https: page,
+// which browsers block. This is a top-level navigation into a new tab, which they do not.
+// So this link works from the Railway deployment even while the browser panel does not.
+export const WORLD_GALLERY_URL = 'http://edusim3dweb.com/worlds/';
 export const EDIT_ICON_SIZE = 0.7; // feet, billboard sprite size
 export const EDIT_ICON_MARGIN = 0.6; // feet above the panel's bounding-box top
 

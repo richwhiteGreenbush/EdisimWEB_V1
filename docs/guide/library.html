@@ -75,13 +75,13 @@
         <ol class="blocks">
             <li class="blk ctrl d0">forever</li>
             <li class="blk ctrl d1">repeat 15 times</li>
-            <li class="blk motion d2">move Z by -1 feet</li>
+            <li class="blk motion d2">move forward -1 feet</li>
             <li class="blk motion d1">rotate 180 degrees</li>
             <li class="blk ctrl d1">repeat 15 times</li>
-            <li class="blk motion d2">move Z by 1 feet</li>
+            <li class="blk motion d2">move forward 1 feet</li>
             <li class="blk motion d1">rotate 180 degrees</li>
         </ol>
-        <p class="qs-tip">💡 Notice the second loop uses <b>minus</b> one foot. Turning the cart round does not change which way <b>move Z</b> pushes it — you have to flip the number yourself.</p>
+        <p class="qs-tip">💡 Notice the second loop uses <b>minus</b> one foot — a negative <b>move forward</b> reverses. You could write it the other way instead: <b>rotate 180 degrees</b> between the two loops and use a positive number both times, because <b>move forward</b> follows whichever way the cart is now pointing.</p>
       </section>
       <section class="qs">
         <div class="qs-head"><span class="qs-num">2</span>
@@ -121,10 +121,10 @@
           <ol class="blocks mini">
             <li class="blk ctrl d0">forever</li>
             <li class="blk ctrl d1">repeat 10 times</li>
-            <li class="blk motion d2">move X by 0.5 feet</li>
+            <li class="blk motion d2">move forward 0.5 feet</li>
             <li class="blk ctrl d2">wait 0.1 seconds</li>
             <li class="blk ctrl d1">repeat 10 times</li>
-            <li class="blk motion d2">move X by -0.5 feet</li>
+            <li class="blk motion d2">move forward -0.5 feet</li>
             <li class="blk ctrl d2">wait 0.1 seconds</li>
           </ol>
         </li>
@@ -147,14 +147,11 @@
     <section class="legend">
       <h4>Block colours</h4>
       <ul>
-        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, duplicate</li>
-        <li><span class="swatch motion"></span> <strong>Motion</strong> — move X / Y / Z, rotate</li>
-        <li><span class="swatch look"></span> <strong>Looks</strong> — change size, change colour</li>
+        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, when an object says, duplicate</li>
+        <li><span class="swatch motion"></span> <strong>Motion</strong> — move forward, move up, glide, rotate, go back to start</li>
+        <li><span class="swatch look"></span> <strong>Looks</strong> — say, change size, set size, set opacity, change colour</li>
       </ul>
-      <p class="legend-note"><strong>One rule that catches everybody:</strong> <span class="key">move X</span>,
-        <span class="key">move Y</span> and <span class="key">move Z</span> slide an object along the
-        <em>world's</em> directions, not the direction it happens to be facing. Turning something does not change
-        which way it will then travel — that is why the loops above go out and come back rather than driving in a circle.</p>
+      <p class="legend-note"><strong>One rule that catches everybody:</strong> <span class="key">move forward</span> and <span class="key">glide</span> follow the way the object is <em>pointing</em>, so a <span class="key">rotate</span> in front of them genuinely steers — four sides and four 90&deg; turns bring something back exactly where it began. <span class="key">move up</span> is the exception: up is up whichever way a thing is facing.</p>
     </section>
 
     <nav class="cardnav no-print">

@@ -138,14 +138,11 @@
     <section class="legend">
       <h4>Block colours</h4>
       <ul>
-        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, duplicate</li>
-        <li><span class="swatch motion"></span> <strong>Motion</strong> — move X / Y / Z, rotate</li>
-        <li><span class="swatch look"></span> <strong>Looks</strong> — change size, change colour</li>
+        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, when an object says, duplicate</li>
+        <li><span class="swatch motion"></span> <strong>Motion</strong> — move forward, move up, glide, rotate, go back to start</li>
+        <li><span class="swatch look"></span> <strong>Looks</strong> — say, change size, set size, set opacity, change colour</li>
       </ul>
-      <p class="legend-note"><strong>One rule that catches everybody:</strong> <span class="key">move X</span>,
-        <span class="key">move Y</span> and <span class="key">move Z</span> slide an object along the
-        <em>world's</em> directions, not the direction it happens to be facing. Turning something does not change
-        which way it will then travel — that is why the loops above go out and come back rather than driving in a circle.</p>
+      <p class="legend-note"><strong>One rule that catches everybody:</strong> <span class="key">move forward</span> and <span class="key">glide</span> follow the way the object is <em>pointing</em>, so a <span class="key">rotate</span> in front of them genuinely steers — four sides and four 90&deg; turns bring something back exactly where it began. <span class="key">move up</span> is the exception: up is up whichever way a thing is facing.</p>
     </section>
 
     <nav class="cardnav no-print">

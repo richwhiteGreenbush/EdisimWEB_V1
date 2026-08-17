@@ -185,6 +185,44 @@ Menu ▸ **Load World** opens a submenu (`Menu.js`, built by iterating
 `WorldPresets.PRESET_WORLDS` so another world is a one-line change) listing the
 ready-made worlds plus the **Save World** / **Load World File** pair.
 
+**Which worlds it lists is an ALLOWLIST, `MENU_WORLDS` in `WorldPresets.js`, currently
+`park` / `tajmahal` / `moon` / `dinosaur`.** Both menus go through `isMenuWorld(name)`, so
+the DOM menu and `VRMenu` can never drift apart.
+
+It is an allowlist and *not* a `hidden: true` on each of the others, because `hidden`
+already means something specific and losing that distinction would cost real information:
+a hidden world is one whose **only door is inside another world**, and listing it would
+give away the one thing that makes finding it worth anything. "Not on the menu just now"
+is a different statement, it is reversed by editing one line instead of seventeen, and
+`isMenuWorld` still honours `hidden` so a portal world can never leak onto the menu by
+being added to the list.
+
+Everything left off is completely intact — same builders, same records, still in the shared
+gallery — and **Load World File** opens any of it. Two consequences worth knowing before
+shortening this list again:
+
+- **A world can be orphaned by hiding its doorway.** 1940's New York is reached only from
+  the billboard behind the Library, so with the Library off the menu the only route left is
+  loading a Library world file first. Under the Sea is unaffected, because its door is in
+  the Park and the Park is still listed.
+- **`BOOT_WORLD` must stay on the list**, or a first visit builds a world the student
+  cannot get back to.
+
+**`Get More Worlds` sits directly under the four and above the file pair**, opening
+`WORLD_GALLERY_URL` in a new tab. That position is the sentence it completes: here are four
+worlds, here are more, here is how you open one once you have downloaded it. It wears its
+own colour (`.menu-subitem-more`, green) because it is a third kind of action again — the
+worlds change what is on screen, the amber file pair moves a world between people, and this
+is the only button in the menu that leaves the app.
+
+Two things about that URL. It is `window.open(..., 'noopener,noreferrer')`: a cross-origin
+page opened without `noopener` can reach back through `window.opener` and navigate the app
+out from under the student. And **the mixed-content limitation on
+`WEB_BROWSER_DEFAULT_URL` does not apply to it** — that one is an `http:` *iframe* inside an
+`https:` page, which browsers block; this is a top-level navigation into a new tab, which
+they do not. The link works from the Railway deployment even while the in-world browser
+panel pointed at the same host does not.
+
 **The Park is the boot world** (`config.js`'s `BOOT_WORLD`). A first visit — or any
 visit where `rehydrateAll()` comes back with an empty registry — builds it via the same
 `loadPresetWorld()` helper the menu uses. It then persists like any other world, so a

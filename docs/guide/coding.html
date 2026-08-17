@@ -14,7 +14,7 @@
   gtag('config', 'G-TK6Y2Q8NP2');
 </script>
 <title>The Coding Blocks — Edusim Hands-On Guide</title>
-<meta name="description" content="A printable reference card for Edusim's drag-and-drop coding blocks: all nine blocks in three colours, what each one does, and the world-axis rule that catches everybody." />
+<meta name="description" content="A printable reference card for Edusim's drag-and-drop coding blocks: all fifteen blocks in three colours, what each one does, and the difference between change size by and set size to." />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -42,7 +42,7 @@
       <div class="ch-left">
         <span class="ch-kicker">Skill Card B</span>
         <h1><span class="ch-emoji">🧩</span> The Coding Blocks</h1>
-        <p class="ch-tag">Nine blocks, three colours, no typing. Works on anything in any world — including whatever you just built.</p>
+        <p class="ch-tag">Fifteen blocks, three families, five each. No typing except the words you choose. Works on anything in any world — including whatever you just built.</p>
       </div>
       <button class="printbtn no-print" onclick="window.print()">🖨️ Print this card</button>
     </header>
@@ -54,7 +54,7 @@
 
     <div class="shots">
       <figure class="shot">
-        <img src="../assets/screenshots/07_program_editor.png" alt="The drag-and-drop block editor showing a repeat block containing a rotate block and a change-colour block." loading="lazy" />
+        <img src="../assets/screenshots/07_program_editor.png" alt="The drag-and-drop block editor. The palette lists Control, Motion and Look blocks; the stack is a repeat-4-times block holding move forward 10 feet, wait 0.5 seconds and rotate 90 degrees." loading="lazy" />
         <figcaption>Drag from the palette. Blocks with a mouth hold other blocks.</figcaption>
       </figure>
       <figure class="shot">
@@ -62,13 +62,13 @@
         <figcaption><b>repeat 3 → duplicate</b>: one robot became four.</figcaption>
       </figure>
       <figure class="shot">
-        <img src="../assets/screenshots/06_object_menu.png" alt="Clicking an object opens a small floating menu with Size, Move, Program and Close." loading="lazy" />
-        <figcaption>Every object opens the same little menu. Program is the third one.</figcaption>
+        <img src="../assets/screenshots/06_object_menu.png" alt="Clicking an object opens a small floating menu with Program and Close." loading="lazy" />
+        <figcaption>Every object opens the same little menu. Everything else is a block.</figcaption>
       </figure>
     </div>
 
-    <h2 class="sec">All nine blocks</h2>
-    <p class="sec-note">Three families, three colours. The colour on this card is the colour in the app.</p>
+    <h2 class="sec">All fifteen blocks</h2>
+    <p class="sec-note">Three families, five blocks each. The colour on this card is the colour in the app.</p>
 
     <section class="qs">
       <div class="qs-head"><span class="qs-num" style="background:#ffab19">C</span>
@@ -78,11 +78,14 @@
         <li class="blk ctrl d0">repeat 10 times</li>
         <li class="blk ctrl d0">forever</li>
         <li class="blk ctrl d0">wait 1 seconds</li>
+        <li class="blk ctrl d0">when an object says hello</li>
         <li class="blk ctrl d0">duplicate 4 ft away</li>
       </ol>
-      <p class="qs-tip">💡 <b>repeat</b> and <b>forever</b> have a mouth — whatever you drop inside is what
-        gets repeated. <b>duplicate</b> is the odd one out: it is the only block whose effect leaves the
-        object it is written on.</p>
+      <p class="qs-tip">💡 <b>repeat</b>, <b>forever</b> and <b>when an object says</b> all have a mouth —
+        whatever you drop inside is what runs. <b>when an object says</b> does not run when you press play:
+        it sits and waits until something, anywhere in the world, uses a <b>say</b> block with that exact
+        word. That is how you make two objects work together. <b>duplicate</b> is the odd one out — it is
+        the only block whose effect leaves the object it is written on.</p>
     </section>
 
     <section class="qs">
@@ -90,51 +93,75 @@
         <div><h3>Motion <span class="swatch motion"></span></h3><p class="qs-target">Where things go</p></div>
       </div>
       <ol class="blocks">
-        <li class="blk motion d0">move X by 1 feet</li>
-        <li class="blk motion d0">move Y by 1 feet</li>
-        <li class="blk motion d0">move Z by 1 feet</li>
+        <li class="blk motion d0">move forward 2 feet</li>
+        <li class="blk motion d0">move up by 1 feet</li>
+        <li class="blk motion d0">glide 10 feet over 2 seconds</li>
         <li class="blk motion d0">rotate 15 degrees</li>
+        <li class="blk motion d0">go back to start</li>
       </ol>
-      <p class="qs-tip">💡 <b>Y is up.</b> X and Z are the two flat directions. Negative numbers go the other
-        way — <b>move Y by -0.5</b> sinks something into the ground.</p>
+      <p class="qs-tip">💡 <b>move forward</b> and <b>glide</b> follow the way the object is
+        <em>pointing</em>, so a <b>rotate</b> before them genuinely steers. <b>move up</b> is the exception
+        — up is up whichever way a thing is facing, and a negative number goes down. The difference between
+        the two travel blocks is time: <b>move forward</b> arrives instantly, <b>glide</b> takes the seconds
+        you give it. <b>go back to start</b> undoes everything at once — position, turn and size — which is
+        the block to reach for when a program has made a mess.</p>
     </section>
 
     <section class="qs">
       <div class="qs-head"><span class="qs-num" style="background:#9966ff">L</span>
-        <div><h3>Looks <span class="swatch look"></span></h3><p class="qs-target">What things look like</p></div>
+        <div><h3>Looks <span class="swatch look"></span></h3><p class="qs-target">What things look like — and what they say</p></div>
       </div>
       <ol class="blocks">
+        <li class="blk look d0">say hello</li>
         <li class="blk look d0">change size by 10 %</li>
+        <li class="blk look d0">set size to 100 %</li>
+        <li class="blk look d0">set opacity to 100 %</li>
         <li class="blk look d0">change color to ▦</li>
       </ol>
-      <p class="qs-tip">💡 Percentages <b>compound</b>. +10% twenty times over is not double — it is about
-        6.7 times bigger. And +10% followed by −10% does not take you back where you started. Try it.</p>
+      <p class="qs-tip">💡 <b>change size by</b> is relative and it <b>compounds</b>: +10% twenty times over
+        is not double, it is about 6.7 times bigger, and +10% then −10% does not take you back where you
+        started. <b>set size to</b> is absolute — it always measures from the size the object was when the
+        program <em>started</em>, so <b>set size to 100%</b> is always "back to normal". Put <b>set size to
+        50%</b> inside a <b>forever</b> and nothing runs away; put <b>change size by −50%</b> there and the
+        object is gone in a second. <b>set opacity to 0%</b> makes something invisible without deleting it.</p>
     </section>
 
-    <h2 class="sec">Try these three</h2>
+    <h2 class="sec">Try these four</h2>
     <ol class="more">
       <li>
-        <h4>A proper patrol</h4>
-        <p>Out and back, forever, with an about-turn at each end so it always faces the way it is going.</p>
+        <h4>Drive round a square</h4>
+        <p>Four sides, four right turns. 360 divided by 4 is 90, so it finishes exactly where it began —
+          change the 4 and the 90 together and you can drive any shape you like.</p>
         <ol class="blocks mini">
-          <li class="blk ctrl d0">forever</li>
-          <li class="blk ctrl d1">repeat 20 times</li>
-          <li class="blk motion d2">move X by 0.3 feet</li>
-          <li class="blk motion d1">rotate 180 degrees</li>
-          <li class="blk ctrl d1">repeat 20 times</li>
-          <li class="blk motion d2">move X by 0.3 feet</li>
-          <li class="blk motion d1">rotate 180 degrees</li>
+          <li class="blk ctrl d0">repeat 4 times</li>
+          <li class="blk motion d1">move forward 10 feet</li>
+          <li class="blk ctrl d1">wait 0.5 seconds</li>
+          <li class="blk motion d1">rotate 90 degrees</li>
         </ol>
       </li>
       <li>
         <h4>A slow heartbeat</h4>
-        <p>Grow a little, shrink a little, pause. Watch what the compounding does over a few minutes.</p>
+        <p>Out to 115% and back to normal, forever. Because <b>set size to</b> measures from where it
+          started, this beats steadily instead of drifting bigger every time round.</p>
         <ol class="blocks mini">
           <li class="blk ctrl d0">forever</li>
-          <li class="blk look d1">change size by 6 %</li>
+          <li class="blk look d1">set size to 115 %</li>
           <li class="blk ctrl d1">wait 0.4 seconds</li>
-          <li class="blk look d1">change size by -6 %</li>
+          <li class="blk look d1">set size to 100 %</li>
           <li class="blk ctrl d1">wait 0.4 seconds</li>
+        </ol>
+      </li>
+      <li>
+        <h4>Two objects, one signal</h4>
+        <p>The first three blocks go on <em>one</em> object. The last two go on a <em>different</em> one —
+          it sits and waits until it hears the word. This is how you get things to happen in order across
+          the world instead of each object doing its own thing.</p>
+        <ol class="blocks mini">
+          <li class="blk look d0">say go</li>
+          <li class="blk ctrl d0">wait 2 seconds</li>
+          <li class="blk look d0">say stop</li>
+          <li class="blk ctrl d0">when an object says go</li>
+          <li class="blk motion d1">glide 20 feet over 3 seconds</li>
         </ol>
       </li>
       <li>
@@ -157,17 +184,24 @@
     <section class="legend">
       <h4>Block colours</h4>
       <ul>
-        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, duplicate</li>
-        <li><span class="swatch motion"></span> <strong>Motion</strong> — move X / Y / Z, rotate</li>
-        <li><span class="swatch look"></span> <strong>Looks</strong> — change size, change colour</li>
+        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, when an object says, duplicate</li>
+        <li><span class="swatch motion"></span> <strong>Motion</strong> — move forward, move up, glide, rotate, go back to start</li>
+        <li><span class="swatch look"></span> <strong>Looks</strong> — say, change size, set size, set opacity, change colour</li>
       </ul>
-      <p class="legend-note"><strong>One rule that catches everybody:</strong> <span class="key">move X</span>,
-        <span class="key">move Y</span> and <span class="key">move Z</span> slide an object along the
-        <em>world's</em> directions, not the direction it happens to be facing. Turning something does not
-        change which way it will then travel — which is why every patrol on these cards goes out and comes
-        back rather than driving in a circle. It is a real idea, not a limitation to apologise for: the
-        difference between <em>turning</em> and <em>moving</em> is exactly the thing that trips people up in
-        every robotics club in the world.</p>
+      <p class="legend-note"><strong>One rule that catches everybody:</strong> the difference between
+        <em>by</em> and <em>to</em>. <span class="key">change size by</span> is a nudge from wherever the
+        object is now, so it compounds and never quite comes back; <span class="key">set size to</span> is
+        a destination measured from where the object started, so 100% always means normal. It is the same
+        idea as <span class="key">move forward</span> versus <span class="key">go back to start</span> —
+        one is a step, the other is a place. Nearly every program that "runs away" is a <em>by</em> block
+        where a <em>to</em> block was meant.</p>
+      <p class="legend-note"><strong>If you have used these cards before:</strong> the old
+        <span class="key">move X</span>, <span class="key">move Y</span> and <span class="key">move Z</span>
+        blocks have left the palette. They slid an object along the <em>world's</em> directions, so turning
+        something never changed where it then travelled and you could not drive in a circle at all.
+        <span class="key">move forward</span> and <span class="key">glide</span> follow the object's own
+        facing instead, which is why a square is now four blocks long. Any program you already saved with
+        the old blocks still runs exactly as it did — they were retired, not deleted.</p>
     </section>
 
     <nav class="cardnav no-print">

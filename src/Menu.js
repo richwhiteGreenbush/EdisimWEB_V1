@@ -1,4 +1,5 @@
-import { PRESET_WORLDS } from './WorldPresets.js';
+import { PRESET_WORLDS, isMenuWorld } from './WorldPresets.js';
+import { WORLD_GALLERY_URL } from './config.js';
 import { PRIMITIVE_SHAPES, SHAPE_LABELS } from './Primitives.js';
 
 export class Menu {
@@ -93,13 +94,17 @@ export class Menu {
     // adding another world is a one-line change in WorldPresets.js and shows up in the
     // menu for free.
     //
-    // A preset marked `hidden` is skipped. That is not a half-built world being kept back
-    // -- it is a world whose only door is somewhere inside another world (1940's New York
-    // hangs off the billboard behind the Library), and listing it here would give away the
-    // one thing that makes finding it worth anything.
+    // Which worlds appear is decided by isMenuWorld() in WorldPresets.js, which folds two
+    // separate rules together:
+    //
+    //   * MENU_WORLDS is the short list this dropdown offers. Everything left off it still
+    //     exists and is still openable through Load World File -- only the menu is shorter.
+    //   * `hidden` marks a world whose only door is inside another world (1940's New York
+    //     hangs off the billboard behind the Library). Listing one here would give away the
+    //     one thing that makes finding it worth anything.
     const worldButtons = [];
     for (const [name, preset] of Object.entries(PRESET_WORLDS)) {
-      if (preset.hidden) continue;
+      if (!isMenuWorld(name)) continue;
       const btn = this._button(preset.label, `${preset.hint} — replaces everything currently placed`);
       btn.addEventListener('click', () => {
         this.closeGroups();
@@ -107,6 +112,25 @@ export class Menu {
       });
       worldButtons.push(btn);
     }
+
+    // The answer to "where did the other worlds go". The menu lists four; the rest are in
+    // the shared gallery, and this is the door to it.
+    //
+    // It sits directly under the worlds and above the file pair on purpose, because that
+    // is the order of the sentence it completes: here are four worlds, here are more,
+    // here is how you open one once you have downloaded it.
+    const moreWorldsBtn = this._button(
+      'Get More Worlds',
+      'Open the shared world gallery in a new tab — download a world, then open it here with Load World File'
+    );
+    moreWorldsBtn.classList.add('menu-subitem-more');
+    moreWorldsBtn.addEventListener('click', () => {
+      this.closeGroups();
+      // noopener: the gallery is a different origin, and a page opened without it can
+      // reach back through window.opener and navigate the app out from under the student.
+      window.open(WORLD_GALLERY_URL, '_blank', 'noopener,noreferrer');
+    });
+    worldButtons.push(moreWorldsBtn);
 
     // The .json file pair closes the group, save above load. They wear menu-subitem-alt,
     // which is a distinctly different COLOUR from the world buttons above them rather

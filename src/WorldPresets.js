@@ -5599,6 +5599,27 @@ export const PRESET_WORLDS = {
   },
 };
 
+// What Menu ▸ Load World actually lists, in this order.
+//
+// This is an ALLOWLIST rather than a `hidden: true` on each of the other seventeen, and
+// the distinction matters: `hidden` already means something specific in this file -- "the
+// only door to this world is inside another world, and listing it would give away the one
+// thing that makes finding it worth anything" (see newyork and sea below). Overloading it
+// to also mean "not on the menu just now" would leave no way to tell the two apart, and
+// would need seventeen edits to undo instead of one.
+//
+// Every world not named here is still completely intact: it is built by the same code, it
+// is in the shared gallery, and Load World ▸ Load World File opens it like any other. Only
+// the dropdown is shortened.
+export const MENU_WORLDS = ['park', 'tajmahal', 'moon', 'dinosaur'];
+
+// A preset belongs in the menu if it is on the list above AND is not one of the
+// portal-only worlds. Both menus -- the DOM one and the in-scene VR one -- go through
+// this, so they can never drift apart.
+export function isMenuWorld(name) {
+  return MENU_WORLDS.includes(name) && !PRESET_WORLDS[name]?.hidden;
+}
+
 function toRecord(item, groundHeightAt) {
   const y = item.absoluteY ? item.y : groundHeightAt(item.x, item.z) + (item.y || 0);
   const s = item.scale || 1;

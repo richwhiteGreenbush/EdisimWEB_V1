@@ -75,11 +75,11 @@
         <ol class="blocks">
             <li class="blk ctrl d0">forever</li>
             <li class="blk ctrl d1">repeat 20 times</li>
-            <li class="blk motion d2">move Z by -0.4 feet</li>
+            <li class="blk motion d2">move forward -0.4 feet</li>
             <li class="blk ctrl d2">wait 0.1 seconds</li>
             <li class="blk motion d1">rotate 180 degrees</li>
             <li class="blk ctrl d1">repeat 20 times</li>
-            <li class="blk motion d2">move Z by 0.4 feet</li>
+            <li class="blk motion d2">move forward 0.4 feet</li>
             <li class="blk ctrl d2">wait 0.1 seconds</li>
             <li class="blk motion d1">rotate 180 degrees</li>
         </ol>
@@ -92,13 +92,13 @@
         <ol class="blocks">
             <li class="blk ctrl d0">forever</li>
             <li class="blk ctrl d1">repeat 10 times</li>
-            <li class="blk motion d2">move Y by 0.4 feet</li>
+            <li class="blk motion d2">move up by 0.4 feet</li>
             <li class="blk ctrl d2">wait 0.1 seconds</li>
             <li class="blk ctrl d1">repeat 10 times</li>
-            <li class="blk motion d2">move Y by -0.4 feet</li>
+            <li class="blk motion d2">move up by -0.4 feet</li>
             <li class="blk ctrl d2">wait 0.1 seconds</li>
         </ol>
-        <p class="qs-tip">💡 Up four feet, hover, back down. <b>move Y</b> is the only block that goes up — and on Mars getting off the ground is the hard part, because there is barely any air for the blades to push against.</p>
+        <p class="qs-tip">💡 Up four feet, hover, back down. <b>move up by</b> is the only block that goes up — and on Mars getting off the ground is the hard part, because there is barely any air for the blades to push against.</p>
       </section>
 
     <h2 class="sec">Then try these three</h2>
@@ -126,7 +126,7 @@
           <p>Everything at this base was landed years before the crew arrived. Send the lander back up — and count how many feet it climbs before you lose sight of it.</p>
           <ol class="blocks mini">
             <li class="blk ctrl d0">repeat 40 times</li>
-            <li class="blk motion d1">move Y by 1 feet</li>
+            <li class="blk motion d1">move up by 1 feet</li>
             <li class="blk ctrl d1">wait 0.1 seconds</li>
           </ol>
         </li>
@@ -149,14 +149,11 @@
     <section class="legend">
       <h4>Block colours</h4>
       <ul>
-        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, duplicate</li>
-        <li><span class="swatch motion"></span> <strong>Motion</strong> — move X / Y / Z, rotate</li>
-        <li><span class="swatch look"></span> <strong>Looks</strong> — change size, change colour</li>
+        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, when an object says, duplicate</li>
+        <li><span class="swatch motion"></span> <strong>Motion</strong> — move forward, move up, glide, rotate, go back to start</li>
+        <li><span class="swatch look"></span> <strong>Looks</strong> — say, change size, set size, set opacity, change colour</li>
       </ul>
-      <p class="legend-note"><strong>One rule that catches everybody:</strong> <span class="key">move X</span>,
-        <span class="key">move Y</span> and <span class="key">move Z</span> slide an object along the
-        <em>world's</em> directions, not the direction it happens to be facing. Turning something does not change
-        which way it will then travel — that is why the loops above go out and come back rather than driving in a circle.</p>
+      <p class="legend-note"><strong>One rule that catches everybody:</strong> <span class="key">move forward</span> and <span class="key">glide</span> follow the way the object is <em>pointing</em>, so a <span class="key">rotate</span> in front of them genuinely steers — four sides and four 90&deg; turns bring something back exactly where it began. <span class="key">move up</span> is the exception: up is up whichever way a thing is facing.</p>
     </section>
 
     <nav class="cardnav no-print">
