@@ -526,7 +526,10 @@ House rules every builder follows (also stated at the top of `PropKit.js`):
   every bookshelf and boulder field on each rehydrate.
 - Surfaces get their texture from `PropKit.relief(kind, { seed, repeat, strength })`,
   spread into a material's params (`bark` / `wood` / `stone` / `metal` / `soil` /
-  `weave`).
+  `weave` / `hide`). `hide` is the odd one out and the newest: it is a wrapped CELL pattern
+  rather than noise -- a mosaic of tubercles with a crease between each pair, which is what
+  reptile skin actually is. `soil` was standing in for it and reads as grit, because clumped
+  noise has no characteristic size and skin does.
 
 `relief()` exists because every prop here is built from smooth analytic solids, and a
 smooth solid under a single sun reads as plastic whatever colour it is painted. It
@@ -698,8 +701,8 @@ Catmull-Rom curve with a per-control-point radius; three.js's own `TubeGeometry`
 constant-radius, which is useless here because the taper *is* the shape of a neck, a
 tail or a limb. It returns an indexed geometry with real normals, so a whole animal is
 a dozen tubes plus some cones going through `mergeColored()` into **one** mesh — which
-is why Dinosaur Island holds 124 records at ~320 draw calls, fewer than any other
-world. Two things to know when editing `DinoProps.js`:
+is why Dinosaur Island holds 129 records at 343 draw calls, fewer than any other world --
+and why rebuilding all six animals from 34k triangles to 322k moved that number not at all. Two things to know when editing `DinoProps.js`:
 
 - `scaleAbout(geometry, centre, scale)` exists because a plain `geometry.scale()` also
   multiplies position. Deepening a skull 14ft up an animal with a bare `.scale(1,1.28,1)`
@@ -742,11 +745,91 @@ Three things this world got wrong first and are easy to reintroduce:
   It is now `0x57633c` at 1.45 intensity, and the animal hides were lightened too.
 - **A frond that tapers to almost nothing reads as a black needle, not a leaf.** The
   shared `frond()` helper narrows to a third of its base width, never to a point, and
-  builds at 6×4 segments because it gets flattened to 30% thickness and placed by the
-  hundred in the ground-fern patches.
+  builds at 8×5 segments because it gets flattened to 30% thickness and placed by the
+  hundred in the ground-fern patches. At the 4 radial sides it started with, the flattened
+  blade became a visible diamond in cross-section the moment smooth shading came in.
 - **Bones have to clear the trench floor they lie on.** `fossilDig()`'s excavation floor
   is a slab with its top face at y≈0.27; with the spine at 0.55 the ribs swept down into
   it and disappeared, leaving a row of neural spines that read as a picket fence.
+
+#### The rebuild: SMOOTH shading, and closing every gap by construction
+
+All six animals were rebuilt against the i5/i7 target. They had been 2.7k–12.8k triangles
+each — 34k for all six, which was 8% of this world's geometry while being essentially all
+of its point. They are now 38k–85k each, and the world sits at **762k triangles of
+geometry / 1.48M drawn a frame (the sun's shadow map is the doubling) / 343 draw calls /
+1.29ms of CPU render**, against 426k drawn and the same 343 calls before. Draw calls did
+not move at all, because every animal is still ONE merged mesh.
+
+**Flat shading was hiding the seams, and dropping it is what forced everything else.**
+`creature()` used `flatShading: true`, which read as faceted hide and, more usefully,
+concealed the crossings where a dozen separately-swept tubes intersect. Smooth shading is
+what makes higher segment counts worth paying for and it shows every one of those
+crossings — so the gap work below is not tidiness, it is the price of the change.
+
+- **`limb()` replaces hand-placed joints.** It takes the nodes of a limb and emits a tube
+  per span, a socket ball at every interior node, and a cap at each open end. An unclosed
+  junction is now impossible rather than remembered.
+- **Socket size comes from the BEND, not from the fattest nearby radius.** Both tubes
+  already have that node's radius there, so the ball only has to cover the flats' inset
+  plus the wedge the two end planes leave on the outside of the bend — a factor of
+  `1/cos(phi/2)`. Sized from neighbouring radii instead, a 1.5ft joint got a 2.4ft ball and
+  every limb in the world read as a stack of balloons.
+- **A cone on a curved surface leaves a crescent of daylight**, so `spike()` is rooted by
+  default: a ball at three quarters of the base radius, pushed a third of the length back
+  down the axis so it straddles the base disc rather than sitting on it.
+- **A tube that stops at a real thickness needs a ball; one that tapers to 0 must not have
+  one.** Radius 0 closes the end but turns the last segment into a cone — right for a tail
+  tip or a horn, wrong for a jaw, a wing finger or a toe.
+- **`scute()` sinks its equator into the parent.** A hemisphere placed exactly on a curved
+  surface meets it along a circle that only closes if both curvatures agree, and they never
+  do.
+
+**Per-vertex colour from POSITION is what replaced the countershading tube.** `mergeColored`
+gives each part one flat colour, so hide tone could only change where one solid stopped and
+the next began — which is why the pale underside used to be a separate tube and read as a
+panel bolted on. A colour map is the obvious fix and the wrong one: `map` × `vertexColors`
+multiplies, and every part here has its own UV scale (a 20ft tail and a 1ft toe both run u
+from 0 to 1), so no single repeat is right for both. `hideTint()` shades the merged colour
+attribute by world position instead — countershading as a smooth gradient up the flank, a
+darker back, and a 3D dapple that cannot show a seam. Teeth, eyes and claws are merged in a
+second batch the tint never touches.
+
+Five things this rebuild got wrong first, each found only by looking:
+
+- **`geometry.scale()` after a translate moves the part.** The T. rex's antorbital fenestra
+  panels were scaled 1.5× wide *after* `scute()` had placed them at x=17.3, so they flew out
+  to x=26 and hung six feet in front of the animal's snout as two black lenses. `scaleAbout`
+  exists for exactly this and the trap is in this file twice over now.
+- **An options object that is SPREAD must use the receiver's key names.** The segment
+  constants were `{ tubular, radial }` where `taperedTube` takes `{ tubularSegments,
+  radialSegments }`. They spread in cleanly, three.js ignored them, every tube in the world
+  silently fell back to the library defaults, and tuning the constants did nothing. Nothing
+  errors and nothing warns — the only symptom is that the numbers are fiction.
+- **Where the back IS has to be derived from the sweep, not guessed.** Ankylosaurus' carapace
+  worked its height out as `3.65 * 0.78 + 3.3 * 0.22`, a plausible-looking line that is not
+  what `scaleAbout` does to a swept tube: the real back is at 5.87 and every one of ~120
+  osteoderms sat at 3.57, buried two feet inside the animal. An ankylosaur with no armour on
+  it is a hippopotamus. Both it and Triceratops' flank scutes now place onto a surface
+  function built from the same control points the torso was swept from.
+- **RADIAL segments are worth paying for and TUBULAR ones are not.** Radial sides close the
+  notch where two tubes meet and stop a limb reading as a prism; tubular segments only
+  subdivide along a length that is already smooth. The first pass spent on both, hit 2.2M
+  triangles, and the honest reading was that tessellation is not what makes these animals
+  better — the anatomy is. A 30-side tube and a 22-side tube are indistinguishable at ten
+  feet; the drumstick, the socketed knee and the gum line read from across the clearing.
+- **A background prop's cost is multiplied by its placement count.** `araucariaTree` is
+  planted **28 times**; rebuilt at nine whorls of eight it came out at 61k each — 1.71M
+  triangles of background conifer, more than everything else in the world put together, for
+  a backdrop to six animals that between them used 22% of that. It is 7.6k now, still eight
+  times the old faceted version, with a real upcurved branch sweep it never had.
+
+Two smaller notes. Triceratops' frill is a **closed lens** — a sphere flattened on one axis
+— rather than a cut disc, because a partial cylinder's rim is three surfaces meeting at hard
+edges and the seam where it enters the skull is visible from below; and it is **wider than it
+is tall**, after one pass stood it ten feet high (a dorsal sail) and another buried its lower
+half in the neck (a mane). And the epoccipitals are low **scallops**: thirteen bone-white
+0.85ft spikes read as a crown of thorns, which was the loudest wrong thing on the animal.
 
 **Fantastic Voyage** is the human body, and it is the one world built around a
 **deliberate split between geometry and images**: the four organs the brief named —

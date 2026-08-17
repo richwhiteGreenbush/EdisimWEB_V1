@@ -194,12 +194,51 @@ const RELIEF_PATTERNS = {
     const weft = Math.abs(Math.sin(v * Math.PI * 2 * 24));
     return 0.35 + Math.max(warp, weft) * 0.45 + n(u * 32, v * 32) * 0.2;
   },
+  // Pebbled reptile hide: irregular polygonal scales with a sunken seam between them.
+  //
+  // A CELL pattern, not noise, and that is the whole point. `soil` was standing in for hide
+  // before this existed and it reads as grit -- clumps at no particular size, with nothing
+  // tiling. Real reptile skin is a mosaic of tubercles of ONE rough size with a crease
+  // between every pair, and what the eye picks up on a big animal at arm's length is those
+  // creases catching the light. So this measures the distance to the nearest of a set of
+  // jittered cell centres (a wrapped Worley pattern) and darkens the boundaries where two
+  // cells meet, giving a dome per scale and a valley round each one.
+  //
+  // The lattice wraps at CELL_GRID exactly as makeNoise's does, so the tile still repeats
+  // seamlessly at any integer multiple -- which matters here more than anywhere, because
+  // hide is asked for at a repeat of 14 or more.
+  hide: (n, u, v) => {
+    const G = 7; // cells across one tile
+    const su = u * G;
+    const sv = v * G;
+    const cu = Math.floor(su);
+    const cv = Math.floor(sv);
+    let nearest = 9;
+    let second = 9;
+    for (let dv = -1; dv <= 1; dv++) {
+      for (let du = -1; du <= 1; du++) {
+        // Jitter each cell centre by the SAME wrapped noise field, so neighbouring tiles
+        // agree about where their shared cells are.
+        const gu = cu + du;
+        const gv = cv + dv;
+        const ju = n(((gu % G) + G) % G + 0.5, ((gv % G) + G) % G + 0.5);
+        const jv = n(((gv % G) + G) % G + 3.5, ((gu % G) + G) % G + 1.5);
+        const d = Math.hypot(su - (gu + 0.15 + ju * 0.7), sv - (gv + 0.15 + jv * 0.7));
+        if (d < nearest) { second = nearest; nearest = d; } else if (d < second) { second = d; }
+      }
+    }
+    // A dome across each cell, plus a hard crease where two cells are equidistant.
+    const dome = 1 - Math.min(1, nearest / 0.62);
+    const seam = Math.min(1, (second - nearest) * 3.4);
+    const grain = n(u * 96, v * 96) * 0.12;
+    return 0.24 + Math.pow(dome, 0.7) * 0.42 * seam + seam * 0.22 + grain;
+  },
 };
 
 // How pronounced each surface is by default. bumpScale is roughly "how far the fake
 // normal leans", so these are tuned by eye against a 5ft player standing next to the
 // prop -- close enough to see the grain, far enough that it does not boil.
-const RELIEF_STRENGTH = { bark: 0.85, wood: 0.4, stone: 0.6, metal: 0.14, soil: 0.9, weave: 0.3 };
+const RELIEF_STRENGTH = { bark: 0.85, wood: 0.4, stone: 0.6, metal: 0.14, soil: 0.9, weave: 0.3, hide: 0.7 };
 
 // Renders one tile of `kind` as a greyscale height field.
 //
