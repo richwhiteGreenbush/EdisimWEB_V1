@@ -79,9 +79,24 @@ $kinds = ewd_summarise_kinds(json_decode((string)$world['kinds_json'], true) ?: 
 $theme = (string)$world['theme'];
 $shot  = (string)$world['shot_path'];
 
+// The canonical, absolute address of this world -- what the share buttons hand to other
+// sites and what a social crawler is told to treat as the real url.
+//
+// Built from the ID rather than from whatever the visitor happened to arrive on: this page
+// answers to ?id=, to ?slug=, and to a url carrying a manage ?key=. Sharing the address bar
+// as-is would hand out somebody's delete key, so the shared link is composed rather than
+// copied.
+$shareUrl   = ewd_abs_url('world.php?id=' . (int)$world['id']);
+$shareTitle = (string)$world['title'];
+$shareBlurb = ewd_truncate((string)$world['description'], 160);
+
 ewd_header([
-    'title'       => $world['title'],
-    'description' => ewd_truncate((string)$world['description'], 160),
+    'title'       => $shareTitle,
+    'description' => $shareBlurb,
+    'canonical'   => $shareUrl,
+    'image'       => $shot !== '' ? ewd_abs_url(EWD_SHOT_URL . '/' . $shot) : '',
+    'imageAlt'    => 'A screenshot of “' . $shareTitle . '”, a world built in Edusim by ' . (string)$world['creator'] . '.',
+    'ogType'      => 'article',
 ]);
 ?>
 
@@ -174,6 +189,40 @@ ewd_header([
         </div>
 
         <div class="side-card">
+          <h3>Share this world</h3>
+
+          <!-- Copy link is first because it is the one people actually use: it is the only
+               button here that works for a group chat, a lesson plan, a whiteboard or a
+               printout. The input is readonly and always shows the full address, so it can
+               be selected by hand on any browser where the clipboard API is unavailable —
+               the button is an accelerator, never the only way through. -->
+          <div class="share-copy">
+            <input id="share-url" class="share-url" type="text" readonly
+                   value="<?= e($shareUrl) ?>"
+                   aria-label="Link to this world"
+                   onfocus="this.select();" />
+            <button id="share-copy-btn" class="btn btn-green btn-sm" type="button"
+                    data-copied="Copied ✓">Copy</button>
+          </div>
+
+          <div class="share-row">
+            <?php foreach (ewd_share_targets($shareUrl, $shareTitle, $shareBlurb) as [$label, $glyph, $href, $cls]): ?>
+              <a class="share-btn <?= e($cls) ?>" href="<?= e($href) ?>"
+                 target="_blank" rel="noopener noreferrer"
+                 title="Share on <?= e($label === 'Classroom' ? 'Google Classroom' : $label) ?>">
+                <span class="share-glyph" aria-hidden="true"><?= $glyph ?></span>
+                <span class="share-label"><?= e($label) ?></span>
+              </a>
+            <?php endforeach; ?>
+          </div>
+
+          <p class="hint" style="margin-top:12px;">
+            These are ordinary links — nothing on this page loads a script from any of
+            those companies, and none of them knows you are here until you click.
+          </p>
+        </div>
+
+        <div class="side-card">
           <h3>What is in it</h3>
           <ul class="meta-list">
             <li><span class="k">Where</span><span class="v"><?= e(ewd_theme_label($theme)) ?></span></li>
@@ -221,4 +270,52 @@ ewd_header([
   </div>
 </main>
 
+<script>
+  /* Copy-to-link. Polish only: the address is already visible in a readonly input that
+     selects itself on focus, so a browser with no clipboard API loses the shortcut and
+     nothing else.
+
+     navigator.clipboard is undefined on http: origins in Chrome -- it is a secure-context
+     API and this site has no TLS yet -- so the execCommand path is not legacy support, it
+     is the one that actually runs in production today. */
+  (function () {
+    var btn = document.getElementById('share-copy-btn');
+    var input = document.getElementById('share-url');
+    if (!btn || !input) return;
+
+    var original = btn.textContent;
+    var revert;
+
+    function flash() {
+      btn.textContent = btn.dataset.copied || 'Copied';
+      btn.classList.add('is-copied');
+      clearTimeout(revert);
+      revert = setTimeout(function () {
+        btn.textContent = original;
+        btn.classList.remove('is-copied');
+      }, 1800);
+    }
+
+    btn.addEventListener('click', function () {
+      input.focus();
+      input.select();
+      input.setSelectionRange(0, input.value.length);
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(input.value).then(flash, fallback);
+      } else {
+        fallback();
+      }
+
+      function fallback() {
+        try {
+          if (document.execCommand('copy')) { flash(); return; }
+        } catch (err) { /* falls through to the message below */ }
+        btn.textContent = 'Press Ctrl+C';
+        clearTimeout(revert);
+        revert = setTimeout(function () { btn.textContent = original; }, 2600);
+      }
+    });
+  })();
+</script>
 <?php ewd_footer(); ?>

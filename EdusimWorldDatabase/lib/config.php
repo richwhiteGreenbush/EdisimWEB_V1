@@ -123,3 +123,18 @@ ewd_define('EWD_GUIDE_URL', '../guide/index.html');
 // different host entirely, and there is no copy of it on this server to point at. If it
 // ever moves onto this domain, this becomes relative like the two above.
 ewd_define('EWD_APP_URL', 'https://edisimwebv1-production.up.railway.app');
+
+// The origin used to build ABSOLUTE urls: the share links and the Open Graph tags, both
+// of which are read by someone else's server and cannot be relative.
+//
+// It is a constant and NOT derived from $_SERVER['HTTP_HOST'], deliberately. The Host
+// header is supplied by the client, so a request carrying a forged one would produce a
+// page whose og:url and every share button pointed at somebody else's domain -- and
+// because that page is what a social network fetches and caches, the bad link outlives
+// the request that caused it. A fixed origin cannot be poisoned.
+//
+// The cost is that shares from the local Apache mirror point at production, which is the
+// right answer anyway: nobody wants to share a localhost link. Override it in
+// lib/config.local.php if this is ever hosted somewhere else.
+ewd_define('EWD_CANONICAL_ORIGIN', 'http://edusim3dweb.com');
+ewd_define('EWD_CANONICAL_BASE', EWD_CANONICAL_ORIGIN . '/worlds/');

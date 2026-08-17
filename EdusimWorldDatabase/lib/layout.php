@@ -23,6 +23,16 @@ function ewd_header(array $opts = []): void
     $active   = (string)($opts['active'] ?? '');
     $bodyClass = (string)($opts['bodyClass'] ?? '');
 
+    // Open Graph / Twitter Card. `canonical` and `image` are absolute urls built from
+    // EWD_CANONICAL_ORIGIN -- a relative one is useless here, because the machine reading
+    // these tags is Facebook's or Slack's crawler and it has no idea what page it came
+    // from. Without them a shared link unfurls as a bare url with no picture and no words,
+    // which is most of the reason a link never gets clicked.
+    $canonical = (string)($opts['canonical'] ?? '');
+    $image     = (string)($opts['image'] ?? '');
+    $imageAlt  = (string)($opts['imageAlt'] ?? '');
+    $ogType    = (string)($opts['ogType'] ?? 'website');
+
     // Every page lives in the same directory, so `assets/…` works everywhere and there is
     // no base-path setting that can be wrong.
     header('Content-Type: text/html; charset=utf-8');
@@ -44,6 +54,28 @@ function ewd_header(array $opts = []): void
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?= e($title) ?> — Edusim World Database</title>
 <meta name="description" content="<?= e($desc) ?>" />
+<?php if ($canonical !== ''): ?>
+<link rel="canonical" href="<?= e($canonical) ?>" />
+<?php endif; ?>
+<meta property="og:site_name" content="Edusim World Database" />
+<meta property="og:type" content="<?= e($ogType) ?>" />
+<meta property="og:title" content="<?= e($title) ?>" />
+<meta property="og:description" content="<?= e($desc) ?>" />
+<?php if ($canonical !== ''): ?>
+<meta property="og:url" content="<?= e($canonical) ?>" />
+<?php endif; ?>
+<?php if ($image !== ''): ?>
+<meta property="og:image" content="<?= e($image) ?>" />
+<meta property="og:image:alt" content="<?= e($imageAlt !== '' ? $imageAlt : $title) ?>" />
+<meta name="twitter:card" content="summary_large_image" />
+<?php else: ?>
+<meta name="twitter:card" content="summary" />
+<?php endif; ?>
+<meta name="twitter:title" content="<?= e($title) ?>" />
+<meta name="twitter:description" content="<?= e($desc) ?>" />
+<?php if ($image !== ''): ?>
+<meta name="twitter:image" content="<?= e($image) ?>" />
+<?php endif; ?>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="assets/edusim-mark.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />

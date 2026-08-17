@@ -453,3 +453,53 @@ function ewd_upload_error_message(int $code): string
         default              => 'Something went wrong with the upload.',
     };
 }
+
+// ---------------------------------------------------------------------------
+// Sharing
+// ---------------------------------------------------------------------------
+
+/**
+ * An absolute url on the canonical origin, for a path relative to the gallery directory.
+ * Used for Open Graph tags and share links, both of which are read by someone else's
+ * server and cannot be relative. See EWD_CANONICAL_ORIGIN for why the origin is a fixed
+ * constant rather than $_SERVER['HTTP_HOST'].
+ */
+function ewd_abs_url(string $relative): string
+{
+    return EWD_CANONICAL_BASE . ltrim($relative, '/');
+}
+
+/**
+ * The share destinations offered on a world page, as [label, emoji, href, className].
+ *
+ * Every one of these is a PLAIN LINK to a documented share endpoint. There is no
+ * Facebook SDK, no twitter widgets.js, no analytics pixel and no third-party script of
+ * any kind on this page -- which matters more here than on most sites, because the people
+ * loading it are children in classrooms. A share button that phones home before anyone
+ * clicks it is a tracker with an icon on it.
+ *
+ * Google Classroom is first among the networks on purpose: this is a teaching tool, and
+ * "post it to my class" is the share a teacher actually wants. It is also the only one of
+ * these that lands the link somewhere durable rather than in a feed.
+ */
+function ewd_share_targets(string $url, string $title, string $summary = ''): array
+{
+    $u = rawurlencode($url);
+    $t = rawurlencode($title);
+    // What gets typed into the post for the networks that take a message as well as a
+    // link. Kept short: every one of these truncates, and the url must survive.
+    $blurb = rawurlencode($title . ' — a world you can open in Edusim and take apart.');
+    $mailBody = rawurlencode(
+        $title . "\n\n" . ($summary !== '' ? $summary . "\n\n" : '')
+        . "Open it here:\n" . $url . "\n\n"
+        . "Download the file, then in Edusim choose Menu > Load World > Load World File."
+    );
+
+    return [
+        ['Classroom', '🎓', 'https://classroom.google.com/share?url=' . $u, 'sh-classroom'],
+        ['X',                '𝕏', 'https://twitter.com/intent/tweet?url=' . $u . '&text=' . $blurb, 'sh-x'],
+        ['Facebook',         'f', 'https://www.facebook.com/sharer/sharer.php?u=' . $u, 'sh-fb'],
+        ['WhatsApp',         '💬', 'https://api.whatsapp.com/send?text=' . $blurb . '%20' . $u, 'sh-wa'],
+        ['Email',            '✉️', 'mailto:?subject=' . $t . '&body=' . $mailBody, 'sh-mail'],
+    ];
+}

@@ -1144,3 +1144,120 @@ input[type="file"]:focus {
   * { animation: none !important; transition: none !important; }
   html { scroll-behavior: auto; }
 }
+
+/* ===========================================================================
+   Share this world
+   ---------------------------------------------------------------------------
+   Copy-link on top, then the networks as a wrapping grid of pills.
+
+   The pills carry each service's OWN brand colour rather than the site palette,
+   which is the one place on this site that is the right call: these are not
+   Edusim's buttons, they are signposts to somewhere else, and a row of five
+   identical blue chips is five things nobody can tell apart at a glance. The
+   colour is doing the identifying, so the icons can stay as text and the page
+   needs no icon font, no SVG sprite and no third-party script.
+   =========================================================================== */
+
+.share-copy {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  margin-bottom: 14px;
+}
+
+.share-url {
+  flex: 1 1 auto;
+  min-width: 0;                 /* without this the input refuses to shrink and
+                                   pushes the Copy button out of the card */
+  font: 600 0.82rem/1.2 "Nunito", system-ui, sans-serif;
+  color: var(--ink-soft);
+  background: #f4f6fa;
+  border: 2px solid rgba(30, 42, 58, 0.14);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  text-overflow: ellipsis;
+}
+
+.share-url:focus {
+  outline: none;
+  border-color: var(--blue);
+  background: #fff;
+}
+
+#share-copy-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+#share-copy-btn.is-copied {
+  background: #2c8a60;
+}
+
+/* 148px, not 118. The sidebar is 371px wide, so 118 fits THREE tracks across and leaves
+   each label 58px -- enough for "Email" and nothing else, so Facebook, WhatsApp and
+   Classroom all came out with ellipses. Two wider tracks fit every label whole. */
+.share-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 8px;
+}
+
+.share-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  border: 2px solid rgba(30, 42, 58, 0.12);
+  background: #fff;
+  color: var(--ink);
+  font: 700 0.86rem/1 "Nunito", system-ui, sans-serif;
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.share-btn:hover,
+.share-btn:focus-visible {
+  transform: translateY(-2px);
+  border-color: currentColor;
+  box-shadow: 0 8px 18px -10px rgba(30, 42, 58, 0.5);
+}
+
+.share-glyph {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  border-radius: 8px;
+  background: var(--sh, var(--denim));
+  color: #fff;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.share-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Each service's own colour. Google Classroom's green, X's black, Facebook's blue,
+   WhatsApp's green; Email has no brand, so it takes the site's denim. */
+.sh-classroom { --sh: #0f9d58; }
+.sh-x         { --sh: #14171a; }
+.sh-fb        { --sh: #1877f2; }
+.sh-wa        { --sh: #25d366; }
+.sh-mail      { --sh: var(--denim); }
+
+.sh-classroom:hover { color: #0f9d58; }
+.sh-x:hover         { color: #14171a; }
+.sh-fb:hover        { color: #1877f2; }
+.sh-wa:hover        { color: #1da851; }
+.sh-mail:hover      { color: var(--denim); }
+
+/* On a phone the card is full width, so two across reads better than five squeezed. */
+@media (max-width: 520px) {
+  .share-row { grid-template-columns: repeat(2, 1fr); }
+}
