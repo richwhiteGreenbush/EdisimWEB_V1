@@ -148,7 +148,7 @@ has applied an uploaded image to a surface.
 rehydrating anything, so a world file with no theme of its own resets a leftover moon
 sky back to daylight instead of inheriting it.
 
-### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / My World / (New York, Under the Sea)
+### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / the curriculum set / My World / (New York, Under the Sea)
 
 The menu reads **Load World → Create Model → Clear World → VR Headset View**, in that
 order: where am I going to build this, then what am I building, then the two
@@ -842,6 +842,105 @@ calls and by CPU, against the Park's 777 calls / 544k tris / 3.1ms. Three choice
 it: every reef garden of 20–30 colonies merges to one vertex-coloured mesh, a whole shoal of
 fish merges to one, and the ceiling is one opaque quad rather than the obvious transparent
 one.
+
+### The four world landmarks: Colosseum / Machu Picchu / Taj Mahal / Red Square
+
+`RomeProps.js`, `AndesProps.js`, `TajProps.js`, `MoscowProps.js`. Ordinary presets in every
+respect — the interest is in what they forced, most of which generalises.
+
+**Scaling a building that does not fit.** `WORLD_BOUND_RADIUS` is 195ft, so the Colosseum
+(615 × 510 × 157) is built at **1/3** and the Taj (240ft tall, 300ft plinth) at about
+**1/2.4**, the same compromise Egypt makes at 1/5. Machu Picchu and Red Square are close to
+TRUE SIZE, because a house is a house and a 155ft cathedral fits — what is compressed there
+is the *ground between* the buildings, which is the right thing to compress: nobody
+remembers how wide Red Square is and everybody remembers the domes. Every placard states
+the real dimension, so the reduction teaches instead of misleading.
+
+The Colosseum's one deliberately-preserved ratio is the **arch to the person**: at 1/3 the
+ground arcade comes out 8ft tall and 4.7ft wide, so a 5ft student passes through it looking
+the right size. Get that and nobody can judge the rest.
+
+**`mergeColored` cannot compose two rotations, and an arcade needs three.** A voussoir is
+rotated about Z to sit in its ring and then the whole arch is swung about Y to face out of
+an elliptical wall; the part fields apply rotateX → rotateY → rotateZ in that fixed order,
+which applies the swing FIRST and flings the blocks off the building. `RomeProps.xformed()`
+bakes a full `Matrix4` into the geometry instead — the same escape hatch `gooseSolid()` uses.
+
+**Even steps in an ellipse's parametric angle are not even steps along it.** On a building
+whose signature is eighty identical arches, uniform `t` bunches the bays at the ends of the
+long axis. `ellipseStations()` walks a fine arc-length table once and resamples it.
+
+**A stepped bank must be SOLID underneath.** The cavea was treads and risers with nothing
+below, and since nothing in this app has collision a student walks straight in under thirty
+feet of seating and looks up at the underside of the marble. One open cone from the arena
+edge to the top closes it. Then two things make it read as *seating* rather than as a ramp:
+risers tinted darker than their own treads (a bank of seats is read almost entirely from
+the shadow line under each row), and **radial staircases** cutting the rings into wedges —
+without something crossing the horizontal lines it stays a ramp however many steps it has.
+
+**Mortarless polygonal masonry needs a dark slab BEHIND it.** Inca ashlar built as polygons
+with nothing behind them reads as a heap of river cobbles, because wherever two faces fail
+to meet you see another block further back and every joint becomes a rounded edge. With a
+solid backing the gaps become *joints*. Three numbers matter: the blocks are overfilled to
+**1.42 × 1.34** (at the 1.22 first tried, four corners of backing show through per block and
+it turns into crazy paving), they are 6–8 sided rather than 5–8, and each is rotated by
+`π/sides` **plus a small jitter** so every block has a flat edge top and bottom. That last
+one is what keeps the courses level while no two stones are the same shape.
+
+**A recess cannot be cut back into a wall that is already solid.** `ashlarPanel` knows
+nothing about niches, so a dark panel set behind the stonework simply disappears. Build the
+niche FORWARD instead: dark panel a hair proud of the blocks, frame projecting further
+still. The frame casts the shadow, and the shadow is what says "hole". (A dark box set
+*proud* of the wall with no frame is the other failure — it reads as a black sticker.)
+
+**Two roof-pitch traps, both silent, both in the same six lines.** Thatch courses rotated
+by `atan2(run, rise)` — the angle from VERTICAL — sit 20° off the plane they are meant to
+lie in and splay apart into a venetian blind. And the sign is per-side: a box's long axis is
+bidirectional, so the *same* rotation that is right for the −Z slope is mirrored on the +Z
+one. It is `side * atan2(rise, run)`. Section matters too: half a step thick and two and a
+half steps long buries most of each course and reads as thatch; square-section bars spaced
+about their own thickness are a woodpile from any angle.
+
+**A retaining kerb must be built as steps, not as one raked slab.** A box tall enough to
+retain a fourteen-step flight and long enough to run beside it is 20ft × 8ft, and tipped to
+the rake it projects past both ends — a grey ramp lying on the grass.
+
+**A horn does not taper to a point.** `andeanPeak`'s `(1-t)^1.9` is zero at the top, so the
+last rings collapse into a needle. The profile bottoms out at a `summit` fraction (0.14) and
+only the top tenth is rounded off — a dome sitting on a horn. Snow lines follow the ridges
+(`t + sin(a·5)·0.06`), because a level contour reads as a knitted hat.
+
+**A decorative gable is a flat plate with its point UP.** `MoscowProps.kokoshnik()` exists
+because building one as a 3-sided cone laid on its side — which is what "rotate it to face
+outward" produces if you are not thinking about it — turns every one into a horizontal
+spike, and a cathedral with nine drums grows about a hundred white thorns.
+
+**A LatheGeometry dome's texture must tile horizontally.** `u` runs 0→1 once round, so any
+pattern whose left and right edges differ draws a seam straight down the dome. Every one of
+`domeTexture`'s patterns is built from a whole number of repeats across the width.
+
+**The nine domes are written out as a table, not generated.** A loop varying hue by index
+gives eight domes that are obviously the same dome eight times, and "no two alike" is the
+single most-repeated fact about St Basil's.
+
+Composition lessons that cost a rebuild each:
+
+- **A terrace bank is 31ft of stone and must not cross the arrival sightline.** Machu
+  Picchu's first pass put two of them straight across it and walled the entire citadel off
+  behind a rampart. Turned side-on they frame the walk in *and* you can read the steps.
+- **Fog erased the mountain.** 55/330 is what a cloud forest looks like and it reduced
+  Huayna Picchu — 300ft away and the reason anyone recognises the place — to a grey ghost.
+  The atmosphere is carried by `cloud-bank` props lying in the valley instead, at around eye
+  height: lifted into the sky they stop being weather and become lumps on the hillside.
+- **Distance is set by HEIGHT.** St Basil's at 155ft needs 220ft of run-up or its domes sit
+  above the top of the frame; the spawn moved, not the building.
+- **Snow is a contrast problem.** Bare setts at near-black against a white terrain made Red
+  Square a chessboard with a road down the middle. Wet granite under a winter sky is a mid
+  grey, snow that has only been walked on is mostly still there, and three drift frequencies
+  rather than two stop the swept edge drawing one clean sine curve across the whole square.
+- **Check the arrival frame for things at 45–50°.** The Spasskaya Tower at x=-92 was 49° off
+  and clipped by the bezel; the browser panel at 41° covered an activity board at 47°. A 70°
+  *vertical* fov is only ~51° either side on 16:9, so 49 is not "just inside".
 
 ### Photo textures, but only on the big flat surfaces
 

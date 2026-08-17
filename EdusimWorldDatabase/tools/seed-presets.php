@@ -300,6 +300,74 @@ $WORLDS = [
             . "his pen name from the leadsman's call for twelve feet of water.\n\n"
             . "Two coding challenges: cast off downriver, and pole the pirogue across.",
     ],
+    'colosseum' => [
+        'title' => 'The Colosseum',
+        'tags'  => 'history, official, building, starter',
+        'description' =>
+            "Rome, with the Flavian Amphitheatre at a third of full size — the real one is 615ft by 510ft and "
+            . "would not fit inside the world. Four storeys of arcades, eighty arches round the ground floor, "
+            . "and the arena floor gone so you can see the tunnels underneath.\n\n"
+            . "Two thirds of the outer wall is missing, and not because of a war: earthquakes brought down the "
+            . "south side and then Rome quarried the rest for a thousand years. The stone went into palaces, "
+            . "bridges and St Peter's. Look for the holes all over the surviving wall — that is where iron "
+            . "cramps were levered out.\n\n"
+            . "The Arch of Constantine stands beside it, and most of the carving on it is older than the arch: "
+            . "roundels lifted from a monument of Hadrian's, panels from Marcus Aurelius, faces recut to look "
+            . "like Constantine.\n\n"
+            . "Two coding challenges: march a gladiator round the arena, and make two of them work together "
+            . "using say and when-an-object-says.",
+    ],
+    'machupicchu' => [
+        'title' => 'Machu Picchu',
+        'tags'  => 'history, nature, official, animals',
+        'description' =>
+            "The Inca citadel on its ridge at 7,970 feet, with cloud still lying in the valley and Huayna "
+            . "Picchu standing behind it. Houses, temples, stairs, fountains and the farming terraces — nearly "
+            . "all of it at true size, because an Inca house is a house.\n\n"
+            . "The masonry is the thing to go and look at closely. Every block was cut to fit the ones already "
+            . "laid, so no two are the same shape, and there is no mortar anywhere — a knife blade will not go "
+            . "into the joints. The walls lean inward and every door and window is a trapezoid, wider at the "
+            . "bottom. All of it is earthquake engineering, and it works: what the Spanish built in the region "
+            . "afterwards has fallen down twice since.\n\n"
+            . "The terraces are not just flat ground either. Each one is layered rock, gravel, sand and topsoil "
+            . "carried up from the valley, draining six feet of annual rain through the mountain instead of "
+            . "letting it wash the mountain away.\n\n"
+            . "Two coding challenges: walk a llama up the terraces, and make the Intihuatana pulse.",
+    ],
+    'tajmahal' => [
+        'title' => 'The Taj Mahal',
+        'tags'  => 'history, official, building, art',
+        'description' =>
+            "Agra at first light, seen from just inside the great gate with the canal running away to the "
+            . "plinth. That view is the design of the whole complex: from outside, the gate hides the building "
+            . "completely, and you walk through the arch and the whole thing appears at once, framed and "
+            . "reflected.\n\n"
+            . "Three things worth finding. The plan is not a square — it is a square with the corners cut off, "
+            . "and every one of those eight faces carries an arch. The four minarets lean about two degrees "
+            . "outward on purpose, so an earthquake would drop them away from the tomb rather than onto it. And "
+            . "the building on the east is not a mosque and never was: jawab means \"answer\", and it exists "
+            . "only so the view has the same thing on both sides.\n\n"
+            . "Shah Jahan built it for Mumtaz Mahal, who died in 1631. It took twenty-two years. He was deposed "
+            . "by his own son and spent his last eight years imprisoned in the fort downriver, where he could "
+            . "see it.\n\n"
+            . "Two coding challenges: straighten a minaret, and send a cypress down the canal.",
+    ],
+    'redsquare' => [
+        'title' => 'Red Square',
+        'tags'  => 'history, official, building, winter',
+        'description' =>
+            "Moscow under snow: St Basil's at the south end, the Kremlin wall and Lenin's tomb down one side, "
+            . "GUM down the other, and the State History Museum closing the north.\n\n"
+            . "St Basil's is nine churches on one foundation — eight chapels arranged as an eight-pointed star "
+            . "around a ninth — and no two of its domes are alike. Spirals, chevrons, facets, in green, red, "
+            . "blue and gold. None of that colour is original: the cathedral stood white with gold domes for a "
+            . "hundred years, and nobody is certain why it was painted.\n\n"
+            . "The Kremlin wall's battlements are swallowtails, a two-pronged M, and that is an import — the "
+            . "Milanese architects who built it in the 1490s brought the shape from northern Italy. The ruby "
+            . "star on the Spasskaya Tower went up in 1937 where a double-headed imperial eagle had been; it is "
+            . "real glass, lit from inside, and it turns in the wind.\n\n"
+            . "Two coding challenges: raise the cathedral out of the snow, and run a parade past the tomb.",
+    ],
 ];
 
 // ---------------------------------------------------------------------------

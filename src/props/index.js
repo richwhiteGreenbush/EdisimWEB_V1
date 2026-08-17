@@ -17,6 +17,10 @@ import * as Ellis from './EllisProps.js';
 import * as Capitol from './CapitolProps.js';
 import * as Barrier from './BarrierProps.js';
 import * as Delta from './DeltaProps.js';
+import * as Rome from './RomeProps.js';
+import * as Andes from './AndesProps.js';
+import * as Taj from './TajProps.js';
+import * as Moscow from './MoscowProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -291,6 +295,54 @@ export const PROP_BUILDERS = {
   pirogue: Delta.pirogue,
   'channel-marker': Delta.channelMarker,
   'reed-bed': Delta.reedBed,
+
+  // The Roman Colosseum
+  colosseum: Rome.colosseum,
+  hypogeum: Rome.hypogeum,
+  'arch-of-constantine': Rome.archOfConstantine,
+  gladiator: Rome.gladiator,
+  'stone-pine': Rome.stonePine,
+  'italian-cypress': Rome.italianCypress,
+  'travertine-rubble': Rome.travertineRubble,
+  'forum-columns': Rome.forumColumns,
+  'she-wolf-column': Rome.sheWolfColumn,
+  'roman-fountain': Rome.romanFountain,
+  'basalt-paving': Rome.basaltPaving,
+
+  // Machu Picchu
+  'inca-wall': Andes.incaWall,
+  'inca-terraces': Andes.incaTerraces,
+  'temple-of-the-sun': Andes.templeOfTheSun,
+  intihuatana: Andes.intihuatana,
+  'inca-house': Andes.incaHouse,
+  'inca-stairs': Andes.incaStairs,
+  'inca-fountain': Andes.incaFountain,
+  'andean-peak': Andes.andeanPeak,
+  'cloud-bank': Andes.cloudBank,
+  llama: Andes.llama,
+  'granite-outcrop': Andes.graniteOutcrop,
+  'ichu-grass': Andes.ichuGrass,
+
+  // The Taj Mahal
+  'taj-mahal': Taj.tajMahal,
+  'taj-minaret': Taj.tajMinaret,
+  'taj-gateway': Taj.tajGateway,
+  'taj-mosque': Taj.tajMosque,
+  'charbagh-canal': Taj.charbaghCanal,
+  'garden-cypress': Taj.gardenCypress,
+  'marble-screen': Taj.marbleScreen,
+  cenotaph: Taj.cenotaph,
+
+  // Red Square
+  'st-basils': Moscow.stBasils,
+  'kremlin-wall': Moscow.kremlinWall,
+  'kremlin-tower': Moscow.kremlinTower,
+  'lenin-mausoleum': Moscow.leninMausoleum,
+  'gum-store': Moscow.gumStore,
+  'history-museum': Moscow.historyMuseum,
+  'square-paving': Moscow.squarePaving,
+  'snow-drift': Moscow.snowDrift,
+  'birch-tree': Moscow.birchTree,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

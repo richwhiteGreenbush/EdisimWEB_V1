@@ -4757,6 +4757,734 @@ function deltaLayout() {
 }
 
 // ---------------------------------------------------------------------------
+// The Roman Colosseum
+// ---------------------------------------------------------------------------
+
+// The Flavian Amphitheatre at about a third of real size (see RomeProps.js for why), with
+// the Arch of Constantine beside it and a corner of the Forum beyond.
+//
+// The composition is the approach a visitor actually makes: you come up out of the metro
+// on the north-west side, the arch is on your right, and the Colosseum fills everything
+// else. So the spawn is off the building's long axis rather than square-on to it -- a
+// perfectly axial view of an ellipse hides the fact that it IS an ellipse.
+function colosseumLayout() {
+  const items = [];
+  const SP = { x: 62, z: 150 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- The amphitheatre ---------------------------------------------------
+  // The surviving outer wall is set to the arc facing the spawn, so the student arrives
+  // looking at four storeys of travertine rather than at the gap where they used to be.
+  items.push(prop('colosseum', 0, 0, {
+    options: { radiusX: 100, radiusZ: 82, height: 50, bays: 80, ruinFrom: 0.02, ruinTo: 0.52, seed: 5 },
+  }));
+  items.push(prop('hypogeum', 0, 0, { options: { radiusX: 47, radiusZ: 29, deck: 0.42, seed: 11 } }));
+
+  items.push(
+    prop('info-placard', 52, 118, {
+      rotY: face(52, 118),
+      options: {
+        eyebrow: 'Built here at a third of full size', title: 'The Colosseum', accent: '#a8834a',
+        body: 'The real one is 615ft by 510ft and 157ft tall — bigger than this whole world, which is why it is built smaller here. Eighty arches ring the ground floor and they were numbered: your pottery ticket gave you a gate, a stair and a row, and fifty thousand people could clear the building in minutes. Modern stadiums still use the plan.',
+      },
+    }),
+  );
+  items.push(
+    prop('info-placard', -58, 112, {
+      rotY: face(-58, 112),
+      options: {
+        eyebrow: 'Two thirds of it is missing', title: 'Where the rest went', accent: '#8c7a56',
+        body: 'It was not destroyed in a war. Earthquakes brought down the south side, and then for a thousand years Rome quarried it — the travertine went into palaces, bridges and St Peter\'s. What you can see of the outer wall is the piece nobody got round to taking. The holes all over it are where iron cramps were levered out.',
+      },
+    }),
+  );
+  items.push(
+    prop('info-placard', 20, -104, {
+      rotY: facing(20, -104, 0, 0),
+      options: {
+        eyebrow: 'Under the floor', title: 'The hypogeum', accent: '#9c6a4e',
+        body: 'The arena floor is gone, so you can see the two storeys of tunnels underneath it. Thirty-two lifts worked by counterweight brought animals and scenery straight up into the arena through trapdoors. The wooden deck at one end is a modern reconstruction, put there so people can see how high the floor was.',
+      },
+    }),
+  );
+
+  // --- The Arch of Constantine -------------------------------------------
+  // Proportions matter more than size here: the real arch is 85ft wide and 69ft high, so
+  // it is WIDER than it is tall. Built the other way round it reads as a gate tower.
+  items.push(prop('arch-of-constantine', 118, 62, { rotY: facing(118, 62, SP.x, SP.z), options: { width: 34, height: 27, depth: 10, seed: 7 } }));
+  items.push(
+    prop('info-placard', 104, 88, {
+      rotY: face(104, 88),
+      options: {
+        eyebrow: 'Second-hand sculpture', title: 'The Arch of Constantine', accent: '#8a7f6c',
+        body: 'Put up in 315 AD, and most of the carving on it is older than the arch: roundels from a monument of Hadrian\'s, panels from Marcus Aurelius, statues from Trajan. Faces were recut to look like Constantine. Historians argue about whether that was thrift, hurry, or a deliberate claim to stand in a line of good emperors.',
+      },
+    }),
+  );
+
+  // --- A corner of the Forum ---------------------------------------------
+  items.push(prop('forum-columns', -128, 34, { rotY: 0.35, options: { count: 6, height: 26, spacing: 9, seed: 17 } }));
+  items.push(prop('forum-columns', -142, -28, { rotY: 1.2, options: { count: 4, height: 21, spacing: 8, entablature: false, seed: 23 } }));
+  items.push(prop('she-wolf-column', -104, 76, { rotY: facing(-104, 76, SP.x, SP.z), options: { height: 13, seed: 21 } }));
+  items.push(
+    prop('info-placard', -96, 60, {
+      rotY: face(-96, 60),
+      options: {
+        eyebrow: 'The city\'s own founding story', title: 'The she-wolf', accent: '#5c6b4a',
+        body: 'Rome said it was founded by twins raised by a wolf. Romulus killed Remus in an argument over where the walls should go, and named the city after himself. Romans knew it was a legend and told it anyway — it says the place was built by outcasts and settled by force, which is closer to the truth than most founding stories manage.',
+      },
+    }),
+  );
+
+  // --- Gladiators ---------------------------------------------------------
+  // In the arena, on the exposed hypogeum floor. They are the one thing here at true human
+  // size, which is deliberate: the building is at a third, so a 5ft 6 figure standing in
+  // it gives the eye something it actually knows the size of.
+  items.push(prop('gladiator', -16, 8, { rotY: 0.4, options: { height: 5.6, tunic: 0xb04a3a, seed: 3 } }));
+  items.push(prop('gladiator', 8, -12, { rotY: 3.5, options: { height: 5.6, tunic: 0x3f6b8a, seed: 9 } }));
+  items.push(prop('gladiator', 122, 40, { rotY: facing(122, 40, SP.x, SP.z), options: { height: 5.6, tunic: 0x8a6a3f, seed: 15 } }));
+  items.push(
+    prop('info-placard', -34, 22, {
+      rotY: facing(-34, 22, 0, 40),
+      options: {
+        eyebrow: 'Mostly they did not die', title: 'Gladiators', accent: '#8c4a3a',
+        body: 'A trained gladiator was expensive — years of feeding, coaching and doctoring — so the owner who lent him out wanted him back. Fights were refereed, and most ended with a surrender. Some were free men who volunteered for the money. Most were slaves or prisoners, and none of that was their choice.',
+      },
+    }),
+  );
+
+  // --- The setting --------------------------------------------------------
+  // Umbrella pines. They are the reason a photograph of this place is recognisable as Rome
+  // rather than as any ruin anywhere, so there are enough of them to read as a stand.
+  const pines = [
+    [-152, 96, 36], [-118, 128, 32], [136, 118, 34], [162, 74, 30],
+    [-166, -44, 33], [-138, -104, 31], [96, -134, 35], [30, -160, 32],
+    [-46, -156, 30], [168, -22, 33], [124, 146, 29],
+  ];
+  pines.forEach(([x, z, h], i) => items.push(prop('stone-pine', x, z, { options: { height: h, seed: 200 + i * 7 } })));
+  const cypresses = [[-92, 118, 24], [-78, 132, 21], [148, 96, 23], [158, 108, 20], [-158, 22, 22], [-150, -70, 24]];
+  cypresses.forEach(([x, z, h], i) => items.push(prop('italian-cypress', x, z, { options: { height: h, seed: 300 + i * 5 } })));
+
+  // Fallen blocks, always downhill of the gap in the wall.
+  [[-118, -78], [-96, -108], [-64, -128], [-136, -40], [24, -138], [78, -122]].forEach(([x, z], i) => {
+    items.push(prop('travertine-rubble', x, z, { options: { spread: 11 + (i % 3) * 3, count: 8 + (i % 4), seed: 400 + i * 11 } }));
+  });
+
+  items.push(prop('basalt-paving', 84, 122, { rotY: 0.42, options: { width: 18, depth: 40, seed: 27 } }));
+  items.push(prop('basalt-paving', 116, 88, { rotY: 1.1, options: { width: 14, depth: 30, seed: 29 } }));
+  items.push(prop('roman-fountain', 74, 106, { options: { height: 3.6, seed: 23 } }));
+  items.push(prop('roman-fountain', -88, 96, { options: { height: 3.6, seed: 31 } }));
+
+  [[70, 132], [98, 108], [-70, 104], [130, 84]].forEach(([x, z]) => {
+    items.push(prop('bench', x, z, { rotY: face(x, z) + Math.PI, options: { length: 5 } }));
+  });
+  // The lamp posts stay OFF the arrival sightline. The first pass put one at (56, 134),
+  // two degrees off the line from the spawn to the building, so a student arrived looking
+  // at a 13ft pole standing like a bollard in the middle of the Colosseum -- the same
+  // mistake, and the same fix, as the lamp on Broadway in the New York world.
+  [[44, 138], [110, 96], [-82, 110], [140, 70]].forEach(([x, z], i) => {
+    items.push(prop('lamp-post', x, z, { options: { height: 13, seed: 500 + i } }));
+  });
+
+  // --- Wayfinding ---------------------------------------------------------
+  items.push(
+    prop('standing-sign', 84, 156, {
+      rotY: face(84, 156),
+      options: { lines: ['THE COLOSSEUM'], subtitle: 'Rome · begun 72 AD · finished in eight years', width: 16, height: 4.4 },
+    }),
+  );
+  items.push(...browserStation(48, 140, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- Programming challenges ---------------------------------------------
+  items.push(
+    activity(34, 137, {
+      number: 1, rotY: face(34, 137), accent: '#a8834a',
+      title: 'March a gladiator round the arena',
+      target: 'Click a gladiator in the arena → Program.',
+      steps: [
+        ctrlStep('repeat 4 times'),
+        moveStep('move forward 30 feet', 1),
+        ctrlStep('wait 1 seconds', 1),
+        moveStep('rotate 90 degrees', 1),
+        ctrlStep('wait 0.5 seconds', 1),
+      ],
+      tip: 'Four sides, four right turns — 360 divided by 4 is 90, so he ends up exactly where he began. Try five sides: what angle do you need? Then swap move forward for glide 30 feet over 3 seconds and watch the difference between jumping and travelling.',
+    }),
+  );
+  items.push(
+    activity(74, 122, {
+      number: 2, rotY: face(74, 122), accent: '#8c7a56',
+      title: 'Two gladiators, one signal',
+      target: 'Click the gladiator by the arch → Program. Then click one in the arena.',
+      steps: [
+        lookStep('say ready'),
+        ctrlStep('wait 2 seconds'),
+        lookStep('say fight'),
+        ctrlStep('when an object says fight'),
+        moveStep('move forward 14 feet', 1),
+        lookStep('change color to red', 1),
+      ],
+      tip: 'The first three blocks go on ONE gladiator. The when-an-object-says block goes on the OTHER one — it sits and waits until it hears the word. This is how you make two objects work together instead of each doing its own thing.',
+    }),
+  );
+
+  // --- Lighting -----------------------------------------------------------
+  items.push(orb(0, 0, 26, ORB_WARM));
+  items.push(orb(118, 62, 16, ORB_WARM));
+  items.push(orb(-30, 60, 9, ORB_WHITE));
+
+  return { theme: 'colosseum', spawn: { ...SP, yaw: Math.atan2(-(0 - SP.x), -(0 - SP.z)) }, items };
+}
+
+// ---------------------------------------------------------------------------
+// Machu Picchu
+// ---------------------------------------------------------------------------
+
+// The citadel on the ridge, mostly at true size -- an Inca house is a house and a terrace
+// wall is eight feet of stone. Only the mountain is scaled.
+//
+// The layout is the site's own: terraces on the approach, then the main plaza with the
+// buildings up the west side, the Temple of the Sun on its outcrop, the Intihuatana on the
+// highest point, and Huayna Picchu closing the view to the north.
+function machuPicchuLayout() {
+  const items = [];
+  const SP = { x: 0, z: 128 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- The agricultural sector -------------------------------------------
+  // The terraces FLANK the approach; they do not cross it. A seven-step andenes bank is
+  // 31ft of stone, and the first version of this world put two of them straight across the
+  // arrival sightline -- which walled the entire citadel off behind a rampart and left a
+  // student looking at nothing but the back of a retaining wall. Turned side-on they do
+  // the job they should: they frame the walk in, and you read them as terraces because you
+  // can see the steps in profile rather than end-on.
+  items.push(prop('inca-terraces', -76, 74, { rotY: 1.5, options: { width: 62, steps: 7, rise: 4.5, tread: 8.5, curve: 4, seed: 7 } }));
+  items.push(prop('inca-terraces', 78, 70, { rotY: -1.5, options: { width: 56, steps: 6, rise: 4.5, tread: 8.5, curve: 3, seed: 13 } }));
+  items.push(prop('inca-terraces', -84, 6, { rotY: 1.45, options: { width: 46, steps: 5, rise: 4.2, tread: 8, curve: 3, seed: 19 } }));
+  items.push(prop('inca-stairs', -50, 84, { rotY: -0.9, options: { width: 7, steps: 14, rise: 1.1, run: 1.35, seed: 19 } }));
+
+  items.push(
+    prop('info-placard', -52, 100, {
+      rotY: face(-52, 100),
+      options: {
+        eyebrow: 'Not just flat ground', title: 'The terraces', accent: '#7a8a4e',
+        body: 'Each one is built in layers: broken rock at the bottom, then gravel, then sand, then topsoil carried up from the valley. Six feet of rain falls here every year, and the terraces drain it THROUGH the mountain instead of letting it wash the mountain away. That is why the site is still standing and most of what the Spanish built later is not.',
+      },
+    }),
+  );
+
+  // --- The town -----------------------------------------------------------
+  // Houses up the western side, facing the plaza. Roofs on some and not on others: what
+  // survives is the stonework, and the thatch is all reconstruction.
+  const houses = [
+    [-52, 34, 18, 12, true, 0.15], [-54, 12, 16, 11, true, 0.1], [-50, -10, 15, 11, false, 0.08],
+    [-56, -32, 17, 12, true, 0.0], [-44, -52, 14, 10, false, -0.1], [-60, -8, 12, 9, false, 1.55],
+  ];
+  houses.forEach(([x, z, w, d, roofed, r], i) => {
+    items.push(prop('inca-house', x, z, { rotY: r, options: { width: w, depth: d, wallHeight: 8, roofed, seed: 100 + i * 9 } }));
+  });
+  const eastHouses = [[56, 28, 15, 11, true, -0.2], [58, 4, 14, 10, false, -0.12], [52, -22, 16, 11, true, -0.05]];
+  eastHouses.forEach(([x, z, w, d, roofed, r], i) => {
+    items.push(prop('inca-house', x, z, { rotY: r, options: { width: w, depth: d, wallHeight: 8, roofed, seed: 160 + i * 9 } }));
+  });
+
+  // The walls between them, with their trapezoidal doorways -- the teaching object of the
+  // whole world.
+  items.push(prop('inca-wall', -30, 46, { rotY: 0.1, options: { width: 20, height: 9, doorway: true, niches: 2, seed: 5 } }));
+  items.push(prop('inca-wall', 30, 40, { rotY: -0.1, options: { width: 18, height: 8.5, doorway: true, niches: 2, seed: 11 } }));
+  items.push(prop('inca-wall', -20, -46, { rotY: 1.5, options: { width: 22, height: 10, doorway: false, niches: 3, seed: 17 } }));
+  items.push(
+    prop('info-placard', -18, 58, {
+      rotY: face(-18, 58),
+      options: {
+        eyebrow: 'No mortar anywhere', title: 'How the stones fit', accent: '#8a8578',
+        body: 'Every block was shaped to fit the ones already laid — not cut to a standard size, which is why no two are alike and why the joints wander. A knife blade will not go into them. The walls lean inward and every door and window is a trapezoid, wider at the bottom: all of it is earthquake engineering, and it works.',
+      },
+    }),
+  );
+
+  // --- The sacred sector --------------------------------------------------
+  items.push(prop('temple-of-the-sun', -22, -14, { rotY: 0.4, options: { radius: 11, height: 12, seed: 11 } }));
+  items.push(
+    prop('info-placard', -8, 4, {
+      rotY: facing(-8, 4, 0, 60),
+      options: {
+        eyebrow: 'The only curved wall on the site', title: 'The Temple of the Sun', accent: '#a39683',
+        body: 'A window here is cut so that at sunrise on the June solstice — midwinter in Peru — the light falls exactly along a line carved into the rock inside. The building is a calendar. It is built onto the living granite rather than onto foundations, and the masons cut the mountain to receive it.',
+      },
+    }),
+  );
+
+  items.push(prop('intihuatana', 4, -66, { rotY: 0.2, options: { height: 6, seed: 13 } }));
+  items.push(
+    prop('info-placard', 24, -54, {
+      rotY: facing(24, -54, 0, 20),
+      options: {
+        eyebrow: '"The place that ties the sun"', title: 'The Intihuatana', accent: '#9a958c',
+        body: 'One piece of granite, carved where it stood out of the bedrock. Its edges point to the four directions and at the equinoxes the pillar casts almost no shadow at midday. The Spanish smashed every one of these they found, as idols. This one survived because they never found the site.',
+      },
+    }),
+  );
+  items.push(prop('inca-stairs', 4, -46, { options: { width: 6, steps: 12, rise: 1.1, run: 1.3, seed: 23 } }));
+
+  items.push(prop('inca-fountain', -40, 62, { rotY: 0.1, options: { height: 4.2, seed: 23 } }));
+  items.push(prop('inca-fountain', -42, 48, { rotY: 0.1, options: { height: 4.2, seed: 29 } }));
+  items.push(
+    prop('info-placard', -30, 70, {
+      rotY: face(-30, 70),
+      options: {
+        eyebrow: 'Sixteen of them, running downhill', title: 'The fountains', accent: '#5c7a86',
+        body: 'A spring on the mountainside feeds a stone channel nearly half a mile long, which drops through the city from one fountain to the next. The first one is at the top by the temple; the last is at the bottom. It still runs. Getting water to arrive where you want it, at the right speed, down a mountain, is the hardest thing on this site.',
+      },
+    }),
+  );
+
+  // --- The landscape ------------------------------------------------------
+  // Huayna Picchu behind the citadel, and two lesser peaks to give the ridge a horizon.
+  items.push(prop('andean-peak', -18, -168, { options: { height: 132, baseRadius: 62, sugarloaf: true, seed: 29 } }));
+  items.push(prop('andean-peak', 152, -86, { options: { height: 96, baseRadius: 58, sugarloaf: false, snow: true, seed: 37 } }));
+  items.push(prop('andean-peak', -168, -60, { options: { height: 104, baseRadius: 64, sugarloaf: false, snow: true, seed: 41 } }));
+  // Cloud lying in the valley, and it has to be FAR and LOW -- around the student's own
+  // eye line, not above it. Brought in close, or lifted into the sky, it stops being
+  // weather in a valley and becomes a white lump parked on the hillside beside you.
+  items.push(prop('cloud-bank', -46, -176, { y: 14, absoluteY: true, options: { width: 200, depth: 70, seed: 31 } }));
+  items.push(prop('cloud-bank', 172, -40, { y: 10, absoluteY: true, options: { width: 150, depth: 70, seed: 43 } }));
+  items.push(prop('cloud-bank', -176, -112, { y: 12, absoluteY: true, options: { width: 140, depth: 60, seed: 47 } }));
+
+  const outcrops = [[-70, -34, 9], [64, -50, 8], [-88, 10, 10], [80, 62, 7], [-14, -92, 11], [46, -80, 8]];
+  outcrops.forEach(([x, z, s], i) => items.push(prop('granite-outcrop', x, z, { options: { size: s, seed: 500 + i * 7 } })));
+  const grass = [[-64, 70], [72, 78], [-90, -14], [88, -20], [-34, -84], [34, -96], [-100, 46], [104, 40]];
+  grass.forEach(([x, z], i) => items.push(prop('ichu-grass', x, z, { options: { radius: 6, count: 20, seed: 600 + i * 5 } })));
+
+  // Llamas on the terraces, which is exactly where they are.
+  items.push(prop('llama', -26, 74, { rotY: 1.2, options: { height: 5.6, seed: 37 } }));
+  items.push(prop('llama', -16, 66, { rotY: 2.1, options: { height: 5.2, fleece: 0x8a7358, seed: 41 } }));
+  items.push(prop('llama', 34, 70, { rotY: -0.8, options: { height: 5.4, fleece: 0xe4dccc, seed: 43 } }));
+  items.push(
+    prop('info-placard', -44, 82, {
+      rotY: face(-44, 82),
+      options: {
+        eyebrow: 'Why there are no carts here', title: 'Llamas', accent: '#a08a62',
+        body: 'The Inca built 25,000 miles of road across the Andes and never used a wheel on any of it. A wheel is no use on a staircase cut into a cliff; a llama walks up it carrying a hundred pounds. They also refuse to move if you overload them, which makes them very hard to abuse.',
+      },
+    }),
+  );
+
+  // --- Wayfinding ---------------------------------------------------------
+  items.push(
+    prop('standing-sign', 30, 138, {
+      rotY: face(30, 138),
+      options: { lines: ['MACHU PICCHU'], subtitle: '7,970 feet · built about 1450 · abandoned within a century', width: 17, height: 4.4 },
+    }),
+  );
+  items.push(...browserStation(-10, 118, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- Programming challenges ---------------------------------------------
+  items.push(
+    activity(-32, 126, {
+      number: 1, rotY: face(-32, 126), accent: '#8a8578',
+      title: 'Take a llama up the terraces',
+      target: 'Click a llama on the terraces → Program.',
+      steps: [
+        ctrlStep('repeat 6 times'),
+        moveStep('glide 8 feet over 2 seconds', 1),
+        moveStep('move up by 4.5 feet', 1),
+        ctrlStep('wait 0.4 seconds', 1),
+      ],
+      tip: 'Each terrace is about eight feet deep and four and a half feet high, so this walks it up one step at a time. Glide travels the way the llama is facing; move up is always straight up, whichever way it points. Turn the llama round first and the same program climbs in a different direction.',
+    }),
+  );
+  items.push(
+    activity(34, 122, {
+      number: 2, rotY: face(34, 122), accent: '#7a8a4e',
+      title: 'Make the sun tie itself',
+      target: 'Click the Intihuatana stone → Program.',
+      steps: [
+        ctrlStep('forever'),
+        moveStep('rotate 4 degrees', 1),
+        lookStep('set size to 104 %', 1),
+        ctrlStep('wait 0.2 seconds', 1),
+        lookStep('set size to 100 %', 1),
+        ctrlStep('wait 0.2 seconds', 1),
+      ],
+      tip: 'Set size to is ABSOLUTE — it always measures from the size the stone started at, so 104 then 100 makes it pulse instead of growing forever. Change size by would double it every pass and the stone would swallow the mountain in about ten seconds. Try it and see.',
+    }),
+  );
+
+  // --- Lighting -----------------------------------------------------------
+  items.push(orb(-22, -14, 8, ORB_WARM));
+  items.push(orb(-52, 34, 9, ORB_WARM));
+  items.push(orb(4, -66, 7, ORB_WHITE));
+
+  return { theme: 'machupicchu', spawn: { ...SP, yaw: Math.atan2(-(0 - SP.x), -(-40 - SP.z)) }, items };
+}
+
+// ---------------------------------------------------------------------------
+// The Taj Mahal
+// ---------------------------------------------------------------------------
+
+// The classic view: standing just inside the great gate, on the axis, with the canal
+// running away to the plinth.
+//
+// The whole complex is a symmetry argument, so the layout is written as mirrored pairs
+// rather than as a list of positions -- if a number appears once here it is because that
+// object genuinely is on the centre line.
+function tajLayout() {
+  const items = [];
+  const SP = { x: 0, z: 132 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+  const TAJ_Z = -68;
+
+  // --- The mausoleum ------------------------------------------------------
+  items.push(prop('taj-mahal', 0, TAJ_Z, { options: { width: 75, height: 100, seed: 5 } }));
+
+  // The four minarets, on the corners of the plinth. Each leans OUTWARD, which is what the
+  // `rotY` is doing here: the builder tilts about its own local X, so turning the prop to
+  // face the centre and then tipping it forward would lean it IN. Facing away is what
+  // leans it out.
+  const MIN = 64;
+  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz], i) => {
+    const x = sx * MIN;
+    const z = TAJ_Z + sz * MIN;
+    items.push(prop('taj-minaret', x, z, {
+      rotY: facing(0, TAJ_Z, x, z),
+      options: { height: 57, lean: 2, stages: 3, seed: 7 + i },
+    }));
+  });
+
+  items.push(
+    prop('info-placard', -46, 22, {
+      rotY: face(-46, 22),
+      options: {
+        eyebrow: 'They lean on purpose', title: 'The four minarets', accent: '#c4bcaa',
+        body: 'Each one tilts about two degrees away from the tomb. If an earthquake brought them down they would fall outward, away from the mausoleum — the same reasoning that puts a tree feller on the uphill side. They are also very slightly shorter than they look, because they are set on the plinth rather than beside it.',
+      },
+    }),
+  );
+  items.push(
+    prop('info-placard', 46, 22, {
+      rotY: face(46, 22),
+      options: {
+        eyebrow: 'A tomb for one person', title: 'Why it was built', accent: '#a8503a',
+        body: 'Shah Jahan built it for Mumtaz Mahal, who died in 1631 having their fourteenth child. It took twenty-two years, twenty thousand workers and a thousand elephants to haul the marble 200 miles from Makrana. He was deposed by his own son and spent his last eight years imprisoned in the fort downriver, where he could see it.',
+      },
+    }),
+  );
+
+  // --- The garden ---------------------------------------------------------
+  // The charbagh: four quarters divided by water. The canal is the reason the building is
+  // delivered twice, once in stone and once upside down.
+  items.push(prop('charbagh-canal', 0, 66, { options: { length: 76, width: 10, jets: 5, seed: 17 } }));
+  items.push(prop('charbagh-canal', 0, 6, { options: { length: 34, width: 10, jets: 3, seed: 19 } }));
+  items.push(prop('charbagh-canal', 0, 28, { rotY: Math.PI / 2, options: { length: 74, width: 10, jets: 5, seed: 21 } }));
+
+  // Cypresses in rows down the canal. Formal, evenly spaced, and dark: they are
+  // architecture in a garden like this, not planting.
+  //
+  // They are set WIDE of the water and kept to one row a side. The first pass ran them at
+  // x = ±12 with a second family crossing behind, thirty trees in all, and the two things
+  // they framed the view of were each other: the mosque and the jawab -- the pair the
+  // whole symmetry argument rests on -- were completely hidden behind them from the only
+  // place a student arrives.
+  for (let i = 0; i < 7; i++) {
+    const z = 32 + i * 12;
+    for (const sx of [-1, 1]) {
+      items.push(prop('garden-cypress', sx * 17, z, { options: { height: 18 + (i % 3), seed: 300 + i * 5 + (sx > 0 ? 1 : 0) } }));
+    }
+  }
+  for (let i = 0; i < 3; i++) {
+    for (const sx of [-1, 1]) {
+      items.push(prop('garden-cypress', sx * (34 + i * 13), 16, { options: { height: 16 + (i % 3), seed: 400 + i * 7 + (sx > 0 ? 1 : 0) } }));
+    }
+  }
+
+  // --- The flanking buildings --------------------------------------------
+  // The mosque west, the jawab east. The jawab was never a mosque and has no mihrab: it
+  // exists so the composition is symmetrical, which tells you what mattered here.
+  items.push(prop('taj-mosque', -74, TAJ_Z, { rotY: Math.PI / 2, options: { width: 46, depth: 22, height: 26, seed: 13 } }));
+  items.push(prop('taj-mosque', 74, TAJ_Z, { rotY: -Math.PI / 2, options: { width: 46, depth: 22, height: 26, seed: 14 } }));
+  items.push(
+    prop('info-placard', -60, -26, {
+      rotY: facing(-60, -26, 0, 40),
+      options: {
+        eyebrow: 'One of these is not a mosque', title: 'The mosque and the jawab', accent: '#8e4130',
+        body: 'The building on the west is a working mosque, facing Mecca. The one on the east is its mirror image and always has been empty — jawab means "answer". It was built purely so that the view has the same thing on both sides. Symmetry mattered more than function, and that is the argument of the whole complex.',
+      },
+    }),
+  );
+
+  // --- The gate -----------------------------------------------------------
+  items.push(prop('taj-gateway', 0, 152, { rotY: Math.PI, options: { width: 62, height: 46, depth: 20, seed: 11 } }));
+  items.push(
+    prop('info-placard', -34, 138, {
+      rotY: face(-34, 138),
+      options: {
+        eyebrow: 'You are meant to arrive through it', title: 'The great gate', accent: '#a8503a',
+        body: 'From outside, the gate hides the Taj completely. You walk through the arch and the whole building appears at once, framed and reflected. That is the design: the complex is arranged so the first view is a single event. Red sandstone here, white marble there — the colour change is doing the same work.',
+      },
+    }),
+  );
+
+  // --- Detail worth standing next to -------------------------------------
+  items.push(prop('marble-screen', -18, -10, { rotY: 0.35, options: { width: 9, height: 10, seed: 23 } }));
+  items.push(prop('marble-screen', 18, -10, { rotY: -0.35, options: { width: 9, height: 10, seed: 24 } }));
+  items.push(prop('cenotaph', -7, -22, { options: { length: 9, width: 4.5, height: 4.4, ornate: false, seed: 29 } }));
+  items.push(prop('cenotaph', 6, -25, { rotY: 0.06, options: { length: 8, width: 4, height: 4, ornate: true, seed: 31 } }));
+  items.push(
+    prop('info-placard', 26, -14, {
+      rotY: facing(26, -14, 0, 40),
+      options: {
+        eyebrow: 'Both of these are empty', title: 'The cenotaphs', accent: '#c4bcaa',
+        body: 'The two marble boxes under the dome are markers. The real graves are in a plain crypt below, unmarked and closed. Mumtaz\'s marker is dead centre; Shah Jahan\'s was squeezed in beside it after he died, and it is the ONLY thing in the entire building that is not symmetrical.',
+      },
+    }),
+  );
+
+  // --- Grounds ------------------------------------------------------------
+  [[-52, 96], [52, 96], [-52, 60], [52, 60]].forEach(([x, z], i) => {
+    items.push(prop('flower-bed', x, z, { rotY: (i % 2 ? 1 : -1) * 0.2, options: { width: 14, depth: 6, seed: 700 + i * 9 } }));
+  });
+  [[-24, 104], [24, 104], [-24, 40], [24, 40]].forEach(([x, z]) => {
+    items.push(prop('bench', x, z, { rotY: face(x, z) + Math.PI, options: { length: 5 } }));
+  });
+  [[-40, 118], [40, 118], [-40, 78], [40, 78]].forEach(([x, z], i) => {
+    items.push(prop('lamp-post', x, z, { options: { height: 11, seed: 800 + i } }));
+  });
+  [[-64, 122], [64, 122], [-70, 44], [70, 44]].forEach(([x, z], i) => {
+    items.push(prop('shade-tree', x, z, { options: { height: 22 + (i % 3) * 3, seed: 900 + i * 7, leafColor: 0x4a6b32 } }));
+  });
+
+  // --- Wayfinding ---------------------------------------------------------
+  items.push(
+    prop('standing-sign', 34, 128, {
+      rotY: face(34, 128),
+      options: { lines: ['THE TAJ MAHAL'], subtitle: 'Agra · 1632–1653 · white marble from Makrana', width: 16, height: 4.4 },
+    }),
+  );
+  items.push(...browserStation(-24, 122, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- Programming challenges ---------------------------------------------
+  items.push(
+    activity(-44, 132, {
+      number: 1, rotY: face(-44, 132), accent: '#c4bcaa',
+      title: 'Straighten a minaret',
+      target: 'Click any one of the four minarets → Program.',
+      steps: [
+        lookStep('say leaning'),
+        ctrlStep('wait 1 seconds'),
+        moveStep('move up by 14 feet'),
+        ctrlStep('wait 1 seconds'),
+        moveStep('move up by -14 feet'),
+        lookStep('set opacity to 45 %'),
+      ],
+      tip: 'Lift one out of the row and the lean is obvious against the three that are left. Then set opacity to 45% and you can see the tomb straight through it. Put it back with set opacity to 100% — or with go back to start, which undoes everything at once.',
+    }),
+  );
+  items.push(
+    activity(44, 132, {
+      number: 2, rotY: face(44, 132), accent: '#a8503a',
+      title: 'Send a cypress down the canal',
+      target: 'Click a cypress beside the water → Program.',
+      steps: [
+        ctrlStep('repeat 8 times'),
+        moveStep('glide 12 feet over 1.5 seconds', 1),
+        lookStep('change size by -8 %', 1),
+        moveStep('rotate 45 degrees', 1),
+        moveStep('go back to start'),
+      ],
+      tip: 'It shrinks as it goes, so it looks like it is walking away from you. Go back to start puts it exactly where it began — position, turn and size all at once — which is the block to reach for whenever a program has made a mess.',
+    }),
+  );
+
+  // --- Lighting -----------------------------------------------------------
+  items.push(orb(0, TAJ_Z, 46, ORB_WARM));
+  items.push(orb(0, 100, 10, ORB_WARM));
+  items.push(orb(-74, TAJ_Z, 16, ORB_WHITE));
+  items.push(orb(74, TAJ_Z, 16, ORB_WHITE));
+
+  return { theme: 'tajmahal', spawn: { ...SP, yaw: Math.atan2(-(0 - SP.x), -(TAJ_Z - SP.z)) }, items };
+}
+
+// ---------------------------------------------------------------------------
+// Red Square
+// ---------------------------------------------------------------------------
+
+// Moscow in winter. St Basil's at the south end, the Kremlin wall and Lenin's tomb down
+// the west side, GUM down the east, the History Museum closing the north.
+//
+// The square is really 1,090ft long and that will not fit, so the buildings are brought in
+// to about 200ft apart. That is the right thing to compress: nobody remembers the square's
+// proportions, and everybody remembers the domes.
+function redSquareLayout() {
+  const items = [];
+  // The spawn is 220ft back from the cathedral, and that distance is set by its HEIGHT
+  // rather than by how much room the square needs. At 155ft tall and 196ft away, the tent
+  // roof and the top three domes -- the whole reason to build this world -- sat above the
+  // top of the frame on arrival. The camera's 70 degree fov is vertical, so 35 degrees is
+  // all there is above the horizon, and 220ft is what brings the finial inside it.
+  const SP = { x: 0, z: 120 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- St Basil's ---------------------------------------------------------
+  // `radius` is the plan across the eight chapels, and it was 34 at first, which made the
+  // cathedral half as wide as it is tall. The real building is about two thirds as wide as
+  // high -- it is a squat, crowded, top-heavy thing, and stretched thin it turns into a
+  // generic spire.
+  items.push(prop('st-basils', 0, -100, { options: { height: 155, radius: 44, seed: 5 } }));
+  items.push(
+    prop('info-placard', -40, -46, {
+      rotY: facing(-40, -46, 0, 40),
+      options: {
+        eyebrow: 'Nine churches on one foundation', title: "St Basil's Cathedral", accent: '#c8452f',
+        body: 'Eight chapels arranged as an eight-pointed star around a ninth in the middle, each with its own dome — and no two domes are alike. Ivan the Terrible had it built in 1561 to mark a victory. The story that he blinded the architect so it could never be repeated is almost certainly untrue: the same man went on to build something else.',
+      },
+    }),
+  );
+  items.push(
+    prop('info-placard', 40, -46, {
+      rotY: facing(40, -46, 0, 40),
+      options: {
+        eyebrow: 'It was white for a hundred years', title: 'The domes', accent: '#2e5fa8',
+        body: 'The colour is not original. The cathedral stood white with gold domes until the 1680s, and the spirals, chevrons and facets were painted on later. Nobody is certain why. The shape is not borrowed either — the tall tent roof in the middle is Russian, and you will not find it on a Byzantine church.',
+      },
+    }),
+  );
+
+  // --- The Kremlin side ---------------------------------------------------
+  // The wall runs the length of the west side, with the Spasskaya tower on the square and
+  // the Nikolskaya at the far end.
+  //
+  // The whole west side is pulled IN to x = -74. At -92 the Spasskaya -- the tower with
+  // the clock and the ruby star, and the single most photographed thing on this side of
+  // the square -- sat 49 degrees off the arrival sightline and was clipped straight off
+  // the edge of the frame. The camera's 70 degree fov is VERTICAL, so a 16:9 screen only
+  // sees about 51 degrees either side, and 49 is not "just inside", it is on the bezel.
+  items.push(prop('kremlin-wall', -74, -34, { rotY: Math.PI / 2, options: { length: 86, height: 26, depth: 12, seed: 7 } }));
+  items.push(prop('kremlin-wall', -74, 66, { rotY: Math.PI / 2, options: { length: 78, height: 26, depth: 12, seed: 9 } }));
+  items.push(prop('kremlin-tower', -74, 0, { rotY: Math.PI / 2, options: { height: 130, base: 18, clock: true, star: true, seed: 11 } }));
+  items.push(prop('kremlin-tower', -74, 112, { rotY: Math.PI / 2, options: { height: 104, base: 15, clock: false, star: true, seed: 13 } }));
+  items.push(prop('kremlin-tower', -74, -84, { rotY: Math.PI / 2, options: { height: 88, base: 13, clock: false, star: false, seed: 17 } }));
+  items.push(prop('lenin-mausoleum', -52, 6, { rotY: Math.PI / 2, options: { width: 40, height: 24, depth: 30, seed: 13 } }));
+
+  items.push(
+    prop('info-placard', -34, 34, {
+      rotY: face(-34, 34),
+      options: {
+        eyebrow: 'The clock is 20 feet across', title: 'The Spasskaya Tower', accent: '#a8503c',
+        body: 'The gate tower on the square, and the one the chimes come from at New Year. The ruby star on top went up in 1937, replacing a double-headed imperial eagle. It is real glass, lit from inside, and it turns in the wind. The white upper stage is 200 years younger than the brick underneath it, which is why the two do not match.',
+      },
+    }),
+  );
+  items.push(
+    prop('info-placard', -30, -16, {
+      rotY: face(-30, -16),
+      options: {
+        eyebrow: 'Red and black granite', title: "Lenin's Mausoleum", accent: '#7a3630',
+        body: 'A stepped pyramid, deliberately low, so the leaders standing on the roof to watch a parade were level with the crowd rather than above it. The dark bands are labradorite, which is nearly black and flashes blue when the light catches it. Lenin himself had asked to be buried beside his mother.',
+      },
+    }),
+  );
+
+  // --- GUM ----------------------------------------------------------------
+  items.push(prop('gum-store', 80, 16, { rotY: -Math.PI / 2, options: { length: 190, height: 46, depth: 34, seed: 17 } }));
+  items.push(
+    prop('info-placard', 40, 46, {
+      rotY: face(40, 46),
+      options: {
+        eyebrow: 'A shopping arcade under glass', title: 'GUM', accent: '#8c3f2c',
+        body: 'Built in 1893 with an iron and glass roof over three parallel arcades — the same engineering as a railway station, put to shopping. Under the Soviet Union it was the state department store, and for a long stretch it was mostly queues. The fountain in the middle is where Muscovites still arrange to meet.',
+      },
+    }),
+  );
+
+  // --- The north end ------------------------------------------------------
+  items.push(prop('history-museum', 0, 152, { rotY: Math.PI, options: { length: 120, height: 62, depth: 40, seed: 19 } }));
+
+  // --- The square ---------------------------------------------------------
+  // Cobbles, not asphalt. Laid in a long strip down the middle so the paving reads under
+  // foot without paving the entire world.
+  items.push(prop('square-paving', 0, 30, { options: { width: 62, depth: 130, snowy: true, seed: 23 } }));
+  items.push(prop('square-paving', 0, -58, { options: { width: 50, depth: 52, snowy: true, seed: 27 } }));
+
+  const drifts = [
+    [-34, 74, 16], [34, 70, 14], [-28, -8, 12], [30, -12, 15], [-16, -74, 11], [22, -76, 13],
+    [-46, 118, 15], [46, 114, 12], [-40, 40, 13], [40, 36, 11], [-12, 108, 14], [14, 104, 12],
+  ];
+  drifts.forEach(([x, z, l], i) => items.push(prop('snow-drift', x, z, { rotY: (i % 3) * 0.6, options: { length: l, height: 2.2, seed: 700 + i * 7 } })));
+
+  const birches = [
+    [-56, 128, 25], [-44, 140, 22], [56, 132, 24], [66, 118, 21],
+    [-70, 146, 26], [72, 148, 23], [-84, 132, 24], [86, 140, 22],
+  ];
+  birches.forEach(([x, z, h], i) => items.push(prop('birch-tree', x, z, { options: { height: h, bare: true, seed: 800 + i * 5 } })));
+
+  [[-26, 62], [26, 62], [-26, -30], [26, -30], [-26, 14], [26, 14]].forEach(([x, z], i) => {
+    items.push(prop('lamp-post', x, z, { options: { height: 15, seed: 900 + i } }));
+  });
+  [[-20, 100], [20, 100], [-20, 44], [20, 44], [-18, -48], [18, -48]].forEach(([x, z]) => {
+    items.push(prop('bench', x, z, { rotY: face(x, z) + Math.PI, options: { length: 5 } }));
+  });
+  [[-34, 96], [34, 96], [-34, -4], [34, -4]].forEach(([x, z], i) => {
+    items.push(prop('planter', x, z, { options: { size: 3.6, seed: 950 + i } }));
+  });
+
+  // --- Wayfinding ---------------------------------------------------------
+  items.push(
+    prop('standing-sign', 32, 108, {
+      rotY: face(32, 108),
+      options: { lines: ['RED SQUARE'], subtitle: 'Krasnaya Ploshchad — "red" here once meant "beautiful"', width: 18, height: 4.4 },
+    }),
+  );
+  // Pulled in toward the centre line. At (-14, 104) the panel sat at 41 degrees off the
+  // arrival sightline and the first activity board at 47 -- close enough that the nearer
+  // one covered half of the further one from the only place a student stands on arrival.
+  items.push(...browserStation(-8, 106, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- Programming challenges ---------------------------------------------
+  items.push(
+    activity(-30, 92, {
+      number: 1, rotY: face(-30, 92), accent: '#c8452f',
+      title: 'Raise the cathedral out of the snow',
+      target: "Click St Basil's → Program.",
+      steps: [
+        moveStep('move up by 40 feet'),
+        ctrlStep('wait 1 seconds'),
+        ctrlStep('repeat 20 times'),
+        moveStep('move up by -2 feet', 1),
+        ctrlStep('wait 0.1 seconds', 1),
+        lookStep('say home'),
+      ],
+      tip: 'Twenty steps of two feet is forty feet, so it lands exactly back where it started. Change the 20 or the -2 and it will not — that arithmetic is the whole trick, and it is the same one that puts a lift on the right floor.',
+    }),
+  );
+  items.push(
+    activity(30, 92, {
+      number: 2, rotY: face(30, 92), accent: '#2e5fa8',
+      title: 'A parade past the tomb',
+      target: 'Click a lamp post on the square → Program.',
+      steps: [
+        ctrlStep('forever'),
+        ctrlStep('duplicate 12 ft away', 1),
+        moveStep('glide 20 feet over 2 seconds', 1),
+        lookStep('change color to blue', 1),
+        ctrlStep('wait 1 seconds', 1),
+      ],
+      tip: 'Duplicate is the only block whose effect leaves its own object, and the copies do NOT inherit it — otherwise one lamp post would become a thousand in about four seconds. Take the forever out and use repeat 5 times instead to line up exactly five.',
+    }),
+  );
+
+  // --- Lighting -----------------------------------------------------------
+  // Winter afternoon: the sun is weak, so the square needs real fill or the north faces of
+  // everything go flat. Warm orbs against the cold ground bounce.
+  items.push(orb(0, -104, 48, ORB_WARM));
+  items.push(orb(-66, 6, 14, ORB_WARM));
+  items.push(orb(52, 16, 20, ORB_WARM));
+  items.push(orb(0, 40, 16, ORB_WHITE));
+
+  return { theme: 'redsquare', spawn: { ...SP, yaw: Math.atan2(-(0 - SP.x), -(-104 - SP.z)) }, items };
+}
+
+// ---------------------------------------------------------------------------
 // Registry + materialization
 // ---------------------------------------------------------------------------
 
@@ -4824,6 +5552,26 @@ export const PRESET_WORLDS = {
     label: 'Delta River Boat',
     hint: 'A sternwheel packet at a Mississippi landing, about 1870',
     build: deltaLayout,
+  },
+  colosseum: {
+    label: 'The Colosseum',
+    hint: 'Rome — the amphitheatre, the Arch of Constantine and a corner of the Forum',
+    build: colosseumLayout,
+  },
+  machupicchu: {
+    label: 'Machu Picchu',
+    hint: 'The Inca citadel at 7,970ft — terraces, temples and the peak behind it',
+    build: machuPicchuLayout,
+  },
+  tajmahal: {
+    label: 'The Taj Mahal',
+    hint: 'Agra at first light — the tomb, its garden and the great gate',
+    build: tajLayout,
+  },
+  redsquare: {
+    label: 'Red Square',
+    hint: "Moscow in winter — St Basil's, the Kremlin wall, GUM and Lenin's tomb",
+    build: redSquareLayout,
   },
   empty: {
     label: 'My World',

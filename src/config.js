@@ -565,6 +565,123 @@ export const WORLD_THEMES = {
     sunPosition: [120, 48, 85],
     stars: false,
   },
+
+  // Rome in late afternoon. Everything here is travertine -- a warm cream limestone that
+  // has been weathering in the open for nineteen centuries -- so the sun is warm and low
+  // and the ground ramp is dry grass over dust rather than lawn. The Colosseum is a
+  // hollow ring of arcades, which means most of what a student sees is the INSIDE of a
+  // shaded arch, so hemiIntensity is high for the same reason New York's is: a sun can
+  // only ever light one face of a deep opening, and the fill light is the whole budget
+  // for the other three.
+  colosseum: {
+    groundDetail: 'ground-soil.jpg',
+    sky: 0xa8c4de,
+    fogNear: 130,
+    fogFar: 480,
+    groundLow: 0x6f6a4a,
+    groundHigh: 0xa89a6c,
+    amplitude: 1.1,
+    flatRadius: 70,
+    blendRadius: 165,
+    hemiSky: 0xdce8ff,
+    hemiGround: 0x6a6048,
+    hemiIntensity: 1.75,
+    sunColor: 0xffedcf,
+    sunIntensity: 2.4,
+    sunPosition: [-140, 95, 70],
+    stars: false,
+  },
+
+  // Machu Picchu at 7,970ft, mid-morning, with cloud still in the valley.
+  //
+  // The sun is genuinely harsh: thin air at altitude scatters far less, so the light is
+  // whiter and the shadows harder than in any other outdoor world here.
+  //
+  // The FOG had to be pulled back. It started at 55/330, which is what being inside a
+  // cloud forest looks like -- and which erased Huayna Picchu, 300ft from the spawn and
+  // the entire reason anyone recognises this place, into a pale grey ghost. The
+  // atmosphere is carried by the `cloud-bank` props lying in the valley instead, which
+  // put the weather where it belongs and leave the mountain visible.
+  machupicchu: {
+    groundDetail: 'ground-soil.jpg',
+    sky: 0x7fb0dc,
+    fogNear: 70,
+    fogFar: 520,
+    groundLow: 0x3a5230,
+    groundHigh: 0x6d8848,
+    amplitude: 2.4,
+    flatRadius: 44,
+    blendRadius: 140,
+    hemiSky: 0xd6e8ff,
+    hemiGround: 0x4c5a3c,
+    hemiIntensity: 1.5,
+    sunColor: 0xfffdf6,
+    sunIntensity: 2.75,
+    sunPosition: [95, 150, 105],
+    stars: false,
+  },
+
+  // The Taj at first light, which is when it is actually visited and the one time of day
+  // the marble is not white. It takes the colour of whatever sky is on it -- pink at
+  // dawn, gold at dusk -- and that is the single most repeated fact about the building,
+  // so the world has to show it rather than state it on a placard.
+  //
+  // Hence a rose sky with a low warm sun, and a hemiSky that is warm too, which is what
+  // tints the dome's shaded half. A neutral fill would have left the building white on
+  // one side and pink on the other, which is exactly wrong.
+  // The sun is deliberately LOW and to one side rather than behind the tomb. Placed
+  // straight behind it the whole facade -- the thing the world exists to show -- sits in
+  // its own shadow, and no amount of fill light rescues a 100ft slab of marble lit only
+  // from the sky. The hemisphere fill is also high and warm, which is what tints the
+  // shaded half of the dome instead of leaving the building pink on one side and grey on
+  // the other.
+  tajmahal: {
+    groundDetail: 'ground-soil.jpg',
+    sky: 0xe8b48e,
+    fogNear: 120,
+    fogFar: 460,
+    groundLow: 0x6b7a48,
+    groundHigh: 0xa6b06c,
+    amplitude: 0.7,
+    flatRadius: 95,
+    blendRadius: 190,
+    hemiSky: 0xffd9bc,
+    hemiGround: 0x6e6a50,
+    hemiIntensity: 1.95,
+    sunColor: 0xffd6a8,
+    sunIntensity: 2.9,
+    sunPosition: [-150, 78, 120],
+    stars: false,
+  },
+
+  // Red Square under snow, in the flat blue light of a Moscow winter afternoon.
+  //
+  // Snow is the whole reason for this theme's numbers, and it is a harder lighting
+  // problem than it sounds. A white ground is an enormous reflector, so hemiGround is the
+  // second lightest in the app after the reef's carbonate sand -- without it St Basil's
+  // undersides go black and the domes stop reading as domes. But snow under a low winter
+  // sun is also BLUE, not white: the ground ramp is deliberately cold, and the sun is
+  // weak and warm against it, which is the contrast that makes the cathedral's paint
+  // work. Fog is close, because a winter afternoon there genuinely is hazy.
+  redsquare: {
+    groundDetail: 'ground-regolith.jpg',
+    sky: 0x9db6cc,
+    fogNear: 90,
+    fogFar: 360,
+    groundLow: 0xa8b6c4,
+    groundHigh: 0xe4ecf4,
+    groundRoughness: 0.95,
+    amplitude: 0.5,
+    flatRadius: 100,
+    blendRadius: 190,
+    hemiSky: 0xcfdcec,
+    hemiGround: 0xb4c2ce,
+    hemiIntensity: 1.9,
+    sunColor: 0xffe6c2,
+    sunIntensity: 1.9,
+    sunPosition: [70, 58, 150],
+    stars: false,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger
