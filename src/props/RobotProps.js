@@ -21,8 +21,10 @@ import {
 // structural rather than remembered.
 //
 // The robot is in the style of the classroom coding robots this app is meant to sit
-// alongside: a tri-lobe body, one enormous single eye, and a bright two-colour paint job.
-// It is not a model of any particular product and carries no brand.
+// alongside: a tri-lobe body, a stereo PAIR of eye sensors, and a bright two-colour paint
+// job. It is not a model of any particular product and carries no brand -- the two-sensor
+// head is part of that, since a single enormous central eye is one specific product's
+// signature and this model has no business being mistaken for it.
 //
 // House rules: feet at scale 1, origin at base centre, fresh materials per call,
 // seededRandom never Math.random. See PropKit.js and LoftKit.js.
@@ -237,9 +239,10 @@ const partingLine = (depth = 0.05) => (t) => grooveAt(t - 0.5, 0.022, depth);
 // Four things carry the identification, in the order they matter -- get any of them wrong
 // and it is a generic droid:
 //
-//  1. THE EYE, which is most of the animal. It is enormous -- three quarters of the head's
-//     width -- and it is a stack: an accent-coloured bezel ring, a white spoked LED disc,
-//     a domed black pupil, and one specular highlight. Shrink it and the robot goes blank.
+//  1. THE EYE SENSORS, which are most of the animal. A stereo PAIR, each a stack: an
+//     accent-coloured bezel ring, a white spoked LED disc, a domed black lens and one
+//     specular highlight, with an accent band bridging them. Between them they still span
+//     most of the head's width -- shrink them and the robot goes blank.
 //  2. THE TRI-LOBE BODY. Two big lobes side by side with a third pushed forward between
 //     them, all three the same family of size. Two lobes is a scooter; four is a car.
 //  3. THE HEAD SITS IN THE NOTCH, not on a neck. It overlaps both rear lobes, and the black
@@ -298,6 +301,12 @@ export function robot({
   }), SHELL, [0, FRONT_Y, FRONT_Z]);
 
   // --- the head ----------------------------------------------------------
+  //
+  // THE FRONT IS SQUASHED TO 0.72 AND THAT IS LOAD-BEARING. A round head of radius 1.76
+  // reaches z = 1.76 at its pole while the sensors' faces sit at 1.42, so on a round head the
+  // shell bulges straight THROUGH both of them and the robot appears to have a blue ball
+  // where each lens should be. Flattening only the +Z half fixes it and leaves the back of
+  // the head perfectly round -- which is exactly what `up` vs `dn` on a 'y' loft is for.
   put(parts, solidLoft(shellStations(HEAD_R, { front: HEAD_FRONT, rows: 26 }), {
     sides: 48, samples: 60, axis: 'y', warp: partingLine(0.045),
   }), SHELL, [0, HEAD_Y, HEAD_Z]);
@@ -322,56 +331,79 @@ export function robot({
     stud(glow, 0xf4f8ff, { at: [p[0], p[1], p[2] + 0.03], normal: n, radius: 0.40, rise: 0.22, sink: 0.42 });
   }
 
-  // --- THE EYE -----------------------------------------------------------
+  // --- THE TWO EYE SENSORS -------------------------------------------------
   //
-  // The pod is ONE closed surface of revolution running from deep inside the head out to the
-  // bezel crown, so the join between the eye and the head is not a join at all -- the pod
-  // simply emerges. Its back rim sits at z = 0.20 from the head centre where the head's own
-  // surface is at 0.90, so a quarter of the pod is buried and no camera angle can find an
-  // edge.
+  // TWO SMALLER SENSORS, NOT ONE LARGE ONE, and that is a deliberate change rather than a
+  // stylistic one: a single enormous central eye is the signature of a specific commercial
+  // classroom robot, and this model has no business being mistaken for it. A stereo pair
+  // reads just as clearly as a robot, is what a machine that actually judges distance would
+  // have, and belongs to nobody.
   //
-  // THE HEAD'S FRONT IS SQUASHED TO 0.72 FOR THIS ONE REASON. A round head of radius 1.76
-  // reaches z = 1.76 at its pole, and the eye's face sits at 1.42 -- so on a round head the
-  // shell bulges straight THROUGH the middle of the eye and the robot appears to have a
-  // blue ball where its pupil should be. Flattening only the +Z half fixes it and leaves the
-  // back of the head perfectly round, which is what `up` vs `dn` on a 'y' loft is for.
+  // Each pod is ONE closed surface of revolution running from deep inside the head out to
+  // the bezel crown, so the join between a sensor and the head is not a join at all -- the
+  // pod simply emerges. Its back rim sits at 0.30 from the head centre where the head's own
+  // surface is between 0.66 and 1.26 depending on where round the rim you measure, so every
+  // part of it is buried and no camera angle can find an edge.
+  //
+  // THE FACE HAS TO CLEAR THE HEAD'S FRONT POLE AT ITS INNER EDGE, not at its own centre.
+  // The head is squashed to 0.72 in +Z and so reaches 1.267 on the axis, while a pod centred
+  // at x = 0.78 sits over a surface only 1.13 deep -- but the pod's INNER edge reaches back
+  // to x = 0.06, where the head is 1.263. Sized off the pod's own centre the face cleared by
+  // seventeen thousandths of a foot and the shell bulged through the inner third of both
+  // sensors. It is at 1.42, which clears everywhere.
+  const EYE_X = 0.78;
+  const EYE_Y = HEAD_Y + 0.12;
   const pod = lathed([
-    [0.00, 0.18], [1.24, 0.20], [1.28, 0.70], [1.30, 1.16], [1.28, 1.38],
-    [1.20, 1.52], [1.02, 1.58], [0.94, 1.46], [0.55, 1.44], [0.00, 1.42],
-  ], { segments: 76 });
-  put(parts, pod, 0xffffff, [0, HEAD_Y, HEAD_Z], [Math.PI / 2, 0, 0], {
-    keepColor: true,
-    // ONE SOLID, TWO COLOURS. The bezel and the dished face are the same closed lathe, split
-    // by radius in the tint rather than built as two rings -- which is what guarantees there
-    // is no seam between them to leave a gap at. The tint runs BEFORE the part's transform,
-    // so the radius is measured in the lathe's own authored frame, about Y.
-    tint: (p) => {
-      const c = new THREE.Color(Math.hypot(p.x, p.z) > 0.90 ? ACCENT : SHOP.paint);
-      return [c.r, c.g, c.b];
-    },
-  });
+    [0.00, 0.30], [0.66, 0.32], [0.70, 0.85], [0.72, 1.16], [0.70, 1.32],
+    [0.63, 1.47], [0.53, 1.54], [0.49, 1.44], [0.26, 1.425], [0.00, 1.42],
+  ], { segments: 60 });
 
-  // The lit ring. A full disc rather than an annulus: the pupil covers the middle anyway, and
-  // an annulus is the one shape extrudeOutline cannot cap without throwing triangles across
-  // its own hole.
-  const led = new THREE.CylinderGeometry(0.96, 0.96, 0.10, 60);
-  put(glow, led, 0xf6f9ff, [0, HEAD_Y, HEAD_Z + 1.50], [Math.PI / 2, 0, 0]);
+  for (const ex of [-EYE_X, EYE_X]) {
+    put(parts, pod, 0xffffff, [ex, EYE_Y, HEAD_Z], [Math.PI / 2, 0, 0], {
+      keepColor: true,
+      // ONE SOLID, TWO COLOURS. The bezel and the dished face are the same closed lathe,
+      // split by radius in the tint rather than built as two rings -- which is what
+      // guarantees there is no seam between them to leave a gap at. The tint runs BEFORE the
+      // part's transform, so the radius is measured in the lathe's own authored frame.
+      tint: (p) => {
+        const c = new THREE.Color(Math.hypot(p.x, p.z) > 0.46 ? ACCENT : SHOP.paint);
+        return [c.r, c.g, c.b];
+      },
+    });
 
-  // Fourteen radial spokes. They live in the MATTE mesh, not the lit one, which is what
-  // makes them read as the divisions between lit segments without needing a second emissive
-  // colour -- an emissive is a flat material property and vertex colours do not multiply it,
-  // so a dark spoke inside the glowing mesh would simply glow white too.
-  for (let i = 0; i < 14; i++) {
-    const a = (i / 14) * Math.PI * 2;
-    put(parts, new THREE.BoxGeometry(0.44, 0.055, 0.11), 0xdfe3e8,
-      [Math.cos(a) * 0.73, HEAD_Y + Math.sin(a) * 0.73, HEAD_Z + 1.54], [0, 0, a]);
+    // The lit ring. A full disc rather than an annulus: the pupil covers the middle anyway,
+    // and an annulus is the one shape extrudeOutline cannot cap without throwing triangles
+    // across its own hole.
+    put(glow, new THREE.CylinderGeometry(0.50, 0.50, 0.09, 34), 0xf6f9ff,
+      [ex, EYE_Y, HEAD_Z + 1.48], [Math.PI / 2, 0, 0]);
+
+    // Ten radial spokes per sensor. They live in the MATTE mesh, not the lit one, which is
+    // what makes them read as the divisions between lit segments without needing a second
+    // emissive colour -- an emissive is a flat material property and vertex colours do not
+    // multiply it, so a dark spoke inside the glowing mesh would simply glow white too.
+    for (let i = 0; i < 10; i++) {
+      const a = (i / 10) * Math.PI * 2;
+      put(parts, new THREE.BoxGeometry(0.20, 0.038, 0.09), 0xdfe3e8,
+        [ex + Math.cos(a) * 0.37, EYE_Y + Math.sin(a) * 0.37, HEAD_Z + 1.52], [0, 0, a]);
+    }
+
+    // The lens, domed and sunk into the ring, and one specular highlight. The highlight is
+    // the cheapest thing on the model and close to the most important: without it a matte
+    // black ball reads as a hole in the robot's face rather than as a lens.
+    put(parts, ball(0.27, 24), 0x14161a, [ex, EYE_Y, HEAD_Z + 1.40]);
+    put(glow, ball(0.062, 10), 0xffffff, [ex - 0.108, EYE_Y + 0.128, HEAD_Z + 1.588]);
   }
 
-  // The pupil, domed and sunk two thirds into the ring, and one specular highlight. The
-  // highlight is the cheapest thing on the model and close to the most important: without it
-  // a matte black ball reads as a hole in the robot's face rather than as a lens.
-  put(parts, ball(0.52, 34), 0x14161a, [0, HEAD_Y, HEAD_Z + 1.36]);
-  put(glow, ball(0.115, 12), 0xffffff, [-0.208, HEAD_Y + 0.247, HEAD_Z + 1.736]);
+  // The bridge between the two sensors: a shallow accent-coloured band across the head,
+  // sunk into it. Two pods on a bare sphere read as two unrelated fittings; a band ties them
+  // into one instrument, which is what a stereo pair is.
+  {
+    const { p, n } = onShell([0, HEAD_Y, HEAD_Z], [HEAD_R, HEAD_R, HEAD_R * HEAD_FRONT], [0, 0.1, 1]);
+    stud(parts, DEEP, {
+      at: [p[0], EYE_Y, p[2] + 0.02], normal: n, radius: 0.5, rise: 0.1,
+      wide: 1.9, long: 0.62, sink: 0.42,
+    });
+  }
 
   // --- buttons, ports and grilles ----------------------------------------
   //

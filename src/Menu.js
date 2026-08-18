@@ -1,4 +1,3 @@
-import { PRESET_WORLDS, isMenuWorld } from './WorldPresets.js';
 import { WORLD_GALLERY_URL } from './config.js';
 import { PRIMITIVE_SHAPES, SHAPE_LABELS } from './Primitives.js';
 
@@ -103,82 +102,56 @@ export class Menu {
       [...shapeButtons, loadObject.toggle, loadObject.panel]
     );
 
-    // The ready-made worlds are built from PRESET_WORLDS rather than hardcoded here, so
-    // adding another world is a one-line change in WorldPresets.js and shows up in the
-    // menu for free.
+    // THE LOAD WORLD DROPDOWN IS GONE, and with it the short list of presets it held.
     //
-    // Which worlds appear is decided by isMenuWorld() in WorldPresets.js, which folds two
-    // separate rules together:
+    // The gallery is the way into a world now: thirty-six of them, every one openable by
+    // link, against the four this menu could ever show. So the three buttons that used to
+    // live at the bottom of that dropdown are the whole story and they are top-level -- get
+    // a world, save this one, open a file. Nothing is nested behind a door any more.
     //
-    //   * MENU_WORLDS is the short list this dropdown offers. Everything left off it still
-    //     exists and is still openable through Load World File -- only the menu is shorter.
-    //   * `hidden` marks a world whose only door is inside another world (1940's New York
-    //     hangs off the billboard behind the Library). Listing one here would give away the
-    //     one thing that makes finding it worth anything.
-    const worldButtons = [];
-    for (const [name, preset] of Object.entries(PRESET_WORLDS)) {
-      if (!isMenuWorld(name)) continue;
-      const btn = this._button(preset.label, `${preset.hint} — replaces everything currently placed`);
-      btn.addEventListener('click', () => {
-        this.closeGroups();
-        onLoadPresetClick?.(name);
-      });
-      worldButtons.push(btn);
-    }
-
-    // The answer to "where did the other worlds go". The menu lists four; the rest are in
-    // the shared gallery, and this is the door to it.
-    //
-    // It sits directly under the worlds and above the file pair on purpose, because that
-    // is the order of the sentence it completes: here are four worlds, here are more,
-    // here is how you open one once you have downloaded it.
+    // WHAT THIS COSTS, stated because it is easy to rediscover as a bug: the boot world is
+    // no longer reachable from inside the app. A first visit still builds the Park, and a
+    // refresh still restores whatever the student did to it, but "give me a fresh Park" now
+    // means going through Get More Worlds. `loadPreset` itself stays wired up regardless --
+    // world portals (the billboard behind the Library, the one behind the Park's nature
+    // centre) call it, and so does the ?world= link.
     const moreWorldsBtn = this._button(
       'Get More Worlds',
-      'Open the shared world gallery in a new tab — download a world, then open it here with Load World File'
+      'Open the shared world gallery in a new tab — open a world straight from a link, or download one and load it here'
     );
-    moreWorldsBtn.classList.add('menu-subitem-more');
+    moreWorldsBtn.classList.add('menu-btn-gallery');
     moreWorldsBtn.addEventListener('click', () => {
       this.closeGroups();
       // noopener: the gallery is a different origin, and a page opened without it can
       // reach back through window.opener and navigate the app out from under the student.
       window.open(WORLD_GALLERY_URL, '_blank', 'noopener,noreferrer');
     });
-    worldButtons.push(moreWorldsBtn);
 
-    // The .json file pair closes the group, save above load. They wear menu-subitem-alt,
-    // which is a distinctly different COLOUR from the world buttons above them rather
-    // than a quieter version of the same one -- these two are a different kind of action
-    // entirely. Every button above replaces the world you are standing in; these move a
-    // world between people, and one of them is the only button in this menu that does not
-    // change what is on screen at all. Both halves have to be here — a student who can
-    // only load a file can receive someone else's world but never send their own.
+    // The .json file pair, save above load. They wear their own COLOUR rather than a
+    // quieter version of the ordinary button -- these two are a different kind of action
+    // entirely. Every other button in this menu changes what is on screen; these move a
+    // world between people, and one of them changes nothing on screen at all. Both halves
+    // have to be here: a student who can only load a file can receive someone else's world
+    // but never send their own.
     const saveWorldBtn = this._button(
       'Save World',
       'Download this world as a file — keep it, or send it to someone else to open'
     );
-    saveWorldBtn.classList.add('menu-subitem-alt');
+    saveWorldBtn.classList.add('menu-btn-file');
     saveWorldBtn.addEventListener('click', () => {
       this.closeGroups();
       onSaveWorldClick?.();
     });
-    worldButtons.push(saveWorldBtn);
 
     const loadWorldFileBtn = this._button(
       'Load World File',
       'Open a world file you saved earlier, or one someone sent you — this replaces everything currently placed'
     );
-    loadWorldFileBtn.classList.add('menu-subitem-alt');
+    loadWorldFileBtn.classList.add('menu-btn-file');
     loadWorldFileBtn.addEventListener('click', () => {
       this.closeGroups();
       onLoadWorldClick?.();
     });
-    worldButtons.push(loadWorldFileBtn);
-
-    const loadWorld = this._group(
-      'Load World',
-      'Load a ready-made world, save this one to a file, or open a world file',
-      worldButtons
-    );
 
     this.clearBtn = this._button('Clear World', 'Remove everything you have placed');
     this.clearBtn.addEventListener('click', () => onClearClick?.());
@@ -194,13 +167,13 @@ export class Menu {
     hint.className = 'menu-hint';
     hint.textContent = 'Arrow keys to walk & turn · drag to look';
 
-    // Load World first: it is the question a student answers before any other -- where am
-    // I going to build this? Create Model second, carrying Load Object inside it. Then the
-    // two whole-session actions. loadObject's own toggle and panel are NOT appended here;
-    // they are already inside createModel's panel.
+    // Worlds first -- where am I going to build this -- then Create Model carrying Load
+    // Object inside it, then the two whole-session actions. loadObject's own toggle and
+    // panel are NOT appended here; they are already inside createModel's panel.
     this.panel.append(
-      loadWorld.toggle,
-      loadWorld.panel,
+      moreWorldsBtn,
+      saveWorldBtn,
+      loadWorldFileBtn,
       createModel.toggle,
       createModel.panel,
       this.clearBtn,

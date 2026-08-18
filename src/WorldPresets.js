@@ -8627,26 +8627,18 @@ export const PRESET_WORLDS = {
   },
 };
 
-// What Menu ▸ Load World actually lists, in this order.
+// THE MENU NO LONGER LISTS WORLDS AT ALL, so the allowlist and its predicate are gone.
 //
-// This is an ALLOWLIST rather than a `hidden: true` on each of the other seventeen, and
-// the distinction matters: `hidden` already means something specific in this file -- "the
-// only door to this world is inside another world, and listing it would give away the one
-// thing that makes finding it worth anything" (see newyork and sea below). Overloading it
-// to also mean "not on the menu just now" would leave no way to tell the two apart, and
-// would need seventeen edits to undo instead of one.
+// `MENU_WORLDS` was a short list of four presets the Load World dropdown offered, and
+// `isMenuWorld()` folded it together with the `hidden` flag so the DOM menu and the VR menu
+// could never drift apart. Both menus now offer Get More Worlds instead: the gallery holds
+// thirty-six worlds, every one of them openable by link, which is a better answer than any
+// list this dropdown could have shown.
 //
-// Every world not named here is still completely intact: it is built by the same code, it
-// is in the shared gallery, and Load World ▸ Load World File opens it like any other. Only
-// the dropdown is shortened.
-export const MENU_WORLDS = ['park', 'tajmahal', 'moon', 'dinosaur'];
-
-// A preset belongs in the menu if it is on the list above AND is not one of the
-// portal-only worlds. Both menus -- the DOM one and the in-scene VR one -- go through
-// this, so they can never drift apart.
-export function isMenuWorld(name) {
-  return MENU_WORLDS.includes(name) && !PRESET_WORLDS[name]?.hidden;
-}
+// `hidden: true` SURVIVES ON THE TWO PORTAL WORLDS and is now documentation rather than
+// behaviour -- nothing reads it. It still records the one fact worth keeping: 1940's New York
+// and Under the Sea have no door except a billboard inside another world, which is what makes
+// finding them worth anything. Anything that ever lists worlds again should read it.
 
 function toRecord(item, groundHeightAt) {
   const y = item.absoluteY ? item.y : groundHeightAt(item.x, item.z) + (item.y || 0);

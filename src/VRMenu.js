@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { PRESET_WORLDS, isMenuWorld } from './WorldPresets.js';
 import { EYE_HEIGHT } from './config.js';
 
 // The menu, rebuilt as a real object in the 3D scene, for use while VR is running.
@@ -147,19 +146,15 @@ export class VRMenu {
     if (this.collapsed) return [];
     const rows = [];
 
-    // Load World first, matching the flat menu's order.
-    rows.push({ id: 'group:world', label: 'Load World', group: 'world' });
-    if (this.openGroup === 'world') {
-      // `hidden` presets are skipped here for the same reason as in the DOM menu: their
-      // only way in is a portal inside another world.
-      // Same predicate as the flat menu, so the two can never list different worlds.
-      for (const [name, preset] of Object.entries(PRESET_WORLDS)) {
-        if (!isMenuWorld(name)) continue;
-        rows.push({ id: `preset:${name}`, label: preset.label, indent: true });
-      }
-      rows.push({ id: 'saveWorld', label: 'Save World', indent: true, leavesVR: true });
-      rows.push({ id: 'loadWorldFile', label: 'Load World File', indent: true, leavesVR: true });
-    }
+    // The world file pair, top-level and first, matching the flat menu. The Load World
+    // dropdown is gone from both -- see Menu.js for why -- so there is no group here either.
+    //
+    // Get More Worlds is deliberately NOT offered in VR: it opens a browser tab, which a
+    // headset cannot show, and unlike Import or Draw there is nothing useful left once you
+    // have been dropped out of VR to look at it. The two file buttons stay because a student
+    // may genuinely want to save what they have just built before taking the headset off.
+    rows.push({ id: 'saveWorld', label: 'Save World', leavesVR: true });
+    rows.push({ id: 'loadWorldFile', label: 'Load World File', leavesVR: true });
 
     // Load Object stays TOP-LEVEL here, where the flat menu has since moved it inside
     // Create Model. That is not an oversight: Create Model does not exist in VR at all

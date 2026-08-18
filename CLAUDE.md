@@ -345,9 +345,9 @@ sky back to daylight instead of inheriting it.
 
 ### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / the curriculum set / My World / (New York, Under the Sea)
 
-The menu reads **Load World → Create Model → Clear World → VR Headset View**, in that
-order: where am I going to build this, then what am I building, then the two
-whole-session actions. **Load Object** (Import / Draw / Light Orb / Web Browser) is not
+The menu reads **Get More Worlds → Save World → Load World File → Create Model → Clear
+World → VR Headset View**, in that order: get a world, keep this one, open a file, then
+what am I building, then the two whole-session actions. **Load Object** (Import / Draw / Light Orb / Web Browser) is not
 top-level — it is a dropdown *inside* Create Model, because bringing in a model, painting
 a balloon, dropping an orb and hanging a browser panel are the same job as adding a
 shape: putting something of your own into the world.
@@ -376,39 +376,43 @@ they are the file pair, and one of them is the only button in the menu that does
 change what is on screen. Dimming them said "disabled", so the two buttons a student needs
 in order to hand work in were the two that looked switched off.
 
-Menu ▸ **Load World** opens a submenu (`Menu.js`, built by iterating
-`WorldPresets.PRESET_WORLDS` so another world is a one-line change) listing the
-ready-made worlds plus the **Save World** / **Load World File** pair.
+**THERE IS NO LOAD WORLD DROPDOWN.** It used to hold a short allowlist of four presets
+(`MENU_WORLDS` in `WorldPresets.js`, folded together with the `hidden` flag by
+`isMenuWorld()` so the DOM menu and `VRMenu` could never drift apart) with the Save/Load
+file pair underneath. Both the list and the predicate are gone, and the three buttons that
+lived at the bottom of that dropdown are now top-level.
 
-**Which worlds it lists is an ALLOWLIST, `MENU_WORLDS` in `WorldPresets.js`, currently
-`park` / `tajmahal` / `moon` / `dinosaur`.** Both menus go through `isMenuWorld(name)`, so
-the DOM menu and `VRMenu` can never drift apart.
+The reason is arithmetic: the gallery holds thirty-six worlds, every one openable by a
+`?world=` link, against the four a dropdown could reasonably show. `Get More Worlds` is a
+better answer than any list, so it leads the menu.
 
-It is an allowlist and *not* a `hidden: true` on each of the others, because `hidden`
-already means something specific and losing that distinction would cost real information:
-a hidden world is one whose **only door is inside another world**, and listing it would
-give away the one thing that makes finding it worth anything. "Not on the menu just now"
-is a different statement, it is reversed by editing one line instead of seventeen, and
-`isMenuWorld` still honours `hidden` so a portal world can never leak onto the menu by
-being added to the list.
+**What this costs, stated because it is easy to rediscover as a bug: `BOOT_WORLD` is no
+longer reachable from inside the app.** A first visit still builds the Park and a refresh
+still restores whatever the student did to it, but "give me a fresh Park" now means going
+out through the gallery. That used to be the reason `BOOT_WORLD` had to stay on the
+allowlist; with no allowlist the constraint is simply gone rather than violated.
 
-Everything left off is completely intact — same builders, same records, still in the shared
-gallery — and **Load World File** opens any of it. Two consequences worth knowing before
-shortening this list again:
+**`loadPreset` stays wired up regardless, and must.** World portals call it — the billboard
+behind the Library into 1940's New York, the one behind the Park's nature centre into Under
+the Sea — and so does the `?world=` link path in `main.js`. Only the *menu* stopped calling
+it. `VRView`'s `preset:` dispatch branch is now unreachable and is deliberately left in
+place: re-adding preset rows to `VRMenu` should work rather than silently do nothing.
 
-- **A world can be orphaned by hiding its doorway.** 1940's New York is reached only from
-  the billboard behind the Library, so with the Library off the menu the only route left is
-  loading a Library world file first. Under the Sea is unaffected, because its door is in
-  the Park and the Park is still listed.
-- **`BOOT_WORLD` must stay on the list**, or a first visit builds a world the student
-  cannot get back to.
+**`hidden: true` survives on the two portal worlds as documentation.** Nothing reads it any
+more. It still records the one fact worth keeping — those two have no door except a
+billboard inside another world, which is what makes finding them worth anything — and
+anything that ever lists worlds again should read it.
 
-**`Get More Worlds` sits directly under the four and above the file pair**, opening
-`WORLD_GALLERY_URL` in a new tab. That position is the sentence it completes: here are four
-worlds, here are more, here is how you open one once you have downloaded it. It wears its
-own colour (`.menu-subitem-more`, green) because it is a third kind of action again — the
-worlds change what is on screen, the amber file pair moves a world between people, and this
-is the only button in the menu that leaves the app.
+**The three promoted buttons keep their colours and lose their `subitem` class names**
+(`.menu-btn-gallery`, `.menu-btn-file`), because the names were describing a nesting that
+no longer exists. Green for the gallery, amber for the file pair: one leaves the app, the
+other two move a world between people, and one of those is the only button in the menu that
+does not change what is on screen at all. Both halves of the pair have to be there — a
+student who can only load a file can receive someone else's world but never send their own.
+
+**`VRMenu` carries only the file pair**, both `leavesVR`. Get More Worlds is deliberately
+absent from VR: it opens a browser tab, which a headset cannot show, and unlike Import or
+Draw there is nothing useful left once the student has been dropped out of VR to look at it.
 
 Two things about that URL. It is `window.open(..., 'noopener,noreferrer')`: a cross-origin
 page opened without `noopener` can reach back through `window.opener` and navigate the app
@@ -2217,19 +2221,34 @@ make it structural rather than remembered:
   to the robot with its bottom corners an inch clear of the shell.
 
 **What makes it read as this kind of robot**, in the order the identification depends on:
-the ENORMOUS single eye (three quarters of the head's width, as a stack -- accent bezel ring,
-white spoked LED disc, domed black pupil, one specular highlight); the TRI-LOBE body (two big
+the EYE SENSORS -- a stereo PAIR, each a stack of accent bezel ring, white spoked LED disc,
+domed black lens and one specular highlight, with an accent band bridging them; the TRI-LOBE body (two big
 lobes side by side with a third pushed forward between them, all the same family of size --
 two lobes is a scooter, four is a car); the head sitting IN THE NOTCH rather than on a neck,
 with a black collar filling the crease; and exactly TWO colours.
 
-**THE HEAD'S FRONT IS SQUASHED TO 0.72 AND THAT IS WHAT MAKES THE EYE POSSIBLE.** A round head
-of radius 1.76 reaches z = 1.76 at its pole and the eye's face sits at 1.42, so on a round
-head the shell bulges straight THROUGH the middle of the eye and the robot appears to have a
-blue ball where its pupil should be. On a `'y'`-axis loft `up` is the +Z half-extent and `dn`
+**TWO SENSORS, NOT ONE, AND THAT IS A TRADEMARK DECISION RATHER THAN A STYLISTIC ONE.** The
+first build gave this robot a single enormous central eye, which is the signature of one
+specific commercial classroom robot; a model in this app has no business being mistaken for
+it. A stereo pair reads just as clearly as a robot, is what a machine that actually judges
+distance would have, and belongs to nobody. The change is only in `robot()`, so it reached
+both worlds that use the prop at once — the geometry is rebuilt from the record on every
+load, which is why nothing had to be re-seeded and only the gallery's screenshots needed
+recapturing.
+
+**A PAIR'S FACE HAS TO CLEAR THE HEAD AT ITS INNER EDGE, NOT AT ITS OWN CENTRE.** A pod
+centred at x = 0.78 sits over a head surface only 1.13 deep, but its inner edge reaches back
+to x = 0.06 where the head is 1.263. Sized from the pod's own centre the face cleared by
+seventeen thousandths of a foot and the shell bulged through the inner third of both sensors.
+This is the single-eye clearance problem again, and it is harder off-axis, not easier.
+
+**THE HEAD'S FRONT IS SQUASHED TO 0.72 AND THAT IS WHAT MAKES THE EYES POSSIBLE.** A round head
+of radius 1.76 reaches z = 1.76 at its pole and the sensors' faces sit at 1.42, so on a round
+head the shell bulges straight THROUGH both of them and the robot appears to have a blue ball
+where each lens should be. On a `'y'`-axis loft `up` is the +Z half-extent and `dn`
 the -Z one, so flattening the front only leaves the back of the head perfectly round -- which
-is what those two channels are for. The pod itself is ONE closed lathe running from deep
-inside the head out to the bezel crown, so the join between eye and head is not a join: the
+is what those two channels are for. Each pod is ONE closed lathe running from deep inside
+the head out to the bezel crown, so the join between a sensor and the head is not a join: the
 pod simply emerges. Two colours on one solid, split by radius in the tint rather than built
 as two rings, which is what guarantees there is no seam between them to leave a gap at.
 

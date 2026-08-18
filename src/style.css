@@ -110,18 +110,18 @@ html, body {
   background: rgba(125, 211, 252, 0.22);
 }
 
-/* Save World / Load World File. Amber against the submenu's blue, because these are not
-   more worlds -- they are the file pair, and one of them is the only button in the menu
-   that does not change what is on screen. This used to be a DIMMER grey version of the
-   blue, which is the visual language of a disabled control: the two buttons a student
-   needs in order to hand work in were the two that looked switched off. */
-.menu-subitem-alt {
+/* Save World / Load World File, now top-level. Amber against the ordinary button, because
+   these are not more worlds -- they are the file pair, and one of them is the only button
+   in the menu that does not change what is on screen. This used to be a DIMMER grey, which
+   is the visual language of a disabled control: the two buttons a student needs in order to
+   hand work in were the two that looked switched off. */
+.menu-btn-file {
   background: rgba(242, 165, 65, 0.16);
   border-color: rgba(242, 165, 65, 0.5);
   color: #ffd9a3;
 }
 
-.menu-subitem-alt:hover {
+.menu-btn-file:hover {
   background: rgba(242, 165, 65, 0.3);
 }
 
@@ -877,17 +877,17 @@ body.vr-active #toast-host {
   text-align: center;
 }
 
-/* Get More Worlds. Green against the submenu's blue and the file pair's amber, because it
-   is a third kind of thing again: the only button in this menu that leaves the app. The
-   four worlds above it change what is on screen, the two below it move a world between
-   people, and this one opens a tab. */
-.menu-subitem-more {
+/* Get More Worlds, now top-level and the first thing in the menu. Green against the file
+   pair's amber, because it is a different kind of thing again: the only button in this menu
+   that leaves the app. With the Load World dropdown gone it is also the ONLY way into a
+   ready-made world from inside the app, which is why it leads. */
+.menu-btn-gallery {
   background: rgba(63, 179, 127, 0.16);
   border-color: rgba(63, 179, 127, 0.5);
   color: #a6ecc9;
 }
 
-.menu-subitem-more:hover {
+.menu-btn-gallery:hover {
   background: rgba(63, 179, 127, 0.3);
 }
 
