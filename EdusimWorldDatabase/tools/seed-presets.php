@@ -667,6 +667,27 @@ $WORLDS = [
             . "Three coding challenges, all at the Pacific Science Center: make the planets orbit, drive the "
             . "Mars rover in a square, and launch the sounding rocket.",
     ],
+    'robots' => [
+        'title' => 'Robot Challenge World',
+        'tags'  => 'coding, science, official, starter',
+        'description' =>
+            "Five programmable robots standing on painted test pads, one challenge each, and each one "
+            . "harder than the last.\n\n"
+            . "Walk down the avenue and the challenges get harder as you go. Blip, nearest, is three blocks "
+            . "in a row and no loop at all. Spark spins on the spot — one block inside a `forever`. Turbo "
+            . "drives the square painted on its pad, which is where you meet nested loops and the idea that "
+            . "360 divided by the number of sides gives you the turn. Hopper patrols a course and hops at "
+            . "every corner, mixing motion, control and looks in one program. And Echo, at the far end, is "
+            . "the only challenge that needs two robots: it waits for a signal, and you have to go back and "
+            . "give Hopper something to say.\n\n"
+            . "The paint on each pad is the path that pad's program actually traces, so each robot starts on "
+            . "a corner of its own course and a program that comes back to the wrong place is something you "
+            . "can see rather than something you have to remember.\n\n"
+            . "Two things are already running when you arrive — the gear pylon and the ball run — because "
+            . "the easiest way to learn a program is to open one somebody else wrote and change a number. "
+            . "Each robot is about six and a half feet tall, roughly twelve times the size of the real "
+            . "classroom robot it is built after, and the placard by pad 1 says so.",
+    ],
 ];
 
 // ---------------------------------------------------------------------------

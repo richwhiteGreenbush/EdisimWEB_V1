@@ -1130,6 +1130,47 @@ export const WORLD_THEMES = {
     sunPosition: [-120, 155, 95],
     stars: false,
   },
+
+  robots: {
+    // A robotics test field on a bright, still morning: five machines on painted pads with a
+    // planted avenue between them. This is a WORKSHOP world, not a place to look at, so
+    // everything about the theme is set by legibility rather than by atmosphere.
+    groundDetail: 'ground-soil.jpg',
+    sky: 0x8ecbe8,
+    // NOTHING HERE IS FAR AWAY -- the deepest object is 76ft out -- so fog is set purely to
+    // keep the horizon from being a hard line, never as weather. Tightening it costs
+    // nothing visually and hides the world's own edge, which is the one thing a flat,
+    // near-empty field otherwise shows off.
+    fogNear: 230,
+    fogFar: 620,
+    // A MOWN, SLIGHTLY GREY-GREEN LAWN, and both halves of that matter. The five robots span
+    // cyan, coral, lime, amber and violet, so no single ground hue can be "against" all of
+    // them -- what separates them from it is SATURATION, not hue. A vivid grass green makes
+    // the lime robot vanish into the field and the flower beds read as more of the same.
+    groundLow: 0x46693f,
+    groundHigh: 0x7d9a5f,
+    // FLAT, and this is a correctness requirement. Four of the five challenges drive a robot
+    // along a closed path painted on a pad; on rolling ground the pad's markings and the path
+    // the robot actually takes come apart, and the student reads their own program as wrong.
+    amplitude: 1.1,
+    flatRadius: 78,
+    blendRadius: 160,
+    hemiSky: 0xdbeeff,
+    // THE SAME NUMBER SEATTLE'S SAUCER FORCED, arriving for a much smaller object. A robot is
+    // a cluster of large smooth spheres, so at any sun angle the lower third of every lobe
+    // faces the ground and takes its entire illumination from this bounce. At an honest grass
+    // green the cyan robot's underside came out olive and the whole cluster read as dirty.
+    hemiGround: 0x969a8d,
+    hemiIntensity: 1.5,
+    sunColor: 0xfff6e8,
+    sunIntensity: 2.4,
+    // FROM BEHIND THE STUDENT'S SHOULDER (+Z), which no other outdoor world does except the
+    // space station. Every robot is turned to FACE the spawn, and its face is the whole model
+    // -- one big eye. A sun from the far side puts that eye in its own shade, so the thing a
+    // student walks up to look at is the one surface never lit.
+    sunPosition: [-105, 150, 130],
+    stars: false,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger

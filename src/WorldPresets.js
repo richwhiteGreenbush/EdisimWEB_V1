@@ -8019,6 +8019,253 @@ function seattleLayout() {
   return { theme: 'seattle', spawn: { ...SP, yaw: 0 }, items };
 }
 
+// ---------------------------------------------------------------------------
+// Robot Challenge World
+// ---------------------------------------------------------------------------
+
+// Five programmable robots on painted test pads down an avenue, with the workshop that
+// services them planted round the edges. It is the second world laid out as a WORKSHOP
+// rather than as a place to look at -- A Bug's Life was the first -- and everything about
+// the plan follows from that.
+//
+// THE MIDDLE STRIP IS EMPTY, |x| < 13 from the spawn all the way to the far end, and that
+// is the design rather than an oversight. A fresh construction piece lands
+// PRIMITIVE_SPAWN_DISTANCE (10ft) ahead of the student and spirals out from there, so
+// anything in the middle is something to build round. Every pad, board, bench and tree is
+// pushed to the flanks; the only things on the centre line are the entrance arch, which is
+// walked under, and the fifth robot at the very far end, which is the destination.
+//
+// THE FIVE BAYS GET DEEPER AS THEY GET HARDER. Bay 1 is 52ft from the spawn and bay 5 is
+// 134ft, so walking further into the world IS the difficulty curve, and a student who has
+// only managed the first two has still walked past the reason to come back.
+//
+// The arrival frame was cleared twice, which is the check this project keeps having to
+// re-run. A 70-degree fov is VERTICAL, so a 16:9 screen sees about 51 degrees either side,
+// and a near object hides everything inside its own angular width. All five bays sit within
+// 27 degrees of the sightline; the browser station (38.7 degrees left, spanning 30 to 48)
+// and the welcome board (40.1 degrees right, spanning 29 to 52) are both outside that band,
+// which took moving bay 1 fourteen feet deeper -- at its first position it sat at 30.6
+// degrees, squarely behind the kiosk.
+function robotLayout() {
+  const items = [];
+  const SP = { x: 0, z: 66 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // The five machines, their pads and their challenges. ONE TABLE, because the robot's
+  // colour, the accent painted on its pad, the colour of its board's header and the name on
+  // its plate all have to agree -- from the middle of the avenue the only thing a student
+  // can resolve is which coloured square is which, so a board that says "the lime robot"
+  // has to be looking at a lime robot standing on a lime-marked pad.
+  const BAYS = [
+    {
+      skin: 'cyan', name: 'Blip', accent: '#22b3cc', x: -26, z: 14, mark: 'line', start: [0, -4.5],
+      board: [-13, 22],
+      title: 'Send Blip down the lane and back',
+      target: 'the blue robot on pad 1',
+      steps: [
+        moveStep('move forward 9 feet'),
+        ctrlStep('wait 1 seconds'),
+        moveStep('go back to start'),
+      ],
+      tip: 'No loop at all — these three run once, top to bottom, and then stop. `go back to start` always means the exact spot the robot was standing in when you pressed play, however far it has wandered since.',
+    },
+    {
+      skin: 'coral', name: 'Spark', accent: '#e0453c', x: 27, z: -6, mark: 'spin', start: [0, 0],
+      board: [14, 2],
+      title: 'Spin Spark on the spot',
+      target: 'the red robot on pad 2',
+      steps: [
+        ctrlStep('forever'),
+        moveStep('rotate 4 degrees', 1),
+      ],
+      tip: 'The number is degrees per turn of the loop, not per second. Try 1, then try 20, then try -4 — and count the four painted ticks to see how far a quarter turn really is.',
+    },
+    {
+      skin: 'lime', name: 'Turbo', accent: '#74c043', x: -28, z: -27, mark: 'square', start: [-4, -4],
+      board: [-14, -19],
+      title: 'Drive Turbo round the painted square',
+      target: 'the green robot on pad 3',
+      steps: [
+        ctrlStep('forever'),
+        ctrlStep('repeat 4 times', 1),
+        moveStep('move forward 8 feet', 2),
+        moveStep('rotate 90 degrees', 2),
+      ],
+      tip: '360 divided by 4 is 90, which is the whole reason Turbo lands back on the corner it started from. Try repeat 3 with rotate 120, or repeat 6 with rotate 60 — the paint on the pad is there to check yourself against.',
+    },
+    {
+      skin: 'amber', name: 'Hopper', accent: '#f2971f', x: 28, z: -47, mark: 'course', start: [-4.4, -4.4],
+      board: [15, -39],
+      title: 'Patrol the course, and hop at every corner',
+      target: 'the orange robot on pad 4',
+      steps: [
+        ctrlStep('forever'),
+        moveStep('move forward 8.8 feet', 1),
+        moveStep('move up by 3 feet', 1),
+        ctrlStep('wait 0.4 seconds', 1),
+        moveStep('move up by -3 feet', 1),
+        moveStep('rotate 90 degrees', 1),
+      ],
+      tip: '`move up by` is the ONE movement block that ignores which way a robot is facing — up is up whichever way it is pointing. Make the two numbers different and Hopper climbs away into the sky, which is worth doing once.',
+    },
+    {
+      skin: 'violet', name: 'Echo', accent: '#8352d9', x: 0, z: -68, mark: 'signal', start: [0, 0],
+      board: [-14, -60],
+      title: 'Make Echo wait for a signal from Hopper',
+      target: 'the purple robot at the end of the avenue',
+      steps: [
+        ctrlStep('on Echo:  when an object says  go'),
+        ctrlStep('repeat 4 times', 1),
+        moveStep('move forward 7 feet', 2),
+        moveStep('rotate 90 degrees', 2),
+        lookStep('on Hopper:  say  go'),
+      ],
+      tip: 'The hardest one, and the only one that needs TWO robots. `when an object says` is a hat — it does NOT run when you press play, it runs when any object anywhere in the world says that exact word. Build Echo first, then give Hopper a `say go` block and press play on Hopper.',
+    },
+  ];
+
+  BAYS.forEach((bay, i) => {
+    const rotY = face(bay.x, bay.z);
+    // The pad takes the robot's own yaw, so the lane, the square and the course are painted
+    // in the frame the robot actually drives in. Turned independently, a program that closes
+    // its square perfectly would still miss every painted corner.
+    items.push(prop('robot-pad', bay.x, bay.z, {
+      rotY,
+      options: {
+        seed: 300 + i, size: 17, accent: bay.accent, mark: bay.mark,
+        number: i + 1, name: bay.name, start: bay.start,
+      },
+    }));
+    // The robot stands where its own program starts, which for the three closed-path
+    // challenges is a CORNER of the painted path rather than the middle of the pad. Standing
+    // at the centre, a correct program traces a square of exactly the right size five feet
+    // from the paint, and a student comparing the two concludes their program is wrong.
+    // `rotY` turns the pad-local offset into world feet: an Object3D at yaw t maps local
+    // (lx, lz) to (lx cos t + lz sin t, -lx sin t + lz cos t).
+    const [lx, lz] = bay.start;
+    const rx = bay.x + lx * Math.cos(rotY) + lz * Math.sin(rotY);
+    const rz = bay.z - lx * Math.sin(rotY) + lz * Math.cos(rotY);
+    // y = 0.19 is the pad's finished surface. The robot's lobes are tangent to its own
+    // origin plane, so seated on the terrain instead it stands two inches inside the paving.
+    items.push(prop('robot', rx, rz, {
+      y: 0.19, rotY, options: { seed: 400 + i, skin: bay.skin, height: 6.4 },
+    }));
+    items.push(activity(bay.board[0], bay.board[1], {
+      number: i + 1,
+      title: bay.title,
+      target: bay.target,
+      steps: bay.steps,
+      tip: bay.tip,
+      accent: bay.accent,
+      // Boards face back UP the avenue rather than at the spawn: a student reads them while
+      // walking in, and past bay 2 the spawn is far enough behind that a board aimed at it
+      // shows its edge to everybody actually standing in front of it.
+      rotY: facing(bay.board[0], bay.board[1], 0, bay.board[1] + 18),
+    }));
+  });
+
+  // --- the entrance -------------------------------------------------------
+  // The arch is 24ft ahead, not 16. At 16 a 15ft crown stands 43 degrees up against a 35
+  // degree half-fov and the thing a student is meant to walk THROUGH filled the entire
+  // frame, hiding the avenue it exists to announce.
+  // SPAN 20, NOT 24. At 24 the legs stand at 26.6 degrees off the sightline, which is exactly
+  // where bay 1's robot is -- so the first machine a student is sent to look for was hidden
+  // behind a leg of the gate telling them to go and look for it. Narrowing the arch is the
+  // move rather than shifting the bay, because the only other place bay 1 can go is inside
+  // the browser kiosk's own 30-to-48 degree shadow.
+  items.push(prop('signal-arch', 0, 42, { options: { seed: 81, span: 20, height: 13, bands: 6 } }));
+  // 34ft out rather than 25: a 10ft board at 25ft is 11 degrees of half-width sitting at 40
+  // degrees off the sightline, which runs off the edge of a 16:9 frame. Pushed back it keeps
+  // the same bearing at 8 degrees of half-width and comes fully inside.
+  items.push(prop('welcome-board', 25, 33, {
+    rotY: face(25, 33),
+    options: {
+      eyebrow: '🤖  ROBOT CHALLENGE FIELD',
+      lead: 'Five robots. Five programs. Each one harder than the last.',
+      lines: ['Walk down the avenue — bay 1 is nearest.', 'Click a robot, choose Program, build the blocks.'],
+      footnote: 'The paint on each pad shows the path its program should trace',
+    },
+  }));
+  items.push(...browserStation(-8, 56, { faceX: SP.x, faceZ: SP.z }));
+
+  // Every world states the real size of anything it has enlarged. A classroom robot of this
+  // shape is about six inches tall, so these are roughly twelvefold.
+  items.push(prop('info-placard', -15, 12, {
+    rotY: facing(-15, 12, 0, 26),
+    options: {
+      eyebrow: 'SCALE',
+      title: 'Twelve times life size',
+      body: 'A real classroom coding robot of this shape stands about 6 inches tall and weighs under a pound. These five are 6ft 5in — built big so you can walk round one and see what it is made of.',
+      accent: '#3d8bf2',
+    },
+  }));
+
+  // --- the two kinetic ornaments, both already running ---------------------
+  //
+  // The first thing anybody sees in this world is a program running, which no amount of
+  // signage says as well. Both are ordinary props carrying an ordinary `program`, so a
+  // student can click either one, read it, and change the number.
+  //
+  // 0.6 degrees is 0.3 A FRAME, not 0.6: `forever` yields once per pass ON TOP of the yield
+  // from the block inside it, so one turn of the loop costs two frames. Measure it, never
+  // compute it.
+  items.push(prop('gear-pylon', -20, 38, {
+    options: { seed: 31, height: 13, gears: 3 },
+    program: [block('forever', {}, [block('rotate', { degrees: 0.6 })])],
+  }));
+  items.push(prop('ball-run', 22, 22, {
+    options: { seed: 71, height: 11, turns: 2.2, radius: 3.0 },
+    program: [block('forever', {}, [block('rotate', { degrees: -0.9 })])],
+  }));
+
+  // --- the workshop -------------------------------------------------------
+  items.push(prop('tool-bench', -40, 4, { rotY: 0.35, options: { seed: 61, length: 8, depth: 3.2 } }));
+  items.push(prop('parts-crate', -35, 9, { rotY: -0.4, options: { seed: 21, size: 3.6 } }));
+  items.push(prop('parts-crate', -44, -1, { rotY: 0.8, options: { seed: 22, size: 3.2 } }));
+  // THE DOCKS FACE THE AVENUE, not the robot they serve. A dock's back shield is a smooth
+  // grey partial lathe with nothing on it, and aimed at its own robot every one of them
+  // presented that blank side to the only place a student ever stands -- MarsProps' relay
+  // dish and the space station's antenna, for the third time. A real robot reverses into a
+  // dock anyway, so facing out is not even a fiction.
+  items.push(prop('charge-dock', -38, 18, { rotY: facing(-38, 18, -20, 30), options: { seed: 11, accent: '#22b3cc' } }));
+  items.push(prop('charge-dock', 39, -13, { rotY: facing(39, -13, 20, 4), options: { seed: 12, accent: '#e0453c' } }));
+  items.push(prop('charge-dock', 16, -70, { rotY: facing(16, -70, 6, -54), options: { seed: 13, accent: '#8352d9' } }));
+
+  items.push(prop('beacon-post', -15, 33, { options: { seed: 41, height: 9, colour: 0xf2a541 } }));
+  items.push(prop('beacon-post', 15, 33, { options: { seed: 42, height: 9, colour: 0x3fb37f } }));
+  items.push(prop('cone-marker', -16, 6, { options: { seed: 51, height: 2.4 } }));
+  items.push(prop('cone-marker', 17, -14, { options: { seed: 52, height: 2.4 } }));
+
+  // --- planting ------------------------------------------------------------
+  //
+  // Pacific Northwest stock reused from Seattle Center rather than rebuilt: the maple, the
+  // cherry and the rhododendron bed are already the most vividly coloured plants in the app
+  // and they are already verified. Reuse across worlds is the house pattern -- moonCrater
+  // serves Mars, dustDevil serves Dinosaur Island.
+  //
+  // EVERY TREE IS OUTSIDE |x| = 34, and that is the arrival-frame rule again rather than a
+  // planting preference: a tree beats a landmark on ANGLE, not on size, and two cherries at
+  // 28ft with 34ft crowns hid all three hero models in Seattle Center.
+  for (const [x, z, h, seed] of [[-54, 42, 46, 91], [55, 34, 43, 92], [-34, -82, 49, 93]]) {
+    items.push(prop('douglas-fir', x, z, { options: { seed, height: h, radius: 11 } }));
+  }
+  items.push(prop('flowering-cherry', -52, 54, { options: { seed: 94, height: 22, spread: 15 } }));
+  items.push(prop('flowering-cherry', 52, 56, { options: { seed: 95, height: 20, spread: 14 } }));
+  items.push(prop('japanese-maple', 32, -80, { options: { seed: 96, height: 16, spread: 12 } }));
+
+  for (const [x, z, r, seed] of [[-26, 56, 6.5, 97], [40, 17, 6.0, 98], [-36, -48, 6.5, 99]]) {
+    items.push(prop('rhododendron-bed', x, z, { options: { seed, radius: r, bushes: 7 } }));
+  }
+  items.push(prop('flower-bed', 18, 42, { options: { seed: 101, width: 12, depth: 6 } }));
+  items.push(prop('flower-bed', -18, -8, { options: { seed: 102, width: 11, depth: 6 } }));
+
+  // NO LIGHT ORBS. This is a bright midday world with nothing roofed in it, and an orb is a
+  // visible glowing ball -- outdoors in daylight it reads as an artifact hanging beside the
+  // model rather than as lighting. Zero point lights is also the cheapest thing an
+  // integrated GPU can be handed.
+  return { theme: 'robots', spawn: { ...SP, yaw: 0 }, items };
+}
+
 export const PRESET_WORLDS = {
   park: { label: 'The Park', hint: 'The default world: a great meadow, a pond, a bandstand and the bear dens', build: parkLayout },
   museum: { label: 'The Museum', hint: 'A gallery of sculpture and painting, with a plaza out front', build: museumLayout },
@@ -8153,6 +8400,11 @@ export const PRESET_WORLDS = {
     label: 'Telescope Observatory',
     hint: 'A hilltop dome at dusk with its shutter open — walk in and stand under a 36-inch reflector',
     build: observatoryLayout,
+  },
+  robots: {
+    label: 'Robot Challenge World',
+    hint: 'Five programmable robots on painted test pads \u2014 one challenge each, and each one harder than the last',
+    build: robotLayout,
   },
   seattle: {
     label: 'Seattle Center',

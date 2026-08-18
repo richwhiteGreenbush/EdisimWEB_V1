@@ -458,22 +458,40 @@ export function welcomeBoard({
     // It is measured HERE, above blockH, because blockH is what centres the whole stack
     // vertically -- computed from the unfitted size, a shrunk block sits visibly low.
     const maxLineWidth = w - 130;                 // inside the accent rule, with air
-    let fitted = bigSize;
-    ctx.font = `bold ${fitted}px "Helvetica Neue", Arial, sans-serif`;
-    for (const line of lines) {
-      while (fitted > 12 && ctx.measureText(line).width > maxLineWidth) {
-        fitted -= 2;
-        ctx.font = `bold ${fitted}px "Helvetica Neue", Arial, sans-serif`;
+    // The font string has to be the REAL one -- the footnote is set in an italic serif and
+    // measuring it in the sans the headings use gets its width wrong by about a tenth.
+    const shrunk = (size, font, text) => {
+      let px = size;
+      ctx.font = font(px);
+      while (px > 12 && ctx.measureText(text).width > maxLineWidth) {
+        px -= 2;
+        ctx.font = font(px);
       }
-    }
+      return px;
+    };
+    const sans = (weight) => (px) => `${weight}${px}px "Helvetica Neue", Arial, sans-serif`;
+    const serifItalic = (px) => `italic ${px}px Georgia, "Times New Roman", serif`;
+
+    let fitted = bigSize;
+    for (const line of lines) fitted = Math.min(fitted, shrunk(fitted, sans('bold '), line));
+
+    // THE LEAD AND THE FOOTNOTE ARE FITTED TOO, and they did not used to be. They were drawn
+    // at a fixed fraction of the board's height with no measurement at all, so one sentence a
+    // few words too long ran off BOTH edges, clipped mid-word, with nothing on screen to say
+    // why -- which is exactly what "Five robots. Five programs. Each one harder than the
+    // last." did on the Robot Challenge Field's board. It is the same failure `lines` was
+    // given a fitter for, and the same one standingSign's title needed; a caller cannot
+    // predict the limit either, since it depends on the board's width.
+    const leadFitted = lead ? shrunk(leadSize, sans(''), lead) : leadSize;
+    const footFitted = footnote ? shrunk(footSize, serifItalic, footnote) : footSize;
 
     // Measured and centred as a block, rather than laid out from a fixed top: the
     // caller decides how many lines there are, and only the total tells us where to start.
     const blockH =
       (eyebrow ? eyebrowSize * 1.9 : 0) +
-      (lead ? leadSize * 1.6 : 0) +
+      (lead ? leadFitted * 1.6 : 0) +
       lines.length * fitted * 1.2 +
-      (footnote ? footSize * 2.1 : 0);
+      (footnote ? footFitted * 2.1 : 0);
 
     ctx.textAlign = 'center';
     let y = (h - blockH) / 2;
@@ -487,9 +505,9 @@ export function welcomeBoard({
 
     if (lead) {
       ctx.fillStyle = 'rgba(246,242,231,0.78)';
-      ctx.font = `${leadSize}px "Helvetica Neue", Arial, sans-serif`;
-      ctx.fillText(lead, w / 2, y + leadSize);
-      y += leadSize * 1.6;
+      ctx.font = `${leadFitted}px "Helvetica Neue", Arial, sans-serif`;
+      ctx.fillText(lead, w / 2, y + leadFitted);
+      y += leadFitted * 1.6;
     }
 
     // The last line takes the accent colour. On a board whose whole job is one sentence,
@@ -503,8 +521,8 @@ export function welcomeBoard({
 
     if (footnote) {
       ctx.fillStyle = 'rgba(246,242,231,0.62)';
-      ctx.font = `italic ${footSize}px Georgia, "Times New Roman", serif`;
-      ctx.fillText(footnote, w / 2, y + footSize * 1.4);
+      ctx.font = serifItalic(footFitted);
+      ctx.fillText(footnote, w / 2, y + footFitted * 1.4);
     }
 
     ctx.textAlign = 'left';

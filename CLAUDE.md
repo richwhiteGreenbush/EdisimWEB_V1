@@ -2070,6 +2070,141 @@ to build, 292ms to load, 14.7KB world file. Per-prop the heaviest are MoPOP 35k,
 Needle 21k, chihuly glasshouse 12k; the four Douglas firs are about 8k each, which is the
 araucaria trap watched rather than repeated.
 
+### Robot Challenge World, and a hero model read from SIX FEET
+
+`RobotProps.js` + `robotLayout()`. A gallery world -- in `PRESET_WORLDS`, deliberately not in
+`MENU_WORLDS`. Five programmable robots on painted test pads down an avenue, one challenge
+each, plus the workshop that services them.
+
+**The one decision that shapes the file: this hero model is read at SIX FEET.** Every other
+hero here is read at forty (a dinosaur), a hundred and thirty (a fountain) or two hundred and
+twenty (the Space Needle), and the budget goes to silhouette because that is all that
+survives the distance. A student walks right onto these pads and stands nose to nose with the
+robot, and at that range every join, every seam and every crescent of daylight between two
+solids is not merely visible, it is the only thing you can see. So the whole file is built on
+one rule -- **NOTHING IS PLACED ON A SURFACE, IT IS SUNK INTO ONE** -- with three helpers to
+make it structural rather than remembered:
+
+- **`onShell(centre, radii, dir)`** returns a point on an ellipsoid *and that surface's true
+  normal*, and every button, port, grille and panel is positioned through it. Hand-picked
+  coordinates near a sphere are either floating or buried, the two failures look nothing
+  alike, and hunting each one separately is the whole afternoon. Note the normal is **not**
+  the direction -- on an ellipsoid it is the gradient, which points somewhere else entirely
+  wherever the three radii differ, and using the direction tips every stud on a flattened face.
+- **`stud`** is a closed flattened ball sunk along that normal: every button, boss, lens,
+  grille and port on the robot is one. Closed, never partial -- the rule Fantastic Voyage's
+  `blister` was rewritten for.
+- **`shellPatch`** lays a panel on a sphere as a real patch of a slightly larger concentric
+  sphere, with the **mid-surface radius varying**: proud of the host in the middle, inside it
+  at every edge, thickness going to zero at the border so `solidSurface` emits no rim there.
+  A flat plate cannot lie on a sphere -- sink it far enough for its rim to disappear and its
+  middle goes too. The first chest yoke was a flat rounded box and read as a black card taped
+  to the robot with its bottom corners an inch clear of the shell.
+
+**What makes it read as this kind of robot**, in the order the identification depends on:
+the ENORMOUS single eye (three quarters of the head's width, as a stack -- accent bezel ring,
+white spoked LED disc, domed black pupil, one specular highlight); the TRI-LOBE body (two big
+lobes side by side with a third pushed forward between them, all the same family of size --
+two lobes is a scooter, four is a car); the head sitting IN THE NOTCH rather than on a neck,
+with a black collar filling the crease; and exactly TWO colours.
+
+**THE HEAD'S FRONT IS SQUASHED TO 0.72 AND THAT IS WHAT MAKES THE EYE POSSIBLE.** A round head
+of radius 1.76 reaches z = 1.76 at its pole and the eye's face sits at 1.42, so on a round
+head the shell bulges straight THROUGH the middle of the eye and the robot appears to have a
+blue ball where its pupil should be. On a `'y'`-axis loft `up` is the +Z half-extent and `dn`
+the -Z one, so flattening the front only leaves the back of the head perfectly round -- which
+is what those two channels are for. The pod itself is ONE closed lathe running from deep
+inside the head out to the bezel crown, so the join between eye and head is not a join: the
+pod simply emerges. Two colours on one solid, split by radius in the tint rather than built
+as two rings, which is what guarantees there is no seam between them to leave a gap at.
+
+**Seven bugs came out of this build. The first is the most general thing in this file.**
+
+- **`mergeParts` APPLIES A PART'S ROTATION AS ONE EULER IN XYZ ORDER, WHICH COMPOSES AS
+  Rx·Ry·Rz -- so a middle Y term is applied BEFORE the X term, not after it.** For a plate
+  authored upright in XY and then laid down by Rx(pi/2), that is the entire difference between
+  turning it IN PLAN and TILTING it out of the ground. Measured: the plate's own normal, which
+  should stay at |y| = 1 however far it is turned, comes back 0.958 at 0.29 radians, 0.894 at
+  0.4636 and **0.697 at 0.8** -- a 45 degree tilt. Every painted lane, square and chevron on
+  the five pads was standing at an angle out of the paving, and the symptom was not a rotation
+  that looked wrong so much as **pads whose bounding boxes measured four to nine FEET tall
+  instead of six inches**. `laid()` bakes the pair as a matrix in the order actually wanted and
+  returns 1.000 at every angle. **`SeattleProps`' `slab`/`upright` carry the same latent bug**
+  and are only safe because no caller there passes a non-zero `rotY`.
+- **`welcomeBoard` fitted its big `lines` and NOT its `lead` or `footnote`.** Both were drawn
+  at a fixed fraction of the board's height with no measurement, so one sentence a few words
+  too long ran off both edges clipped mid-word. Shared prop, so fixing it quietly improves
+  every world that has ever passed it a long lead. Two notes: the font string handed to the
+  fitter has to be the REAL one (the footnote is an italic serif and measuring it in the
+  headings' sans is a tenth out), and this is the third time this exact failure has been
+  found in this project -- `cardTexture`'s body, `standingSign`'s title, now this.
+- **A PARTIAL LATHE HAS A SIDE IT IS MEANT TO BE READ FROM, AND `start` DECIDES WHICH.** The
+  charge dock's back shield was swept about +Z, so the shell arced forward over its own ramp
+  and presented a smooth convex grey back to everybody walking up, with the accent stripe and
+  all three lamps hidden behind it. Swept about -Z its concave side faces the walk-up. That is
+  MarsProps' relay dish and the space station's antenna for the third and fourth time.
+- **A lathe profile that does not start and end ON THE AXIS is an open tube**, and the hole is
+  at the top of the post where a student looking up sees straight down it. Every mast, post and
+  cone here goes through `closed()`.
+- **`gearWheel` takes `hub`, not `bore`.** Nothing errors, the option is simply ignored and the
+  gears come out solid -- the "an options object that is SPREAD must use the receiver's key
+  names" trap this file already records once for `taperedTube`'s segment counts.
+- **A crate's contents have to break the LIP LINE.** Sitting below it they are visible only
+  from above, which is not an angle anybody has, and the crate reads as empty.
+- **The arch hid bay 1.** At span 24 its legs stand at 26.6 degrees off the sightline, which
+  is exactly where the first robot is -- so the gate telling a student to go and look at it
+  was standing in front of it. Narrowing to 20 was the move rather than shifting the bay,
+  because the only other place bay 1 fits is inside the browser kiosk's own 30-to-48 degree
+  shadow. Third arrival-frame correction in three worlds.
+
+**THE PAINT ON EACH PAD IS THE PATH ITS PROGRAM ACTUALLY TRACES, VERIFIED BY RUNNING IT.**
+`repeat 4 { move forward 8, rotate 90 }` walks (0,0) -> (0,8) -> (8,8) -> (8,0) -> (0,0) in the
+pad's own frame, so **the robot starts on a CORNER of the painted square rather than in the
+middle of it**, and the layout offsets it there (`start: [lx, lz]`, rotated into world feet by
+the pad's own yaw). Painted round the centre with the robot standing at that centre, a correct
+program traces a square of exactly the right size five feet away from the paint, and a student
+comparing the two concludes their program is broken. All five programs were run and measured
+rather than reasoned about: Blip travels 9.00ft and returns to 0.000 from home; Spark turns
+120 degrees in 60 ticks (the documented `forever` half-rate); Hopper hops exactly 3.00ft and
+its furthest point is 12.45ft, which is 8.8·sqrt(2) and so closes its square; Echo does not
+move at all until Hopper says the word and then runs 9.90ft, which is 7·sqrt(2).
+
+**The five challenges are a real ramp, and the order was chosen so the first one has no loop
+in it at all.** 1 a plain three-block sequence; 2 one block inside `forever`; 3 nested C-blocks
+plus 360-divided-by-the-sides; 4 a six-block sequence mixing all three block categories; 5 the
+only challenge needing TWO objects -- a `whenSaid` hat on one robot and a `say` on another,
+which is the one construct nothing else in this world uses. Two ornaments (the gear pylon and
+the ball run) ship already turning, because the easiest way to learn a program is to open one
+somebody else wrote and change a number.
+
+**Layout.** The middle strip is empty (|x| < 13) from the spawn to the far end, for the reason
+A Bug's Life found: a fresh construction piece lands 10ft ahead of the student, so anything in
+the middle is something to build round. The five bays get DEEPER as they get harder -- bay 1 at
+52ft, bay 5 at 134ft -- so walking further into the world *is* the difficulty curve. Zero point
+lights and zero transparent meshes: a bright midday world with nothing roofed in it, where an
+orb would read as an artifact hanging beside the model rather than as lighting.
+
+**The theme's `hemiGround` is `0x969a8d`, the Seattle number arriving for a much smaller
+object.** A robot is a cluster of large smooth spheres, so at any sun angle the lower third of
+every lobe faces the ground and takes its entire illumination from the bounce; at an honest
+grass green the cyan robot's underside came out olive. The sun also comes from BEHIND the
+student (+Z), which only the space station does otherwise: every robot faces the spawn and its
+face is the whole model, so a sun from the far side puts that one eye in its own shade.
+
+**Performance, measured**: 45 records / **179 draw calls** / 671k drawn / 350k geometry / 89
+meshes / **0 transparent** / **0 point lights** / 54 textures / 0.48ms warm CPU render. 332ms
+to build, 360ms to load, 14.2KB world file. Per prop: douglas fir 22.9k triangles, **robot
+28.6k**, flowering cherry 14.6k, japanese maple 12.1k, tool bench 9.2k, ball run 8.0k,
+rhododendron bed 5.2k, gear pylon 4.2k, flower bed 4.0k, signal arch 3.1k, pad 2.4k, crate
+2.4k, charge dock 1.4k, beacon 0.8k, cone 0.4k. The robot was 17.8k on the first pass and was
+deliberately raised: more than half this world's budget was unspent, and on the one object the
+whole world exists for, spare budget is not a virtue.
+
+The PNW planting is reused from Seattle Center rather than rebuilt -- the maple, the cherry and
+the rhododendron bed are already the most vividly coloured plants in the app and already
+verified. Reuse across worlds is the house pattern (`moonCrater` serves Mars, `dustDevil`
+serves Dinosaur Island).
+
 ### A Bug's Life, and building a world around CHALLENGES
 
 `BugProps.js` + `bugsLayout()`. The only preset laid out as a **workshop** rather than as a

@@ -32,6 +32,7 @@ import * as Station from './StationProps.js';
 import * as Sky from './SkyProps.js';
 import * as Observatory from './ObservatoryProps.js';
 import * as Seattle from './SeattleProps.js';
+import * as Robot from './RobotProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -519,6 +520,18 @@ export const PROP_BUILDERS = {
   'flowering-cherry': Seattle.floweringCherry,
   'rhododendron-bed': Seattle.rhododendronBed,
   'plaza-paving': Seattle.plazaPaving,
+
+  // Robot Challenge World
+  robot: Robot.robot,
+  'robot-pad': Robot.robotPad,
+  'charge-dock': Robot.chargeDock,
+  'parts-crate': Robot.partsCrate,
+  'gear-pylon': Robot.gearPylon,
+  'beacon-post': Robot.beaconPost,
+  'cone-marker': Robot.coneMarker,
+  'tool-bench': Robot.toolBench,
+  'ball-run': Robot.ballRun,
+  'signal-arch': Robot.signalArch,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than
