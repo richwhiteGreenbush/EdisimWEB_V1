@@ -1080,6 +1080,56 @@ export const WORLD_THEMES = {
     sunPosition: [-190, 52, 60],
     stars: true,
   },
+
+  seattle: {
+    // A clear July afternoon on Puget Sound -- the two months of the year Seattle actually
+    // looks like this, which is why the postcards all date from them.
+    //
+    // FOG IS THE HARD NUMBER HERE and it is set by ONE object. The Space Needle stands 220ft
+    // from the spawn, so anything under about 400ft of visibility greys out the hero model
+    // of the world when seen from the place every student starts. That is the opposite of
+    // Machu Picchu's problem, where the fog was the atmosphere; here the marine haze has to
+    // be a tint on the far treeline and nothing more.
+    groundDetail: 'ground-soil.jpg',
+    sky: 0x74b3e8,
+    fogNear: 190,
+    fogFar: 520,
+    // Campus lawn. Seattle Center is grass and paving in about equal measure, and the paving
+    // is carried by props (plaza slabs, the fountain's basin) rather than by the ground ramp
+    // -- so the terrain colour is the lawn only, and it is the deep blue-green a lawn is in a
+    // maritime climate rather than the yellower green of the Park.
+    groundLow: 0x3a6437,
+    groundHigh: 0x78a851,
+    // NEARLY FLAT, and that is a requirement rather than a preference. This campus is a
+    // designed plaza: the fountain sits in a shallow bowl, the science centre's arches stand
+    // in reflecting pools, and the monorail's piers have to hold one beam level across 200ft.
+    // Every one of those reads as broken on rolling ground. What is left is just enough swell
+    // to keep the lawns from looking like a table.
+    amplitude: 1.5,
+    flatRadius: 70,
+    blendRadius: 150,
+    hemiSky: 0xd6ecff,
+    // LIGHT AND NEARLY UNSATURATED, and this is the number the whole world turned on.
+    //
+    // The Space Needle's saucer is a 35ft disc of white paint facing straight DOWN, 126ft up.
+    // The sun can never touch it, so the hemisphere's ground colour is the entire light it
+    // gets -- and at a physically honest grass green (0x53603f) the most looked-at surface in
+    // the world rendered as a flat olive-brown mushroom cap. The same applies to whichever of
+    // the three legs is facing away from the sun at the time.
+    //
+    // What was wrong was the SATURATION, not the brightness: a green bounce paints a white
+    // object green. This is Under the Sea's lesson (0x9db2a8, the lightest ground bounce in
+    // the app, forced by the shark's white belly) arriving at a building.
+    hemiGround: 0x8d9384,
+    hemiIntensity: 1.5,
+    sunColor: 0xfff5e2,
+    sunIntensity: 2.5,
+    // From the south-west, high but not overhead: it lights the faces the spawn looks at and
+    // still rakes enough to throw the Needle's shadow across the lawn, which is most of what
+    // gives a 150ft tower its height.
+    sunPosition: [-120, 155, 95],
+    stars: false,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger

@@ -1,5 +1,6 @@
 import { applyWorldTheme } from './SceneSetup.js';
 import { WEB_BROWSER_DEFAULT_URL } from './config.js';
+import { youtubeEmbedUrl } from './WebUrl.js';
 import { createBlockInstance } from './BlockDefs.js';
 
 import { uuid } from './Uuid.js';
@@ -7763,6 +7764,261 @@ function observatoryLayout() {
 // Registry + materialization
 // ---------------------------------------------------------------------------
 
+
+// ---------------------------------------------------------------------------
+// Seattle Center
+// ---------------------------------------------------------------------------
+
+// The campus the 1962 World's Fair left behind. Three hero models -- the Space Needle, the
+// International Fountain and the Monorail -- plus the Pacific Science Center, which is where
+// the three coding challenges live.
+//
+// THE COMPOSITION IS ONE SIGHTLINE and everything hangs off it. A student spawns at the south
+// end looking north up the campus axis: the fountain sits dead ahead at 118ft, the Needle
+// rises 10 degrees to the left of it at 213ft, and the two together are the photograph
+// everybody has seen. Nothing tall is allowed inside that cone. The Pacific Science Center
+// goes out to the west and MoPOP and the monorail to the east, so the student turns to find
+// them rather than walking round them.
+//
+// The one number that governs the world: a 70-degree fov is VERTICAL, so a 16:9 screen sees
+// about 51 degrees either side. The Needle at 10 degrees is comfortably central; the welcome
+// board at 37 is clear of it; nothing else is allowed between 0 and 25.
+function seattleLayout() {
+  const items = [];
+  const SP = { x: 0, z: 140 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- The three hero models ---------------------------------------------
+
+  // 605ft in life, 151 here. At 213ft from the spawn it stands 35 degrees up, which fills the
+  // arrival frame vertically without the student having to look up to find the top of it.
+  items.push(prop('space-needle', -38, -72, { options: { seed: 62 } }));
+
+  // The fountain is the world's middle, in both senses: it is the centre of the real campus
+  // and it is the object the arrival sightline lands on. Its berm is 36ft, so it reads 35
+  // degrees wide from the spawn -- big enough to be the destination, low enough that the
+  // Needle clears it completely.
+  items.push(prop('international-fountain', 0, 20, { options: { seed: 62 } }));
+
+  // The guideway is placed at the ORIGIN with an unrotated path, so the control points below
+  // are world coordinates and can be read straight off this map. A curving beam is worth the
+  // trouble: the real line is all reverse curves and a straight one reads as a bridge.
+  items.push(prop('monorail-guideway', 0, 0, {
+    options: {
+      seed: 62,
+      height: 24,
+      path: [[118, 24, -74], [106, 24, -26], [86, 24, 22], [70, 24, 70], [70, 24, 124]],
+    },
+  }));
+  // On the beam, not on the ground: absoluteY at the deck height, and yawed to the path's own
+  // tangent there. It arrives already running -- the carousel-and-twister mechanism -- so the
+  // first thing a student sees moving in this world is a program, which no amount of signage
+  // says as well. `move forward` follows the object's own +Z, and every prop in this project
+  // is authored facing +Z, so the yaw below is also the direction of travel.
+  items.push(prop('monorail-train', 86, 22, {
+    y: 24, absoluteY: true, rotY: -0.36,
+    options: { seed: 62, colour: 0xb4302c, cars: 2 },
+    program: [block('forever', {}, [
+      block('repeat', { count: 30 }, [block('moveForward', { feet: 1.6 })]),
+      block('wait', { seconds: 1.5 }),
+      block('goHome', {}),
+      block('wait', { seconds: 2 }),
+    ])],
+  }));
+  items.push(prop('monorail-station', 112, -58, {
+    rotY: -0.245, options: { seed: 62, length: 46, height: 31 },
+  }));
+
+  // --- Pacific Science Center --------------------------------------------
+
+  // Yamasaki's five arches, at 1/2.4. The row runs north-south (rotY = PI/2) so a student
+  // walking west from the fountain meets them side-on, which is the view they are built for --
+  // seen end-on they overlap into one white smear.
+  items.push(prop('science-arches', -74, 30, {
+    rotY: Math.PI / 2, options: { seed: 21, count: 5, height: 46, spacing: 15 },
+  }));
+  items.push(prop('science-pavilion', -98, 66, {
+    rotY: 0.85, options: { seed: 23, width: 54, depth: 26, height: 15 },
+  }));
+  items.push(prop('info-placard', -58, 44, {
+    rotY: face(-58, 44),
+    options: {
+      eyebrow: 'Pacific Science Center',
+      title: 'Five arches, 110 feet tall',
+      body: 'Minoru Yamasaki designed the US Science Pavilion for the 1962 World’s Fair. The arches are precast concrete lace — mostly sky. Built here at about two-fifths of full size.',
+    },
+  }));
+
+  // The three challenge exhibits, in the courtyard behind the arches. Each one is the TARGET
+  // of the board standing in front of it, and each teaches a different family of blocks.
+  items.push(prop('science-orrery', -58, 72, { options: { seed: 31 } }));
+  items.push(prop('science-rover', -76, 84, { rotY: 0.4, options: { seed: 33 } }));
+  items.push(prop('science-rocket', -44, 88, { options: { seed: 35 } }));
+
+  items.push(activity(-58, 84, {
+    number: 1,
+    title: 'Make the planets orbit',
+    target: 'the orrery',
+    accent: '#f2a541',
+    rotY: face(-58, 84),
+    steps: [
+      ctrlStep('forever'),
+      moveStep('rotate 2 degrees', 1),
+    ],
+    tip: 'A forever loop yields once itself and once for the block inside it, so this turns about 1 degree a frame, not 2. Change the number and watch the planets speed up.',
+  }));
+  items.push(activity(-78, 96, {
+    number: 2,
+    title: 'Drive the rover in a square',
+    target: 'the Mars rover',
+    accent: '#3fb37f',
+    rotY: face(-78, 96),
+    steps: [
+      ctrlStep('repeat 4 times'),
+      moveStep('move forward 10 feet', 1),
+      moveStep('rotate 90 degrees', 1),
+    ],
+    tip: '360 divided by 4 sides is 90. Try 3 sides and 120 degrees, or 6 and 60 — the rover comes back to exactly where it started every time.',
+  }));
+  items.push(activity(-42, 100, {
+    number: 3,
+    title: 'Launch the rocket',
+    target: 'the sounding rocket',
+    accent: '#3d8bf2',
+    rotY: face(-42, 100),
+    steps: [
+      ctrlStep('repeat 20 times'),
+      moveStep('move up by 2 feet', 1),
+      ctrlStep('wait 1 seconds'),
+      moveStep('go back to start'),
+    ],
+    tip: 'move up by is the one motion block that ignores which way a thing is facing — up is up. go back to start puts the rocket back on its stand.',
+  }));
+
+  // --- MoPOP, Chihuly and the Armory --------------------------------------
+
+  items.push(prop('pop-museum', 62, -30, { rotY: -0.5, options: { seed: 41, scale: 1 } }));
+  items.push(prop('chihuly-tower', 16, -50, { options: { seed: 43, height: 34, family: 'sun' } }));
+  items.push(prop('chihuly-glasshouse', 42, -64, {
+    rotY: -0.35, options: { seed: 45, length: 46, width: 26, height: 20 },
+  }));
+  items.push(prop('armory-hall', 80, 66, {
+    rotY: -1.05, options: { seed: 47, length: 58, depth: 28, height: 19 },
+  }));
+
+  // --- Paving --------------------------------------------------------------
+  // Two aprons: the one the student arrives on and the one between the fountain and the
+  // Needle. A campus that is all lawn reads as a park, and this is a plaza.
+  items.push(prop('plaza-paving', 0, 92, { options: { seed: 51, width: 74, depth: 44, tone: 0 } }));
+  items.push(prop('plaza-paving', -8, -26, { options: { seed: 53, width: 96, depth: 42, tone: 1 } }));
+
+  // --- Ornament ------------------------------------------------------------
+  // Sonic Bloom: five 33ft steel flowers by Dan Corson, and the best answer this campus has to
+  // "make it colourful" because that is literally what they are for.
+  items.push(prop('sonic-bloom', -22, 100, { options: { seed: 55, count: 3, height: 22 } }));
+  items.push(prop('sonic-bloom', 30, 44, { options: { seed: 57, count: 2, height: 19 } }));
+
+  // --- Planting ------------------------------------------------------------
+  // Douglas fir at the edges, because a 46ft conifer anywhere near the middle would compete
+  // with the things this world is about; flowering colour close in, where it is walked past.
+  items.push(prop('douglas-fir', -118, -6, { options: { seed: 61, height: 48, radius: 12 } }));
+  items.push(prop('douglas-fir', -108, -54, { options: { seed: 63, height: 44, radius: 11 } }));
+  items.push(prop('douglas-fir', 104, -78, { options: { seed: 65, height: 46, radius: 11.5 } }));
+  items.push(prop('douglas-fir', -46, 122, { options: { seed: 67, height: 42, radius: 10.5 } }));
+  // THE CHERRIES ARE OFF THE ARRIVAL SIGHTLINE, and this cost a rebuild to learn again. At
+  // (-18, 112) one of them stood 28ft from the spawn with a 34ft crown: it subtended more
+  // than 60 degrees and hid the Space Needle, the fountain and the welcome board between
+  // them. A tree beats a landmark on ANGLE, not on size -- the same arithmetic that governs
+  // where a sign goes -- so they are pushed out to the flanks where they frame the walk in
+  // rather than block it.
+  items.push(prop('flowering-cherry', -58, 118, { options: { seed: 71, height: 22, spread: 15 } }));
+  items.push(prop('flowering-cherry', 56, 112, { options: { seed: 73, height: 20, spread: 14 } }));
+  items.push(prop('japanese-maple', 46, 84, { options: { seed: 75, height: 15, spread: 11 } }));
+  items.push(prop('japanese-maple', -44, 52, { options: { seed: 77, height: 14, spread: 10 } }));
+  items.push(prop('rhododendron-bed', -26, 78, { options: { seed: 81, radius: 8, bushes: 5 } }));
+  items.push(prop('rhododendron-bed', 24, 78, { options: { seed: 83, radius: 7.5, bushes: 5 } }));
+  items.push(prop('rhododendron-bed', -50, 4, { options: { seed: 85, radius: 8.5, bushes: 6 } }));
+  items.push(prop('rhododendron-bed', 46, 2, { options: { seed: 87, radius: 8, bushes: 5 } }));
+
+  // --- Furniture and signage ----------------------------------------------
+  items.push(prop('bench', -14, 62, { rotY: 0 }));
+  items.push(prop('bench', 14, 62, { rotY: 0 }));
+  items.push(prop('bench', -66, 58, { rotY: 1.4 }));
+  items.push(prop('lamp-post', -30, 92, { options: { lit: false } }));
+  items.push(prop('lamp-post', 30, 92, { options: { lit: false } }));
+
+  // The welcome board sits 37 degrees off the arrival sightline at 50ft, which puts it fully
+  // in frame and completely clear of the Needle at 10 degrees. Pushed BACK rather than made
+  // smaller: a near sign competes with a far landmark on angle, not on size.
+  items.push(prop('welcome-board', -30, 100, {
+    rotY: face(-30, 100),
+    options: {
+      // welcomeBoard takes eyebrow/lead/lines/footnote, NOT title. An unknown option is
+      // silently swallowed by a destructured default, so the heading never appeared and the
+      // board rendered as three unlabelled sentences with a blank space above them.
+      eyebrow: 'WELCOME TO',
+      lead: 'SEATTLE CENTER',
+      lines: [
+        'The 74 acres left behind by the 1962 World’s Fair.',
+        'Walk to the fountain, then on to the Space Needle.',
+      ],
+      footnote: 'Three coding challenges are at the Pacific Science Center, to the west.',
+    },
+  }));
+
+  // The placards. Each states the REAL dimension, because everything here is built small and
+  // a reduction that is not declared is just a wrong number.
+  items.push(prop('info-placard', -22, -34, {
+    rotY: face(-22, -34),
+    options: {
+      eyebrow: 'The Space Needle',
+      title: '605 feet, built in 400 days',
+      body: 'Raised for the 1962 fair and painted in four named colours: Astronaut White, Orbital Olive, Re-entry Red and Galaxy Gold. The roof went back to Galaxy Gold in 2012. Built here at one quarter size.',
+    },
+  }));
+  items.push(prop('info-placard', 0, 62, {
+    rotY: face(0, 62),
+    options: {
+      eyebrow: 'International Fountain',
+      title: 'A 220-foot bowl and 274 nozzles',
+      body: 'The silver dome throws water up to 120 feet, choreographed to music. Rebuilt in 1995 to let people walk right down into the basin. Built here at one third size.',
+    },
+  }));
+  items.push(prop('info-placard', 58, 30, {
+    rotY: face(58, 30),
+    options: {
+      eyebrow: 'The Monorail',
+      title: 'Still running the 1962 trains',
+      body: 'Alweg built two trains for the fair to carry people the mile to downtown in two minutes. They have run ever since — the oldest full-scale monorail still in daily service anywhere.',
+    },
+  }));
+  items.push(prop('info-placard', 40, -14, {
+    rotY: face(40, -14),
+    options: {
+      eyebrow: 'Glass and pop culture',
+      title: 'Chihuly, and Gehry’s metal',
+      body: 'Dale Chihuly blows glass in colours paint cannot reach. Next door, Frank Gehry clad MoPOP in 21,000 shingles of gold, silver, purple, red and blue — and ran the monorail straight through it.',
+    },
+  }));
+  items.push(prop('standing-sign', -46, 108, {
+    rotY: face(-46, 108),
+    options: {
+      // standingSign takes `lines`, not `title` -- with the wrong key it fell back to its own
+      // placeholder and the wayfinder out on the lawn read, in large letters, SIGN.
+      lines: ['PACIFIC SCIENCE CENTER'],
+      subtitle: 'Three coding challenges — head west past the arches',
+    },
+  }));
+
+  // The video, at the spawn. 12.8ft ahead and 39 degrees to the right: in frame on any screen,
+  // and on the opposite side from both the welcome board and the Needle.
+  items.push(...browserStation(8, 130, {
+    faceX: SP.x, faceZ: SP.z, url: youtubeEmbedUrl('https://www.youtube.com/watch?v=OMzEjtHOSnw'),
+  }));
+
+  return { theme: 'seattle', spawn: { ...SP, yaw: 0 }, items };
+}
+
 export const PRESET_WORLDS = {
   park: { label: 'The Park', hint: 'The default world: a great meadow, a pond, a bandstand and the bear dens', build: parkLayout },
   museum: { label: 'The Museum', hint: 'A gallery of sculpture and painting, with a plaza out front', build: museumLayout },
@@ -7897,6 +8153,11 @@ export const PRESET_WORLDS = {
     label: 'Telescope Observatory',
     hint: 'A hilltop dome at dusk with its shutter open — walk in and stand under a 36-inch reflector',
     build: observatoryLayout,
+  },
+  seattle: {
+    label: 'Seattle Center',
+    hint: 'The 1962 World\u2019s Fair campus \u2014 the Space Needle, the International Fountain and the Monorail',
+    build: seattleLayout,
   },
   empty: {
     label: 'My World',

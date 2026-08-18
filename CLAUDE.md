@@ -1984,6 +1984,92 @@ transparent meshes / 4 point lights; Telescope Observatory is 45 / ~290 / 202k /
 world files are about 15 KB — the whole star and sky machinery costs nothing to store because
 every star is a name and a number in `CONSTELLATIONS`, rebuilt on load.
 
+### Seattle Center, and a world about a SKYLINE
+
+`SeattleProps.js` + `seattleLayout()`. A gallery world -- in `PRESET_WORLDS`, deliberately not
+in `MENU_WORLDS`. Three hero models (Space Needle, International Fountain, Monorail), the
+Pacific Science Center carrying the three coding challenges, and the campus round them.
+
+**This is the first world dominated by ONE OBJECT SEEN FROM 220FT**, and that moves the whole
+budget. Every other world here is things you walk between; this one is a 151ft tower in the
+middle distance, and detail that lives in a surface -- grain, weathering, tooling -- is
+invisible at that range. What reads is SILHOUETTE and PROFILE: the wasp waist of the tripod,
+the flare of the saucer's underside, the step of the halo. So the Needle spends its triangles
+on a 120-sided saucer and a nine-station leg loft and almost none on texture, while the
+fountain, the science exhibits and the planting -- all things a student stands next to -- get
+the surface work instead.
+
+**Scale**: Needle 1/4 (151ft), fountain 1/3, arches 1/2.4, monorail near full size because a
+train is the one thing whose size a student already knows. Every placard states the real
+figure.
+
+**The 1962 colours are a real, named, teachable palette**, which is what this world adds:
+Astronaut White, Orbital Olive, Re-entry Red and Galaxy Gold. The tower is painted as it is
+today -- white with the gold roof it got back for the 50th in 2012 -- and the placard names
+all four. MoPOP's six anodised metals and Chihuly's glass hues carry the rest.
+
+**Five bugs came out of this build, and four of them are silent in a way that matters more
+than the models:**
+
+- **`extrudeOutline` IS CENTRED ON ITS OWN DEPTH**, running from `-depth/2` to `+depth/2`.
+  That is right for the mouldings it was written for and a trap for anything authored from
+  the ground up: the science pavilion's floor sat 7.8ft underground, the Armory's 9.5ft, and
+  every arcade column was half buried. Nothing errors -- the buildings just come out squat,
+  which reads as a proportion mistake rather than an offset one. `upright()`/`slab()` in this
+  file exist so no caller has to remember.
+- **`mergeParts` OVERWRITES a part's colour attribute unless `keepColor: true` is set, so a
+  `tint` without it is computed and thrown away.** The Space Needle's glazing bands, gold
+  roof and halo, the monorail's livery and MoPOP's six colours were all correct and all
+  discarded; the symptom was that the most-looked-at object in the world was uniformly white.
+- **`revolve` DECIDES ITS WINDING FROM THE PROFILE'S DIRECTION.** A profile written bottom-up
+  -- which is how anybody writes one -- comes out INSIDE OUT. Measured: `[[3,0],[3,2]]` gives
+  a mean radial normal dot of **-0.999**, and the same two points reversed give **+0.999**.
+  Under a FrontSide material that does not look like a missing surface, it looks like a DARK
+  one, because you are seeing the far inner wall lit by its own inverted normals. The
+  fountain's grass amphitheatre rendered as a black ring 72ft across. `lathed()` wraps it.
+- **`emissive` IS A FLAT MATERIAL COLOUR AND `vertexColors` DOES NOT MULTIPLY IT.** So
+  `emissive: 0xffffff` on a vertex-coloured mesh adds the same white glow to every triangle:
+  the Chihuly tower's amber, vermilion and rose all came out the same pale cream, and raising
+  `emissiveIntensity` to make the glass "glow" destroyed more of its colour. Where a glow is
+  wanted the emissive is now a colour from the same family; elsewhere it is gone.
+- **`THREE.MathUtils.smoothstep` takes `(x, min, max)`**, and `smoothstep(0.36, 0.1, t)`
+  reads as "from 0.36 down to 0.1 over t" while doing nothing of the kind. The saucer's rib
+  field ran over the glazing and the roof instead of stopping at the halo.
+
+**Two more that generalise:**
+
+- **A SATURATED GROUND BOUNCE PAINTS EVERY DOWNWARD FACE.** The saucer is a 35ft disc of white
+  paint facing straight down 126ft up; the sun can never touch it, so `hemiGround` is the
+  entire light it gets, and at an honest grass green it rendered as an olive-brown mushroom
+  cap. What was wrong was the SATURATION, not the brightness -- `0x8d9384` at 1.5. Under the
+  Sea's lesson (the shark's white belly) arriving at a building.
+- **WHICH YAW TURNS A PART RADIAL DEPENDS ON WHICH AXIS HAS TO END UP RADIAL.** The orrery's
+  arm runs along its extrusion (Z) and takes `pi/2 - a`; a rocket fin's span is the outline's
+  own X and takes `-a`. Getting it wrong does not look like a rotation error -- the fins
+  simply stand tangentially and the rocket reads as having a collar.
+
+**Composition.** One sightline: spawn at the south end looking north, fountain dead ahead at
+118ft, Needle 10 degrees left at 213ft. Nothing tall inside that cone -- the science centre
+goes west, MoPOP and the monorail east, so a student turns to find them. Two cherry trees
+started at 28ft from the spawn with 34ft crowns and hid all three hero models between them;
+a tree beats a landmark on ANGLE, not size, which is the same arithmetic that governs signs.
+
+**The monorail arrives already moving** -- a `program` on the prop, the mechanism the twister
+and the carousel introduced -- so the first thing anyone sees in this world is a program
+running. The three challenges target three EXHIBITS rather than scenery, one block family
+each: `forever`+`rotate` on the orrery, `repeat`+`move forward`+`rotate` on the rover (360
+divided by the number of sides), and `move up by`+`wait`+`go back to start` on the rocket.
+
+**The YouTube panel at the spawn** is an ordinary `browserStation` whose url goes through
+`youtubeEmbedUrl()`, so the record stores the embeddable form and the panel simply works --
+see the video-panel section above for why a `watch?v=` link cannot.
+
+**Performance, measured**: 49 records / **170 draw calls** / 695k drawn / 376k geometry / 93
+meshes / **3 transparent** / **0 point lights** / 51 textures / 1.72ms warm CPU render. 792ms
+to build, 292ms to load, 14.7KB world file. Per-prop the heaviest are MoPOP 35k, fountain 25k,
+Needle 21k, chihuly glasshouse 12k; the four Douglas firs are about 8k each, which is the
+araucaria trap watched rather than repeated.
+
 ### A Bug's Life, and building a world around CHALLENGES
 
 `BugProps.js` + `bugsLayout()`. The only preset laid out as a **workshop** rather than as a

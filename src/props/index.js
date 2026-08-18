@@ -31,6 +31,7 @@ import * as Whimsy from './WhimsyProps.js';
 import * as Station from './StationProps.js';
 import * as Sky from './SkyProps.js';
 import * as Observatory from './ObservatoryProps.js';
+import * as Seattle from './SeattleProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -496,6 +497,28 @@ export const PROP_BUILDERS = {
   'dry-grass': Observatory.dryGrass,
   'all-sky-camera': Observatory.allSkyCamera,
   'radio-dish': Observatory.radioDish,
+
+  // Seattle Center
+  'space-needle': Seattle.spaceNeedle,
+  'international-fountain': Seattle.internationalFountain,
+  'monorail-guideway': Seattle.monorailGuideway,
+  'monorail-train': Seattle.monorailTrain,
+  'monorail-station': Seattle.monorailStation,
+  'science-arches': Seattle.scienceArches,
+  'science-pavilion': Seattle.sciencePavilion,
+  'science-orrery': Seattle.scienceOrrery,
+  'science-rover': Seattle.scienceRover,
+  'science-rocket': Seattle.scienceRocket,
+  'pop-museum': Seattle.popMuseum,
+  'chihuly-tower': Seattle.chihulyTower,
+  'chihuly-glasshouse': Seattle.chihulyGlasshouse,
+  'armory-hall': Seattle.armoryHall,
+  'sonic-bloom': Seattle.sonicBloom,
+  'douglas-fir': Seattle.douglasFir,
+  'japanese-maple': Seattle.japaneseMaple,
+  'flowering-cherry': Seattle.floweringCherry,
+  'rhododendron-bed': Seattle.rhododendronBed,
+  'plaza-paving': Seattle.plazaPaving,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

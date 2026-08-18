@@ -647,6 +647,26 @@ $WORLDS = [
             . "Out on the clover there is a herd of aphids being farmed for honeydew — real agriculture, "
             . "fifty million years older than ours.",
     ],
+    'seattle' => [
+        'title' => 'Seattle Center',
+        'tags'  => 'history, science, official, building, starter',
+        'description' =>
+            "The 74 acres the 1962 World's Fair left behind, with the three things everybody goes for: the "
+            . "Space Needle, the International Fountain and the Monorail.\n\n"
+            . "You arrive at the south end looking straight up the campus axis — the fountain dead ahead, the "
+            . "Needle rising behind it. Nothing is full size and it could not be: the real campus is 1,800 feet "
+            . "across with a 605-foot tower in it. The Needle is built at one quarter, the fountain at one third "
+            . "and the science centre's arches at about two fifths, and every sign gives the real figure.\n\n"
+            . "Three things to look closely at. The Space Needle is painted as it is today, but the placard "
+            . "names the four colours the fair used and they are worth knowing: Astronaut White for the core, "
+            . "Orbital Olive for the legs, Re-entry Red for the halo and Galaxy Gold for the roof — which went "
+            . "back to gold for the fiftieth anniversary and stayed. The Monorail is still running the trains "
+            . "Alweg built for the fair, and it arrives already moving, because it has a program on it that you "
+            . "can open and change. And Frank Gehry's MoPOP next door is clad in 21,000 shingles of gold, "
+            . "silver, purple, red and blue, with the monorail running straight through the middle of it.\n\n"
+            . "Three coding challenges, all at the Pacific Science Center: make the planets orbit, drive the "
+            . "Mars rover in a square, and launch the sounding rocket.",
+    ],
 ];
 
 // ---------------------------------------------------------------------------
