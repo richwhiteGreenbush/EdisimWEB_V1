@@ -128,3 +128,36 @@ export function normalizeBrowserUrl(input) {
   const withScheme = scheme ? trimmed : `https://${trimmed}`;
   return youtubeEmbedUrl(withScheme) || withScheme;
 }
+
+/**
+ * Upgrades an `http:` address to `https:` when the page itself is secure.
+ *
+ * THE DOMAIN GOT A CERTIFICATE, and this is the change CLAUDE.md said would have to come
+ * with it. `edusim3dweb.com` served plain http for the whole life of this project, which is
+ * why `WEB_BROWSER_DEFAULT_URL` was an http url and why every preset world's spawn panel
+ * has an http url baked into its `web-browser` record. The moment the app is served over
+ * https those records become MIXED CONTENT: measured on the live site, the console says
+ * "requested an insecure frame 'http://edusim3dweb.com/'. This request has been blocked",
+ * and every panel in every world goes blank -- the exact failure the app already had once
+ * before, with the roles reversed.
+ *
+ * Changing the constant alone does not fix it, because the URL is PERSISTED. It sits inside
+ * twenty-odd already-published gallery worlds, inside every world file a student has
+ * downloaded, and inside every copy anybody has sent a classmate. None of those can be
+ * edited from here. Upgrading at the point the iframe's src is set fixes all of them at
+ * once and needs no re-seeding.
+ *
+ * It rewrites EVERY http url, not only this host's, and that is deliberate: an http frame
+ * inside an https page is blocked outright, so there is no case where leaving it as http
+ * works. A host that has no https answers with a connection error, which is a better
+ * outcome than a silent blank rectangle. On an http page it is a no-op, so a local dev
+ * server and any future http deployment behave exactly as they did.
+ */
+export function secureFrameUrl(input) {
+  const url = (input || '').trim();
+  if (!url) return url;
+  const secure = typeof window !== 'undefined' && window.isSecureContext
+    && window.location?.protocol === 'https:';
+  if (!secure) return url;
+  return url.replace(/^http:\/\//i, 'https://');
+}

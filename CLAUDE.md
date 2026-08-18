@@ -159,18 +159,19 @@ address — the exact shape a convincing phishing link wants. An integer resolve
 fixed base (`WORLD_LINK_BASE`) cannot point anywhere but the gallery, so there is no
 allowlist to maintain and no way to aim it elsewhere.
 
-**The fetch must be SAME-ORIGIN, and that is a hosting fact, not a preference.** The
-gallery is served over plain http (edusim3dweb.com has no TLS), and **a page served over
-https may not fetch an http url at all** — browsers block it as mixed content and nothing
-client-side gets round it. That is the entire reason the app is deployed to **`/app/` in
-the gallery's own docroot** rather than to a host of its own: it is what makes
-`WORLD_LINK_BASE` resolvable. It deliberately does not fall back to an absolute address if
-the fetch fails, because that produces a mixed-content console error that reads like a bug
-in this code rather than the hosting fact it is.
+**The fetch must be SAME-ORIGIN, and that is a hosting fact, not a preference.** A page may
+not fetch across a scheme boundary — browsers block http-from-https as mixed content and
+nothing client-side gets round it. That is the entire reason the app is deployed to **`/app/`
+in the gallery's own docroot** rather than to a host of its own: it is what makes
+`WORLD_LINK_BASE` resolvable whatever scheme the site is on. It deliberately does not fall
+back to an absolute address if the fetch fails, because that produces a mixed-content console
+error that reads like a bug in this code rather than the hosting fact it is. Note this held
+through the domain gaining TLS with no change at all, which is the point of a root-relative
+base: it is same-origin by construction.
 
 ### The app is served from ONE place, and every link says so
 
-`http://edusim3dweb.com/app/`. The Railway deployment it used to run on is retired; nothing
+`https://edusim3dweb.com/app/`. The Railway deployment it used to run on is retired; nothing
 in the repo configures it and no link points at it.
 
 `EWD_APP_URL` was the one deliberately-absolute constant in `lib/config.php`; now that the
@@ -180,20 +181,50 @@ Fonts (`smoke-test.sh` asserts exactly that). `EWD_APP_OPEN_URL` holds the same 
 is still a separate constant, because only *it* carries the same-origin requirement above —
 whatever `EWD_APP_URL` is ever repointed at, that one has to stay on this host.
 
-`docs/` is the exception that keeps an absolute `http://edusim3dweb.com/app/`: the same
-files are also published to GitHub Pages, where a relative `app/` is a dead end. The links
-carry the **trailing slash** on purpose — `/app` alone is a 301, and that is a wasted round
-trip on the button whose job is to start the app.
+`docs/` is the exception that keeps an absolute `https://edusim3dweb.com/app/` (48 links
+across 13 files): the same files are also published to GitHub Pages, where a relative `app/`
+is a dead end. The links carry the **trailing slash** on purpose — `/app` alone is a 301, and
+that is a wasted round trip on the button whose job is to start the app. **They are `https:`
+for the same reason**: the server now 301s every http url to https, so an http link costs
+exactly the round trip the trailing slash exists to avoid.
 
-**One capability came back and one is gone until there is TLS.** Serving the app over http
-means the in-world browser panels pointed at `WEB_BROWSER_DEFAULT_URL` — blank for the whole
-time the app was https — **now work**, because an http iframe in an http page is not mixed
-content. Immersive VR is the opposite: `navigator.xr` is secure-context-only, so with no
-https copy anywhere it is unreachable and `VRView` always takes the side-by-side stereo path.
-`crypto.randomUUID` was a third secure-context API and, unlike those two, did *not* degrade —
-it threw during boot and rendered a blank page, which is what `src/Uuid.js` exists to prevent.
-**If the domain ever gets a certificate, `WEB_BROWSER_DEFAULT_URL` must become `https:` in
-the same change** or the panels go blank again for the old reason with the roles reversed.
+**THE DOMAIN HAS A CERTIFICATE NOW, and the server 301s every http url to https.** That
+arrived from the host rather than from anything in this repo, and it landed on the exact trap
+this section had been carrying a warning about for months, so the warning is worth keeping
+alongside what actually happened.
+
+Immersive VR is back: `navigator.xr` is secure-context-only, and measured on the live site
+`window.isSecureContext` is now true and `navigator.xr` is present, so `VRView` can take the
+real `immersive-vr` path instead of always falling back to side-by-side stereo.
+`crypto.randomUUID` is a second secure-context API and is likewise available again — though
+`src/Uuid.js` stays, because it is what stopped a *blank page at boot* on the http deployment
+and nothing guarantees the next host.
+
+**The browser panels broke, exactly as predicted, and the fix is NOT the one the old warning
+named.** `WEB_BROWSER_DEFAULT_URL` was `http://edusim3dweb.com`, so once the app was served
+over https every panel became mixed content — the live console said *"requested an insecure
+frame 'http://edusim3dweb.com/'. This request has been blocked"* and every panel in every
+world went blank. Changing the constant is necessary and **not sufficient**, because that url
+is **PERSISTED**: it is baked into the `web-browser` record of twenty-odd already-published
+gallery worlds, into every world file a student has downloaded, and into every copy anybody
+has sent a classmate, none of which can be edited from here. The seeder has no update path
+either — it dedupes on `world_sha256` and every route through it ends in an insert — so
+re-exporting and re-seeding would publish a second copy of every world rather than fix one.
+
+So the fix is `secureFrameUrl()` in `WebUrl.js`, applied where the iframe's `src` is set
+rather than where the url is written. On an https page it rewrites `http:` to `https:`; on an
+http page it is a no-op, so a local dev server behaves exactly as before. That repairs every
+already-published world and every already-downloaded file at once, with no re-seeding. It
+rewrites every http url and not merely this host's, deliberately: an http frame in an https
+page is blocked outright, so there is no case where leaving it as http works, and a host with
+no https answers with a connection error, which reads better than a silent blank rectangle.
+`WEB_BROWSER_DEFAULT_URL` is `https:` as well, so newly written records are correct at source.
+
+**The general lesson, which is bigger than this one url: a constant that ends up inside a
+saved record is not a constant.** Changing it only affects what is written from now on. The
+same is true of `DB_NAME`, of every `PROP_BUILDERS` key and of every block type — this file
+says so about each of them — and the browser panel's url quietly joined that list the day the
+first world was seeded.
 
 **Two things that had to change to serve the app from a subdirectory:**
 
@@ -386,7 +417,7 @@ out from under the student. And **the mixed-content limitation on
 `https:` page, which browsers block; this is a top-level navigation into a new tab, which
 they do not. That distinction is why this link kept working through the whole period the
 in-world browser panel pointed at the same host was blank — and it is also why every
-`http://edusim3dweb.com/app/` link in `docs/` is fine on the **https** GitHub Pages mirror.
+`https://edusim3dweb.com/app/` link in `docs/` is fine on the **https** GitHub Pages mirror.
 
 **The Park is the boot world** (`config.js`'s `BOOT_WORLD`). A first visit — or any
 visit where `rehydrateAll()` comes back with an empty registry — builds it via the same

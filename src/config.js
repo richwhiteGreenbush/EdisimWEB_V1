@@ -1229,7 +1229,7 @@ export const WEB_BROWSER_DOM_HEIGHT = 585; // px -- keeps the same 4:2.6 aspect 
 // is still worth doing -- it is what brings immersive VR back (navigator.xr is
 // secure-context-only) -- but this line has to become https: in the same change, or the
 // panel goes blank again for exactly the old reason with the roles reversed.
-export const WEB_BROWSER_DEFAULT_URL = 'http://edusim3dweb.com';
+export const WEB_BROWSER_DEFAULT_URL = 'https://edusim3dweb.com';
 
 // --- Opening a shared world from a link ------------------------------------
 

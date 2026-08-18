@@ -12,7 +12,7 @@ import {
 } from './config.js';
 
 import { uuid } from './Uuid.js';
-import { normalizeBrowserUrl } from './WebUrl.js';
+import { normalizeBrowserUrl, secureFrameUrl } from './WebUrl.js';
 const PIXELS_TO_FEET = WEB_BROWSER_WIDTH / WEB_BROWSER_DOM_WIDTH;
 const CLICK_MOVE_THRESHOLD = 6; // px -- beyond this, a pointerdown->pointerup is a look-drag, not a click
 const CLICK_TIME_THRESHOLD = 500; // ms
@@ -205,7 +205,7 @@ export class WebBrowserManager {
     frameWrap.className = 'wb-frame-wrap';
     const iframe = document.createElement('iframe');
     iframe.className = 'wb-iframe';
-    iframe.src = record.url;
+    iframe.src = secureFrameUrl(record.url);
     // 'origin', not 'no-referrer'. This used to send nothing at all, which is the more
     // private setting and is what breaks a YouTube embed outright: the player checks the
     // referrer against the video's embedding permissions and answers a request carrying
@@ -235,7 +235,7 @@ export class WebBrowserManager {
       const url = normalizeBrowserUrl(urlInput.value);
       if (!url) return;
       urlInput.value = url;
-      iframe.src = url;
+      iframe.src = secureFrameUrl(url);
       record.url = url;
       worldStore?.saveObject(record);
     };

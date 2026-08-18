@@ -26,10 +26,13 @@ set -uo pipefail
 # deploy: `code()` deliberately does not follow redirects, because a check that follows
 # them cannot tell "the file is served" from "something answered after a hop". The alias
 # gets its own redirect check below instead.
+# HTTPS, since the domain now has a certificate. `code()` deliberately does not follow
+# redirects, so an http base makes every single check fail with a 301 that says nothing
+# about the deploy -- which is exactly what it did the first run after the cert appeared.
 if [ "${1:-}" = "--prod" ]; then
-  SITE="http://edusim3dweb.com"
+  SITE="https://edusim3dweb.com"
   ALIAS="http://edusim3d.me"
-  APP="http://edusim3dweb.com/app"
+  APP="https://edusim3dweb.com/app"
   TIMEOUT="${TIMEOUT:-30}"
 fi
 
@@ -187,12 +190,20 @@ check "directory listing"    "$SITE/worlds/uploads/screenshots/"  403 404
 
 # The alias domain, when there is one. It must land on the canonical origin rather than
 # 404 or loop -- a broken alias is invisible from the canonical host itself.
+#
+# Matched on the HOST and not on the full origin, deliberately. The alias 301s to
+# http://edusim3dweb.com/, which the server then 301s again to https -- an extra hop, and a
+# host-side redirect rule this repo does not own and cannot deploy. What this check is for is
+# "the alias points at the canonical site rather than 404ing or looping", and that is still
+# exactly what it asserts; pinning the scheme instead turned it into a check on somebody
+# else's DNS panel that no change here could ever make pass.
 if [ -n "${ALIAS:-}" ]; then
   section "Alias domain"
   loc="$(curl -s -o /dev/null -w '%{redirect_url}' --max-time "$TIMEOUT" "$ALIAS/")"
   acode="$(code "$ALIAS/")"
+  site_host="${SITE#*://}"
   case "$loc" in
-    "$SITE"*) printf '  \033[32mok\033[0m   %-46s %s -> %s\n' "alias redirects to the canonical site" "$acode" "$loc"; pass=$((pass+1)) ;;
+    http://"$site_host"*|https://"$site_host"*) printf '  \033[32mok\033[0m   %-46s %s -> %s\n' "alias redirects to the canonical site" "$acode" "$loc"; pass=$((pass+1)) ;;
     *)        printf '  \033[31mFAIL\033[0m %-46s %s -> %s\n' "alias redirects to the canonical site" "$acode" "${loc:-nowhere}"; fail=$((fail+1)) ;;
   esac
 fi
