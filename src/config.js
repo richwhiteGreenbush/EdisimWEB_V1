@@ -1236,6 +1236,25 @@ export const MODEL_TARGET_HEIGHT = 5; // feet -- every imported model is normali
 export const PLAY_ICON_SIZE = 0.8; // feet, billboard sprite size
 export const PLAY_ICON_MARGIN = 0.6; // feet above the object's bounding-box top
 
+// The marker -- the in-world 3D pen the Looks blocks drive. See MarkerTrail.js.
+//
+// THREE INCHES ACROSS, which is the brief and is also about the thinnest a tube can be and
+// still read from across a world: at 0.25ft a mark is roughly a pixel wide at 200ft, which
+// is the far side of any world here.
+export const MARKER_RADIUS = 0.125; // feet -- a 3in tube
+export const MARKER_SIDES = 7; // radial segments; a 3in tube gains nothing from more
+// How far the object has to travel before another ring is laid down. Small enough that a
+// `glide` curve is smooth, large enough that an object sitting still with the marker down
+// does not fill the buffer with rings on top of each other.
+export const MARKER_MIN_STEP = 0.06; // feet
+// Points per stroke mesh. One mesh is one draw call, so this trades draw calls against
+// buffer memory: 400 rings of 8 vertices is ~38KB a stroke.
+export const MARKER_STROKE_POINTS = 400;
+// The whole feature's ceiling, and it exists for the same reason MAX_WORLD_OBJECTS does --
+// `forever { move forward }` with the marker down is unbounded by nature. At 24,000 points
+// that is 60 meshes, which is a fifth of a world's draw-call budget and plenty of ink.
+export const MARKER_MAX_POINTS = 24000;
+
 // Shared color palette -- Draw's swatches, the "change color to" block's default,
 // and Light Orb placement all pick from this same set so the whole app feels like
 // one consistent palette rather than several independently-guessed color lists.

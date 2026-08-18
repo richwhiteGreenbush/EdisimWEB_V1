@@ -55,6 +55,14 @@ export class ProgramManager {
         this.onSay?.(id, object3D, text);
         this.broadcast(text, id);
       },
+      // The marker. `this.marker` is assigned by main.js after construction, exactly as
+      // `onDuplicate` is and for the same reason: ProgramManager is built at the top of
+      // main.js, before the scene the marker draws into exists. Safe, because nothing here
+      // runs until a program is actually playing.
+      markerColor: (hex) => this.marker?.setColor(id, hex, object3D),
+      markerDown: () => this.marker?.down(id, object3D),
+      markerUp: () => this.marker?.up(id),
+      eraseMarks: () => this.marker?.eraseAll(),
     };
   }
 

@@ -138,6 +138,29 @@ function* runBlock(block, ctx) {
       yield { type: 'tick' };
       return;
 
+    // The four marker blocks. Every one of them is a callback rather than something this
+    // module does itself, for the same reason `say` and `duplicate` are: the runner stays
+    // a pure interpreter that knows nothing about the scene it is driving.
+    case 'markerColor':
+      ctx.markerColor?.(block.params.color || '#3d8bf2');
+      yield { type: 'tick' };
+      return;
+
+    case 'markerDown':
+      ctx.markerDown?.();
+      yield { type: 'tick' };
+      return;
+
+    case 'markerUp':
+      ctx.markerUp?.();
+      yield { type: 'tick' };
+      return;
+
+    case 'eraseMarks':
+      ctx.eraseMarks?.();
+      yield { type: 'tick' };
+      return;
+
     // --- Retired, still runnable --------------------------------------------
     // Off the palette but kept here, because a block type is persisted inside every saved
     // program: deleting these cases would turn somebody's working world into a silent

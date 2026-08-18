@@ -12,6 +12,7 @@ import { TouchNav } from './TouchNav.js';
 import { ProgramManager } from './ProgramManager.js';
 import { ProgramEditor } from './ProgramEditor.js';
 import { PlayIconManager } from './PlayIcon.js';
+import { MarkerTrail } from './MarkerTrail.js';
 import { SpeechBubbleManager } from './SpeechBubble.js';
 import { placeLightOrb } from './LightOrb.js';
 import { WebBrowserManager, placeWebBrowser } from './WebBrowserPanel.js';
@@ -192,6 +193,7 @@ const menuActions = {
     }
     registry.clear();
     playIconManager.clear();
+    markerTrail.clear();
     speechBubbles.clear();
     webBrowserManager.clear();
     buildGizmo.deactivate();
@@ -232,10 +234,18 @@ const menu = new Menu({
   },
 });
 
+const markerTrail = new MarkerTrail({
+  scene,
+  onNotice: (message) => menu.toast(message),
+});
+// Assigned rather than injected, for the reason ProgramManager's own note gives: it is
+// constructed at the very top of this file, before the scene exists.
+programManager.marker = markerTrail;
+
 const playIconManager = new PlayIconManager({ scene, camera, domElement: canvas, registry, programManager, menu });
 const speechBubbles = new SpeechBubbleManager({ scene, registry });
 
-const worldStore = new WorldStore({ scene, registry, menu, programManager, playIconManager, webBrowserManager, speechBubbles });
+const worldStore = new WorldStore({ scene, registry, menu, programManager, playIconManager, webBrowserManager, speechBubbles, markerTrail });
 
 const importManager = new ImportManager({
   scene,
@@ -378,7 +388,7 @@ if (import.meta.env.DEV) {
   window.__debug = {
     camera, player, renderer, scene, THREE, menu, registry, importManager, drawTool,
     worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager, speechBubbles,
-    webBrowserManager, vrView, constructionManager, primitiveMenu, buildGizmo,
+    webBrowserManager, vrView, constructionManager, primitiveMenu, markerTrail, buildGizmo,
   };
 }
 
@@ -392,6 +402,7 @@ function animate(timestamp) {
   player.update(dt);
   registry.tick();
   programManager.tick();
+  markerTrail.tick();
   playIconManager.tick();
   speechBubbles.tick();
   webBrowserManager.tick();

@@ -132,6 +132,41 @@ export const BLOCK_DEFS = {
     params: { color: { type: 'color', default: PALETTE_SWATCHES[0] } },
   },
 
+  // --- The marker ----------------------------------------------------------
+  //
+  // An in-world 3D pen: with the marker down, an object leaves a 3-inch coloured tube
+  // behind it wherever it goes. Four blocks, filed under Look because a mark is something
+  // an object leaves on the world's appearance rather than a thing it does to itself.
+  //
+  // `eraseMarks` is the odd one out and is the reason the four are worth having together:
+  // it clears EVERY mark in the world, not only the ones this object made. That is what
+  // the block says and it is what makes it useful -- a student who has scribbled with five
+  // robots wants one button, not five.
+  markerColor: {
+    category: 'look',
+    hasChildren: false,
+    label: [{ text: 'marker color' }, { field: 'color' }],
+    params: { color: { type: 'color', default: PALETTE_SWATCHES[3] } },
+  },
+  markerDown: {
+    category: 'look',
+    hasChildren: false,
+    label: [{ text: 'marker down' }],
+    params: {},
+  },
+  markerUp: {
+    category: 'look',
+    hasChildren: false,
+    label: [{ text: 'marker up' }],
+    params: {},
+  },
+  eraseMarks: {
+    category: 'look',
+    hasChildren: false,
+    label: [{ text: 'erase all marks' }],
+    params: {},
+  },
+
   // --- Retired -------------------------------------------------------------
   //
   // Off the palette, still runnable. A block type is PERSISTED inside every saved
@@ -181,6 +216,7 @@ export const PALETTE_ORDER = [
   'repeat', 'forever', 'wait', 'whenSaid', 'duplicate',
   'moveForward', 'moveUp', 'glide', 'rotate', 'goHome',
   'say', 'changeSize', 'setSize', 'setOpacity', 'changeColor',
+  'markerColor', 'markerDown', 'markerUp', 'eraseMarks',
 ];
 
 export function createBlockInstance(type) {

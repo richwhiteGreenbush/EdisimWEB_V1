@@ -2676,6 +2676,76 @@ a floating panel (Size % / Move ft / Program stub) at the click point. Edits mut
 the live object3D directly, then `persistTransform()` re-derives `record.transform`
 and calls `worldStore.saveObject()`.
 
+### The marker: an in-world 3D pen
+
+`MarkerTrail.js`, driven by four Look blocks — `marker color`, `marker down`, `marker up`,
+`erase all marks`. With the marker down an object leaves a **3-inch coloured tube** behind
+it wherever it goes, in three dimensions: `move up by` lifts the line off the ground with
+the object.
+
+**A TUBE AND NOT A LINE, and that is not a stylistic choice.** `THREE.Line` ignores
+`linewidth` on essentially every platform — the WebGL spec makes it optional and Chrome has
+never implemented it — so a "line" is always exactly one pixel wide however close you get,
+which is invisible from across a world and unusable in VR. A tube is a real object: it takes
+the sun, casts a shadow, and stays legible at any distance.
+
+**THE COST MODEL IS THE WHOLE DESIGN, and both obvious implementations are unusable.** One
+small mesh per segment reaches hundreds of draw calls within seconds of a `forever` loop,
+which is the single thing an integrated GPU cannot survive; rebuilding one `TubeGeometry`
+from the whole path each time it grows is O(n²) and stalls the frame. So a **stroke is ONE
+mesh with PRE-ALLOCATED buffers and a growing draw range**: appending a segment writes a
+ring of vertices and bumps a counter — O(1), no allocation, no index rewrite (the index is
+written once for the full capacity, and indices for rings that do not exist yet are simply
+never reached). A full stroke is closed and the next starts **from its last point**, so a
+`forever` loop draws one unbroken line across as many meshes as it needs at constant cost.
+
+Six things worth keeping:
+
+- **The frame is PARALLEL TRANSPORTED from ring to ring**, not recomputed. A Frenet frame
+  flips through every inflection and is undefined on a straight run, and a marker's path is
+  mostly straight runs with corners in them — the same reason `LoftKit.sweepProfile`
+  transports its frame.
+- **Both ends are capped with a zero-radius ring.** An open tube end is a hole, and a hole
+  is exactly what a 3-inch pipe viewed end-on shows. Two extra rings per stroke.
+- **`frustumCulled = false`.** The buffer is allocated up front and mostly zeroed, so a
+  bounding sphere computed from it is wrong and the stroke vanishes when you look away. One
+  extra draw call is much cheaper than a line that disappears.
+- **THERE IS NO TELEPORT DETECTION, deliberately.** `move forward 8` completes inside a
+  single tick, so an 8ft step in one frame is an ordinary line — any jump threshold would
+  chop legitimate strokes in half. `go back to start` therefore draws its return line, which
+  is what Scratch's pen does and is the more predictable rule.
+- **Sampled once a frame, not driven from the motion blocks.** `glide` interpolates across
+  many frames and a rotating object moves without any block firing, so watching the object's
+  actual position catches every case with no per-block plumbing.
+- **A colour change closes the stroke and opens a new one AT THE SAME POINT.** A stroke is
+  one colour; sharing the point is what keeps the join solid rather than leaving a gap the
+  width of one frame's travel. There is ONE material for every mark in the world, carrying
+  per-vertex colour — a material per stroke would be one to create and dispose per colour
+  change.
+
+**The tip is at the object's own origin lifted by the tube's radius.** Every prop here is
+authored with its origin at its BASE CENTRE, so that rests the tube on the ground rather
+than half-burying it.
+
+**`erase all marks` clears EVERY mark in the world, not only this object's** — that is what
+the block says, and it is what makes it useful when five robots have been scribbling. An
+object still holding its marker down keeps drawing from where it now is, because lifting
+every pen would make the block silently switch the marker off, which is not what it says.
+
+**MARKS ARE NOT PERSISTED, and that is deliberate rather than unfinished.** They are the
+*output* of a program, and the program itself is saved — press ▶ and they come back. Scratch
+does not save its pen canvas either. Persisting them would mean a new record kind, a world
+file that grows without bound as a `forever` loop runs, and a rehydration path for geometry
+this project otherwise never stores.
+
+`MARKER_MAX_POINTS` (24,000, about 60 meshes) exists for the same reason `MAX_WORLD_OBJECTS`
+does: `forever { move forward }` with the marker down is unbounded by nature. Hitting it
+toasts once and stops drawing rather than degrading the frame rate.
+
+**`markerTrail.clear()` must be called anywhere `registry.clear()` is** — Clear World and
+`WorldStore.loadFromRecords`. The two are not linked automatically, which is the same trap
+`PlayIconManager.clear()` carries.
+
 ### Block-based object programming
 
 Clicking **Program** in `ObjectMenu` opens `ProgramEditor`, a Scratch-style
