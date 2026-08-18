@@ -8,6 +8,7 @@ export class Menu {
     onDrawClick,
     onLightOrbClick,
     onWebBrowserClick,
+    onYouTubeClick,
     onCreatePrimitiveClick,
     onClearClick,
     onSaveWorldClick,
@@ -62,10 +63,22 @@ export class Menu {
     );
     webBrowserBtn.addEventListener('click', () => onWebBrowserClick?.());
 
+    // A video panel is a browser panel with its address already filled in, so it sits
+    // next to Web Browser rather than anywhere else. It exists as its own button because
+    // the link a student has in their hand -- the youtube.com/watch one out of the
+    // address bar -- will not frame, and pasting it into the panel's own bar would give
+    // them a blank rectangle with nothing to explain it. This asks for the link, rewrites
+    // it to the embeddable form, and says so if it was not a video link at all.
+    const youTubeBtn = this._button(
+      'YouTube Video',
+      'Paste a YouTube link and hang the video in front of you as a panel you can watch'
+    );
+    youTubeBtn.addEventListener('click', () => onYouTubeClick?.());
+
     const loadObject = this._group(
       'Load Object',
       'Add something to the world in front of you',
-      [this.importBtn, drawBtn, lightOrbBtn, webBrowserBtn],
+      [this.importBtn, drawBtn, lightOrbBtn, webBrowserBtn, youTubeBtn],
       { nested: true }
     );
 

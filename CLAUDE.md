@@ -2782,6 +2782,66 @@ now *never* pickable through the generic path, full stop, regardless of what the
 layer does or doesn't intercept — Size/Move/Program for a panel is reachable only
 through its edit icon, by construction, not by convention.
 
+**FILTERING THE BEZEL OUT OF THE RAYCAST WAS HALF A FIX, and the other half is that a
+panel has to OCCLUDE.** Removing it from the pickable set does not make the ray stop at
+it — the ray carries straight on and returns whatever is BEHIND the panel. So a click on
+a video's play button that came through the hit-test gap opened Program on the workbench
+standing behind the screen, which reads as the panel having opened a menu and is worse
+than the bug the filter was added to prevent. The bezel is therefore left IN the pickable
+set and rejected *after* the raycast, on `hits[0]` only (`ObjectMenu.isBehindPanel`): a
+panel hides what is behind it, so a click on one selects nothing at all. Note the panel's
+bottom edge sits on the ground, so a prop the panel is standing on can legitimately be
+nearer than that last inch of bezel and still open its own menu — that is correct, not a
+leak. Construction pieces are still filtered out *before* the raycast, because a build
+piece deliberately does not occlude the world behind it.
+
+### Putting a YouTube video in the world
+
+Menu ▸ Create Model ▸ Load Object ▸ **YouTube Video**. There is no way to put a YouTube
+video on a mesh: a `THREE.VideoTexture` needs a `<video>` element it can read pixels out
+of, YouTube serves no direct file, and a canvas that has drawn a cross-origin frame is
+tainted so readback throws. The browser panel already in the app *is* the answer — a real
+`<iframe>` positioned by `CSS3DRenderer`, interactive because it is still DOM.
+
+**The whole feature is one URL rewrite** (`src/WebUrl.js`), and it exists because
+`youtube.com/watch` sends `X-Frame-Options` and will not frame at all. A blocked frame is
+undetectable from the parent page — `contentDocument` throws for *any* cross-origin frame,
+blocked or not — so a student who pastes the link out of their address bar gets a blank
+rectangle and no explanation. Only `/embed/` frames. `youtubeEmbedUrl()` accepts every form
+(`watch?v=`, `youtu.be`, `shorts`, `live`, `playlist`, an already-correct `embed`), carries
+`t=`/`start=` across as seconds, and returns **null** rather than a guess for a channel, a
+search or a non-YouTube address — the menu action toasts that instead of placing a dead
+panel. `normalizeBrowserUrl()` wraps it for the panel's own address bar, so a watch link
+pasted *there* is rewritten too.
+
+Four things that were wrong and are worth keeping:
+
+- **`referrerpolicy="no-referrer"` BREAKS YouTube outright.** The player checks the
+  referrer against the video's embedding permissions and answers a request carrying none
+  with "Error 153 — Video player configuration error", rendered in YouTube's own dark
+  chrome, which looks exactly like a broken app rather than a policy answer. It is
+  `origin` now: scheme and host, never the path, so which page a student is on still does
+  not leave the machine and it is stricter than the browser's own default.
+- **A framed player is inert without `allow` and `allowfullscreen`.** Autoplay and
+  encrypted-media are what let it start and play protected streams; the fullscreen button
+  is present and does nothing without the attribute. Camera, microphone, geolocation and
+  clipboard-write are deliberately NOT granted — they would go to every site a student
+  ever types in, not just to the video.
+- **The placement spiral counted `registry.count`.** `SPAWN_SPACING·√n` exceeds
+  `SPAWN_DISTANCE` for any populated world, so on Da Vinci's Studio (59 records) a fresh
+  panel landed 51ft away *behind* the student: the toast said "placed" and there was
+  nothing in front of them. It counts live panels now — the same correction
+  `placePrimitive()` already carries, and the same trap the units section predicts.
+- **The embed is `https:` inside an `http:` page, which is allowed.** That is the opposite
+  direction from `WEB_BROWSER_DEFAULT_URL`'s mixed-content problem, so this works today
+  and keeps working if the domain ever gets a certificate.
+
+`UrlPrompt.js` asks for the link — a one-field modal rather than `window.prompt()`, which
+blocks the page and stops the animate loop dead, and which has nowhere to put the sentence
+explaining which kind of link works. Its Esc listener is **capture-phase on window** so it
+closes the box rather than reaching `VRView`'s Esc. The VR row is `leavesVR: true`, since a
+text box to paste into is exactly what a headset cannot show.
+
 ### VR: WebXR when there's a headset, fullscreen side-by-side when there isn't
 
 Menu ▸ **VR Headset View** (`VRView.js`) has two paths behind one button, picked at

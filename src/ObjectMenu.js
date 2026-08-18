@@ -61,6 +61,14 @@ export class ObjectMenu {
     this.tryPick(e.clientX, e.clientY);
   }
 
+  // True when the nearest thing under the pointer is a web browser panel's bezel. The
+  // flag lives on the bezel mesh, which is the registered root, so resolveRoot gets there
+  // from any descendant.
+  isBehindPanel(hitObject) {
+    const id = this.registry.resolveRoot(hitObject);
+    return !!(id && this.registry.get(id)?.object3D?.userData?.isWebBrowser);
+  }
+
   tryPick(clientX, clientY) {
     const rect = this.domElement.getBoundingClientRect();
     this.pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
@@ -82,11 +90,22 @@ export class ObjectMenu {
     // menu's Program action applies to whole objects. They are reachable only through
     // their own floating hammer icon (ConstructionManager) -- and once rendered, the
     // model that replaces them carries no such flag and picks up normally.
-    const pickable = this.registry
-      .getRootObjects()
-      .filter((obj) => !obj.userData.isWebBrowser && !obj.userData.isConstruction);
+    //
+    // A PANEL IS OPAQUE TO CLICKS, which is why it is left IN the pickable set and
+    // rejected after the fact rather than filtered out before the raycast. Filtered out,
+    // the ray does not stop at the panel -- it carries straight on and returns whatever
+    // is BEHIND it, so a click on a video's play button that reached the canvas opened
+    // Size/Move/Program on the workbench standing behind the screen. That reads as the
+    // panel itself having opened a menu, and it is worse than the bug the filter was
+    // added to prevent. A panel hides what is behind it, so a click on one selects
+    // nothing at all.
+    const pickable = this.registry.getRootObjects().filter((obj) => !obj.userData.isConstruction);
     const hits = this.raycaster.intersectObjects(pickable, true);
     if (!hits.length) {
+      this.close();
+      return;
+    }
+    if (this.isBehindPanel(hits[0].object)) {
       this.close();
       return;
     }

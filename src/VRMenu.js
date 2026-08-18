@@ -168,12 +168,14 @@ export class VRMenu {
     rows.push({ id: 'group:object', label: 'Load Object', group: 'object' });
     if (this.openGroup === 'object') {
       rows.push({ id: 'lightOrb', label: 'Light Orb', indent: true });
-      // These three all need the flat screen: a file picker, a 2D paint modal and a
-      // CSS3D panel respectively, none of which a headset can display. Rather than
-      // showing dead buttons, choosing one leaves VR and opens it.
+      // These four all need the flat screen: a file picker, a 2D paint modal, and a
+      // CSS3D panel (twice over -- the video one also has a text box to paste into),
+      // none of which a headset can display. Rather than showing dead buttons, choosing
+      // one leaves VR and opens it.
       rows.push({ id: 'import', label: 'Import', indent: true, leavesVR: true });
       rows.push({ id: 'draw', label: 'Draw', indent: true, leavesVR: true });
       rows.push({ id: 'webBrowser', label: 'Web Browser', indent: true, leavesVR: true });
+      rows.push({ id: 'youTube', label: 'YouTube Video', indent: true, leavesVR: true });
     }
 
     // Create Model is deliberately absent. Placing a shape would work in here, but every

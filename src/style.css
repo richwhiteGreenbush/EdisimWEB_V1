@@ -890,3 +890,65 @@ body.vr-active #toast-host {
 .menu-subitem-more:hover {
   background: rgba(63, 179, 127, 0.3);
 }
+
+/* UrlPrompt's one-field modal. Same box as #draw-panel -- same z-index too, which keeps
+   it under #toast-host at 50, so the "that is not a YouTube link" toast it can raise
+   lands in front of it rather than behind it. */
+#url-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 14, 18, 0.55);
+}
+
+#url-panel {
+  width: min(460px, calc(100vw - 24px));
+  background: rgba(24, 28, 33, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.url-title {
+  color: #f2f5f7;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.url-input {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  color: #f2f5f7;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+.url-input:focus {
+  outline: none;
+  border-color: rgba(125, 211, 252, 0.7);
+}
+
+.url-hint {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.url-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.url-confirm {
+  border-color: rgba(125, 211, 252, 0.5);
+  color: #7dd3fc;
+}

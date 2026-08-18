@@ -15,6 +15,8 @@ import { PlayIconManager } from './PlayIcon.js';
 import { SpeechBubbleManager } from './SpeechBubble.js';
 import { placeLightOrb } from './LightOrb.js';
 import { WebBrowserManager, placeWebBrowser } from './WebBrowserPanel.js';
+import { youtubeEmbedUrl } from './WebUrl.js';
+import { askForUrl } from './UrlPrompt.js';
 import { buildPresetWorldRecords } from './WorldPresets.js';
 import { duplicatePlacedObject } from './Duplicator.js';
 import { VRView } from './VRView.js';
@@ -125,6 +127,29 @@ const menuActions = {
     worldStore.saveObject(record);
     menu.toast('Web browser placed — some sites block being embedded.', { tone: 'success' });
   },
+  // A video is a browser panel whose address is already right, which is the only thing
+  // that makes it work: youtube.com/watch sends X-Frame-Options and will not frame, and
+  // a blocked frame gives the parent page nothing to detect -- so the rewrite has to
+  // happen here, before the panel exists, rather than being diagnosed afterwards.
+  youTube: async () => {
+    menu.setCollapsed(true);
+    const typed = await askForUrl({
+      title: 'Paste a YouTube link',
+      hint: 'Any YouTube address works — the one from the address bar, a Share link, or a Shorts link. '
+        + 'It becomes a panel you can watch, move and resize like anything else you place.',
+      placeholder: 'https://www.youtube.com/watch?v=…',
+      confirmLabel: 'Add video',
+    });
+    if (typed === null) return;
+    const url = youtubeEmbedUrl(typed);
+    if (!url) {
+      menu.toast('That does not look like a YouTube video link — try copying it again.', { tone: 'error' });
+      return;
+    }
+    const { record } = placeWebBrowser({ scene, camera, registry, groundHeightAt, webBrowserManager, worldStore, url });
+    worldStore.saveObject(record);
+    menu.toast('Video placed — click it to play.', { tone: 'success' });
+  },
   createPrimitive: async (shape) => {
     try {
       const { record } = await placePrimitive({ shape, scene, camera, registry, groundHeightAt });
@@ -184,6 +209,7 @@ const menu = new Menu({
   onDrawClick: menuActions.draw,
   onLightOrbClick: menuActions.lightOrb,
   onWebBrowserClick: menuActions.webBrowser,
+  onYouTubeClick: menuActions.youTube,
   onCreatePrimitiveClick: menuActions.createPrimitive,
   onSaveWorldClick: menuActions.saveWorld,
   onLoadWorldClick: menuActions.loadWorldFile,

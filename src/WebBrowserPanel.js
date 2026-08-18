@@ -12,16 +12,10 @@ import {
 } from './config.js';
 
 import { uuid } from './Uuid.js';
+import { normalizeBrowserUrl } from './WebUrl.js';
 const PIXELS_TO_FEET = WEB_BROWSER_WIDTH / WEB_BROWSER_DOM_WIDTH;
 const CLICK_MOVE_THRESHOLD = 6; // px -- beyond this, a pointerdown->pointerup is a look-drag, not a click
 const CLICK_TIME_THRESHOLD = 500; // ms
-
-function normalizeUrl(input) {
-  const trimmed = (input || '').trim();
-  if (!trimmed) return null;
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  return `https://${trimmed}`;
-}
 
 // A blue pencil badge, matching PlayIcon.js's canvas-drawn style but a distinct
 // color/glyph so the two floating icons read as different actions at a glance.
@@ -212,7 +206,23 @@ export class WebBrowserManager {
     const iframe = document.createElement('iframe');
     iframe.className = 'wb-iframe';
     iframe.src = record.url;
-    iframe.setAttribute('referrerpolicy', 'no-referrer');
+    // 'origin', not 'no-referrer'. This used to send nothing at all, which is the more
+    // private setting and is what breaks a YouTube embed outright: the player checks the
+    // referrer against the video's embedding permissions and answers a request carrying
+    // none with "Error 153 -- Video player configuration error", which renders as YouTube's
+    // own dark chrome with a warning triangle in it and looks exactly like a broken app.
+    // 'origin' sends the scheme and host and never the path, so which page a student is on
+    // still does not leave the machine -- it is stricter than the browser's own default.
+    iframe.setAttribute('referrerpolicy', 'origin');
+    // A framed video player is inert without these. Autoplay and encrypted-media are what
+    // a YouTube embed needs to start and to play its protected streams at all; fullscreen
+    // is the one control on the player that reaches outside the frame, and without the
+    // attribute its button is present and does nothing. Deliberately NOT granted:
+    // camera, microphone, geolocation and clipboard-write, none of which any page in a
+    // panel has a reason to want and all of which would be granted to every site a
+    // student ever types in, not just to the video they asked for.
+    iframe.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture');
+    iframe.setAttribute('allowfullscreen', '');
     frameWrap.appendChild(iframe);
 
     const hint = document.createElement('div');
@@ -222,7 +232,7 @@ export class WebBrowserManager {
     wrapperEl.append(toolbar, frameWrap, hint);
 
     const navigate = () => {
-      const url = normalizeUrl(urlInput.value);
+      const url = normalizeBrowserUrl(urlInput.value);
       if (!url) return;
       urlInput.value = url;
       iframe.src = url;
@@ -271,14 +281,22 @@ export class WebBrowserManager {
   }
 }
 
-export function placeWebBrowser({ scene, camera, registry, groundHeightAt, webBrowserManager, worldStore }) {
-  const { x, z } = nextPlacementXZ(camera, registry.count);
+export function placeWebBrowser({ scene, camera, registry, groundHeightAt, webBrowserManager, worldStore, url = WEB_BROWSER_DEFAULT_URL }) {
+  // The spiral counts LIVE PANELS, not registry.count -- the same correction
+  // placePrimitive() carries, and for the same reason. In a preset world the registry is
+  // already in the dozens or hundreds, and SPAWN_SPACING*sqrt(n) then exceeds
+  // SPAWN_DISTANCE and wraps the placement round BEHIND the camera: on Da Vinci's Studio
+  // (59 records) a fresh panel landed 51ft away over the student's shoulder, so the toast
+  // said "placed" and there was nothing anywhere in front of them. Counting the handful of
+  // panels that actually exist keeps the first one at the drop point where it was asked
+  // for. `panels` has not been added to yet at this point, so this is the count before it.
+  const { x, z } = nextPlacementXZ(camera, webBrowserManager.panels.size);
   const id = uuid();
   const record = {
     id,
     kind: 'web-browser',
     createdAt: Date.now(),
-    url: WEB_BROWSER_DEFAULT_URL,
+    url,
     transform: { position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
   };
 
