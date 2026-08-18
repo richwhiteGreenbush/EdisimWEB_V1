@@ -8266,6 +8266,191 @@ function robotLayout() {
   return { theme: 'robots', spawn: { ...SP, yaw: 0 }, items };
 }
 
+// ---------------------------------------------------------------------------
+// Greenbush Science Center
+// ---------------------------------------------------------------------------
+
+// The Greenbush Science Center in Girard, Kansas -- the education service centre this whole
+// app is built at -- modelled from a photograph of its front elevation, with the exhibit
+// hall behind the door built out as a place a student can actually walk into.
+//
+// THE ARRIVAL IS THE PHOTOGRAPH. The spawn stands in the parking lot 92ft back with the
+// whole 146ft frontage in view: the tower's left edge sits 33 degrees off the sightline and
+// the far gable 41, both inside the ~51 a 16:9 screen sees, and the tall vault's ridge is
+// 18 degrees up against a 35 degree half-fov. Those four numbers are the composition, and
+// anything moved here has to be re-checked against them.
+//
+// EVERYTHING NEAR THE SPAWN IS KEPT OFF THE ENTRANCE'S BEARING. The door is 12 degrees left
+// of the sightline; the browser kiosk sits 40 degrees right and the welcome board 43 degrees
+// left, so between them they cover slices of the wing and of open lawn and none of the way
+// in. On a facade this wide something is always behind something -- the rule that matters is
+// that it is never the door.
+function greenbushLayout() {
+  const items = [];
+  const SP = { x: 0, z: 92 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- the building -------------------------------------------------------
+  items.push(prop('science-center', 0, 0, { options: { seed: 7 } }));
+
+  // --- the site -----------------------------------------------------------
+  items.push(prop('parking-lot', 10, 56, { options: { seed: 37, width: 172, depth: 66, bays: 16 } }));
+  items.push(prop('plaza-paving', 4, 19, { options: { seed: 38, width: 156, depth: 12, tone: 2, bands: 9 } }));
+
+  // The row of clipped boxwood along the tower wall, which is the most recognisable piece of
+  // landscaping in the photograph, plus a pair either side of the door.
+  for (let i = 0; i < 5; i++) {
+    items.push(prop('clipped-shrub', -58 + i * 5.2, 4.2, { options: { seed: 41 + i, radius: 1.75 + (i % 2) * 0.2 } }));
+  }
+  items.push(prop('clipped-shrub', -32.5, 5.5, { options: { seed: 51, radius: 2.4, hue: 0x2f5030 } }));
+  items.push(prop('clipped-shrub', -7.5, 5.5, { options: { seed: 52, radius: 2.4, hue: 0x2f5030 } }));
+
+  items.push(prop('monument-sign', -54, 34, { rotY: face(-54, 34), options: { seed: 43, width: 11, height: 6.4 } }));
+  items.push(prop('flag-pole', 52, 70, { options: { seed: 47, height: 30 } }));
+
+  // Planting. Kansas stock and reused builders: the shade tree is the Park's, the cherry and
+  // the maple are Seattle's, and the big conifer at the right end of the photograph is a
+  // Douglas fir standing in for the spruce that is actually there. Reuse across worlds is
+  // the house pattern -- moonCrater serves Mars, dustDevil serves Dinosaur Island.
+  items.push(prop('shade-tree', -84, 34, { options: { height: 26, seed: 61 } }));
+  items.push(prop('shade-tree', 100, 44, { options: { height: 23, seed: 62 } }));
+  items.push(prop('douglas-fir', 102, -4, { options: { seed: 63, height: 38, radius: 9 } }));
+  items.push(prop('flowering-cherry', -92, 60, { options: { seed: 64, height: 20, spread: 14 } }));
+  items.push(prop('flowering-cherry', 108, 64, { options: { seed: 65, height: 19, spread: 13 } }));
+  items.push(prop('japanese-maple', -74, 78, { options: { seed: 66, height: 15, spread: 11 } }));
+
+  items.push(prop('flower-bed', -30, 12.5, { options: { seed: 71, width: 13, depth: 5.5 } }));
+  items.push(prop('flower-bed', 16, 12.5, { options: { seed: 72, width: 15, depth: 5.5 } }));
+  items.push(prop('flower-bed', 56, 11, { options: { seed: 73, width: 14, depth: 5.5 } }));
+  items.push(prop('rhododendron-bed', -70, 22, { options: { seed: 74, radius: 6.5, bushes: 7 } }));
+  items.push(prop('rhododendron-bed', 88, 22, { options: { seed: 75, radius: 6.5, bushes: 7 } }));
+  items.push(prop('wildflowers', -100, 30, { options: { seed: 76, radius: 12, count: 130 } }));
+  items.push(prop('wildflowers', 116, 30, { options: { seed: 77, radius: 11, count: 120 } }));
+
+  items.push(prop('lamp-post', -40, 42, { options: { height: 17, lit: false } }));
+  items.push(prop('lamp-post', 60, 42, { options: { height: 17, lit: false } }));
+  items.push(prop('bench', -12, 20.5, { rotY: Math.PI, options: {} }));
+  items.push(prop('bench', 30, 20.5, { rotY: Math.PI, options: {} }));
+  items.push(prop('planter', -30.5, 14.5, { options: {} }));
+  items.push(prop('planter', -9.5, 14.5, { options: {} }));
+
+  // --- inside the hall ----------------------------------------------------
+  //
+  // The hall runs x -34..36 by z -4..-46 with a 12ft doorway, and the exhibits are laid down
+  // BOTH WALLS with the middle left clear -- the same rule A Bug's Life and the Robot
+  // Challenge Field are laid out to, and here it is doubled up: a fresh construction piece
+  // lands 10ft ahead of the student, and an exhibit hall is also a room somebody has to be
+  // able to walk across.
+  const plinth = (x, z, accent, label, sub, radius = 3.2) =>
+    prop('exhibit-plinth', x, z, { options: { seed: 300 + Math.round(x + z), radius, accent, label, sub } });
+
+  // Left wall
+  items.push(plinth(-28, -13, '#8a5cf5', 'Plasma Globe', 'Electricity you can see'));
+  items.push(prop('plasma-globe', -28, -13, { y: 2.1, options: { seed: 11, radius: 2.4, height: 3.8 } }));
+  items.push(plinth(-28, -23, '#3d8bf2', "Newton's Cradle", 'Momentum, conserved'));
+  items.push(prop('newton-cradle', -28, -23, { y: 2.1, options: { seed: 31, height: 4.6 } }));
+  items.push(prop('lab-bench', -28.5, -34, { rotY: Math.PI / 2, options: { seed: 19, length: 13 } }));
+
+  // Right wall
+  items.push(prop('turbine-demo', 29, -12, { options: { seed: 29, height: 13, blade: 4.6 } }));
+  items.push(plinth(29, -23, '#f2a541', 'Orrery', 'The inner planets, to scale in time'));
+  items.push(prop('science-orrery', 29, -23, { y: 2.1, scale: 0.6, options: { seed: 81 } }));
+  items.push(prop('van-de-graaff', 29, -34, { options: { seed: 13, radius: 2.6, height: 8.5 } }));
+  items.push(prop('periodic-wall', 16, -45.2, { options: { seed: 23, width: 19, height: 10.5 } }));
+
+  // Down the middle, but off the walking spine -- the pendulum is the one thing in the room
+  // tall enough to need the vault over it, so it stands under the taller of the two.
+  items.push(prop('chart-table', -8, -10, { options: { seed: 82 } }));
+  items.push(plinth(-12, -22, '#3fb37f', 'DNA', 'The molecule that carries the instructions'));
+  items.push(prop('dna-helix', -12, -22, { y: 2.1, scale: 0.62, options: { seed: 83 } }));
+  items.push(prop('cell-model', -10, -33, { scale: 0.68, options: { seed: 84 } }));
+  items.push(plinth(12, -12, '#1aa79c', 'Armillary Sphere', 'How the sky was measured'));
+  items.push(prop('armillary-sphere', 12, -12, { y: 2.1, scale: 0.85, options: { seed: 85 } }));
+  items.push(prop('foucault-pendulum', 14, -24, { options: { seed: 17, height: 16, radius: 6 } }));
+  items.push(prop('science-rocket', 14, -40, { options: { seed: 86, colour: 0xe8e5dc } }));
+  items.push(prop('science-rover', 24, -16, { rotY: Math.PI, options: { seed: 87 } }));
+  items.push(prop('robotic-arm', 22, -40, { scale: 0.42, options: { seed: 88 } }));
+
+  // THE FIVE ROBOTS, along the back wall facing the door -- the robotics bay. They are the
+  // Robot Challenge Field's own model reused at the same 6.4ft, which is deliberate: a
+  // student who has met them there meets them again here, and Greenbush teaches robotics.
+  ['cyan', 'coral', 'lime', 'amber', 'violet'].forEach((skin, i) => {
+    items.push(prop('robot', -30 + i * 8, -42, { options: { seed: 500 + i, skin, height: 6.4 } }));
+  });
+
+  // Interior lighting. ORB_LIGHT_DISTANCE gives a decay-2 falloff nearly spent at ~12ft, so
+  // these hang at 9ft rather than up at the vault -- at ceiling height the floor sits at the
+  // very edge of the cone. Four is what a 70ft by 42ft room needs; the barrel vaults set
+  // castShadow = false, so the sun does most of the work and these only lift the corners.
+  items.push(orb(-24, -12, 9, ORB_WARM));
+  items.push(orb(4, -12, 9, ORB_WHITE));
+  items.push(orb(28, -18, 9, ORB_WARM));
+  items.push(orb(-24, -34, 9, ORB_WHITE));
+  items.push(orb(4, -40, 9, ORB_WARM));
+  items.push(orb(28, -38, 9, ORB_WHITE));
+
+  // --- words --------------------------------------------------------------
+  items.push(prop('welcome-board', -32, 58, {
+    rotY: face(-32, 58),
+    options: {
+      eyebrow: '⚛️  GREENBUSH SCIENCE CENTER',
+      lead: 'Girard, Kansas — walk in through the front door.',
+      lines: ['Fifteen exhibits and five robots inside.', 'Everything in here can be programmed.'],
+      footnote: 'The doorway under the curved canopy is open — walk straight in',
+    },
+  }));
+  items.push(prop('info-placard', -12, 14, {
+    rotY: facing(-12, 14, SP.x, SP.z),
+    options: {
+      eyebrow: 'ABOUT THIS BUILDING',
+      title: 'Two thirds of the real thing',
+      body: 'The real Science Center has about 220 feet of frontage. This one has 146, because the world is only 390 feet across and you have to be able to stand back far enough to see all of it. Everything else — the twin barrel vaults, the tower, the canopy — is where it really is.',
+      accent: '#1f5c4a',
+    },
+  }));
+  items.push(...browserStation(10, 80, { faceX: SP.x, faceZ: SP.z }));
+
+  // --- three coding challenges, all on exhibits ---------------------------
+  items.push(activity(24, -8, {
+    number: 1,
+    title: 'Turn the wind turbine',
+    target: 'the demonstration turbine by the right wall',
+    rotY: facing(24, -8, -20, 20),
+    accent: '#3fb37f',
+    steps: [ctrlStep('forever'), moveStep('rotate 2 degrees', 1)],
+    tip: 'The number is degrees per turn of the loop, not per second. A real turbine turns much slower than you expect — try 0.5, then try 20 and see which one looks right.',
+  }));
+  items.push(activity(22, -20, {
+    number: 2,
+    title: 'Set the planets going',
+    target: 'the orrery on the amber plinth',
+    rotY: facing(22, -20, -20, 20),
+    accent: '#f2a541',
+    steps: [
+      ctrlStep('forever'),
+      moveStep('rotate 0.6 degrees', 1),
+      ctrlStep('wait 0.05 seconds', 1),
+    ],
+    tip: 'Take the wait out and it spins far too fast to read. Put it back and change it instead of the angle — that is the difference between how far it turns and how often.',
+  }));
+  items.push(activity(-6, -38, {
+    number: 3,
+    title: 'Drive a robot out of the bay',
+    target: 'any of the five robots along the back wall',
+    rotY: facing(-6, -38, -20, 0),
+    accent: '#22b3cc',
+    steps: [
+      ctrlStep('repeat 4 times'),
+      moveStep('move forward 6 feet', 1),
+      moveStep('rotate 90 degrees', 1),
+      moveStep('go back to start'),
+    ],
+    tip: '360 divided by 4 is 90, so it comes back to the corner it started from — and `go back to start` then puts it exactly where it was parked. Try repeat 3 with rotate 120.',
+  }));
+
+  return { theme: 'greenbush', spawn: { ...SP, yaw: 0 }, items };
+}
+
 export const PRESET_WORLDS = {
   park: { label: 'The Park', hint: 'The default world: a great meadow, a pond, a bandstand and the bear dens', build: parkLayout },
   museum: { label: 'The Museum', hint: 'A gallery of sculpture and painting, with a plaza out front', build: museumLayout },
@@ -8400,6 +8585,11 @@ export const PRESET_WORLDS = {
     label: 'Telescope Observatory',
     hint: 'A hilltop dome at dusk with its shutter open — walk in and stand under a 36-inch reflector',
     build: observatoryLayout,
+  },
+  greenbush: {
+    label: 'Greenbush Science Center',
+    hint: 'The education service center in Girard, Kansas \u2014 walk in the front door to fifteen exhibits and five robots',
+    build: greenbushLayout,
   },
   robots: {
     label: 'Robot Challenge World',

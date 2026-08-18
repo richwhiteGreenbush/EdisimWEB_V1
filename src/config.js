@@ -1171,6 +1171,47 @@ export const WORLD_THEMES = {
     sunPosition: [-105, 150, 130],
     stars: false,
   },
+
+  greenbush: {
+    // A clear morning in southeast Kansas. The reference photograph is flatly overcast,
+    // which is honest and makes a dull world -- so the sky is opened up while the haze is
+    // kept, which is what a Kansas summer morning actually looks like an hour after the
+    // overcast burns off.
+    groundDetail: 'ground-soil.jpg',
+    sky: 0x8fbfdc,
+    // Nothing here is far: the deepest object is 110ft out. Fog is set only to soften the
+    // horizon, never as weather -- the building is 146ft of frontage seen from 92ft, and
+    // anything tighter greys out the one thing the world is about.
+    fogNear: 240,
+    fogFar: 660,
+    // Mown campus lawn, and YELLOWER than Seattle's. A maritime lawn is blue-green; a Kansas
+    // one in July has warmth in it, and against orange-red brick that warmth is what stops
+    // the ground and the building fighting.
+    groundLow: 0x4a6b34,
+    groundHigh: 0x88a352,
+    // FLAT, and this is a correctness requirement rather than a preference. The building is
+    // 146ft of frontage that has to sit on one level plane, the parking lot is a poured slab
+    // and the hall's floor is at ground level because PlayerController walks on the terrain
+    // and never on props. Any relief under any of those reads as a broken model.
+    amplitude: 0.85,
+    flatRadius: 132,
+    blendRadius: 190,
+    hemiSky: 0xdceaf6,
+    // LIGHT AND NEARLY UNSATURATED, for the third world running. This building has more
+    // downward-facing surface than anything else in the app -- the canopy soffit, the deep
+    // eaves over the wing, the underside of both barrel vaults and the whole hall ceiling --
+    // and the hemisphere bounce is the entire light every one of them gets. At an honest
+    // grass green the canopy a student walks under came out olive.
+    hemiGround: 0x9a9c8e,
+    hemiIntensity: 1.55,
+    sunColor: 0xfff6e6,
+    sunIntensity: 2.4,
+    // From the front left and high, which is the light in the photograph: it rakes the
+    // tower's brick, puts the canopy's shadow across the entrance, and lights the FRONT
+    // elevation, which is the only one anybody sees.
+    sunPosition: [-140, 158, 120],
+    stars: false,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger

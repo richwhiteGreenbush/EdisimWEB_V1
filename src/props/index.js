@@ -33,6 +33,7 @@ import * as Sky from './SkyProps.js';
 import * as Observatory from './ObservatoryProps.js';
 import * as Seattle from './SeattleProps.js';
 import * as Robot from './RobotProps.js';
+import * as Greenbush from './GreenbushProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -532,6 +533,21 @@ export const PROP_BUILDERS = {
   'tool-bench': Robot.toolBench,
   'ball-run': Robot.ballRun,
   'signal-arch': Robot.signalArch,
+
+  // Greenbush Science Center
+  'science-center': Greenbush.scienceCenter,
+  'exhibit-plinth': Greenbush.exhibitPlinth,
+  'plasma-globe': Greenbush.plasmaGlobe,
+  'van-de-graaff': Greenbush.vanDeGraaff,
+  'foucault-pendulum': Greenbush.foucaultPendulum,
+  'lab-bench': Greenbush.labBench,
+  'periodic-wall': Greenbush.periodicWall,
+  'turbine-demo': Greenbush.turbineDemo,
+  'newton-cradle': Greenbush.newtonCradle,
+  'parking-lot': Greenbush.parkingLot,
+  'clipped-shrub': Greenbush.clippedShrub,
+  'monument-sign': Greenbush.monumentSign,
+  'flag-pole': Greenbush.flagPole,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

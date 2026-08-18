@@ -688,6 +688,29 @@ $WORLDS = [
             . "Each robot is about six and a half feet tall, roughly twelve times the size of the real "
             . "classroom robot it is built after, and the placard by pad 1 says so.",
     ],
+    'greenbush' => [
+        'title' => 'Greenbush Science Center',
+        'tags'  => 'science, coding, building, official, starter',
+        'description' =>
+            "The education service center in Girard, Kansas \u{2014} the building Edusim itself is made in \u{2014} "
+            . "modelled from a photograph of its front elevation, with the exhibit hall behind the door "
+            . "built out as somewhere you can actually walk.\n\n"
+            . "You arrive in the parking lot with the whole frontage in view: the brick tower with the "
+            . "globe on it, the curved entry canopy, the twin green barrel vaults, the long wing and the "
+            . "gable end with its arched window. The doorway under the canopy is a real opening \u{2014} "
+            . "walk straight through it.\n\n"
+            . "Inside are fifteen exhibits: a plasma globe, a Van de Graaff generator, a Foucault "
+            . "pendulum with a ring of pegs to knock over, Newton's cradle, a lab bench with microscopes "
+            . "and glassware, a wall-sized periodic table, a demonstration wind turbine, an orrery, a DNA "
+            . "helix, an animal cell, an armillary sphere, a sounding rocket, a Mars rover, a robot arm "
+            . "and a chart table. Five robots stand along the back wall.\n\n"
+            . "Three coding challenges, all pointed at exhibits: turn the wind turbine, set the planets "
+            . "going, and drive a robot out of the bay. Everything in the hall can be clicked and "
+            . "programmed, including the robots.\n\n"
+            . "The building is at about two thirds of the real one's 220 feet of frontage, because the "
+            . "world is only 390 feet across and you have to be able to stand back far enough to see all "
+            . "of it. The placard by the door says so.",
+    ],
 ];
 
 // ---------------------------------------------------------------------------

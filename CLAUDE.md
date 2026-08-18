@@ -2101,6 +2101,90 @@ to build, 292ms to load, 14.7KB world file. Per-prop the heaviest are MoPOP 35k,
 Needle 21k, chihuly glasshouse 12k; the four Douglas firs are about 8k each, which is the
 araucaria trap watched rather than repeated.
 
+### Greenbush Science Center, and a hero you walk INSIDE
+
+`GreenbushProps.js` + `greenbushLayout()`. A gallery world -- in `PRESET_WORLDS`, deliberately
+not in `MENU_WORLDS`. The education service centre this app is made in, modelled from a
+photograph of its front elevation, with the exhibit hall behind the door built out as a room
+a student can walk into.
+
+**It is the first hero in this project that has an INSIDE**, and that is what shapes the file.
+Every other building here is looked at: the museum and the library have interiors, but they
+are galleries you look across from a raised floor, and Mars' dome is a shell. This one is a
+146ft frontage whose front door is a real opening into a 70 x 42ft hall holding fifteen
+exhibits, and three constraints fall out of that immediately.
+
+- **THE FLOOR IS AT GROUND LEVEL.** `PlayerController` walks on the terrain and never on
+  props, so a raised interior floor puts a student's eyes below the deck they appear to be
+  standing on. Mars learned this; the museum and the library are the counter-example and they
+  get away with it only because you look across them rather than walk into them.
+- **THERE IS NO CSG, SO AN OPENING CANNOT BE CUT.** `wallWithOpening` assembles the front wall
+  as two piers and a header, the way a real one is built. A dark panel laid on a solid wall is
+  the trap Machu Picchu's niches and Ellis Island's windows both hit.
+- **AN OPEN DOOR HAS TO LOOK OPEN.** The first pass glazed the opening with one sheet of dark
+  glass, which is a WINDOW -- and a student who reads it as a window does not try to walk
+  through it, collision or no collision. It is two narrow sidelights at the jambs with a
+  transom over and eight feet of nothing in the middle, so from under the canopy you see the
+  lit hall and the robots standing in it. That view is the only invitation that works.
+
+**Four bugs, and the first two are the ones worth carrying forward.**
+
+- **THE VAULTS WERE THE CEILING, AND TWO ARCS DO NOT COVER A RECTANGLE.** Arcs 30 and 40ft
+  wide over a hall 70ft wide leave open strips at both ends, and from inside those were bands
+  of BLUE SKY across the top of the room. The ceiling is now a flat deck at the wall head and
+  the vaults sit on it as roof form -- which is what the real building has anyway. **The deck
+  is its own MESH**, because `castShadow` lives on the Mesh and not on a merged part: anything
+  that has to let the sun through cannot be merged with anything that has to block it.
+- **A REUSED PROP CARRIES ITS OWN WORLD'S SCALE.** Nine exhibits here come from Fantastic
+  Voyage, Seattle Center, the observatory and the space station, and measured in place the
+  robot arm was 28.5ft across, the DNA helix 22.4ft TALL against a 19.4ft ceiling, and the
+  orrery's 14.2ft span put it a foot through the right wall. Reuse is the house pattern and
+  it is right; re-measuring is not optional. The check is worth automating -- a sweep for
+  anything whose box escapes the room found all four in one pass.
+- **A GRID OF BOXES STEPPING UP A CURVE IS A STAIRCASE.** The gable infill under each vault
+  was 22 brick boxes climbing the arch and read as exactly that. An arch's infill is a
+  half-disc, its centroid lies inside it, and so `extrudeOutline`'s centre fan caps it
+  correctly with no special case at all. (The related trap is why the vault SHELL cannot use
+  `extrudeOutline`: an arc BAND's centroid is in the hollow, so its cap would throw triangles
+  across the opening -- `barrelShell` emits the end strips directly.)
+- **RADIUS, NOT WIDTH, DECIDES WHICH OF TWO CONCENTRIC BANDS DOMINATES.** The cream fascia was
+  placed at `halfSpan + 0.9`, making it the OUTERMOST ring of each arch, so from the road every
+  vault read as a cream dome with a thin green rim -- the exact inverse of the photograph.
+  Moved inside the green it became the slim line it is meant to be.
+
+**A ROOM NEEDS AN INTERIOR FINISH, and that is legibility rather than decoration.** A deck
+soffit in roof green and walls in face brick are both surfaces facing away from every light
+in the world, so the ceiling rendered pure black and the walls dark red: the hall read as a
+cave with exhibits in it. A pale lining, a dark skirting and six orbs at 9ft is what an
+exhibit hall actually has, and it is also what the orbs bounce off.
+
+**Two things carry the building's likeness and neither is geometry.** Coursed brick is a
+COLOUR problem -- horizontal course banding plus a broad blotch and a grime wash, since as
+geometry it is thousands of solids per elevation. And the roof's standing seams are a tint,
+because a seam stands about an inch proud on a roof 30ft up seen from 90ft, which is
+sub-pixel; as geometry it would need ten samples per seam to escape aliasing and buy nothing.
+
+**The hero was the LIGHTEST thing in its own world at 6.7k triangles** -- lighter than one
+tree -- because a building is boxes. What brick architecture is read from is its horizontal
+lines, so a stone base course, a soldier band under the eaves, sills and lintels round every
+opening and a soldier arch over the door took it to 8.6k. Each is a mitred `mouldedRing` or a
+flat band: a handful of triangles apiece and the cheapest fidelity in the file.
+
+**Composition.** The spawn stands in the parking lot 92ft back: the tower's left edge is 33
+degrees off the sightline and the far gable 41, both inside the ~51 a 16:9 screen sees, and
+the tall vault's ridge is 18 degrees up against a 35 degree half-fov. On a facade this wide
+something is always behind something -- the rule that matters is that it is never the door,
+which sits 12 degrees left while the kiosk is 40 right and the welcome board 43 left.
+
+**Performance, measured**: 71 records / **297 draw calls** / 699k drawn / 384k geometry / 159
+meshes / 7 transparent / 6 point lights / 75 textures / 0.72ms warm CPU render. 625ms to
+build, 317ms to load, 17.7KB world file. The building itself is 8.6k triangles in five meshes
+(brick, roof, metal, trim, glass); the heaviest props in the world are all reused exhibits --
+cell model 31.1k, robot 28.6k, Douglas fir 22.9k, DNA helix 17.1k.
+
+The world holds exactly what the brief asked for: 15 science exhibits in the hall, 5 robots
+along its back wall, and 30 accessory models outside.
+
 ### Robot Challenge World, and a hero model read from SIX FEET
 
 `RobotProps.js` + `robotLayout()`. A gallery world -- in `PRESET_WORLDS`, deliberately not in
