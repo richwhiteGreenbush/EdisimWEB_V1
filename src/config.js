@@ -1,6 +1,12 @@
 // World units are feet throughout -- the camera is a 5ft-tall person, and every
 // distance/size constant below is calibrated against that.
-export const MOVE_SPEED = 6; // feet/second
+// 9, up from the 6 this shipped with -- 50% faster, because crossing one of these worlds
+// at a walking pace was most of what a student spent their time doing. A world is 390ft
+// wide, so the far side went from a 65-second walk to a 43-second one. Both the arrow keys
+// and the on-screen D-pad come through here: TouchNav dispatches synthetic arrow-key events
+// rather than touching PlayerController, so there is one speed to set, not two. The VR
+// thumbstick feeds the same constant through setAnalogMove().
+export const MOVE_SPEED = 9; // feet/second
 export const TURN_SPEED = 2; // radians/second
 export const LOOK_SENSITIVITY = 0.0035; // radians per pixel of mouse drag
 // A finger swipe crosses a few hundred pixels at most on a phone, where a mouse drag
