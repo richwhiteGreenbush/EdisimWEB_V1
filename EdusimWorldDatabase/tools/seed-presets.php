@@ -711,6 +711,31 @@ $WORLDS = [
             . "world is only 390 feet across and you have to be able to stand back far enough to see all "
             . "of it. The placard by the door says so.",
     ],
+    'volcano' => [
+        'title' => 'Volcanoes & Rocks',
+        'tags'  => 'science, coding, official, starter',
+        'description' =>
+            "A stratovolcano with a quarter cut out of it, so you can see the half a mountain "
+            . "normally hides.\n\n"
+            . "From outside a volcano is a hill. The cut face on this one shows the magma chamber it is "
+            . "fed from, the conduit running up to the crater, the dikes prising the rock apart, the sill "
+            . "spreading along a bedding plane \u{2014} and the alternating beds of lava and ash that are "
+            . "why it is called a STRATOvolcano. Every bed is one eruption. Count them.\n\n"
+            . "It is still erupting: a lava lake in the crater, a fountain playing above it, five flows "
+            . "running down the flanks and two sheets of ropy pahoehoe out on the plain that you can walk "
+            . "right up to. Steam vents, a scoria apron and a colonnade of basalt columns fill in the rest "
+            . "of the field.\n\n"
+            . "The other half of the world is the rock cycle: twelve specimens big enough to walk around, "
+            . "grouped by class on colour-coded plinths \u{2014} crimson for igneous, amber for sedimentary, "
+            . "violet for metamorphic \u{2014} and laid out left to right in the order the cycle runs. Each "
+            . "one is built around the single feature that identifies it: basalt's columns, obsidian's "
+            . "glassy fracture, pumice's gas holes, granite's three minerals, sandstone's beds, an ammonite "
+            . "in the limestone, shale splitting into sheets, the rounded river pebbles in a conglomerate, "
+            . "folded banding in gneiss, veins in marble, slate's cleavage and the mica sparkle in schist. "
+            . "A wall chart at the end of the arc draws how they turn into one another.\n\n"
+            . "Three coding challenges: send a lava flow down the mountain, cycle a rock through the three "
+            . "classes, and make the ash plume breathe.",
+    ],
 ];
 
 // ---------------------------------------------------------------------------
