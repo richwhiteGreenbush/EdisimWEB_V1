@@ -34,6 +34,7 @@ import * as Observatory from './ObservatoryProps.js';
 import * as Seattle from './SeattleProps.js';
 import * as Robot from './RobotProps.js';
 import * as Greenbush from './GreenbushProps.js';
+import * as Volcano from './VolcanoProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -548,6 +549,20 @@ export const PROP_BUILDERS = {
   'clipped-shrub': Greenbush.clippedShrub,
   'monument-sign': Greenbush.monumentSign,
   'flag-pole': Greenbush.flagPole,
+
+  // Volcanoes & Rocks
+  'cutaway-volcano': Volcano.cutawayVolcano,
+  'ash-plume': Volcano.ashPlume,
+  'lava-flow': Volcano.lavaFlow,
+  'lava-fountain': Volcano.lavaFountain,
+  'lava-lake': Volcano.lavaLake,
+  'pahoehoe-field': Volcano.pahoehoeField,
+  fumarole: Volcano.fumarole,
+  'rock-specimen': Volcano.rockSpecimen,
+  'basalt-colonnade': Volcano.basaltColonnade,
+  'scoria-field': Volcano.scoriaField,
+  'volcanic-bomb': Volcano.volcanicBomb,
+  'rock-cycle-chart': Volcano.rockCycleChart,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

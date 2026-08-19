@@ -7,3 +7,7 @@ dist
 # reload; it must never ship, since everything under public/ is copied verbatim into
 # dist/ and would be served to every student.
 public/dev/
+
+# Working screenshots from world-building sessions. Regenerated on demand via the
+# dev-only captureSink plugin; there is no reason to carry 16MB of JPEGs in the repo.
+scratch/

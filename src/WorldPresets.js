@@ -8451,6 +8451,254 @@ function greenbushLayout() {
   return { theme: 'greenbush', spawn: { ...SP, yaw: 0 }, items };
 }
 
+// ---------------------------------------------------------------------------
+// Volcanoes & Rocks
+// ---------------------------------------------------------------------------
+
+// A cut-away stratovolcano with its plumbing exposed, the lava it is making, and the twelve
+// rocks of the rock cycle laid out where a student can walk round each one.
+//
+// THE LAYOUT IS ONE SIGHTLINE AND ONE ARC. The volcano stands 170ft dead ahead with its
+// missing quarter turned to face the spawn, so the section -- the whole reason the model is
+// cut -- is the first thing anybody sees; and the rock cycle is an arc across the middle
+// distance so a student walks THROUGH the specimens on their way to it. Nothing tall stands
+// between the spawn and the cone.
+//
+// The arrival numbers: the cone is 82ft in radius at 170ft, which is 26 degrees either side
+// of the sightline, and 92ft tall, which is 28 degrees up against a 35 degree half-fov. Both
+// inside the ~51 a 16:9 screen sees, with the plume running out of the top of the frame,
+// which is what a plume should do.
+function volcanoLayout() {
+  const items = [];
+  const SP = { x: 0, z: 70 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+  const VX = 0;
+  const VZ = -100;
+
+  // --- the hero -----------------------------------------------------------
+  //
+  // The cut faces +Z by construction (see CUT_GAP in VolcanoProps), so the prop is placed
+  // unrotated and the section looks straight down the arrival sightline.
+  items.push(prop('cutaway-volcano', VX, VZ, {
+    options: { seed: 5, height: 92, radius: 82, layers: 27, craterRadius: 13 },
+  }));
+  items.push(prop('ash-plume', VX + 4, VZ - 6, {
+    y: 92, absoluteY: false, options: { seed: 9, height: 120, radius: 16, puffs: 34 },
+  }));
+
+  // Lava. The fountain sits in the crater; the flows run down the flanks on the two sides
+  // the section does not cut, so they read against rock rather than against the cut face.
+  //
+  // THE CRATER HAD NOTHING MOLTEN IN IT -- a fountain plays above a hole, and looking down
+  // into a summit crater is exactly what a student walks up the model to do. The lake sits
+  // just under the fountain, so the fountain reads as playing out of it.
+  items.push(prop('lava-lake', VX, VZ, { y: 80.5, options: { seed: 61, radius: 11 } }));
+  items.push(prop('lava-fountain', VX, VZ, { y: 82, options: { seed: 17, height: 17, spread: 7 } }));
+  //
+  // A FLOW HAS TO START ON THE CONE'S OWN SURFACE, and hand-picked x/z cannot do it: the
+  // flank is 82ft wide at the base and 20ft at 55ft up, so a placement that looks right on
+  // the plan is either buried in the mountain or hanging in the air beside it. Two of the
+  // first three were -- one sat 14ft inside the rock and read as a black slab floating in
+  // the notch. `flankFlow` solves for the radius at the height asked for and sets the yaw to
+  // the same bearing, so every flow starts on the surface and runs straight down the slope.
+  //
+  // atan2(dx, dz), not atan2(dz, dx): a plain Object3D's forward is its own +Z.
+  const coneR = (y) => 82 * Math.pow(Math.max(0.02, 1 - y / 97.5), 1.7);
+  const flankFlow = (bearing, y0, y1, seed, width) => {
+    // 0.94, so the flow's tube is bedded INTO the flank rather than balanced on it: tangent
+    // to a 78-sided lathe still leaves daylight under it between the facets. The run and the
+    // fall both come off the cone, so the flow ends where the flank does instead of sailing
+    // past it -- and lavaFlow's own `curve` is the exponent that keeps the middle on the rock.
+    const r = coneR(y0) * 0.94;
+    return prop('lava-flow', VX + Math.sin(bearing) * r, VZ + Math.cos(bearing) * r, {
+      rotY: bearing,
+      y: y0,
+      options: { seed, width, length: coneR(y1) - r, drop: y0 - y1 },
+    });
+  };
+  // Bearings stay clear of +/-0.66 rad, which is the notch: a flow starting in the cut-away
+  // has no flank to run down.
+  items.push(flankFlow(-1.12, 46, 1, 13, 3.1));
+  items.push(flankFlow(1.06, 38, 1, 14, 2.8));
+  items.push(flankFlow(2.72, 52, 2, 15, 2.6));
+  items.push(flankFlow(-2.35, 30, 1, 16, 2.4));
+  items.push(flankFlow(1.86, 60, 3, 18, 2.2));
+
+  // TWO SHEETS AT GROUND LEVEL, and they are the only lava in this world a student can walk
+  // right up to. Everything else is 20 to 90ft up the cone, where the ropes, the crack
+  // network and the glow between the plates are all below what the eye can resolve. They sit
+  // on the walk out to the cut face rather than beside the spawn, so the world still opens
+  // on the mountain.
+  items.push(prop('pahoehoe-field', -20, -34, { options: { seed: 63, radius: 13, toes: 9 } }));
+  items.push(prop('pahoehoe-field', 26, -32, { rotY: 1.1, options: { seed: 64, radius: 12, toes: 8 } }));
+
+  items.push(prop('fumarole', -54, -34, { options: { seed: 19, height: 16, radius: 3.4 } }));
+  items.push(prop('fumarole', 58, -30, { options: { seed: 20, height: 13, radius: 2.8 } }));
+  items.push(prop('fumarole', -78, -30, { options: { seed: 21, height: 18, radius: 3.8 } }));
+
+  // --- THE ROCK CYCLE -----------------------------------------------------
+  //
+  // Twelve specimens in an arc across the middle distance, grouped by class and colour-coded
+  // on their plinths: igneous crimson, sedimentary amber, metamorphic violet. From the far
+  // side of the field the only thing a student can resolve is a coloured ring, so the ring
+  // says which third of the cycle a rock belongs to before a single word is readable --
+  // exactly the argument Fantastic Voyage's per-system accents are built on.
+  //
+  // THE THREE GROUPS ARE IN CYCLE ORDER LEFT TO RIGHT, and that is the teaching: igneous
+  // nearest the volcano that made them, then sedimentary, then metamorphic, so walking the
+  // arc walks the loop the chart at the end of it draws.
+  const ROCKS = [
+    ['basalt', 'Basalt', 'Igneous — cooled fast, in columns'],
+    ['obsidian', 'Obsidian', 'Igneous — cooled so fast it is glass'],
+    ['pumice', 'Pumice', 'Igneous — so full of gas it floats'],
+    ['granite', 'Granite', 'Igneous — cooled slowly, deep down'],
+    ['sandstone', 'Sandstone', 'Sedimentary — sand, buried and cemented'],
+    ['limestone', 'Limestone', 'Sedimentary — shells and skeletons'],
+    ['shale', 'Shale', 'Sedimentary — mud, pressed into sheets'],
+    ['conglomerate', 'Conglomerate', 'Sedimentary — river pebbles, glued'],
+    ['gneiss', 'Gneiss', 'Metamorphic — squeezed until it folded'],
+    ['marble', 'Marble', 'Metamorphic — limestone, recrystallised'],
+    ['slate', 'Slate', 'Metamorphic — shale, under pressure'],
+    ['schist', 'Schist', 'Metamorphic — full of mica, and it sparkles'],
+  ];
+  const ACCENT = { igneous: '#e0455f', sedimentary: '#f2a541', metamorphic: '#8a5cf5' };
+  const CLASS_OF = {
+    basalt: 'igneous', obsidian: 'igneous', pumice: 'igneous', granite: 'igneous',
+    sandstone: 'sedimentary', limestone: 'sedimentary', shale: 'sedimentary', conglomerate: 'sedimentary',
+    gneiss: 'metamorphic', marble: 'metamorphic', slate: 'metamorphic', schist: 'metamorphic',
+  };
+  ROCKS.forEach(([kind, label, sub], i) => {
+    // An arc, not a line: a row of twelve reads as a shelf, and an arc puts every specimen
+    // at roughly the same distance from wherever a student is standing in the middle of it.
+    const t = (i / (ROCKS.length - 1)) - 0.5;
+    const a = t * 1.62;
+    const R = 74;
+    const x = Math.sin(a) * R;
+    const z = 24 - Math.cos(a) * R + R - 4;
+    const accent = ACCENT[CLASS_OF[kind]];
+    items.push(prop('exhibit-plinth', x, z, {
+      rotY: face(x, z),
+      options: { seed: 400 + i, radius: 2.9, accent, label, sub },
+    }));
+    items.push(prop('rock-specimen', x, z, {
+      y: 2.1, rotY: 0.4 * i, options: { seed: 40 + i * 3, kind, size: 2.4 },
+    }));
+  });
+
+  // The chart closes the arc at its far end, where the walk finishes.
+  items.push(prop('rock-cycle-chart', 66, -16, {
+    rotY: facing(66, -16, 10, 20), options: { seed: 37, width: 20, height: 13 },
+  }));
+
+  // --- the field ----------------------------------------------------------
+  items.push(prop('basalt-colonnade', -74, -18, { options: { seed: 23, radius: 15, height: 27, columns: 58 } }));
+  items.push(prop('basalt-colonnade', -96, -46, { options: { seed: 24, radius: 11, height: 20, columns: 38 } }));
+  for (const [x, z, r, seed] of [
+    [-40, -8, 15, 29], [44, -8, 14, 30], [-70, -66, 18, 31], [72, -60, 17, 32],
+  ]) {
+    items.push(prop('scoria-field', x, z, { options: { seed, radius: r, blocks: 24 } }));
+  }
+  for (const [x, z, len, seed] of [
+    [-30, 26, 5.5, 41], [34, 22, 4.6, 42], [-58, 4, 6.2, 43],
+  ]) {
+    items.push(prop('volcanic-bomb', x, z, { options: { seed, length: len, girth: len * 0.32 } }));
+  }
+
+  // --- words --------------------------------------------------------------
+  items.push(prop('welcome-board', -30, 52, {
+    rotY: face(-30, 52),
+    options: {
+      eyebrow: '🌋  VOLCANOES & ROCKS',
+      lead: 'A volcano with a quarter cut out of it, so you can see inside.',
+      lines: ['Walk the arc of twelve rocks.', 'Every one is somewhere on the rock cycle.'],
+      footnote: 'The layers on the cut face are lava and ash, one eruption at a time',
+    },
+  }));
+  items.push(prop('info-placard', -14, 6, {
+    rotY: facing(-14, 6, SP.x, SP.z),
+    options: {
+      eyebrow: 'WHY IT IS CUT OPEN',
+      title: 'The interesting half is inside',
+      body: 'From outside, a volcano is a hill. The quarter taken out of this one shows the magma chamber it is fed from, the conduit up to the crater, the dikes prising the rock apart — and the alternating beds of lava and ash that are why it is called a STRATOvolcano.',
+      accent: '#e0455f',
+    },
+  }));
+  items.push(prop('info-placard', 20, 6, {
+    rotY: facing(20, 6, SP.x, SP.z),
+    options: {
+      eyebrow: 'READING A ROCK',
+      title: 'Texture, not shape',
+      body: 'Basalt and marble are the same lump. What tells them apart is texture and structure: columns, glassy fracture, gas holes, bedding, banding, a sparkle of mica. Each specimen here is built round the one feature that identifies it.',
+      accent: '#8a5cf5',
+    },
+  }));
+
+  // The video, at the spawn. 12ft ahead and 39 degrees to the right, which is in frame on
+  // any screen and clear of the volcano's own 26 degrees.
+  items.push(...browserStation(8, 60, {
+    faceX: SP.x, faceZ: SP.z, url: youtubeEmbedUrl('https://www.youtube.com/watch?v=Vp_S3BDiR-I'),
+  }));
+
+  // --- three coding challenges --------------------------------------------
+  items.push(activity(-46, 30, {
+    number: 1,
+    title: 'Send the lava flow down the mountain',
+    target: 'the lava flow on the left flank',
+    rotY: facing(-46, 30, 0, 50),
+    accent: '#e0455f',
+    steps: [
+      ctrlStep('forever'),
+      moveStep('glide 26 feet over 4 seconds', 1),
+      moveStep('go back to start', 1),
+    ],
+    tip: '`glide` takes time where `move forward` happens all at once, which is the whole difference between a flow creeping and a rock being teleported. Make the seconds bigger and the lava slows down.',
+  }));
+  items.push(activity(46, 30, {
+    number: 2,
+    title: 'Turn a rock into the next one',
+    target: 'any specimen on a coloured plinth',
+    rotY: facing(46, 30, 0, 50),
+    accent: '#f2a541',
+    steps: [
+      ctrlStep('forever'),
+      lookStep('change color to 🟠', 1),
+      ctrlStep('wait 1.5 seconds', 1),
+      lookStep('change color to 🟣', 1),
+      ctrlStep('wait 1.5 seconds', 1),
+    ],
+    tip: 'Crimson, amber and violet are the three classes on the plinth rings. Cycle a rock through them in the order the chart draws and you have animated the rock cycle.',
+  }));
+  items.push(activity(-36, -4, {
+    number: 3,
+    title: 'Grow the ash plume',
+    target: 'the ash column above the crater',
+    rotY: facing(-36, -4, 0, 50),
+    accent: '#3fb37f',
+    steps: [
+      ctrlStep('forever'),
+      lookStep('change size by 3 %', 1),
+      ctrlStep('wait 0.3 seconds', 1),
+      lookStep('change size by -3 %', 1),
+      ctrlStep('wait 0.3 seconds', 1),
+    ],
+    tip: 'Plus 3 then minus 3 does NOT come back to the same size — each is a percentage of whatever it is now. Watch it shrink and work out why, then use `set size to` instead.',
+  }));
+
+  // The lava lights the ground round the vents. Four orbs, warm, low -- a decay-2 falloff is
+  // nearly spent at 12ft, so they sit close to what they are meant to be lighting rather
+  // than up on the cone where they would read as floating balls against the sky.
+  // THREE ORBS, EACH BURIED IN SOMETHING. An orb is a visible glowing ball as well as a
+  // light, so one hung in the open notch reads as an artifact floating in front of the hero
+  // -- the Moon's lesson and Under the Sea's. The crater one sits below the rim, and the two
+  // on the plain sit inside their own sheet's crust, where a decay-2 falloff that is nearly
+  // spent at 12ft is exactly what is wanted.
+  items.push(orb(VX, VZ, 84, '#ff7a1e'));
+  items.push(orb(-20, -34, 0.35, '#ff6a16'));
+  items.push(orb(26, -32, 0.35, '#ff6a16'));
+
+  return { theme: 'volcano', spawn: { ...SP, yaw: 0 }, items };
+}
+
 export const PRESET_WORLDS = {
   park: { label: 'The Park', hint: 'The default world: a great meadow, a pond, a bandstand and the bear dens', build: parkLayout },
   museum: { label: 'The Museum', hint: 'A gallery of sculpture and painting, with a plaza out front', build: museumLayout },
@@ -8585,6 +8833,11 @@ export const PRESET_WORLDS = {
     label: 'Telescope Observatory',
     hint: 'A hilltop dome at dusk with its shutter open — walk in and stand under a 36-inch reflector',
     build: observatoryLayout,
+  },
+  volcano: {
+    label: 'Volcanoes & Rocks',
+    hint: 'A stratovolcano with a quarter cut out of it, the lava it is making, and the twelve rocks of the rock cycle',
+    build: volcanoLayout,
   },
   greenbush: {
     label: 'Greenbush Science Center',

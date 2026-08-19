@@ -2339,6 +2339,202 @@ the rhododendron bed are already the most vividly coloured plants in the app and
 verified. Reuse across worlds is the house pattern (`moonCrater` serves Mars, `dustDevil`
 serves Dinosaur Island).
 
+### Volcanoes & Rocks, and why a TINT CAN ONLY BE AS DETAILED AS THE MESH UNDER IT
+
+`VolcanoProps.js` + `volcanoLayout()`. A gallery world -- in `PRESET_WORLDS`, deliberately not
+in `MENU_WORLDS`. A cut-away stratovolcano with its plumbing exposed, the lava it is making,
+and the twelve rocks of the rock cycle laid out where a student can walk round each one.
+
+**The one decision that shapes the file: a volcano teaches two different things and only one
+of them is visible from outside.** The cone is a landform -- a silhouette, a slope angle, a
+crater. The interesting half is the plumbing. So a quarter is cut out and the cut face is
+OPAQUE, which is what a real museum model does; making the outside translucent is the trap
+Fantastic Voyage spent a rebuild learning.
+
+#### A ROCK IS NOT A LUMPY SPHERE
+
+`boulder()` was a noise-displaced sphere, which is a potato: convex in every direction, the
+same size along every axis, without one flat face or sharp edge on it. What makes stone read
+as stone is that IT BROKE. Three things now come out of one RADIAL displacement -- radial
+because a shared corner must move identically from every triangle that owns it or the surface
+tears, which the puddingstone and the reef rocks each learned:
+
+- **FRACTURE is the SUPPORT FUNCTION of a convex polyhedron.** The distance to a set of
+  cutting planes along direction d is `min(h_i / (d . n_i))` over the planes facing that way
+  -- a pure function of DIRECTION, so evaluating it per vertex cuts genuine flats into a
+  sphere with no CSG and no risk of tearing. Plane normals come off a golden-angle spiral
+  WITH jitter: nine free directions reliably leave one flank uncut, and an uncut flank is a
+  bare piece of the original sphere.
+- **MASS is a low-frequency lobe field plus a per-rock anisotropic scale.** This is the half
+  that fixes "too symmetrical" -- a rock 1.2 long, 0.85 wide and 0.95 tall has stopped being
+  a ball before any surface detail is applied.
+- **`toCreasedNormals` is what makes it worth paying for.** It welds normals only where
+  neighbouring faces are near coplanar, so fracture flats stay flat, arrises stay sharp and
+  the weathered curve between them stays smooth. Flat-shading the lot instead (`toNonIndexed`
+  + `computeVertexNormals`) shows the sphere's own latitude tessellation on every rounded
+  part, which is the low-poly look this is getting away from. **The crease angle is bounded
+  BELOW by the tessellation**: at `detail` d a smooth sphere already turns 360/d per step, so
+  anything under that welds nothing and the rock flat-shades. 26 degrees against a detail-22
+  sphere's ~16.
+
+**`boulder()` hands back `geometry.userData.surfaceAt(dir)`**, the same displacement as a
+function, because anything laid ON the rock has to ask where its surface actually is.
+Hand-picked radii near a non-spherical surface are either floating or buried, the two
+failures look nothing alike, and hunting each one separately is the whole afternoon. Pumice's
+vesicles, the conglomerate's clasts, the schist's mica and the ammonite all go through it --
+this is `RobotProps`' `onShell` lesson arriving on a shape with no closed form.
+
+#### The grain map: the multiply this file warns about, used deliberately
+
+Every specimen carries ONE near-white `grainTexture(kind, seed)` as both `map` and `bumpMap`.
+A material with both `map` and `vertexColors` MULTIPLIES them -- normally the bug that turned
+the bear dens black -- and here it is the whole point: the map has no colour of its own, so it
+carries texture at a scale vertices cannot reach while the vertex tint goes on carrying hue
+and large-scale structure. Same trick as the flower beds.
+
+**THAT VERTICES CANNOT REACH IT IS THE ARGUMENT.** At detail 46 a 2.4ft specimen samples every
+0.16ft and granite's crystals are an inch; pushing the tint frequency up to meet them is the
+Nyquist trap, and under two samples per cycle it does not produce crystals, it produces BLUR.
+The granite, marble and gneiss tint frequencies were all lowered to what the mesh can resolve
+and the inch-scale detail moved into the texture. Dots are drawn NINE TIMES, wrapped by one
+tile in both axes, because a rock is a closed surface and a seam draws a straight line down it.
+
+Calibration notes: dots at r = 3..8.5px on a 256 tile read as POLKA DOTS, not grain -- small
+and low-contrast, with a second much coarser and fainter blotch pass, is what reads as rock.
+And **a near-white albedo CLIPS under this world's sun+hemi**: marble's veining measured a
+0.41-to-0.82 spread in the buffer and rendered as a white egg, so the pale rocks were darkened
+and `hemiIntensity` came down from 1.85 to 1.7.
+
+#### THE CUT FACE, and three bugs stacked behind one another
+
+Each one hid the next, and the third is the most generally useful thing in this file.
+
+1. **`revolve` closes a partial sweep with its own radial caps and they are NOT usable here.**
+   It picks each cap's winding assuming the profile runs in its natural direction, and this
+   profile is REVERSED because that is what makes the outer surface face outward (measured
+   +0.701 against -0.701). Reversing fixes the cone and inverts both caps with it, so the one
+   surface the model exists to show was back-face culled: it rendered as a hollow tent.
+2. **An `extrudeOutline` replacement looked right and was still wrong.** AN EXTRUDED OUTLINE
+   HAS NO INTERIOR VERTICES -- a fan from the centroid to the outline points, exactly like a
+   `CircleGeometry` -- so a per-vertex tint had nowhere to land and eleven correctly-computed
+   strata interpolated across four enormous triangles into a smooth wash. The data was right
+   and there was nothing to draw it on. Fantastic Voyage's villi floor died the same way.
+3. **A grid fixed that and exposed Nyquist again.** Eleven nested bands over a 58-column grid
+   is two or three samples per band near the base, and a hard threshold cannot do better than
+   the mesh under it: the section came out as a STAIRCASE, which reads as a rendering bug
+   rather than as geology.
+
+**So the section is a TEXTURE.** The face is a flat plane with known extents, painted per texel
+by the same region predicates the solids are built from -- razor sharp at any mesh density --
+and it carries an `emissiveMap` as well, which is the only way the chamber and the conduit can
+glow while the rock around them stays rock (`emissive` is a flat material colour and
+`vertexColors` does not multiply it). It gets its own mesh, since a material cannot carry both
+a map and vertex colours without multiplying them.
+
+**`createImageData` returns an ImageData, not the array.** Writing indices straight onto the
+object silently does nothing and `putImageData` then lays down the all-zero buffer it was
+created with -- a completely black cut face, indistinguishable at a glance from inside-out
+normals, which is what it was first mistaken for. `.data`.
+
+**A canvas holds sRGB bytes and `THREE.Color` works in linear**, so anything computed as a
+Color and written into an ImageData has to be converted back or every band lands about a stop
+too dark.
+
+**ONE description of the plumbing, used twice.** The chamber, conduit, dikes and sill are each
+a region of the (radius, height) plane, used both to build the solids that fill the notch and
+to paint the same structure onto the face. With two descriptions a chamber's painted outline
+and its own wall drift apart and the model stops reading as one cut object.
+
+Four more that generalise:
+
+- **AN EVEN ALTERNATION OF EQUAL BANDS IS A BEACH UMBRELLA.** Real beds differ in thickness by
+  an order of magnitude, so the band coordinate is WARPED before it is quantised -- two sines,
+  and the single biggest thing separating a section from a stripe. Eleven layers over an 82ft
+  radius is 7ft a bed and reads as a tent however it is coloured; 27 reads as bedding.
+- **A CUT FACE IS LIT ENTIRELY BY THE HEMISPHERE**, because it faces sideways and opens toward
+  the spawn while the sun rakes from behind. Painted at basalt's honest near-black the strata
+  were eleven distinct colours in the buffer rendering as one flat black wall.
+- **MAGMA CHILLS AGAINST THE ROCK IT SITS IN.** One `meltHeat(r, y)` ramp serves the chamber,
+  the conduit, the dikes and the sill, dark and crystal-rich at the contact and incandescent
+  only at the core. Painted at one flat bright colour the chamber is a lightbulb in the
+  mountain and the dikes are drinking straws -- which is exactly how two passes rendered.
+- **EVERY DIKE HAS TO DIE INSIDE THE ROCK**, and its far end has to be checked against the
+  flank rather than guessed. Two of the first three ran to r = 27 at y = 55, where the flank is
+  20 wide, and stood off the mountain as orange spikes. Both cut faces show the same set
+  mirrored, so three apiece reads as a sunburst; two thin ones read as intrusions.
+- **A "cutaway" solid buried in the SOLID sector is invisible from every angle.** The dikes and
+  the sill are painted only. Built as solids the only thing they contributed was breaking out
+  through the flank.
+
+#### A STRATOVOLCANO IS DARK, and a flow follows the slope it is on
+
+The first cone lerped its flank most of the way to pale ash and rendered as a smooth tan
+circus tent -- which no amount of gullying would have rescued, because the problem was ALBEDO
+rather than shape. It is old dark basalt streaked with pale ash where the last fall settled,
+and RED round the vent, where steam and air have been at the rock while it was still hot.
+
+**The gullies have to be DEEP and they have to VARY.** 3.5% of the radius is a traffic cone; a
+barranca is tens of feet, and it bites hardest at mid-height because it has nothing to cut at
+the summit and fans out into the apron before the base. An even comb of them at one depth is a
+fluted column, which is the other way to make a smooth object look manufactured.
+
+**A FLOW HAS TO START ON THE CONE'S OWN SURFACE, and hand-picked x/z cannot do it.** The flank
+is 82ft at the base and 20ft at 55ft up, so a placement that looks right on the plan is either
+buried in the mountain or hanging beside it -- one sat 14ft inside the rock and read as a black
+slab floating in the notch. `flankFlow` in the layout solves for the radius at the height asked
+for, sets the yaw to the same bearing, and takes the run and the fall off the cone as well.
+
+**`lavaFlow`'s `curve` exponent is measured off the cone, not chosen.** It was 1.25, which
+falls SLOWEST at the start -- exactly where a stratovolcano falls fastest -- so every flow left
+the flank within a few feet and arched over the mountain like a flying buttress. Solving the
+flank's own profile for the half-way point gives 0.908.
+
+#### Lava: a crack network as an EMISSIVE MAP
+
+A flow is a dark crust with incandescent cracks in it, and the cracks are the whole reason it
+reads as molten. They cannot be a vertex tint, for the reason above, so `crackTexture()` paints
+them as an emissiveMap -- **Worley F2-F1 on a jittered grid**, the distance between the two
+nearest sites, which is near zero exactly on a cell boundary. That is not a stylistic choice: a
+crust cracks into polygons because it is contracting as it cools, and the boundaries of a
+random point set are what those polygons are. Only the 3x3 neighbouring cells are searched and
+the indices wrap, so it is fast and it tiles. **The cooling gradient is baked into the texture
+along v**, because with one flat `emissive` there is nowhere else to put it -- otherwise the
+toe of a 60ft flow glows as brightly as the vent.
+
+Three lava props, and the two new ones are where the lava a student can actually reach lives:
+`lavaLake` in the crater (a fountain plays above a HOLE otherwise, and looking down into a
+summit crater is what a student walks up the model to do) and `pahoehoeField` at ground level.
+Everything else is 20 to 90ft up the cone, where ropes, cracks and glow are all below what the
+eye can resolve. **Pahoehoe ropes are one term in the surface function** -- the skin chills
+first and is dragged forward by the fluid underneath, so it wrinkles into arcs that bow
+DOWNSTREAM at the middle and lag at the levees -- and a displacement of a surface cannot open a
+gap in it.
+
+**Three orbs, each buried in something.** An orb is a visible glowing ball as well as a light,
+so one hung in the open notch reads as an artifact floating in front of the hero. The crater
+one sits below the rim; the two on the plain sit inside their own sheet's crust.
+
+#### The red
+
+The theme's `sky` is the FOG, so it is the single biggest red decision in the world -- every
+distant scoria field and the whole horizon fade into it. Pushed to a real sunset it stops
+reading as daylight and starts reading as Mars, which this app already has: `0xb07a63` is a
+dusty iron haze, and it still leaves the pale ash ground brighter than the sky, which daylight
+requires. The ground ramp reddens without dropping its top end, because the pallor is
+load-bearing -- against a dark ground the basalt, obsidian and slate specimens all vanish.
+
+**The red is IRON and it belongs where the heat has been.** Basalt is about a tenth iron by
+weight and oxidises the moment steam and air get at it hot, which is why the inside of a cinder
+cone and the top of a cooling flow are brick red while the same rock a foot deeper is grey. At
+full saturation those colours came out as traffic cones scattered on the plain: oxidised basalt
+is a dull brick, and what makes it read as iron is that it is DARKER than the ash around it,
+not more colourful than everything else in the world.
+
+**Performance, measured**: 61 records (55 props) / **155 draw calls** / 410k drawn / 110
+geometries / 110 meshes / **7 transparent** / **3 point lights** / 44 textures. 377ms to build,
+889ms to load. Well inside the ~1.5M / <1000 envelope, with the section's two 640px canvases
+the largest single cost.
+
 ### A Bug's Life, and building a world around CHALLENGES
 
 `BugProps.js` + `bugsLayout()`. The only preset laid out as a **workshop** rather than as a

@@ -1212,6 +1212,63 @@ export const WORLD_THEMES = {
     sunPosition: [-140, 158, 120],
     stars: false,
   },
+
+  volcano: {
+    // An active volcanic field under an ash haze. The single hardest thing about this world
+    // is that a volcanic landscape is genuinely NEAR-MONOCHROME -- everything is grey-brown
+    // basalt, ash and scoria -- so every colour decision here is about giving the twelve
+    // rock specimens and the lava somewhere to stand out FROM.
+    groundDetail: 'ground-regolith.jpg',
+    // A warm, hazy sky rather than a blue one: ash in the air scatters the short wavelengths
+    // out, which is why the sky over an erupting volcano is the colour of weak tea -- and
+    // with iron-rich dust in it, of weak tea with the pot's rust in it.
+    //
+    // THIS IS ALSO THE FOG, so it is the single biggest red decision in the world: every
+    // distant scoria field, every far mound and the whole horizon fade into it. Pushed to a
+    // real sunset red the world stops reading as daylight and starts reading as Mars, which
+    // this app already has -- 0xb07a63 is a dusty iron haze rather than a sunset, and it
+    // still leaves the pale ash ground brighter than the sky, which daylight requires.
+    sky: 0xb07a63,
+    // FOG IS THE ATMOSPHERE HERE, and it is the tightest of any outdoor world except Machu
+    // Picchu's cloud forest. The volcano is 170ft from the spawn and 92ft tall, so anything
+    // under ~350ft of visibility would grey out the hero; 150/440 keeps it sharp while
+    // hazing the far scoria fields into the distance, which is what makes the plain read as
+    // enormous rather than as a disc with an edge.
+    fogNear: 150,
+    fogFar: 440,
+    // Ash and pumice, not soil. A volcanic plain is PALER than people expect -- fresh ash is
+    // nearly buff -- and that pallor is load-bearing: against a dark ground the basalt, the
+    // obsidian and the slate specimens all vanish, and so does the volcano's own dark flank.
+    // OXIDISED, not dark. The red here is iron, and iron is what a basalt plain turns when
+    // steam and air get at it hot -- but the pallor is still load-bearing: against a dark
+    // ground the basalt, the obsidian and the slate specimens all vanish, and so does the
+    // cone's own flank. So the ramp reddens without dropping its top end.
+    groundLow: 0x5a3428,
+    groundHigh: 0xa8735a,
+    // Rolling, and more of it than most worlds carry. A lava plain is not flat -- it is
+    // hummocky with old flows and collapse pits -- and the relief is what stops 200ft of
+    // pale ground reading as a car park.
+    amplitude: 4.5,
+    flatRadius: 34,
+    blendRadius: 150,
+    hemiSky: 0xecc4a4,
+    // WARM, LIGHT AND NEARLY UNSATURATED. The cut-away's section faces AWAY from the sun by
+    // construction -- it opens toward the spawn and the sun rakes from behind -- so the
+    // hemisphere bounce is most of the light falling on the one surface the whole model
+    // exists to show. At an honest dark-basalt bounce the strata went black.
+    hemiGround: 0xb08a72,
+    // 1.85 blew the pale specimens out -- marble's veining measured a 0.41-to-0.82 spread in
+    // the buffer and rendered as a white egg. 1.7 is still far more fill than an outdoor
+    // world normally carries, which the cut face needs, and it gives the light rocks their
+    // contrast back.
+    hemiIntensity: 1.7,
+    // A low, warm sun: this is late afternoon, which rakes the cone's gullies into relief
+    // and lets the lava actually read as brighter than its surroundings.
+    sunColor: 0xffcf98,
+    sunIntensity: 2.05,
+    sunPosition: [-120, 96, 150],
+    stars: false,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger
