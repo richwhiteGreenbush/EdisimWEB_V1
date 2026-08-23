@@ -86,7 +86,8 @@ a { color: var(--denim); }
   white-space: nowrap;
 }
 
-.rbrand-mark { border-radius: 7px; display: block; }
+/* Same as the guide bar: solid amber Gluten, no ring or glow at this size. */
+.rbrand-word { font-family: Gluten, Fredoka, sans-serif; font-weight: 800; color: #c25c14; font-size: 1.14rem; }
 
 .rnav-links {
   display: flex;
