@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TK6Y2Q8NP2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TK6Y2Q8NP2');
+</script>
+<title>JavaScript Mode — Edusim Hands-On Guide</title>
+<meta name="description" content="A printable reference card for Edusim's JavaScript mode: the Block Code / JavaScript toggle, every action you can await, the forever() and repeat() loops, and four small programs to type first." />
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="guide.css" />
+<style>
+  /* This card's own furniture: dark editor panels with the app's real token colours.
+     Page-local on purpose — guide.css is print-first and shared, and no other card
+     needs a code panel. The colours are the editor's own (src/JsProgram.js /
+     ProgramEditor): teaching a palette that doesn't exist would be worse than none. */
+  .code {
+    background: #171c24;
+    color: #e8eef4;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 10px 0 0;
+  }
+  .code b { font-weight: 400; }
+  .k { color: #c792ea; }   /* keywords: await, async */
+  .f { color: #82aaff; }   /* Edusim actions */
+  .n { color: #f78c6c; }   /* numbers */
+  .s { color: #c3e88d; }   /* 'strings' */
+  .c { color: #6b7d8c; font-style: italic; }  /* comments */
+  .toggle-pill {
+    display: inline-flex;
+    border: 1px solid #cbd5df;
+    border-radius: 8px;
+    overflow: hidden;
+    font-weight: 700;
+    font-size: 0.8rem;
+    vertical-align: middle;
+  }
+  .toggle-pill span { padding: 2px 10px; }
+  .toggle-pill .on { background: #f2d21e; color: #20242a; }
+  .api-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px 18px; margin: 8px 0 0; padding: 0; list-style: none; }
+  .api-cols li { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.82rem; padding: 3px 0; border-bottom: 1px dashed #d8dee6; }
+  .api-cols li small { font-family: Nunito, sans-serif; color: #5a6673; }
+  @media print {
+    .code { background: #f3f5f8 !important; color: #16202b; border: 1px solid #c9d2dc; }
+    .k { color: #6b3fa0; } .f { color: #1c5bbf; } .n { color: #b0491f; } .s { color: #3d7a1e; } .c { color: #6a7684; }
+  }
+</style>
+</head>
+<body>
+<nav class="gnav no-print">
+  <div class="wrap">
+    <a class="gbrand" href="index.html"><img class="gbrand-mark" src="../assets/edusim-mark.png" alt="" width="26" height="26" /> Hands-On Guide</a>
+    <div class="gnav-links">
+      <a href="index.html">All cards</a>
+      <a href="tutorials.html">Tutorials</a>
+      <a href="teachers.html">For teachers</a>
+      <a href="../index.html">Main site</a>
+      <a class="gbtn" href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">Open Edusim</a>
+    </div>
+  </div>
+</nav>
+
+<main class="card" style="--accent: #8a6d00;">
+  <div class="wrap">
+
+    <header class="card-head">
+      <div class="ch-left">
+        <span class="ch-kicker">Skill Card C</span>
+        <h1><span class="ch-emoji">⚡</span> JavaScript Mode</h1>
+        <p class="ch-tag">The same programs you build with blocks, written as real code. Flip one switch and every block you know becomes a line you can type.</p>
+      </div>
+      <button class="printbtn no-print" onclick="window.print()">🖨️ Print this card</button>
+    </header>
+
+    <p class="howto"><strong>Getting there:</strong> click any object, choose
+      <span class="key">Program</span>, and press the
+      <span class="toggle-pill"><span>Block Code</span><span class="on">JavaScript</span></span>
+      switch at the top of the panel. Your blocks appear as code. Type, press
+      <span class="key">Save</span>, and it runs right away. Flip back any time — nothing is lost
+      in either direction.</p>
+
+    <h2 class="sec">Three rules, and that's the whole language</h2>
+    <ol class="more">
+      <li>
+        <h4>1 · Put <code>await</code> in front of every action</h4>
+        <p><code>await</code> means "do this, then go on to the next line". It is what makes your
+          program run one step at a time instead of all at once.</p>
+        <div class="code"><b><span class="k">await</span> <span class="f">rotate</span>(<span class="n">90</span>);
+<span class="k">await</span> <span class="f">wait</span>(<span class="n">1</span>);
+<span class="k">await</span> <span class="f">moveForward</span>(<span class="n">10</span>);</b></div>
+      </li>
+      <li>
+        <h4>2 · Loop with <code>forever()</code> and <code>repeat()</code></h4>
+        <p>These are Edusim's own loops, and they are polite: they let the rest of the world keep
+          running between turns. A plain <code>while (true)</code> does not — it freezes the page.</p>
+        <div class="code"><b><span class="k">await</span> <span class="f">forever</span>(<span class="k">async</span> () =&gt; {
+  <span class="k">await</span> <span class="f">rotate</span>(<span class="n">15</span>);
+});</b></div>
+      </li>
+      <li>
+        <h4>3 · Save checks your code first</h4>
+        <p>If you typed something the computer cannot read, Save tells you what is wrong and keeps
+          the editor open. Nothing is saved and nothing is lost. Fix it, or flip back to blocks.</p>
+      </li>
+    </ol>
+
+    <h2 class="sec">Every action you can await</h2>
+    <p class="sec-note">Same three families as the blocks, same colours in the editor. Numbers are feet, seconds, degrees or percent — the same units the blocks use.</p>
+
+    <section class="qs">
+      <div class="qs-head"><span class="qs-num" style="background:#4c97ff">M</span>
+        <div><h3>Motion</h3><p class="qs-target">Where things go</p></div>
+      </div>
+      <ul class="api-cols">
+        <li>moveForward(feet)</li>
+        <li>moveUp(feet) <small>· negative goes down</small></li>
+        <li>glide(feet, seconds) <small>· smooth</small></li>
+        <li>rotate(degrees)</li>
+        <li>goBackToStart()</li>
+      </ul>
+      <p class="qs-tip">💡 <b>moveForward</b> and <b>glide</b> follow the way the object is pointing, so a
+        <b>rotate</b> before them genuinely steers. <b>glide</b> is the smooth one — give it seconds and it
+        spends them.</p>
+    </section>
+
+    <section class="qs">
+      <div class="qs-head"><span class="qs-num" style="background:#ffab19">C</span>
+        <div><h3>Control</h3><p class="qs-target">When and how often</p></div>
+      </div>
+      <ul class="api-cols">
+        <li>wait(seconds)</li>
+        <li>repeat(times, fn)</li>
+        <li>forever(fn)</li>
+        <li>whenSaid('word', fn) <small>· a listener</small></li>
+        <li>duplicate(feet)</li>
+      </ul>
+      <p class="qs-tip">💡 <b>whenSaid</b> registers and waits. It runs its function every time anything in
+        the world says that word — which is how two objects work together. Copies made by
+        <b>duplicate</b> keep their whole program but their own <b>duplicate()</b> does nothing, so copies
+        never breed.</p>
+    </section>
+
+    <section class="qs">
+      <div class="qs-head"><span class="qs-num" style="background:#9966ff">L</span>
+        <div><h3>Looks</h3><p class="qs-target">What things look like — and say</p></div>
+      </div>
+      <ul class="api-cols">
+        <li>say('words')</li>
+        <li>changeSize(percent)</li>
+        <li>setSize(percent)</li>
+        <li>setOpacity(percent)</li>
+        <li>changeColor('#ff5a12')</li>
+        <li>markerColor('#00c2ff')</li>
+        <li>markerDown() / markerUp()</li>
+        <li>eraseAllMarks()</li>
+      </ul>
+      <p class="qs-tip">💡 Words go in quotes: <b>say('hello')</b>, <b>changeColor('#3fb37f')</b>. The
+        marker draws a 3D line behind the object wherever it goes — put the marker down, drive a square,
+        and the square is drawn on the world.</p>
+    </section>
+
+    <h2 class="sec">Type these four first</h2>
+    <ol class="more">
+      <li>
+        <h4>Spin forever</h4>
+        <p>The one-line classic. Change the 15 and the speed changes.</p>
+        <div class="code"><b><span class="k">await</span> <span class="f">forever</span>(<span class="k">async</span> () =&gt; {
+  <span class="k">await</span> <span class="f">rotate</span>(<span class="n">15</span>);
+});</b></div>
+      </li>
+      <li>
+        <h4>Drive a square</h4>
+        <p>Four sides, four right turns. 360 ÷ 4 = 90, so it ends exactly where it started.</p>
+        <div class="code"><b><span class="k">await</span> <span class="f">repeat</span>(<span class="n">4</span>, <span class="k">async</span> () =&gt; {
+  <span class="k">await</span> <span class="f">glide</span>(<span class="n">8</span>, <span class="n">2</span>);
+  <span class="k">await</span> <span class="f">rotate</span>(<span class="n">90</span>);
+});</b></div>
+      </li>
+      <li>
+        <h4>A heartbeat</h4>
+        <p><b>setSize</b> measures from the size the object started at, so this beats steadily forever
+          instead of slowly growing.</p>
+        <div class="code"><b><span class="k">await</span> <span class="f">forever</span>(<span class="k">async</span> () =&gt; {
+  <span class="k">await</span> <span class="f">setSize</span>(<span class="n">115</span>);
+  <span class="k">await</span> <span class="f">wait</span>(<span class="n">0.4</span>);
+  <span class="k">await</span> <span class="f">setSize</span>(<span class="n">100</span>);
+  <span class="k">await</span> <span class="f">wait</span>(<span class="n">0.4</span>);
+});</b></div>
+      </li>
+      <li>
+        <h4>Two objects talking</h4>
+        <p>Put the first program on one object and the second on another. The word carries the signal.</p>
+        <div class="code"><b><span class="c">// object one:</span>
+<span class="k">await</span> <span class="f">say</span>(<span class="s">'go'</span>);
+
+<span class="c">// object two:</span>
+<span class="f">whenSaid</span>(<span class="s">'go'</span>, <span class="k">async</span> () =&gt; {
+  <span class="k">await</span> <span class="f">glide</span>(<span class="n">20</span>, <span class="n">3</span>);
+});</b></div>
+      </li>
+    </ol>
+
+    <aside class="fact">
+      <h4>🤯 Worth knowing</h4>
+      <p>Blocks and JavaScript are <b>two views of one program</b>. Build with blocks, flip the switch, and
+        your blocks appear as code you can read. Edit the code and it is yours — your blocks are still
+        saved behind the other tab, and switching never deletes either one. The fastest way to learn is to
+        build something with blocks first, then go and read what it says in JavaScript.</p>
+    </aside>
+
+    <section class="legend">
+      <h4>Where to practise</h4>
+      <p class="legend-note"><strong>JavaScript Basics</strong> is a whole world built for this card: five
+        lessons on boards, taught by machines that are already running the code they show — a lighthouse, a
+        golden screw, a colour-changing stone, and two robots that have been saying ping and pong to each
+        other all day. Open it from the World Database, or straight from
+        <span class="mono">edusim3dweb.com/app/?world=38</span>.</p>
+    </section>
+
+    <nav class="cardnav no-print">
+      <a href="coding.html">← the coding blocks</a>
+      <a href="index.html">all cards</a>
+      <a href="https://edusim3dweb.com/app/?world=38" target="_blank" rel="noopener noreferrer">play JavaScript Basics →</a>
+    </nav>
+
+  </div>
+</main>
+
+<footer class="gfoot">
+  <div class="wrap">
+    <p><strong>Edusim: Web Edition</strong> — Hands-On Guide. Print as many as you like.</p>
+    <p class="fine">Open the app at <span class="mono">edusim3dweb.com/app</span> · No account needed.</p>
+  </div>
+</footer>
+</body>
+</html>
