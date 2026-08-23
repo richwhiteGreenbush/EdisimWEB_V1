@@ -14,7 +14,7 @@
   gtag('config', 'G-TK6Y2Q8NP2');
 </script>
 <title>Edusim: Web Edition — Build it. Code it. Explore it.</title>
-<meta name="description" content="Edusim is a free 3D world that runs in your browser. Build models out of simple shapes, code them with drag-and-drop blocks or real JavaScript, and explore 33 ready-made learning worlds — dinosaurs, the Moon, a cut-away volcano, the human body, famous landmarks and more. No downloads, no accounts, no ads." />
+<meta name="description" content="Edusim is a free, research-based 3D learning tool for kids that runs in your browser. Build models out of simple shapes, code them with drag-and-drop blocks or real JavaScript, and explore 33 ready-made learning worlds — dinosaurs, the Moon, a cut-away volcano, the human body, famous landmarks and more. Built on the spatial-reasoning research. No downloads, no accounts, no ads." />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <!-- The logo mark is what a phone shows when the page is saved to a home screen, and a
      square crop of the wordmark reads there where the whole lockup would not. -->
@@ -26,7 +26,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Edusim: Web Edition" />
 <meta property="og:title" content="Edusim: Web Edition — a 3D virtual world for curious minds" />
-<meta property="og:description" content="Build it out of shapes. Code it with blocks or real JavaScript. Explore 33 learning worlds — dinosaurs, the Moon, a cut-away volcano, the human body, the Colosseum and more. Free, in your browser." />
+<meta property="og:description" content="A research-based learning tool for kids. Build it out of shapes. Code it with blocks or real JavaScript. Explore 33 learning worlds — dinosaurs, the Moon, a cut-away volcano, the human body, the Colosseum and more. Free, in your browser." />
 <meta property="og:image" content="https://richwhitegreenbush.github.io/EdisimWEB_V1/assets/edusim-social.jpg" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -64,6 +64,7 @@
       <li><a href="#worlds">Worlds</a></li>
       <li><a href="#tutorials">Tutorials</a></li>
       <li><a href="guide/index.html">Guide</a></li>
+      <li><a href="research/index.html">Research</a></li>
       <li><a href="#teachers">Teachers</a></li>
     </ul>
     <!-- "Edusim" is its own span so it can be dropped in the one narrow band where the
@@ -95,6 +96,13 @@
       <a class="btn btn-ghost" href="#worlds">🌍 See the worlds</a>
       <a class="btn btn-ghost" href="#tutorials">📘 Start a tutorial</a>
     </div>
+
+    <!-- The research claim, up front and clickable. One line, because the hero's job is
+         the launch button — the full case lives in research/. -->
+    <a class="hero-research" href="research/index.html">
+      🔬 <strong>A research-based learning tool for kids</strong> — built on the
+      spatial-reasoning research. <span class="hr-more">See the evidence →</span>
+    </a>
 
     <!-- Proof before prose: four real screenshots, straight out of the app. -->
     <div class="shot-strip" aria-hidden="true">
@@ -1239,8 +1247,51 @@
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow" style="background: var(--green); color: #fff;">🍎 Parents &amp; teachers</span>
-        <h2>Made for classrooms</h2>
+        <h2>Made for Learning</h2>
+        <p>And built on research-based practices — not just kid-tested, but study-backed.</p>
       </div>
+
+      <!-- The research flag: the one card in this section that outranks the grid. The
+           claim ("research-based") is load-bearing for a school audience, so it gets the
+           numbers on its face and a door to the full library behind it. -->
+      <div class="research-card reveal">
+        <div class="rc-copy">
+          <span class="rc-kicker">🔬 Research-based practices</span>
+          <h3>A research-based learning tool for kids</h3>
+          <p>
+            Edusim is built on one of the strongest findings in learning science:
+            <strong>spatial reasoning</strong> — picturing, turning and building things in
+            your mind — predicts success in science and math for decades, it's highly
+            trainable, and it grows fastest in hands-on <strong>3D environments with
+            coding</strong>. That's not our hunch; it's what meta-analyses spanning
+            hundreds of studies measured. Our Research Library walks through the
+            evidence in plain language and shows how each finding became an Edusim
+            feature.
+          </p>
+          <div class="rc-cta">
+            <a class="btn btn-primary" href="research/index.html">🔬 Explore the research</a>
+            <a class="btn btn-ghost" href="research/classroom.html">How it shapes Edusim</a>
+          </div>
+        </div>
+        <div class="rc-stats" aria-label="Headline findings from the research">
+          <div class="rc-stat">
+            <span class="rc-num">g = 0.47</span>
+            <span class="rc-what">Spatial skills are trainable — across 217 studies</span>
+            <span class="rc-src">Uttal et&nbsp;al., Psychological Bulletin</span>
+          </div>
+          <div class="rc-stat">
+            <span class="rc-num">g = 0.96</span>
+            <span class="rc-what">Ages 0–8 gain the most from 3D spatial play</span>
+            <span class="rc-src">20-study meta-analysis, Frontiers in Psychology</span>
+          </div>
+          <div class="rc-stat">
+            <span class="rc-num">g = 0.28</span>
+            <span class="rc-what">Spatial training lifts math scores too</span>
+            <span class="rc-src">29 studies · 3,765 students</span>
+          </div>
+        </div>
+      </div>
+
       <div class="more-grid">
         <div class="more-card reveal">
           <span class="icon">🆓</span>
@@ -1266,6 +1317,7 @@
       <div class="cta-row reveal">
         <a class="btn btn-primary" href="guide/teachers.html">📄 The teacher's guide</a>
         <a class="btn btn-ghost" href="guide/index.html">All printable cards</a>
+        <a class="btn btn-ghost" href="research/index.html">🔬 The research library</a>
       </div>
     </div>
   </section>
@@ -1293,6 +1345,7 @@
       <a href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">Launch the app</a> ·
       <a href="https://edusim3dweb.com/worlds/" target="_blank" rel="noopener noreferrer">World Database</a> ·
       <a href="guide/index.html">Hands-On Guide</a> ·
+      <a href="research/index.html">The research</a> ·
       <a href="guide/teachers.html">For teachers</a> ·
       <a href="https://github.com/richwhiteGreenbush/EdisimWEB_V1" target="_blank" rel="noopener noreferrer">Source on GitHub</a>
     </p>

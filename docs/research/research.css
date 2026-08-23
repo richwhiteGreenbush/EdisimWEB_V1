@@ -1,0 +1,410 @@
+/* ===========================================================
+   Edusim Research Library — page styles
+   Tokens are COPIED from ../styles.css, not linked, the same
+   deliberate choice database.css made: this sub-site must be
+   able to evolve (or be printed, or mirrored) without the
+   marketing page's layout rules riding along. If the brand
+   tokens ever change, change them here too.
+   =========================================================== */
+
+:root {
+  --red: #e0455f;
+  --orange: #f2a541;
+  --green: #3fb37f;
+  --blue: #3d8bf2;
+  --purple: #8a5cf5;
+  --cream: #fff9ec;
+  --sky-top: #4da3ec;
+  --sky-bottom: #9fcdec;
+  --denim: #246c9d;
+  --ink: #1e2a3a;
+  --ink-soft: #445067;
+  --paper: #fffdf7;
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+  --shadow-soft: 0 18px 40px -12px rgba(30, 42, 58, 0.28);
+  --container: 1000px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: "Nunito", "Segoe UI", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: "Fredoka", "Nunito", system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 0.4em;
+}
+
+p { line-height: 1.65; margin: 0 0 1em; }
+a { color: var(--denim); }
+
+.wrap {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 22px;
+}
+
+/* ---------------- nav ---------------- */
+
+.rnav {
+  background: #fff;
+  border-bottom: 3px solid #e8e2d4;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.rnav .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.rbrand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.rbrand-mark { border-radius: 7px; display: block; }
+
+.rnav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px 14px;
+  flex-wrap: wrap;
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+.rnav-links a { text-decoration: none; color: var(--ink-soft); padding: 4px 2px; }
+.rnav-links a:hover { color: var(--denim); }
+.rnav-links a[aria-current="page"] {
+  color: var(--denim);
+  border-bottom: 3px solid var(--orange);
+}
+
+.rbtn {
+  display: inline-block;
+  background: var(--denim);
+  color: #fff !important;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border-bottom: 3px solid rgba(0, 0, 0, 0.25);
+}
+
+.rbtn:hover { filter: brightness(1.08); }
+.rbtn.ghost {
+  background: #fff;
+  color: var(--denim) !important;
+  border: 2px solid var(--denim);
+  border-bottom-width: 3px;
+}
+.rbtn.big { padding: 12px 24px; font-size: 1.02rem; }
+
+/* ---------------- hero ---------------- */
+
+.rhero {
+  background: linear-gradient(180deg, var(--sky-top), var(--sky-bottom));
+  color: #fff;
+  padding: 54px 0 46px;
+  text-align: center;
+}
+
+.rhero .eyebrow {
+  display: inline-block;
+  background: #fff;
+  color: var(--denim);
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+
+.rhero h1 {
+  font-size: clamp(1.9rem, 4.6vw, 2.9rem);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+  margin-bottom: 0.35em;
+}
+
+.rhero p.lead {
+  max-width: 46em;
+  margin: 0 auto 1.4em;
+  font-size: 1.06rem;
+  color: #f2f9ff;
+}
+
+.rhero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* ---------------- shared sections ---------------- */
+
+.rsection { padding: 44px 0; }
+.rsection.tint { background: #f3f8ee; }
+.rsection.tint-blue { background: #eaf5ff; }
+.rsection.tint-cream { background: #fff5e0; }
+
+.rsection-head { max-width: 46em; margin-bottom: 26px; }
+.rsection-head .eyebrow {
+  display: inline-block;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+.rsection-head h2 { font-size: clamp(1.45rem, 3vw, 2rem); }
+.rsection-head p { color: var(--ink-soft); }
+
+/* ---------------- stat cards ---------------- */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: var(--radius-md);
+  padding: 18px 18px 16px;
+  border: 2px solid #e8e2d4;
+  border-top: 6px solid var(--accent, var(--blue));
+  box-shadow: 0 8px 22px -14px rgba(30, 42, 58, 0.35);
+}
+
+.stat-card .num {
+  font-family: "Fredoka", sans-serif;
+  font-weight: 700;
+  font-size: 2.1rem;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.stat-card .num small { font-size: 0.95rem; color: var(--ink-soft); font-weight: 600; }
+.stat-card h4 { margin: 6px 0 4px; font-size: 1rem; }
+.stat-card p { font-size: 0.86rem; color: var(--ink-soft); margin: 0; }
+.stat-card .src { display: block; margin-top: 8px; font-size: 0.76rem; color: #7c8698; font-style: italic; }
+
+/* ---------------- topic cards (hub) ---------------- */
+
+.topic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 18px;
+}
+
+.topic-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: var(--radius-md);
+  border: 2px solid #e8e2d4;
+  padding: 20px;
+  text-decoration: none;
+  color: var(--ink);
+  border-top: 6px solid var(--accent, var(--blue));
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.topic-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-soft); }
+.topic-card .icon { font-size: 1.7rem; }
+.topic-card h3 { font-size: 1.12rem; margin: 8px 0 6px; }
+.topic-card p { font-size: 0.9rem; color: var(--ink-soft); margin: 0 0 12px; }
+.topic-card .go { margin-top: auto; font-weight: 800; font-size: 0.86rem; color: var(--denim); }
+
+/* ---------------- prose blocks ---------------- */
+
+.prose { max-width: 46em; }
+.prose h3 { font-size: 1.2rem; margin-top: 1.4em; }
+.prose ul { line-height: 1.65; padding-left: 1.2em; }
+.prose li { margin-bottom: 0.45em; }
+
+.callout {
+  background: #fff;
+  border-left: 6px solid var(--accent, var(--orange));
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 14px 18px;
+  margin: 18px 0;
+  box-shadow: 0 6px 18px -12px rgba(30, 42, 58, 0.3);
+}
+.callout p { margin: 0; font-size: 0.95rem; }
+
+/* ---------------- pure-CSS bar charts ---------------- */
+/* No chart library: these are measured effect sizes drawn as styled divs, so the page
+   stays self-contained (the site's only external asset is Google Fonts). */
+
+.bars { display: grid; gap: 12px; margin: 20px 0; }
+
+.bar-row { display: grid; grid-template-columns: minmax(150px, 240px) 1fr; gap: 12px; align-items: center; }
+.bar-row .bar-label { font-size: 0.86rem; font-weight: 700; line-height: 1.3; }
+.bar-row .bar-label small { display: block; font-weight: 600; color: #7c8698; font-size: 0.76rem; }
+
+.bar-track {
+  background: #ece6d8;
+  border-radius: 999px;
+  height: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--w, 50%);
+  background: var(--accent, var(--blue));
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.82rem;
+  padding-right: 10px;
+  min-width: 64px;
+}
+
+.chart-note { font-size: 0.8rem; color: #7c8698; font-style: italic; }
+
+/* ---------------- tables ---------------- */
+
+.rtable-scroll { overflow-x: auto; border-radius: var(--radius-md); border: 2px solid #e8e2d4; background: #fff; }
+
+table.rtable { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 640px; }
+table.rtable th {
+  background: var(--denim);
+  color: #fff;
+  text-align: left;
+  padding: 11px 14px;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 0.84rem;
+}
+table.rtable td { padding: 11px 14px; border-top: 1px solid #ece6d8; vertical-align: top; color: var(--ink-soft); }
+table.rtable td:first-child { color: var(--ink); font-weight: 700; }
+table.rtable .g { font-weight: 800; color: var(--denim); white-space: nowrap; }
+
+/* ---------------- research -> feature rows ---------------- */
+
+.map-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: #fff;
+  border: 2px solid #e8e2d4;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.map-row .finding { padding: 18px 20px; }
+.map-row .feature { padding: 18px 20px; background: #f3f8ee; border-left: 2px dashed #cfd8c2; }
+.map-row h4 { font-size: 1rem; margin-bottom: 6px; }
+.map-row .tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+  color: #fff;
+}
+.map-row .finding .tag { background: var(--denim); }
+.map-row .feature .tag { background: var(--green); }
+.map-row p { font-size: 0.88rem; color: var(--ink-soft); margin: 0; }
+.map-row .cite { display: block; margin-top: 8px; font-size: 0.76rem; color: #7c8698; font-style: italic; }
+
+@media (max-width: 720px) {
+  .map-row { grid-template-columns: 1fr; }
+  .map-row .feature { border-left: 0; border-top: 2px dashed #cfd8c2; }
+}
+
+/* ---------------- frames (brain page) ---------------- */
+
+.frame-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.frame-card {
+  background: #fff;
+  border: 2px solid #e8e2d4;
+  border-radius: var(--radius-md);
+  padding: 18px;
+  border-top: 6px solid var(--accent, var(--purple));
+}
+.frame-card h4 { font-size: 1.02rem; }
+.frame-card p { font-size: 0.87rem; color: var(--ink-soft); }
+.frame-card .in-edusim {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #d8d2c2;
+  font-size: 0.83rem;
+}
+.frame-card .in-edusim strong { color: var(--denim); }
+
+/* ---------------- sources ---------------- */
+
+.src-group { margin-bottom: 30px; }
+.src-group h3 { font-size: 1.15rem; border-bottom: 3px solid var(--accent, var(--orange)); display: inline-block; padding-bottom: 4px; }
+ol.src-list { padding-left: 1.4em; }
+ol.src-list li { margin-bottom: 0.7em; font-size: 0.9rem; color: var(--ink-soft); line-height: 1.55; }
+ol.src-list li strong { color: var(--ink); }
+ol.src-list a { word-break: break-all; font-size: 0.84rem; }
+
+/* ---------------- page nav between research pages ---------------- */
+
+.rpager {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 36px;
+  padding-top: 22px;
+  border-top: 2px dashed #d8d2c2;
+}
+
+/* ---------------- footer ---------------- */
+
+.rfoot {
+  background: var(--ink);
+  color: #b9c4d6;
+  padding: 26px 0 34px;
+  font-size: 0.88rem;
+  margin-top: 40px;
+}
+.rfoot a { color: #cfe2f7; }
+.rfoot .links { margin-top: 6px; }
+
+@media print {
+  .rnav, .rpager, .rfoot, .rhero .cta { display: none; }
+  .rhero { background: none; color: var(--ink); text-align: left; padding: 0 0 10px; }
+  .rhero .eyebrow { border: 2px solid var(--denim); }
+  body { background: #fff; }
+}

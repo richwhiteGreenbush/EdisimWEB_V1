@@ -2530,3 +2530,94 @@ img.brand-mark {
   opacity: 1;
   transform: none;
 }
+
+/* --- research emphasis (2026) ----------------------------------------------
+   Two pieces: the hero's one-line research claim, and the flagship card at the
+   top of "Made for Learning". Both are doors to docs/research/ — the claim
+   itself is substantiated there, not here, which is why each is a link. */
+
+.hero-research {
+  display: inline-block;
+  margin: 18px auto 0;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  box-shadow: 0 8px 22px -12px rgba(30, 42, 58, 0.5);
+}
+
+.hero-research strong { color: var(--denim); }
+
+.hero-research .hr-more {
+  font-weight: 800;
+  color: var(--denim);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.hero-research:hover { background: #fff; transform: translateY(-1px); }
+
+.research-card {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 26px;
+  background: linear-gradient(135deg, var(--denim), #1b5a86);
+  color: #eaf4fd;
+  border-radius: var(--radius-lg);
+  padding: 30px 32px;
+  margin-bottom: 26px;
+  box-shadow: var(--shadow-soft);
+}
+
+.research-card h3 {
+  color: #fff;
+  font-size: clamp(1.3rem, 2.6vw, 1.7rem);
+  margin: 8px 0 10px;
+}
+
+.research-card p { font-size: 0.97rem; line-height: 1.6; }
+.research-card p strong { color: #ffd98a; }
+
+.rc-kicker {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.74rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+.rc-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+
+.rc-stats { display: grid; gap: 12px; align-content: center; }
+
+.rc-stat {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+
+.rc-num {
+  display: block;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: #ffd98a;
+  line-height: 1.1;
+}
+
+.rc-what { display: block; font-weight: 700; font-size: 0.85rem; margin-top: 2px; }
+.rc-src { display: block; font-size: 0.74rem; color: #b9d4ea; font-style: italic; margin-top: 2px; }
+
+@media (max-width: 780px) {
+  .research-card { grid-template-columns: 1fr; padding: 24px 22px; }
+}

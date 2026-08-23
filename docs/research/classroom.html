@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TK6Y2Q8NP2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TK6Y2Q8NP2');
+</script>
+<title>Research, Built In — Edusim Research Library</title>
+<meta name="description" content="Finding by finding, how the spatial-reasoning research became Edusim's design: constructionism, block-based coding, 3D manipulatives, 15° rotation snaps, themed worlds for cognitive mapping, and frictionless Chromebook access." />
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="research.css" />
+<style>
+  /* Two proof shots under the hero, this page only. */
+  .shot-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+  .shot-duo img { width: 100%; height: auto; border-radius: var(--radius-md); border: 3px solid #fff; box-shadow: var(--shadow-soft); display: block; }
+  @media (max-width: 620px) { .shot-duo { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav class="rnav">
+  <div class="wrap">
+    <a class="rbrand" href="index.html"><img class="rbrand-mark" src="../assets/edusim-mark.png" alt="" width="26" height="26" /> Research Library</a>
+    <div class="rnav-links">
+      <a href="index.html">Overview</a>
+      <a href="evidence.html">The Evidence</a>
+      <a href="brain.html">The Brain</a>
+      <a href="classroom.html" aria-current="page">In Edusim</a>
+      <a href="sources.html">Sources</a>
+      <a href="../index.html">Main site</a>
+      <a class="rbtn" href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">Open Edusim</a>
+    </div>
+  </div>
+</nav>
+
+<header class="rhero">
+  <div class="wrap">
+    <span class="eyebrow">🧩 In Edusim</span>
+    <h1>The research, built into the tool</h1>
+    <p class="lead">
+      Edusim isn't research-flavored — it's research-shaped. Each row below pairs a
+      finding from the literature with the specific Edusim feature that puts it in a
+      child's hands.
+    </p>
+    <div class="shot-duo" aria-hidden="true">
+      <img src="../assets/screenshots/build_gallery.jpg" width="1600" height="1000" loading="lazy" alt="" />
+      <img src="../assets/screenshots/world_jsbasics.jpg" width="1600" height="1000" loading="lazy" alt="" />
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="rsection">
+  <div class="wrap">
+    <div class="rsection-head">
+      <span class="eyebrow" style="background: var(--green);">Finding → feature</span>
+      <h2>Eight findings, eight design choices</h2>
+    </div>
+
+    <div class="map-row">
+      <div class="finding">
+        <span class="tag">The research says</span>
+        <h4>Kids learn deepest by building shareable things</h4>
+        <p>Seymour Papert's constructionism — the theory behind LEGO robotics and Scratch — holds that learning peaks when children construct a meaningful artifact they can show someone. Studies of construction-plus-coding tools report gains in spatial, logical, and numerical reasoning together.</p>
+        <span class="cite">Papert, Mindstorms (1980); robotics &amp; visual-programming studies — Sources §4</span>
+      </div>
+      <div class="feature">
+        <span class="tag">So in Edusim</span>
+        <h4>Create Model, then hand it to someone</h4>
+        <p>Students build from stretchable primitives, render the pieces into one model, and export the whole world as a small file a classmate or teacher can open and walk through. The artifact is the assignment.</p>
+      </div>
+    </div>
+
+    <div class="map-row">
+      <div class="finding">
+        <span class="tag">The research says</span>
+        <h4>3D manipulatives beat flat 2D training</h4>
+        <p>The 2022 math-transfer meta-analysis found concrete materials — physical manipulatives or high-fidelity 3D virtual equivalents — transfer to mathematics significantly better than flat 2D computer training.</p>
+        <span class="cite">“Effects of Spatial Training on Mathematics Performance” (2022) — Sources §1</span>
+      </div>
+      <div class="feature">
+        <span class="tag">So in Edusim</span>
+        <h4>Stretch-to-Shape, with an anchored corner</h4>
+        <p>Every primitive sits in a bounding box with grabbable corners: drag one and the opposite corner stays planted, so a cube becomes a plank, a post, a wall — while the piece stays honestly on the ground plane. That's intrinsic spatial transformation, made tactile.</p>
+      </div>
+    </div>
+
+    <div class="map-row">
+      <div class="finding">
+        <span class="tag">The research says</span>
+        <h4>Angular reasoning needs practice with real angles</h4>
+        <p>Mental rotation — the most-studied spatial skill — improves through repeated, feedback-rich rotation of objects, and connecting rotation to number is where geometry begins.</p>
+        <span class="cite">Uttal et&nbsp;al. (2013); MRT/PSVT:R literature — Sources §1–2</span>
+      </div>
+      <div class="feature">
+        <span class="tag">So in Edusim</span>
+        <h4>Rotation rings that snap to 15°</h4>
+        <p>Turning a piece snaps in 15° steps, so square corners, 45° braces and 30° roof pitches are hittable on a trackpad — and every turn quietly says its number. A child aligning a brace at 45° is doing applied trigonometry.</p>
+      </div>
+    </div>
+
+    <div class="map-row">
+      <div class="finding">
+        <span class="tag">The research says</span>
+        <h4>Block coding frees working memory for the actual thinking</h4>
+        <p>Text syntax overwhelms novices; block-based visual languages cut that load so cognition goes to the algorithm and the spatial transformations. Studies show tangible and block-based coding builds computational thinking and spatial reasoning simultaneously.</p>
+        <span class="cite">Visual-programming &amp; computational-thinking studies — Sources §4</span>
+      </div>
+      <div class="feature">
+        <span class="tag">So in Edusim</span>
+        <h4>Blocks first — and the same program as JavaScript</h4>
+        <p>Every object is programmable with snap-together blocks: <em>repeat 4 times → move forward 8 → rotate 90</em> drives a square. One toggle shows the identical program as real JavaScript, so the bridge to text code is built into the panel, not left for later.</p>
+      </div>
+    </div>
+
+    <div class="map-row">
+      <div class="finding">
+        <span class="tag">The research says</span>
+        <h4>Code plus space is its own powerful skill</h4>
+        <p>Researchers call it spatial computational thinking: decomposing a structure into parts, then writing loops and conditions that build or steer it. Debugging the program means debugging your spatial logic — an externalized mental model you can fix.</p>
+        <span class="cite">Spatial computational thinking literature — Sources §4</span>
+      </div>
+      <div class="feature">
+        <span class="tag">So in Edusim</span>
+        <h4>Programs that move things through the world</h4>
+        <p>Blocks steer objects along their own facing, loops close squares (360 ÷ sides), the marker pen draws the path so the program's geometry is literally visible on the ground, and every ready-made world ships challenges that ask for exactly these programs.</p>
+      </div>
+    </div>
+
+    <div class="map-row">
+      <div class="finding">
+        <span class="tag">The research says</span>
+        <h4>Both spatial systems should get exercise</h4>
+        <p>Walking a space trains body-centered (egocentric) processing; maps and coordinates train world-centered (allocentric) mapping; translating between them engages the retrosplenial cortex — the flexibility expert spatial thinkers show.</p>
+        <span class="cite">Neuroimaging &amp; navigation literature — Sources §3</span>
+      </div>
+      <div class="feature">
+        <span class="tag">So in Edusim</span>
+        <h4>Worlds you walk, and code that uses axes</h4>
+        <p>Every world is explored first-person at a child's own eye height — and the same child then writes code that moves objects along world axes, plans layouts, and reasons about where things are from nowhere in particular. One tool, both frames, constantly.</p>
+      </div>
+    </div>
+
+    <div class="map-row">
+      <div class="finding">
+        <span class="tag">The research says</span>
+        <h4>Context makes spatial learning stick</h4>
+        <p>Large explorable environments exercise cognitive mapping, and situating spatial tasks inside meaningful places — a dig site, a city, a landmark — anchors the geometry in narrative, geology, history and biology.</p>
+        <span class="cite">Virtual-environment navigation studies — Sources §3, §5</span>
+      </div>
+      <div class="feature">
+        <span class="tag">So in Edusim</span>
+        <h4>A library of ready worlds whose signage teaches</h4>
+        <p>Dinosaur Island, a cut-away volcano, the human body, the Moon, Ancient Egypt, the Colosseum — more than thirty walk-scale places dotted with placards and activity boards, plus live in-world browser panels so research happens inside the workspace.</p>
+      </div>
+    </div>
+
+    <div class="map-row">
+      <div class="finding">
+        <span class="tag">The research says</span>
+        <h4>Low-stakes practice closes gaps</h4>
+        <p>Spatial anxiety suppresses performance and drives avoidance — and it falls in safe, consequence-free environments. 3D practice lifts girls' mental-rotation scores the most, shrinking a gap tied to STEM underrepresentation. Access matters too: training only helps the kids who can reach it.</p>
+        <span class="cite">Spatial-anxiety &amp; gender-equity studies — Sources §2–3</span>
+      </div>
+      <div class="feature">
+        <span class="tag">So in Edusim</span>
+        <h4>Free, no accounts, no chat, runs on Chromebooks</h4>
+        <p>It's a web page: nothing to install, nobody to sign up, no strangers, no timers or scores. Work saves on the student's own device. Delete a piece and try again — the cost of a mistake is zero, for every student, on the hardware schools already own.</p>
+      </div>
+    </div>
+
+    <div class="rpager">
+      <a class="rbtn ghost" href="brain.html">← The Brain</a>
+      <span>
+        <a class="rbtn ghost" href="../guide/teachers.html">🍎 Teacher's guide</a>
+        <a class="rbtn" href="sources.html">Next: Sources →</a>
+      </span>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="rfoot">
+  <div class="wrap">
+    <p><strong>The Edusim Research Library</strong> — why a 3D world that kids build and code in is a research-based way to learn.</p>
+    <p class="links">
+      <a href="index.html">Overview</a> ·
+      <a href="evidence.html">The Evidence</a> ·
+      <a href="brain.html">The Brain</a> ·
+      <a href="classroom.html">In Edusim</a> ·
+      <a href="sources.html">Sources</a> ·
+      <a href="../index.html">Main site</a> ·
+      <a href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">Launch Edusim</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
