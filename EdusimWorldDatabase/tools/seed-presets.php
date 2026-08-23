@@ -759,6 +759,28 @@ $WORLDS = [
             . "Three coding challenges: send a lava flow down the mountain, cycle a rock through the three "
             . "classes, and make the ash plume breathe.",
     ],
+    'chalk' => [
+        'title'   => 'Simon in the Land of Chalk Drawings',
+        'creator' => 'Simon',
+        'tags'    => 'art, drawing, chalk, coding, imagination, official',
+        'description' =>
+            "Climb over the fence and you are in the land where Simon's chalk drawings come "
+            . "alive. Everything here was drawn first \u{2014} the wobbly house with its curl of "
+            . "smoke, the lollipop trees in colours trees don't come in, the sun with a face, the "
+            . "scribble birds \u{2014} and every one of them wears its chalk lines still.\n\n"
+            . "Two drawings are drawing RIGHT NOW. Simon's puppy lays down a pink chalk circle on "
+            . "the meadow and then trots it all day, and his rocket flies a loop in the sky, "
+            . "drawing its own six-colour rainbow ring under itself and then riding it \u{2014} "
+            . "watch for the boy in the porthole. Both run marker-block programs you can open, "
+            . "read and change; the kite is swaying on a program too.\n\n"
+            . "Then the land invites you to draw back. The easel and the DRAW IT board show the "
+            . "trick: Menu \u{25B8} Create Model \u{25B8} Load Object \u{25B8} Draw, paint "
+            . "something bright, press Done \u{2014} and your flat drawing puffs up into a 3D "
+            . "thing standing in the grass, exactly the way everything else here arrived. Give it "
+            . "the marker blocks and it draws too.\n\n"
+            . "Two activities: teach the puppy to draw a square instead of its circle, and drive "
+            . "the chalk train in a giant loop. Walk under the rainbow before you leave.",
+    ],
 ];
 
 // ---------------------------------------------------------------------------
@@ -923,7 +945,7 @@ foreach ($WORLDS as $key => $meta) {
 
         ewd_update_world((int)$bySlug['id'], [
             'title'        => $meta['title'],
-            'creator'      => SEED_CREATOR,
+            'creator'      => $meta['creator'] ?? SEED_CREATOR,
             'group_name'   => SEED_GROUP,
             'description'  => $meta['description'],
             'theme'        => $info['theme'],
@@ -955,7 +977,9 @@ foreach ($WORLDS as $key => $meta) {
     $id = ewd_insert_world([
         'slug'         => $slug,
         'title'        => $meta['title'],
-        'creator'      => SEED_CREATOR,
+        // A world can name its own author -- "Simon in the Land of Chalk Drawings" is
+        // credited to Simon, because of course it is.
+        'creator'      => $meta['creator'] ?? SEED_CREATOR,
         'group_name'   => SEED_GROUP,
         'description'  => $meta['description'],
         'theme'        => $info['theme'],

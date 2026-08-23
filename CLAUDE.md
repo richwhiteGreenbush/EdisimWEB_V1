@@ -2602,6 +2602,99 @@ file is 9.0 KB. The beacon is ~20k triangles, the screw 6k, the boards 0.3k each
 the whole world is lighter than one of the volcano's rock specimens, and it reads better
 from the spawn than anything half its cost.
 
+### Simon in the Land of Chalk Drawings, and rendering a world as a DRAWING
+
+`ChalkProps.js` + `chalkLayout()`. A gallery world -- in `PRESET_WORLDS` (key `chalk`),
+deliberately not in any menu, seeded with **creator "Simon"** (`seed-presets.php` takes a
+per-world `creator` now; `SEED_CREATOR` stays the default). A bright meadow of chalk
+drawings come alive, entered -- as the story is entered -- over a fence that stands BEHIND
+the spawn, so turning round explains how you arrived.
+
+**The world's one idea is the app's own idea, and that is why it exists**: a flat drawing
+becomes a thing (the Draw-to-balloon tool -- invited by the easel, the DRAW IT tutorial
+board and the blackboard), and a thing can draw (the marker blocks -- demonstrated live).
+The puppy lays a pink chalk circle on the meadow and then trots it all day; the rocket
+flies a loop at 21ft drawing a six-colour rainbow ring under itself and then rides it,
+which is the book-cover image the world is built around. A butterfly circles the flowers
+and the kite sways on `forever { rotate 1 }` -- four objects ship animated, all four
+openable.
+
+**TWO TECHNIQUES CARRY THE WHOLE LOOK, and every builder uses both:**
+
+- **SCRIBBLE FILL.** One near-white tileable canvas of rough parallel chalk strokes plus
+  speckle, multiplied by per-vertex colour (`map` x `vertexColors`, the flower-bed trick)
+  and riding again as a linear-space bumpMap over one shared canvas. Stroke values must
+  reach ~190/255 with alpha to ~0.7 -- the first pass at 208+ was invisible from ten feet
+  and the world read as vinyl toys.
+- **INK HULL.** Every solid gets a copy of itself displaced along its own normals,
+  rendered `BackSide` in an unlit ink navy (`MeshBasicMaterial`) -- the classic
+  inverted-hull toon outline, one extra merged mesh per prop, no shadow. The hull is
+  welded BY POSITION ONLY (every attribute but position stripped before `mergeVertices`):
+  a UV seam or a cap/side normal split would tear the hull exactly where the outline must
+  hold, and the weld is also what rounds a box's corner into a drawn line's corner.
+  Unlit BackSide on a thin tube renders exactly like FrontSide, so hand-drawn DETAIL
+  lines (window crosses, kite string and crossbars, the two-arc scribble sky birds --
+  which are ink-only props) live in the same mesh.
+
+**The line has to SCALE WITH THE DRAWING, and there is a floor to it.** grow 0.05 was
+correct at arm's length and sub-pixel at gameplay distance; shipped values run 0.06 on a
+puppy's leg to 0.15 on the house walls and sun. The converse trap: **a hull on a thin
+tube or a tightly-curled one swallows the colour whole** -- the smoke curl's overlapping
+loops read as solid navy (its hull filled every crevice between loops), and the rain rods
+read as ink threads. Soft things (smoke, rain) go OUTLINE-FREE; legs read as dark
+leggings at range and that is accepted as what a real drawing does at distance.
+
+**`chalkPuff()` is the app's own Draw-to-balloon idea as a prop vocabulary**: outline ->
+grid -> BFS distance -> mirrored sheets meeting at a ZERO-HEIGHT shared rim (watertight by
+construction, the BalloonInflator trick), rim nodes snapped to the true outline so the
+edge is the drawn line rather than the grid's staircase. The train's whole side profile is
+one puff -- the most literal "flat drawing puffed into a thing" in the world, which is why
+the train is the second activity's target. **But a puff rounds what must stay SHARP**: the
+kite diamond's snapped rim cut off the very corners that make a diamond a kite, and it
+read as a leaf. A paper kite is genuinely flat -- it is an `extrudeOutline` now, with the
+ink hull softening the arris. Know which objects' identity lives in their corners.
+
+Traps this world hit, most of them re-runs with new faces:
+
+- **`lathed()` wants its profile BOTTOM-UP** (it reverses for `revolve`'s winding). The
+  train funnel was authored top-down -- doubly reversed, inside out, rendering as a dark
+  mass that read as "black material", not "missing surface". Same lesson as Seattle,
+  opposite direction.
+- **A door outlined left-to-right over its arc is CLOCKWISE** and extrudes inside out.
+  Check the shoelace sign on every hand-authored outline.
+- **Text plates must take their board's own jitter transform.** The signpost's arrow
+  boards get a hand-drawn yaw; a flat plate laid at z = const sank into the wood at one
+  end and clipped "ART SHOW" to "SHOW". The plate now carries the identical
+  position/rotation with its offset baked into the geometry.
+- **The rainbow headline is the FOURTH fit-to-measure lesson** (cardTexture, standingSign,
+  welcomeBoard, now chalkBlackboard): five coloured words drawn at a guessed 78px ran off
+  the board's right edge; measured and shrunk to fit like everything else.
+- **A detail placed "along the wing direction" floats off the wing.** The butterfly's
+  spots were positioned along the wing's outboard axis in world space and hung past the
+  tip; anything on a basis-placed plate is positioned THROUGH that same basis and sunk
+  half-in so it bulges from both faces.
+- **A positive `rotate` turns CLOCKWISE seen from above -- measured, not assumed.** The
+  rocket's ring centre and the puppy's circle both hang off the performer's RIGHT, and
+  both clear zones in the layout are sized to that.
+- **The marker performers draw ONCE and then fly forever with the pen UP.** A forever loop
+  that never lifts the pen runs into `MARKER_MAX_POINTS` and stops the show with a toast;
+  an erase-per-lap loop wipes out whatever the student is drawing elsewhere. Draw-once,
+  move-forever has no failure mode, and a restart (the green play button) simply retraces.
+- **Clouds are ALL underside, so they take a flat emissive lift** (`emissive` on the
+  near-white body material at 0.3): the hemi bounce is the only light a downward face
+  gets and a drawn cloud must not have a grey belly. Flat emissive is safe here ONLY
+  because the prop is near-white -- the bleach trap bites saturated tints.
+- **The chalk in Simon's hand is seated INSIDE the hand ball.** A stick placed by eye
+  floated half a foot in front of the grip: the open-joint rule applies to props a hand
+  is holding.
+
+**Performance, measured**: 31 records (28 props + browser) / **113 draw calls** / 201k
+drawn / 79 meshes / **3 transparent** / **0 point lights** / 55 textures. 38ms to build,
+303ms to load; the world file is 13.2 KB. Per prop: rainbow 13.7k triangles, flowers
+12.5k, rocket 11.5k, Simon 10.1k, puppy 6.0k, train 5.6k, tree 5.3k, butterfly 4.3k. The
+lightest populated world in the app -- the look is carried by outline and scribble, and
+tessellation the style cannot show buys nothing at any budget.
+
 ### A Bug's Life, and building a world around CHALLENGES
 
 `BugProps.js` + `bugsLayout()`. The only preset laid out as a **workshop** rather than as a

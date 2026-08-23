@@ -8868,6 +8868,168 @@ function jsbasicsLayout() {
   return { theme: 'jsbasics', spawn: { ...SP, yaw: 0 }, items };
 }
 
+// ---------------------------------------------------------------------------
+// Simon in the Land of Chalk Drawings
+// ---------------------------------------------------------------------------
+
+// A bright meadow of drawings that came alive, entered -- as the story is entered --
+// over a fence, which stands BEHIND the spawn so turning round explains how you got
+// here. The world's one idea is the app's own idea: drawings become things (the
+// Draw-to-balloon tool, invited by the easel and the tutorial board) and things can
+// draw (the marker blocks, demonstrated live by the puppy and the rocket).
+//
+// The two marker performers draw their figure ONCE (a bounded repeat) and then keep
+// moving forever WITHOUT the marker: a forever loop that never lifts the pen
+// accumulates points until MARKER_MAX_POINTS stops the show with a toast, and an
+// erase-per-lap variant would wipe out whatever the student is drawing elsewhere.
+// Draw once, fly forever is the version with no failure mode.
+function chalkLayout() {
+  const items = [];
+  const SP = { x: 0, z: 46 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  const orbit = (feet, degrees) => [
+    block('moveForward', { feet }),
+    block('rotate', { degrees }),
+  ];
+
+  // --- arrival: the fence behind, the story ahead --------------------------
+  //
+  // Both fence runs face the player (rotY PI -- a prop's front is its +Z), with the
+  // climbing stile beside the gap at x = 0 the spawn implies you just came through.
+  items.push(prop('chalk-fence', -14.2, 57, { rotY: Math.PI, options: { seed: 27, length: 23, stile: true } }));
+  items.push(prop('chalk-fence', 14.2, 57, { rotY: Math.PI, options: { seed: 28, length: 23 } }));
+  items.push(prop('chalk-signpost', 4.2, 51.5, { rotY: Math.PI + 0.25, options: { seed: 29 } }));
+
+  items.push(prop('chalk-blackboard', -9.5, 30, { rotY: face(-9.5, 30), options: { seed: 39 } }));
+  items.push(...browserStation(8, 36, {
+    faceX: SP.x, faceZ: SP.z, url: 'https://edusim3dweb.com/guide/builder.html',
+  }));
+
+  // Simon greets beside the path; his puppy is already mid-performance. A positive
+  // rotate turns CLOCKWISE seen from above (measured, not assumed), so the circle
+  // hangs off the puppy's RIGHT -- the clear zone around (19, 20) is deliberate.
+  items.push(prop('chalk-simon', 4.5, 26.5, { rotY: face(4.5, 26.5), options: { seed: 5 } }));
+  items.push(prop('chalk-puppy', 14, 20, {
+    rotY: 0,
+    options: { seed: 3 },
+    program: [
+      block('markerColor', { color: '#e58ab4' }),
+      block('markerDown'),
+      block('repeat', { count: 60 }, orbit(0.5, 6)),
+      block('markerUp'),
+      block('forever', {}, orbit(0.5, 6)),
+    ],
+  }));
+  items.push(activity(26, 27, {
+    number: 1,
+    rotY: face(26, 27),
+    title: 'Teach the puppy to draw a square',
+    target: 'Click the chalk puppy, press Program, and swap its circle for this:',
+    steps: [
+      lookStep('marker color (blue)'),
+      lookStep('marker down'),
+      ctrlStep('repeat 4 times'),
+      moveStep('move forward 8 feet', 1),
+      moveStep('rotate 90 degrees', 1),
+      lookStep('marker up'),
+    ],
+    tip: 'A circle is lots of tiny turns; a square is four BIG ones. Tidy up any time with one "erase all marks" block.',
+    accent: '#e58ab4',
+  }));
+
+  // --- the rainbow gate, and the meadow through it -------------------------
+  items.push(prop('chalk-rainbow', 0, 6, { options: { seed: 7, radius: 15 } }));
+  items.push(prop('chalk-house', -24, -10, { rotY: face(-24, -10), options: { seed: 19 } }));
+  items.push(prop('chalk-tree', -21, 15, { options: { seed: 21, color: 0x76b84a, fruit: 0xd94f41 } }));
+  items.push(prop('chalk-tree', 25, -3, { options: { seed: 22, color: 0xe89bc0, fruit: 0xd23558 } }));
+  items.push(prop('chalk-tree', -30, -26, { options: { seed: 24, color: 0xf2a23c, fruit: 0xf7f4ea } }));
+  items.push(prop('chalk-flowers', -12, 13, { options: { seed: 23 } }));
+  items.push(prop('chalk-flowers', 15, -8, { rotY: 0.6, options: { seed: 25 } }));
+
+  // One butterfly circles the near flower patch (it also turns left, into the open
+  // ground between the patch and the arch); the other rests on the far patch.
+  items.push(prop('chalk-butterfly', -12, 13, {
+    y: 5,
+    options: { seed: 37, color: 0xe58ab4 },
+    program: [block('forever', {}, orbit(0.22, 4))],
+  }));
+  items.push(prop('chalk-butterfly', 16.5, -7, { y: 2.6, rotY: 2.1, options: { seed: 38, color: 0x8ab4e5 } }));
+
+  // --- the sky: all drawings ----------------------------------------------
+  //
+  // The rocket ships drawing its own rainbow ring with the marker -- the book-cover
+  // image, live: it lays one 360-degree six-colour arc under itself, lifts the pen,
+  // and flies that circle forever. A positive rotate turns clockwise from above, so
+  // facing -X from (0, -33.4) puts the ring's centre at (0, -20) -- hanging over the
+  // middle of the meadow, framed by the rainbow arch from the spawn -- and everything
+  // under the flight path stays low.
+  items.push(prop('chalk-rocket', 0, -33.4, {
+    y: 21, absoluteY: true, rotY: -Math.PI / 2,
+    options: { seed: 11 },
+    program: [
+      block('markerColor', { color: '#d94f41' }),
+      block('markerDown'),
+      ...['#d94f41', '#f0993c', '#e8ce54', '#77bd4e', '#4f9fdd', '#9a6fd0'].flatMap((color) => [
+        block('markerColor', { color }),
+        block('repeat', { count: 40 }, orbit(0.35, 1.5)),
+      ]),
+      block('markerUp'),
+      block('forever', {}, orbit(0.35, 1.5)),
+    ],
+  }));
+  items.push(prop('chalk-sun', -26, -58, { y: 40, absoluteY: true, rotY: face(-26, -58), options: { seed: 9 } }));
+  items.push(prop('chalk-cloud', 27, -52, { y: 32, absoluteY: true, rotY: 0.4, options: { seed: 13 } }));
+  items.push(prop('chalk-cloud', -43, -28, { y: 27, absoluteY: true, rotY: -0.5, options: { seed: 14, rain: true } }));
+  items.push(prop('chalk-bird', 10, -14, { y: 29, absoluteY: true, rotY: 0.7, options: { seed: 17 } }));
+  items.push(prop('chalk-bird', -16, -44, { y: 34, absoluteY: true, rotY: -0.5, options: { seed: 18, span: 2.8 } }));
+  // The kite sways on its string: the whole prop yaws about the spool, so the diamond
+  // sweeps a slow circle overhead the way a kite rides wind -- and it is one more
+  // program a student can open and change.
+  items.push(prop('chalk-kite', 29, -21, {
+    rotY: facing(29, -21, 0, 46),
+    options: { seed: 31 },
+    program: [block('forever', {}, [block('rotate', { degrees: 1 })])],
+  }));
+
+  // --- the art show corner: where the Draw tool is taught ------------------
+  items.push(prop('chalk-easel', 17, -17, { rotY: face(17, -17), options: { seed: 43 } }));
+  items.push(prop('tutorial-board', 25.5, -12, {
+    rotY: face(25.5, -12),
+    options: {
+      kicker: '🎨  DRAW IT',
+      title: 'Draw your own chalk creature',
+      intro: 'Simon drew everything you can see. Your drawings come alive here too.',
+      steps: [
+        { lead: 'Open the drawing pad', text: 'Menu ▸ Create Model ▸ Load Object ▸ Draw.' },
+        { lead: 'Draw big and bold', text: 'Pick a colour, paint a creature that fills the pad. Use lots of colours — they all show up.' },
+        { lead: 'Watch it come alive', text: 'Press Done. Your flat drawing puffs up into a 3D thing, right in front of you.' },
+        { lead: 'Now make it DO something', text: 'Click it, press Program. forever + rotate spins it. Add the marker blocks and it draws, like the puppy.' },
+      ],
+      tip: 'This is exactly how the land works in the story: Simon draws something flat, climbs the fence, and finds it walking around.',
+      accent: '#d94f41',
+    },
+  }));
+
+  // --- the train: the second challenge ------------------------------------
+  items.push(prop('chalk-train', -7, -30, { rotY: 0.5, options: { seed: 33 } }));
+  items.push(activity(-17, -23, {
+    number: 2,
+    rotY: face(-17, -23),
+    title: 'Drive the chalk train in a loop',
+    target: 'Click the blue train, press Program, and build:',
+    steps: [
+      ctrlStep('forever'),
+      moveStep('move forward 0.5 feet', 1),
+      moveStep('rotate 2 degrees', 1),
+    ],
+    tip: 'Little steps plus little turns make a giant circle. Try rotate 4 — the loop shrinks. Put "marker down" in front and the train draws its own track.',
+    accent: '#4f9fdd',
+  }));
+
+  return { theme: 'chalk', spawn: { ...SP, yaw: 0 }, items };
+}
+
 
 export const PRESET_WORLDS = {
   park: { label: 'The Park', hint: 'The default world: a great meadow, a pond, a bandstand and the bear dens', build: parkLayout },
@@ -9008,6 +9170,11 @@ export const PRESET_WORLDS = {
     label: 'JavaScript Basics',
     hint: 'Five lessons in real JavaScript, taught by machines that are already running it',
     build: jsbasicsLayout,
+  },
+  chalk: {
+    label: 'Simon in the Land of Chalk Drawings',
+    hint: 'A meadow of chalk drawings come alive — a puppy and a rocket are drawing right now, and the easel is waiting for yours',
+    build: chalkLayout,
   },
   volcano: {
     label: 'Volcanoes & Rocks',

@@ -36,6 +36,7 @@ import * as Robot from './RobotProps.js';
 import * as Greenbush from './GreenbushProps.js';
 import * as Volcano from './VolcanoProps.js';
 import * as JsBasics from './JsBasicsProps.js';
+import * as Chalk from './ChalkProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -572,6 +573,25 @@ export const PROP_BUILDERS = {
   'code-spinner': JsBasics.codeSpinner,
   'mood-crystal': JsBasics.moodCrystal,
   'practice-block': JsBasics.practiceBlock,
+
+  // Simon in the Land of Chalk Drawings
+  'chalk-simon': Chalk.chalkSimon,
+  'chalk-puppy': Chalk.chalkPuppy,
+  'chalk-rocket': Chalk.chalkRocket,
+  'chalk-rainbow': Chalk.chalkRainbow,
+  'chalk-sun': Chalk.chalkSun,
+  'chalk-cloud': Chalk.chalkCloud,
+  'chalk-bird': Chalk.chalkBird,
+  'chalk-house': Chalk.chalkHouse,
+  'chalk-tree': Chalk.chalkTree,
+  'chalk-flowers': Chalk.chalkFlowers,
+  'chalk-fence': Chalk.chalkFence,
+  'chalk-signpost': Chalk.chalkSignpost,
+  'chalk-kite': Chalk.chalkKite,
+  'chalk-train': Chalk.chalkTrain,
+  'chalk-butterfly': Chalk.chalkButterfly,
+  'chalk-blackboard': Chalk.chalkBlackboard,
+  'chalk-easel': Chalk.chalkEasel,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

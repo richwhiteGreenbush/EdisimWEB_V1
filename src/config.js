@@ -1295,6 +1295,40 @@ export const WORLD_THEMES = {
     sunPosition: [-120, 96, 150],
     stars: false,
   },
+
+  chalk: {
+    // Simon in the Land of Chalk Drawings. The one theme whose sky is PAPER, not air:
+    // a warm off-white, and since the sky colour is also the fog colour, everything in
+    // the distance fades into the page it was drawn on -- which is the entire
+    // atmosphere of a world whose objects are drawings stood upright. No groundDetail
+    // on purpose: a photographic grain map is exactly the realism this world must not
+    // have, and a theme without one keeps the plain vertex-coloured ground.
+    sky: 0xfdf6e8,
+    // The tightest daylight fog outside the underwater world. Not weather -- the page
+    // edge. Far objects don't grey out, they UNDRAW.
+    fogNear: 130,
+    fogFar: 330,
+    // Crayon-green ramp, far brighter and more saturated than any real-grass world:
+    // this ground is "coloured in", and against paper-white sky an honest lawn green
+    // read as the one photograph in a page of drawings.
+    groundLow: 0x6cb84e,
+    groundHigh: 0xb4e388,
+    amplitude: 4.2,
+    flatRadius: 46,
+    blendRadius: 140,
+    hemiSky: 0xfff8ec,
+    // Light and nearly unsaturated (the Seattle saucer lesson): the ink-outlined props
+    // are clusters of rounded solids, so their whole lower half is lit by this bounce.
+    hemiGround: 0xaab396,
+    hemiIntensity: 1.7,
+    // A soft, warm sun from behind the spawn (+Z, the robots-world trick), and gentler
+    // than any other daylight world: chalk is pure matte, and hard shading is exactly
+    // what a drawing does not have. The high hemi does most of the work.
+    sunColor: 0xfff4de,
+    sunIntensity: 1.6,
+    sunPosition: [55, 140, 160],
+    stars: false,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger
