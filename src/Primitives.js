@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { nextPlacementXZ } from './Placement.js';
 import { loadImageElement } from './MediaLoader.js';
+import { buildBatchLoadingManager, loadModelFile } from './ModelLoader.js';
 import {
   PRIMITIVE_SIZE,
   PRIMITIVE_DEFAULT_COLOR,
@@ -22,6 +23,30 @@ import { uuid } from './Uuid.js';
 //   { kind: 'built-model',  parts: [{shape,color,fileIndex,position,rotation,scale}], files, transform }
 
 export const PRIMITIVE_SHAPES = ['cube', 'sphere', 'cylinder', 'tetrahedron'];
+
+// What counts as a BUILD PIECE -- a thing that carries the floating hammer and can be
+// stretched, rotated, connected and rendered. Originally only 'primitive'; imported
+// models joined later, because a student who can build out of four ideal solids but not
+// out of the dinosaur they just imported has been given the wrong half of the toy.
+// Imports KEEP their ordinary click-to-edit menu as well -- unlike a primitive, an
+// import is a finished object in its own right, so Size/Move/Program stay reachable and
+// the hammer is additive.
+export const BUILD_PIECE_KINDS = ['primitive', 'gltf', 'obj'];
+
+export function isBuildPiece(record) {
+  return !!record && BUILD_PIECE_KINDS.includes(record.kind);
+}
+
+// What to call a piece in menus and toasts: a primitive by its shape, an import by its
+// file's own name -- which is what the student picked it by.
+export function pieceLabel(record) {
+  if (!record) return 'Shape';
+  if (record.kind === 'primitive') return SHAPE_LABELS[record.shape] || 'Shape';
+  const name = record.primaryFileName || record.files?.[0]?.name || '';
+  const base = name.replace(/\.[^.]+$/, '');
+  if (!base) return 'Imported Model';
+  return base.length > 18 ? `${base.slice(0, 17)}…` : base;
+}
 
 export const SHAPE_LABELS = {
   cube: 'Cube',
@@ -110,19 +135,41 @@ export async function createPrimitiveMesh(record) {
 export async function buildBuiltModel(record) {
   const group = new THREE.Group();
   for (const part of record.parts || []) {
-    const fileRecord = part.fileIndex == null ? null : record.files?.[part.fileIndex];
-    const mesh = await createShapeMesh({ shape: part.shape, color: part.color, fileRecord });
-    mesh.position.fromArray(part.position);
-    mesh.rotation.set(part.rotation[0], part.rotation[1], part.rotation[2]);
-    mesh.scale.fromArray(part.scale);
-    group.add(mesh);
+    let child;
+    if (part.kind === 'gltf' || part.kind === 'obj') {
+      // An imported part: rebuilt through the exact loader path WorldStore uses for a
+      // standalone gltf/obj record, against the slice of files this part brought in.
+      const fileRecords = (record.files || []).slice(part.fileStart, part.fileStart + part.fileCount);
+      const partFiles = fileRecords.map((f) => new File([f.data], f.name, { type: f.type }));
+      const { manager, urlMap } = buildBatchLoadingManager(partFiles);
+      try {
+        const primary = partFiles.find((f) => f.name === part.primaryFileName) || partFiles[0];
+        const mtlFile = partFiles.find((f) => /\.mtl$/i.test(f.name));
+        const ext = part.kind === 'obj' ? 'obj' : /\.glb$/i.test(primary.name) ? 'glb' : 'gltf';
+        child = await loadModelFile({ file: primary, ext, manager, mtlFile });
+        child.traverse((node) => {
+          if (node.isMesh) {
+            node.castShadow = true;
+            node.receiveShadow = true;
+          }
+        });
+      } finally {
+        for (const url of urlMap.values()) URL.revokeObjectURL(url);
+      }
+    } else {
+      child = await createShapeMesh({ shape: part.shape, color: part.color, fileRecord: part.fileIndex == null ? null : record.files?.[part.fileIndex] });
+    }
+    child.position.fromArray(part.position);
+    child.rotation.set(part.rotation[0], part.rotation[1], part.rotation[2]);
+    child.scale.fromArray(part.scale);
+    group.add(child);
   }
   return group;
 }
 
-export function livePrimitives(registry) {
+export function liveBuildPieces(registry) {
   return [...registry.items.entries()]
-    .filter(([, item]) => item.record?.kind === 'primitive')
+    .filter(([, item]) => isBuildPiece(item.record))
     .map(([id, item]) => ({ id, ...item }));
 }
 
@@ -140,7 +187,10 @@ export async function placePrimitive({ shape, scene, camera, registry, groundHei
 
   const mesh = await createPrimitiveMesh(record);
 
-  const { x, z } = nextPlacementXZ(camera, livePrimitives(registry).length, {
+  // The spiral counts SHAPE primitives only: imports were placed by their own import
+  // spiral and should not push a student's next cube further out.
+  const shapeCount = [...registry.items.values()].filter((item) => item.record?.kind === 'primitive').length;
+  const { x, z } = nextPlacementXZ(camera, shapeCount, {
     distance: PRIMITIVE_SPAWN_DISTANCE,
     spacing: PRIMITIVE_SPAWN_SPACING,
   });
@@ -167,7 +217,7 @@ export function touchingPrimitives(id, registry) {
   if (!mine) return [];
   const myBox = new THREE.Box3().setFromObject(mine.object3D).expandByScalar(CONNECT_TOUCH_EPSILON);
   const other = new THREE.Box3();
-  return livePrimitives(registry).filter((entry) => {
+  return liveBuildPieces(registry).filter((entry) => {
     if (entry.id === id) return false;
     other.setFromObject(entry.object3D);
     return myBox.intersectsBox(other);
@@ -178,7 +228,7 @@ export function touchingPrimitives(id, registry) {
 // student clicked, but the two are joined either way round, so rendering from either end
 // of a chain has to produce the same model.
 export function clusterIds(rootId, registry) {
-  const pieces = livePrimitives(registry);
+  const pieces = liveBuildPieces(registry);
   const byId = new Map(pieces.map((entry) => [entry.id, entry]));
   const neighbours = new Map(pieces.map((entry) => [entry.id, new Set()]));
   for (const entry of pieces) {
@@ -211,7 +261,7 @@ export async function removePrimitive({ id, registry, worldStore }) {
   registry.remove(id);
   await worldStore?.deleteObject(id);
 
-  for (const entry of livePrimitives(registry)) {
+  for (const entry of liveBuildPieces(registry)) {
     const links = entry.record.connections || [];
     if (!links.includes(id)) continue;
     entry.record.connections = links.filter((other) => other !== id);
@@ -242,21 +292,39 @@ export async function renderModelFromCluster({ rootId, registry, worldStore, men
   const parts = [];
   for (const id of ids) {
     const { object3D, record } = registry.get(id);
-    let fileIndex = null;
-    if (record.files?.[0]) {
-      // Blobs are immutable, so the copy shares the reference rather than re-encoding --
-      // the same argument Duplicator.cloneRecord() makes.
-      files.push({ ...record.files[0] });
-      fileIndex = files.length - 1;
-    }
-    parts.push({
-      shape: record.shape,
-      color: record.color,
-      fileIndex,
+    const placement = {
       position: object3D.position.clone().sub(origin).toArray(),
       rotation: [object3D.rotation.x, object3D.rotation.y, object3D.rotation.z],
       scale: object3D.scale.toArray(),
+    };
+
+    if (record.kind === 'primitive') {
+      let fileIndex = null;
+      if (record.files?.[0]) {
+        // Blobs are immutable, so the copy shares the reference rather than re-encoding
+        // -- the same argument Duplicator.cloneRecord() makes.
+        files.push({ ...record.files[0] });
+        fileIndex = files.length - 1;
+      }
+      parts.push({ shape: record.shape, color: record.color, fileIndex, ...placement });
+      continue;
+    }
+
+    // An IMPORTED piece. Its model files are hoisted into the built-model's own
+    // top-level `files` array and the part records an index RANGE into it -- top-level,
+    // because WorldFile's base64 walker only knows about `record.files`, so a Blob
+    // nested anywhere else would silently serialise as {} and the exported world would
+    // rebuild with a hole where the import was. `scale` is absolute (the import-time
+    // 5ft normalization is baked into the live object's scale), so the rebuild applies
+    // it directly and never re-normalizes.
+    parts.push({
+      kind: record.kind,
+      primaryFileName: record.primaryFileName,
+      fileStart: files.length,
+      fileCount: (record.files || []).length,
+      ...placement,
     });
+    for (const f of record.files || []) files.push({ ...f });
   }
 
   // `parts` holds everything needed to split this back into construction pieces (world

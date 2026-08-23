@@ -253,30 +253,69 @@ export class BuildGizmo {
   // are different things: the AABB of a turned box is larger than the box and its sides
   // do not line up with it, so stretching from it would pull the piece along the wrong
   // directions entirely.
+  // The piece's bounding box in its OWN coordinate frame at scale 1, cached on the
+  // object: geometry never changes after a piece is placed, and for an imported model
+  // the walk over every child mesh is not something to repeat per frame.
+  //
+  // For a single Mesh this is just the geometry's own bounding box. For a Group -- an
+  // imported glTF/OBJ -- it is every child geometry's box carried into the ROOT's frame
+  // (inverse of the root's world matrix times the child's), which strips the root's own
+  // position/rotation/scale while keeping the children's internal offsets. That is the
+  // measurement the whole gizmo hangs off, because an import's origin is wherever the
+  // file's author put it -- under a foot, at a corner, nowhere near the middle -- and
+  // every equation below that used to say "position IS the centre" now has to carry the
+  // offset between the two.
+  localBoxOf(object3D) {
+    if (object3D.userData.buildLocalBox) return object3D.userData.buildLocalBox;
+    let box;
+    if (object3D.geometry) {
+      if (!object3D.geometry.boundingBox) object3D.geometry.computeBoundingBox();
+      box = object3D.geometry.boundingBox.clone();
+    } else {
+      box = new THREE.Box3();
+      const childBox = new THREE.Box3();
+      const toRoot = new THREE.Matrix4();
+      object3D.updateMatrixWorld(true);
+      const invRoot = new THREE.Matrix4().copy(object3D.matrixWorld).invert();
+      object3D.traverse((node) => {
+        if (!node.isMesh || !node.geometry) return;
+        if (!node.geometry.boundingBox) node.geometry.computeBoundingBox();
+        toRoot.multiplyMatrices(invRoot, node.matrixWorld);
+        childBox.copy(node.geometry.boundingBox).applyMatrix4(toRoot);
+        box.union(childBox);
+      });
+    }
+    object3D.userData.buildLocalBox = box;
+    return box;
+  }
+
   frame(object3D, box) {
-    const geometry = object3D.geometry;
-    if (!geometry) {
-      // A Group rather than a Mesh -- not something construction mode produces, but the
-      // gizmo should degrade to the old axis-aligned behaviour rather than throw.
+    const local = this.localBoxOf(object3D);
+    if (local.isEmpty()) {
       const fallback = box || new THREE.Box3().setFromObject(object3D);
       return {
         centre: fallback.getCenter(new THREE.Vector3()),
         half: fallback.getSize(new THREE.Vector3()).multiplyScalar(0.5),
         quaternion: new THREE.Quaternion(),
+        localCentre: new THREE.Vector3(),
       };
     }
-    if (!geometry.boundingBox) geometry.computeBoundingBox();
-    const size = geometry.boundingBox.getSize(new THREE.Vector3());
+    const size = local.getSize(new THREE.Vector3());
+    // Where the box's centre sits relative to the piece's origin, in the piece's own
+    // frame. Zero for every primitive (their geometries are authored centred), non-zero
+    // for most imports -- and carrying it through position arithmetic is the entire
+    // difference between stretching an import and teleporting it.
+    const localCentre = local.getCenter(new THREE.Vector3());
+    const offset = localCentre.clone().multiply(object3D.scale).applyQuaternion(object3D.quaternion);
     return {
-      // Every primitive geometry is authored centred on its own origin, so the piece's
-      // position IS the centre of its own box however it has been turned.
-      centre: object3D.position.clone(),
+      centre: object3D.position.clone().add(offset),
       half: new THREE.Vector3(
         (size.x * Math.abs(object3D.scale.x)) / 2,
         (size.y * Math.abs(object3D.scale.y)) / 2,
         (size.z * Math.abs(object3D.scale.z)) / 2
       ),
       quaternion: object3D.quaternion.clone(),
+      localCentre,
     };
   }
 
@@ -429,6 +468,7 @@ export class BuildGizmo {
     if (handleHit) {
       const corner = handleHit.object.userData.corner;
       const grab = this.cornerAt(corner, centre, half, quaternion);
+      const { localCentre } = this.frame(item.object3D, box);
       this.drag = {
         mode: 'stretch',
         pointerId: e.pointerId,
@@ -439,6 +479,7 @@ export class BuildGizmo {
         axes: this.worldAxes(quaternion),
         startSize: half.clone().multiplyScalar(2),
         startScale: item.object3D.scale.clone(),
+        localCentre,
       };
       // A plane facing the camera through the grabbed corner: the pointer's world
       // position on it is well-defined from any viewing angle. The one axis nearly
@@ -642,19 +683,23 @@ export class BuildGizmo {
   // this is the obvious per-axis arithmetic; with a turned one it is the same arithmetic
   // projected onto the piece's axes, which is why the axes are captured at grab time.
   stretchByCorner(object3D) {
-    const { corner, anchor, axes, startSize, startScale } = this.drag;
+    const { corner, anchor, axes, startSize, startScale, localCentre } = this.drag;
     const reach = this.hit.clone().sub(anchor);
     const centre = anchor.clone();
     for (let i = 0; i < 3; i++) {
       const key = ['x', 'y', 'z'][i];
       const newSize = Math.max(Math.abs(reach.dot(axes[i])), STRETCH_MIN_SIZE);
       object3D.scale[key] = (startScale[key] * newSize) / startSize[key];
-      // Every primitive geometry is authored centred on its own origin, so keeping the
-      // anchor corner still means putting the centre exactly half the new size away from
-      // it, on the side the grabbed corner is on.
+      // Keeping the anchor corner still means putting the BOX CENTRE exactly half the
+      // new size from it, on the side the grabbed corner is on.
       centre.addScaledVector(axes[i], Math.sign(corner[i]) * (newSize / 2));
     }
-    object3D.position.copy(centre);
+    // The piece's ORIGIN is then the centre minus the (rescaled, rotated) offset between
+    // origin and box centre. For a primitive that offset is zero and this line is the old
+    // `position = centre`; for an import it is what keeps the model under the box the
+    // student is stretching instead of sliding out of it.
+    const offset = localCentre.clone().multiply(object3D.scale).applyQuaternion(object3D.quaternion);
+    object3D.position.copy(centre).sub(offset);
   }
 
   // Puts a piece down at (x, z) at the height it was already floating at. Everything that

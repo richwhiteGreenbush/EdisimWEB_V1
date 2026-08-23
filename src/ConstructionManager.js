@@ -1,5 +1,7 @@
 import * as THREE from 'three';
-import { HAMMER_ICON_SIZE, HAMMER_ICON_MARGIN } from './config.js';
+import { HAMMER_ICON_SIZE, HAMMER_ICON_MARGIN, PLAY_ICON_SIZE } from './config.js';
+import { isBuildPiece } from './Primitives.js';
+import { recordHasProgram } from './ProgramManager.js';
 
 const CLICK_MOVE_THRESHOLD = 6; // px
 const CLICK_TIME_THRESHOLD = 500; // ms
@@ -106,19 +108,27 @@ export class ConstructionManager {
 
   // Recomputed from a fresh Box3 every frame, so an icon follows a piece that is being
   // stretched or dragged rather than lagging behind it.
-  positionIcon(sprite, object3D) {
-    const box = new THREE.Box3().setFromObject(object3D);
+  positionIcon(sprite, item) {
+    const box = new THREE.Box3().setFromObject(item.object3D);
     if (box.isEmpty()) return;
     const center = box.getCenter(new THREE.Vector3());
-    sprite.position.set(center.x, box.max.y + HAMMER_ICON_MARGIN, center.z);
+    // An imported piece can carry a program, and the green play icon claims the spot
+    // directly above the box -- so the hammer stacks a full icon higher rather than
+    // drawing over it, or the play icon underneath could never be clicked (this manager
+    // runs first in the dispatch and stops propagation on its own hits).
+    const lift = recordHasProgram(item.record) ? PLAY_ICON_SIZE * 1.2 : 0;
+    sprite.position.set(center.x, box.max.y + HAMMER_ICON_MARGIN + lift, center.z);
   }
 
   tick() {
     const live = new Set();
     for (const [id, item] of this.registry.items) {
-      if (item.record?.kind !== 'primitive' || id === this.suppressId) continue;
+      // 'primitive' records AND imported models: an import is a build piece too -- the
+      // same hammer, the same menu -- it just additionally keeps its ordinary
+      // click-to-edit menu, which a primitive never had.
+      if (!isBuildPiece(item.record) || id === this.suppressId) continue;
       live.add(id);
-      this.positionIcon(this.icons.get(id) || this.addIcon(id), item.object3D);
+      this.positionIcon(this.icons.get(id) || this.addIcon(id), item);
     }
     for (const id of [...this.icons.keys()]) {
       if (!live.has(id)) this.removeIcon(id);

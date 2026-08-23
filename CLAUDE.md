@@ -3226,10 +3226,38 @@ which matters because `disposeObject3D()` destroys a removed object's `map` outr
 
 Things worth knowing before editing this:
 
+- **IMPORTED MODELS ARE BUILD PIECES TOO** (`isBuildPiece()` in `Primitives.js`: kinds
+  `primitive`, `gltf`, `obj`). Every import carries the same floating hammer and the same
+  menu -- Stretch to Shape, Rotate/Move Shape, Connect to Primitive, Remove Shape, Render
+  Model -- with two deliberate differences. An import KEEPS its ordinary click-to-edit
+  menu (unlike a primitive it is a finished object in its own right, so Size/Move/Program
+  stay reachable and the hammer is additive), and it has NO Apply Texture: its materials
+  are its own, and a texture PNG appended to a gltf/obj record's `files` would be handed
+  to the model parser on the next rehydrate, since everything in those records' files is
+  a model file. Because an import can carry a program, the hammer STACKS a full icon
+  above the green ▶ when one exists -- ConstructionManager runs first in the pointer
+  dispatch and stops propagation on its own hits, so overlapping icons would make the
+  play icon unclickable. Rendering a mixed cluster hoists the import's files into the
+  built-model's TOP-LEVEL `files` array with per-part index ranges (`kind`, `fileStart`,
+  `fileCount`, `primaryFileName`): top-level because WorldFile's base64 walker only knows
+  `record.files`, so a Blob nested anywhere else would silently serialise as `{}`. Part
+  `scale` is absolute -- the import-time 5ft normalization is baked into the live scale --
+  so the rebuild applies it directly and never re-normalizes. The primary import format
+  is `.glb`; obj/gltf ride the same path.
+- **THE GIZMO NO LONGER ASSUMES THE ORIGIN IS THE CENTRE.** `localBoxOf()` caches the
+  piece's bounding box in its own frame (a Mesh's geometry box, or every child geometry's
+  box carried into the root's frame for an imported Group), and `frame()` carries
+  `localCentre` -- the offset between origin and box centre, zero for every primitive,
+  arbitrary for an import (the file's author put the origin wherever they liked).
+  `stretchByCorner()` then places `position = centre - R*(scale ∘ localCentre)`; for a
+  primitive that is the old `position = centre` exactly, for an import it is what keeps
+  the model under the box being stretched instead of teleporting it. Verified to 0.0000
+  against an OBJ authored 3.7ft off its own origin, rotated and pre-scaled.
 - **Construction pieces are excluded from `ObjectMenu`'s raycast** (`userData.isConstruction`,
   alongside the existing `isWebBrowser` exclusion). Until it is rendered a piece is a
   *part*, not an object, and Size/Move/Program are whole-object actions. The model that
-  replaces the pieces carries no such flag and picks up normally.
+  replaces the pieces carries no such flag and picks up normally. Imported build pieces
+  deliberately do NOT carry the flag -- see above.
 - **`ConstructionManager` must be constructed before `PlayIconManager` and `ObjectMenu`.**
   All three register their own pointerdown/pointerup pair on the same canvas/window and run
   in registration order within one dispatch, so a hammer hit calls

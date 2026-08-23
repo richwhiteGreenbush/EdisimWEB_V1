@@ -5,7 +5,7 @@ import {
   renderModelFromCluster,
   removePrimitive,
   clusterIds,
-  SHAPE_LABELS,
+  pieceLabel,
 } from './Primitives.js';
 import {
   PALETTE_SWATCHES,
@@ -111,8 +111,14 @@ export class PrimitiveMenu {
     const item = this.activeItem();
     if (!item) return;
 
-    this.title(`Build Piece · ${SHAPE_LABELS[item.record.shape] || 'Shape'}`);
-    this.panel.appendChild(this.button('Apply Texture', () => this.renderTexture()));
+    this.title(`Build Piece · ${pieceLabel(item.record)}`);
+    // Apply Texture is for the plain shapes only. An imported model's materials are its
+    // own -- wrapping one image round a whole glTF would trash them -- and a texture
+    // file appended to a gltf/obj record's `files` would be handed to the model parser
+    // on the next rehydrate (everything in those records' files is a model file).
+    if (item.record.kind === 'primitive') {
+      this.panel.appendChild(this.button('Apply Texture', () => this.renderTexture()));
+    }
     this.panel.appendChild(
       this.button('Stretch to Shape', () => {
         // The gizmo needs the screen to itself: its handles live exactly where this
@@ -265,9 +271,10 @@ export class PrimitiveMenu {
       this.note('Nothing is touching this piece yet. Use Stretch to Shape and drag the blue box until two pieces overlap, then come back.');
     } else {
       for (const entry of touching) {
-        const label = SHAPE_LABELS[entry.record.shape] || 'Shape';
+        const label = pieceLabel(entry.record);
         const joined = already.has(entry.id) || (entry.record.connections || []).includes(this.activeId);
-        const btn = this.button(joined ? `${label} ✓ joined` : `Join the ${label.toLowerCase()}`, () =>
+        const joinText = entry.record.kind === 'primitive' ? `Join the ${label.toLowerCase()}` : `Join “${label}”`;
+        const btn = this.button(joined ? `${label} ✓ joined` : joinText, () =>
           this.connectTo(entry.id)
         );
         btn.disabled = joined;
@@ -305,7 +312,9 @@ export class PrimitiveMenu {
     const item = this.activeItem();
     if (!item) return;
     const id = item.record.id;
-    const label = (SHAPE_LABELS[item.record.shape] || 'Shape').toLowerCase();
+    const label = item.record.kind === 'primitive'
+      ? `the ${pieceLabel(item.record).toLowerCase()}`
+      : `“${pieceLabel(item.record)}”`;
 
     this.close();
     // The gizmo holds this id and draws a box around a mesh that is about to be gone.
@@ -313,7 +322,7 @@ export class PrimitiveMenu {
 
     try {
       await removePrimitive({ id, registry: this.registry, worldStore: this.worldStore });
-      this.menu?.toast(`Removed the ${label}.`, { tone: 'success' });
+      this.menu?.toast(`Removed ${label}.`, { tone: 'success' });
     } catch (err) {
       console.error('Failed to remove a build piece:', err);
       this.menu?.toast('Could not remove that shape.', { tone: 'error' });
