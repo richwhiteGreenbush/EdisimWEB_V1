@@ -302,6 +302,12 @@ programManager.onDuplicate = (id, offset) => duplicatePlacedObject({ id, offset,
 // says` hat in the world -- is ProgramManager's own job and needs nothing from here.
 programManager.onSay = (id, object3D, text) => speechBubbles.show(id, object3D, text);
 
+// A JavaScript program's runtime errors reach the student as a toast. Blocks cannot fail
+// this way -- every block is valid by construction -- but hand-typed code can, and the
+// console is not somewhere a student looks.
+programManager.onScriptError = (id, err) =>
+  menu.toast(`JavaScript error: ${err?.message || err}`, { tone: 'error' });
+
 // `?world=24` on the address opens that world out of the gallery. Read -- and stripped
 // from the url -- BEFORE anything is built, so the boot world is never built just to be
 // thrown away a moment later, and so a refresh cannot replay the link. See WorldLink.js.

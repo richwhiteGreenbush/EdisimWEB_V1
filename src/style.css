@@ -559,10 +559,142 @@ html, body {
   box-shadow: 0 16px 50px rgba(0, 0, 0, 0.55);
 }
 
+#program-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 #program-title {
   color: #f2f5f7;
   font-size: 14px;
   font-weight: 600;
+}
+
+/* --- the Block Code / JavaScript toggle ---------------------------------- */
+
+#program-mode-toggle {
+  display: flex;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pe-mode-btn {
+  border: 0;
+  background: transparent;
+  color: #9aa7b2;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+.pe-mode-btn:hover {
+  color: #dfe7ee;
+}
+
+/* The active tab wears its language's colour: block blue for blocks, the JavaScript
+   yellow for JavaScript. */
+.pe-mode-btn.active-blocks {
+  background: #4c97ff;
+  color: #ffffff;
+}
+
+.pe-mode-btn.active-js {
+  background: #f7df1e;
+  color: #20242a;
+}
+
+/* Panels swapped by the toggle. These ids carry display rules of their own, which beat
+   the UA's [hidden] default -- so hidden needs restating explicitly. */
+#program-palette[hidden],
+#program-workspace[hidden],
+#program-js-pane[hidden] {
+  display: none;
+}
+
+/* --- the JavaScript pane -------------------------------------------------- */
+
+#program-js-pane {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pe-js-editor {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #14181d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* The overlay trick: a transparent textarea stacked exactly over the highlighted <pre>.
+   Every metric here -- font, size, line height, padding, wrapping, tab size -- must be
+   IDENTICAL on both layers, or the caret sits beside the wrong character. */
+#program-js-input,
+#program-js-highlight {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 12px 14px;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  tab-size: 2;
+}
+
+#program-js-highlight {
+  overflow: hidden; /* scrolled programmatically, in step with the textarea */
+  pointer-events: none;
+  color: #e8eef4;
+}
+
+#program-js-highlight code {
+  display: block;
+  font: inherit;
+  white-space: inherit;
+  word-break: inherit;
+}
+
+#program-js-input {
+  overflow: auto;
+  border: 0;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: transparent; /* the <pre> underneath supplies the coloured glyphs */
+  caret-color: #ffffff;
+}
+
+#program-js-input::selection {
+  background: rgba(77, 144, 254, 0.35);
+  color: transparent;
+}
+
+/* Token colours, tuned against the pane's near-black. */
+.js-k { color: #c792ea; }
+.js-s { color: #c3e88d; }
+.js-n { color: #f78c6c; }
+.js-c { color: #66757f; font-style: italic; }
+.js-f { color: #82aaff; }
+
+.pe-js-hint {
+  flex-shrink: 0;
+  max-height: 44px;
+  overflow-y: auto;
+  color: #8b98a5;
+  font-size: 11.5px;
+  line-height: 1.5;
 }
 
 #program-body {

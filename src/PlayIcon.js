@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { PLAY_ICON_SIZE, PLAY_ICON_MARGIN } from './config.js';
+import { recordHasProgram } from './ProgramManager.js';
 
 const CLICK_MOVE_THRESHOLD = 6; // px -- beyond this, a mousedown->mouseup is a look-drag, not a click
 const CLICK_TIME_THRESHOLD = 500; // ms
@@ -60,7 +61,7 @@ export class PlayIconManager {
 
   // Call whenever a record's program may have changed (saved, cleared, loaded).
   refresh(id, record, object3D) {
-    const hasProgram = !!record?.program?.length;
+    const hasProgram = recordHasProgram(record);
     const existing = this.icons.get(id);
 
     if (hasProgram && !existing) {
@@ -154,9 +155,9 @@ export class PlayIconManager {
 
     const id = hits[0].object.userData.placedId;
     const item = this.registry.get(id);
-    if (!item?.record?.program?.length) return;
+    if (!recordHasProgram(item?.record)) return;
 
-    this.programManager?.start(id, item.record.program, item.object3D);
+    this.programManager?.startFromRecord(id, item.record, item.object3D);
     this.menu?.toast('Running program.', { tone: 'success' });
   }
 }

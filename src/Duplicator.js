@@ -63,6 +63,12 @@ function cloneRecord(record, transform) {
     copy.program = stripDuplicateBlocks(record.program);
     if (!copy.program.length) delete copy.program;
   }
+  // A JavaScript program cannot have its duplicate() stripped out the way a block tree
+  // can -- there is no parser here to rewrite it with -- so the copy carries a PERSISTED
+  // flag that makes its duplicate() calls no-ops instead. Same rule, other means: the
+  // copy keeps the rest of its behaviour (a spinning object still produces spinning
+  // copies), it just cannot breed. Copies of copies inherit the flag through the spread.
+  if (copy.programMode === 'js' && copy.programJs) copy.programNoDuplicate = true;
   return copy;
 }
 

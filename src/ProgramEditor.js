@@ -1,4 +1,6 @@
 import { CATEGORIES, BLOCK_DEFS, PALETTE_ORDER, createBlockInstance, cloneBlockTree } from './BlockDefs.js';
+import { blocksToJs, highlightJs, compileJs, JS_STARTER, JS_API_HINT } from './JsProgram.js';
+import { recordHasProgram } from './ProgramManager.js';
 
 const DROP_ZONE_MAX_DY = 260; // px -- beyond this, dropping means "delete", not "insert far away"
 const DROP_ZONE_X_SLOP = 24; // px of leftward slop so a slightly-off pointer still hits a zone
@@ -15,6 +17,16 @@ export class ProgramEditor {
     this.tree = [];
     this.drag = null; // { block, ghostEl, pointerId, dropZone }
 
+    // The two representations live side by side and TOGGLING NEVER DESTROYS EITHER:
+    // `tree` holds the blocks, `jsCode` holds the JavaScript, and `mode` says which one
+    // runs when saved. `jsAuto` records that jsCode was generated from the blocks and
+    // never hand-edited -- while it is true, switching to the JavaScript view regenerates
+    // from the CURRENT blocks (so the JS tracks what the student just built); the moment
+    // they type in the code pane it goes false and their text is left alone.
+    this.mode = 'blocks';
+    this.jsCode = '';
+    this.jsAuto = true;
+
     this.onDragMove = this.onDragMove.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
 
@@ -29,9 +41,29 @@ export class ProgramEditor {
     const panel = document.createElement('div');
     panel.id = 'program-panel';
 
+    const titleRow = document.createElement('div');
+    titleRow.id = 'program-title-row';
+
     const title = document.createElement('div');
     title.id = 'program-title';
     title.textContent = 'Program this object';
+
+    // The mode toggle. Two labelled buttons rather than a checkbox or a dropdown: both
+    // options stay visible, and the active one is coloured -- block blue for blocks,
+    // the JavaScript yellow for JavaScript.
+    const toggle = document.createElement('div');
+    toggle.id = 'program-mode-toggle';
+    this.modeButtons = {};
+    for (const [mode, label] of [['blocks', 'Block Code'], ['js', 'JavaScript']]) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pe-mode-btn';
+      btn.textContent = label;
+      btn.addEventListener('click', () => this.setMode(mode));
+      this.modeButtons[mode] = btn;
+      toggle.appendChild(btn);
+    }
+    titleRow.append(title, toggle);
 
     const body = document.createElement('div');
     body.id = 'program-body';
@@ -43,7 +75,59 @@ export class ProgramEditor {
     this.workspaceEl = document.createElement('div');
     this.workspaceEl.id = 'program-workspace';
 
-    body.append(this.paletteEl, this.workspaceEl);
+    // The JavaScript pane: a transparent textarea stacked exactly over a highlighted
+    // <pre>. The textarea owns the text, the caret and the scrollbar; the <pre> under it
+    // owns the colours. They share one font, size, padding and wrapping rule, which is
+    // the entire trick -- any metric that differs puts the caret beside the wrong
+    // character.
+    this.jsPane = document.createElement('div');
+    this.jsPane.id = 'program-js-pane';
+    this.jsPane.hidden = true;
+
+    const editorWrap = document.createElement('div');
+    editorWrap.className = 'pe-js-editor';
+
+    this.jsHighlight = document.createElement('pre');
+    this.jsHighlight.id = 'program-js-highlight';
+    this.jsHighlightCode = document.createElement('code');
+    this.jsHighlight.appendChild(this.jsHighlightCode);
+
+    this.jsInput = document.createElement('textarea');
+    this.jsInput.id = 'program-js-input';
+    this.jsInput.spellcheck = false;
+    this.jsInput.autocapitalize = 'off';
+    this.jsInput.setAttribute('autocomplete', 'off');
+    this.jsInput.addEventListener('input', () => {
+      this.jsCode = this.jsInput.value;
+      this.jsAuto = false;
+      this.refreshHighlight();
+    });
+    // The highlight layer has no scrollbar of its own; it is dragged along with the
+    // textarea's. (scrollTop is settable on an overflow:hidden element.)
+    this.jsInput.addEventListener('scroll', () => {
+      this.jsHighlight.scrollTop = this.jsInput.scrollTop;
+      this.jsHighlight.scrollLeft = this.jsInput.scrollLeft;
+    });
+    // Tab indents instead of leaving the field -- in a code editor, focus-next is the
+    // wrong meaning for the key.
+    this.jsInput.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      e.preventDefault();
+      const { selectionStart, selectionEnd, value } = this.jsInput;
+      this.jsInput.value = `${value.slice(0, selectionStart)}  ${value.slice(selectionEnd)}`;
+      this.jsInput.selectionStart = this.jsInput.selectionEnd = selectionStart + 2;
+      this.jsInput.dispatchEvent(new Event('input'));
+    });
+
+    editorWrap.append(this.jsHighlight, this.jsInput);
+
+    const hint = document.createElement('div');
+    hint.className = 'pe-js-hint';
+    hint.textContent = JS_API_HINT;
+
+    this.jsPane.append(editorWrap, hint);
+
+    body.append(this.paletteEl, this.workspaceEl, this.jsPane);
 
     const actions = document.createElement('div');
     actions.id = 'program-actions';
@@ -53,7 +137,7 @@ export class ProgramEditor {
     saveBtn.classList.add('menu-link');
     actions.append(clearBtn, cancelBtn, saveBtn);
 
-    panel.append(title, body, actions);
+    panel.append(titleRow, body, actions);
     this.overlay.appendChild(panel);
     document.body.appendChild(this.overlay);
 
@@ -102,9 +186,19 @@ export class ProgramEditor {
     const item = this.registry.get(id);
     if (!item) return;
     this.activeId = id;
-    this.tree = cloneBlockTree(item.record?.program || []);
+    const record = item.record || {};
+    this.tree = cloneBlockTree(record.program || []);
+    this.jsCode = record.programJs || '';
+    // A record with no saved JavaScript opens with jsAuto true, so the first visit to the
+    // JavaScript view shows the blocks translated rather than an empty page.
+    this.jsAuto = record.programJs ? record.programJsAuto === true : true;
+    this.mode = record.programMode === 'js' ? 'js' : 'blocks';
+    if (this.mode === 'js' && (this.jsAuto || !this.jsCode.trim())) {
+      this.jsCode = this.tree.length ? blocksToJs(this.tree) : (this.jsCode || JS_STARTER);
+    }
     this.overlay.hidden = false;
     this.renderWorkspace();
+    this.renderMode();
   }
 
   close() {
@@ -115,19 +209,99 @@ export class ProgramEditor {
   }
 
   clearAll() {
-    this.tree = [];
-    this.renderWorkspace();
+    // Clears the representation being LOOKED AT, not both: emptying the code pane must
+    // not silently delete the block program behind it, and vice versa. A cleared
+    // JavaScript pane also re-arms jsAuto, so toggling away and back regenerates from
+    // whatever blocks still exist.
+    if (this.mode === 'js') {
+      this.jsCode = '';
+      this.jsAuto = true;
+      this.jsInput.value = '';
+      this.refreshHighlight();
+    } else {
+      this.tree = [];
+      this.renderWorkspace();
+    }
+  }
+
+  setMode(mode) {
+    if (mode === this.mode) return;
+    if (this.mode === 'js') this.jsCode = this.jsInput.value;
+    this.mode = mode;
+    if (mode === 'js' && (this.jsAuto || !this.jsCode.trim())) {
+      this.jsCode = this.tree.length ? blocksToJs(this.tree) : JS_STARTER;
+      this.jsAuto = true;
+    }
+    this.renderMode();
+  }
+
+  renderMode() {
+    const js = this.mode === 'js';
+    this.paletteEl.hidden = js;
+    this.workspaceEl.hidden = js;
+    this.jsPane.hidden = !js;
+    this.modeButtons.blocks.classList.toggle('active-blocks', !js);
+    this.modeButtons.js.classList.toggle('active-js', js);
+    if (js) {
+      this.jsInput.value = this.jsCode;
+      this.refreshHighlight();
+    } else {
+      this.cancelDrag();
+    }
+  }
+
+  refreshHighlight() {
+    // The trailing newline keeps the layers the same height when the text ends in one --
+    // a <pre> collapses a final blank line where a textarea does not.
+    this.jsHighlightCode.innerHTML = `${highlightJs(this.jsInput.value)}\n`;
+    this.jsHighlight.scrollTop = this.jsInput.scrollTop;
+    this.jsHighlight.scrollLeft = this.jsInput.scrollLeft;
   }
 
   save() {
     const item = this.registry.get(this.activeId);
     if (!item) return this.close();
 
-    item.record.program = cloneBlockTree(this.tree);
-    this.worldStore?.saveObject(item.record);
-    this.programManager?.start(this.activeId, item.record.program, item.object3D);
-    this.playIconManager?.refresh(this.activeId, item.record, item.object3D);
-    this.menu?.toast(this.tree.length ? 'Program saved and running.' : 'Program cleared.', { tone: 'success' });
+    if (this.mode === 'js') this.jsCode = this.jsInput.value;
+    const js = this.jsCode.trim();
+
+    // A syntax error is caught HERE, with the editor still open and the code still in
+    // the pane, rather than at run time where the only symptom is an object standing
+    // still. Nothing is saved and nothing is lost; fix it or switch to blocks.
+    if (this.mode === 'js' && js) {
+      const { error } = compileJs(this.jsCode);
+      if (error) {
+        this.menu?.toast(`JavaScript error: ${error.message}`, { tone: 'error' });
+        return;
+      }
+    }
+
+    const record = item.record;
+    // BOTH representations are saved, which is what makes the toggle non-destructive
+    // across sessions too: reopening the editor tomorrow finds the same blocks and the
+    // same JavaScript this student left. `programMode` decides which one runs.
+    record.program = cloneBlockTree(this.tree);
+    if (js) {
+      record.programJs = this.jsCode;
+      if (this.jsAuto) record.programJsAuto = true;
+      else delete record.programJsAuto;
+    } else {
+      delete record.programJs;
+      delete record.programJsAuto;
+    }
+    if (this.mode === 'js' && js) record.programMode = 'js';
+    else delete record.programMode;
+
+    this.worldStore?.saveObject(record);
+    this.programManager?.startFromRecord(this.activeId, record, item.object3D);
+    this.playIconManager?.refresh(this.activeId, record, item.object3D);
+    const running = recordHasProgram(record);
+    this.menu?.toast(
+      running
+        ? (record.programMode === 'js' ? 'JavaScript saved and running.' : 'Program saved and running.')
+        : 'Program cleared.',
+      { tone: 'success' },
+    );
     this.close();
   }
 

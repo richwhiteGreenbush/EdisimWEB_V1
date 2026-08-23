@@ -1,4 +1,17 @@
 import { runProgram, runBranch } from './ProgramRunner.js';
+import { compileJs, buildJsRuntime, JS_RUNTIME_NAMES } from './JsProgram.js';
+
+// Does this record carry anything runnable? The one predicate every "has a program"
+// check goes through -- WorldStore.addAndRun, PlayIconManager, ProgramEditor -- so the
+// JavaScript mode cannot drift out of one of them. `programMode`, `programJs` and
+// `programJsAuto` are PERSISTED fields, exactly like `program`: they ride inside every
+// saved record, every exported world file and every copy a student sends a classmate,
+// so they are only ever added to, never renamed.
+export function recordHasProgram(record) {
+  if (!record) return false;
+  if (record.programMode === 'js') return !!record.programJs?.trim();
+  return !!record.program?.length;
+}
 
 // Tracks the active generators for placed objects with programs, and steps each one once
 // per frame (or holds it if it's mid-`wait`). Kept separate from PlacedRegistry because
@@ -14,8 +27,21 @@ export class ProgramManager {
   constructor() {
     this.runners = new Map(); // runnerKey -> { id, generator, waitUntil }
     this.programs = new Map(); // placedId -> { program, object3D, home }
+    // JavaScript runs, keyed like runners. One entry per object in JS mode:
+    // { id, pending: [{resolve, at}], hats: [{key, body, running}], ticks, noDuplicate }.
+    // `pending` is how the async runtime is paced -- every api action pushes a resolver
+    // and tick() below releases the ones whose time has come, once per frame, so a
+    // JavaScript program steps at exactly the cadence a block program does.
+    this.jsRuns = new Map();
     this.nextKey = 1;
     this.activeHats = new Set(); // hats currently mid-run, so a message cannot re-enter one
+
+    // Where a JavaScript program's runtime errors go. Assigned by main.js (a toast);
+    // console.error regardless, matching the block runner's behaviour. Worth surfacing
+    // for JS where it is not for blocks because hand-typed code fails in ways blocks
+    // cannot -- a misspelled function name is a ReferenceError, and a student who never
+    // opens the console would otherwise just see their object stand still.
+    this.onScriptError = null;
 
     // Set from main.js once the registry and world store exist. This manager is
     // constructed before both of them (PlacedRegistry takes it as a constructor
@@ -64,6 +90,52 @@ export class ProgramManager {
       markerUp: () => this.marker?.up(id),
       eraseMarks: () => this.marker?.eraseAll(),
     };
+  }
+
+  // The dispatch every caller goes through: run whichever representation the record says
+  // is live. Blocks remain the default for every record that has never seen the toggle.
+  startFromRecord(id, record, object3D) {
+    if (record?.programMode === 'js' && record.programJs?.trim()) {
+      this.startJs(id, record.programJs, object3D, { noDuplicate: !!record.programNoDuplicate });
+    } else {
+      this.start(id, record?.program, object3D);
+    }
+  }
+
+  reportScriptError(id, err) {
+    console.error(`JavaScript program for object ${id} raised an error and was stopped:`, err);
+    this.onScriptError?.(id, err);
+  }
+
+  startJs(id, code, object3D, { noDuplicate = false } = {}) {
+    this.stop(id);
+    const { fn, error } = compileJs(code);
+    if (error) {
+      // A compile error can arrive from a LOADED record, not only from the editor (a
+      // world file written by a newer version, or hand-edited): report rather than throw,
+      // so one broken program cannot take down a whole world's rehydration.
+      this.reportScriptError(id, error);
+      return;
+    }
+
+    const home = this.captureHome(object3D);
+    const effects = this.effectsFor(id, object3D, home);
+    const run = { id, pending: [], hats: [], ticks: 0, noDuplicate };
+    const key = `${id}#js${this.nextKey++}`;
+    this.jsRuns.set(key, run);
+
+    const api = buildJsRuntime({ object3D, effects, run });
+    fn(...JS_RUNTIME_NAMES.map((name) => api[name]))
+      .then(() => {
+        // The main script finished. The run object stays if it registered hats -- an
+        // object whose program is nothing but whenSaid() should keep listening, the same
+        // as a block program that is nothing but hats.
+        if (!run.hats.length) this.jsRuns.delete(key);
+      })
+      .catch((err) => {
+        this.reportScriptError(id, err);
+        if (!run.hats.length) this.jsRuns.delete(key);
+      });
   }
 
   start(id, program, object3D) {
@@ -116,6 +188,21 @@ export class ProgramManager {
         this.runners.set(runnerKey, { id, generator, waitUntil: 0, hatKey });
       }
     }
+
+    // JavaScript hats hear the same broadcasts, so a block `say` can start a JS script
+    // and a JS say() can start a block hat -- challenge 5's two robots work across the
+    // language boundary. Same re-entry guard as activeHats: a hat mid-run is not
+    // restarted by its own trigger phrase.
+    for (const run of this.jsRuns.values()) {
+      for (const hat of run.hats) {
+        if (hat.key !== key || hat.running) continue;
+        hat.running = true;
+        Promise.resolve()
+          .then(() => hat.body())
+          .catch((err) => this.reportScriptError(run.id, err))
+          .finally(() => { hat.running = false; });
+      }
+    }
     void from;
   }
 
@@ -125,17 +212,40 @@ export class ProgramManager {
       if (runner.hatKey) this.activeHats.delete(runner.hatKey);
       this.runners.delete(key);
     }
+    // Dropping a JS run's pending resolvers is the whole stop: nothing ever resolves
+    // them again, so every await in the user's code simply never returns and the async
+    // frames become unreachable -- no flags to poll, nothing to leak.
+    for (const [key, run] of [...this.jsRuns]) {
+      if (run.id !== id) continue;
+      run.pending.length = 0;
+      run.hats.length = 0;
+      this.jsRuns.delete(key);
+    }
     this.programs.delete(id);
   }
 
   isRunning(id) {
     for (const runner of this.runners.values()) if (runner.id === id) return true;
+    for (const run of this.jsRuns.values()) if (run.id === id) return true;
     return false;
   }
 
   tick() {
-    if (!this.runners.size) return;
+    if (!this.runners.size && !this.jsRuns.size) return;
     const now = performance.now();
+
+    // Release every JavaScript await whose time has come. Resolution queues a microtask,
+    // so the user code's next step runs after this frame's work -- one action per frame,
+    // the block cadence. `ticks` feeds repeat()'s guarantee of a tick per pass.
+    for (const run of this.jsRuns.values()) {
+      if (!run.pending.length) continue;
+      const due = [];
+      run.pending = run.pending.filter((p) => (p.at <= now ? (due.push(p), false) : true));
+      run.ticks += due.length;
+      for (const p of due) p.resolve();
+    }
+
+    if (!this.runners.size) return;
     for (const [key, runner] of [...this.runners]) {
       if (runner.waitUntil > now) continue;
 

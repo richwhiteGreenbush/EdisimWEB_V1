@@ -3018,6 +3018,80 @@ everything awkward about it follows from that (`Duplicator.js`):
   `programManager.onDuplicate` is **assigned afterwards** rather than injected. That is
   safe because nothing calls it until a program is actually running.
 
+### The Block Code / JavaScript toggle, and how one program has two frontends
+
+The Program panel's title row carries a toggle: **[Block Code] [JavaScript]**, blocks by
+default. In JavaScript view the palette and workspace are replaced by a syntax-highlighted
+code pane where the object is programmed in real JavaScript. `src/JsProgram.js` holds all
+three pieces -- the blocks→JS transpiler, the highlighter, and the runtime -- and
+`ProgramManager` runs both kinds.
+
+**THE RUNTIME IS ASYNC/AWAIT OVER THE SAME EFFECTS OBJECT THE BLOCK RUNNER USES.** Every
+api function (`moveForward`, `rotate`, `glide`, `say`, the marker four, all of them)
+performs the identical side effect its block performs -- most ported line for line from
+`ProgramRunner`'s cases, the rest delegated to the very same `effectsFor()` callbacks --
+and then awaits one scheduler tick. `ProgramManager.tick()` resolves pending ticks once per
+frame, so JavaScript steps at exactly the block cadence: `glide` interpolates over real
+time, `forever` runs at the documented half-rate (body + one unconditional tick), and
+`wait` holds on a timestamp. One implementation of what "move forward" MEANS, two ways of
+writing it -- that is what stops the frontends drifting.
+
+**Why async/await and not an interpreter:** arbitrary JS can only pause where it awaits,
+and instrumenting bare loops to yield needs a real parser this project does not carry. So
+`repeat()`/`forever()` are supplied functions that guarantee at least one tick per pass
+even when the body awaits nothing (`repeat(1e9, () => {})` is a slow counter, not a hung
+tab). A bare `while (true) {}` still hangs -- the starter template and the hint line under
+the editor both steer loops through `forever()` for exactly that reason.
+
+**Switching views never destroys either representation.** The blocks and the JavaScript
+live side by side on the record and BOTH are saved: `program` (blocks, as ever), plus three
+new PERSISTED fields -- `programJs` (the text), `programMode` (`'js'` runs the JavaScript;
+absent means blocks), and `programJsAuto` (the JS was generated from the blocks and never
+hand-edited). While `programJsAuto` holds, entering the JavaScript view regenerates from
+the current blocks, so the code tracks what the student just built; the first keystroke in
+the pane clears it and their text is thereafter left alone. All three fields ride through
+IndexedDB, world files and duplication untouched -- like every persisted field, they are
+only ever added, never renamed.
+
+**`recordHasProgram(record)` in ProgramManager.js is the one predicate** for "does this
+record carry anything runnable", and `startFromRecord()` is the one dispatch; WorldStore's
+`addAndRun`, PlayIcon's refresh/click and ProgramEditor's save all go through them, so a
+saved JavaScript program resumes on load, earns a green ▶ and restarts from it exactly as
+blocks do.
+
+Things this feature learned or must not lose:
+
+- **`eval` and `arguments` must never join the shadowed-globals list** -- strict mode
+  forbids them as parameter names and the whole compile throws. The shadow list
+  (`window`, `document`, `alert`, `location`...) is accident-prevention, not a security
+  boundary: it stops `alert()` freezing the animate loop and `location=` navigating the
+  app away, nothing more.
+- **A syntax error is caught at Save**, with the editor still open and the code still in
+  the pane -- nothing saved, nothing lost. Runtime errors (a misspelled name is a
+  ReferenceError) toast via `programManager.onScriptError`, because a student never opens
+  the console; blocks keep their console-only behaviour since blocks cannot fail that way.
+- **Copies do not breed, by flag rather than by strip.** JavaScript cannot have its
+  `duplicate()` calls stripped the way `stripDuplicateBlocks` rewrites a block tree, so
+  `Duplicator.cloneRecord` sets a persisted `programNoDuplicate` on js-mode copies and the
+  runtime makes their `duplicate()` a no-op. The copy keeps the rest of its behaviour.
+- **JS hats hear block broadcasts and vice versa** -- `whenSaid('go', fn)` registers into
+  the same `broadcast()` a block `say` feeds, with the same normalisation and the same
+  no-re-entry guard, so challenge-5-style pairs work across the language boundary.
+- **Stopping a JS run is dropping its pending resolvers.** Nothing resolves them again, so
+  every await in the user's code simply never returns and the async frames become
+  unreachable -- no flags to poll, nothing to leak. A run whose main script ends stays
+  registered only if it holds hats, mirroring "a program that is nothing but hats sits
+  still until somebody speaks".
+- **The editor is the textarea-over-highlighted-`<pre>` trick.** The textarea owns text,
+  caret and scrollbar (text transparent, caret white); the `<pre>` under it owns the
+  colours; every metric -- font, padding, wrapping, tab-size -- must be identical on both
+  layers or the caret sits beside the wrong character. The highlight layer is
+  `overflow: hidden` and scrolled programmatically in the textarea's scroll handler.
+  `#program-palette`/`#program-workspace`/`#program-js-pane` all carry explicit `[hidden]`
+  rules because their id styles' `display` would otherwise beat the UA's hidden default.
+- **Tab inserts two spaces** instead of leaving the field, and the arrow keys are safe in
+  the pane because `PlayerController.isEditableTarget` already covers TEXTAREA.
+
 ### Play icon: manual (re)start for programmed objects
 
 `PlayIcon.js`'s `PlayIconManager` shows a green ▶ `THREE.Sprite` (billboards to the

@@ -1,4 +1,5 @@
 import { DB_NAME, DB_VERSION, STORE_NAME } from './config.js';
+import { recordHasProgram } from './ProgramManager.js';
 import { buildBatchLoadingManager, loadModelFile, scaleToHeight, seatBaseAt } from './ModelLoader.js';
 import { loadImagePlane, loadImageElement } from './MediaLoader.js';
 import { inflateFromCanvas } from './BalloonInflator.js';
@@ -78,8 +79,10 @@ export class WorldStore {
   // automatically whether it came from IndexedDB or a loaded world file.
   addAndRun(record, object3D, extra = {}) {
     this.registry.add(record.id, object3D, { ...extra, record });
-    if (record.program?.length) {
-      this.programManager?.start(record.id, record.program, object3D);
+    if (recordHasProgram(record)) {
+      // startFromRecord dispatches on the record's programMode, so a saved JavaScript
+      // program resumes from every rehydration path exactly as a block program does.
+      this.programManager?.startFromRecord(record.id, record, object3D);
     }
     this.playIconManager?.refresh(record.id, record, object3D);
   }

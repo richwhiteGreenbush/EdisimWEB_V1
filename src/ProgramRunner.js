@@ -9,7 +9,9 @@ import { applyOpacity } from './Opacity.js';
 // layouts' facing() helper rely on. (A Camera is the exception: it looks down its own -Z.
 // Nothing programmable here is a camera, so this stays simple.)
 const FORWARD = new THREE.Vector3();
-function forwardOf(object3D) {
+// Exported for JsProgram.js, which needs the identical definition of "forward" -- one
+// shared vector, so callers that keep the result must clone() it, as glide does.
+export function forwardOf(object3D) {
   object3D.updateMatrixWorld();
   return object3D.getWorldDirection(FORWARD);
 }
