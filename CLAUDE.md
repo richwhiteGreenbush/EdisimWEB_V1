@@ -305,6 +305,34 @@ just a dead amber lozenge.
 four lines, and an inline-block button on the first one drags that line's height with it
 and leaves a visible gap above the rest. `.howto-warn` therefore needs `clear: both`.
 
+### The Research Library (`docs/research/`), and the research-based claim
+
+Five static pages (index / evidence / brain / classroom / sources) rebuilt from a cited
+research synthesis on spatial reasoning and 3D virtual worlds, in the site's own theme.
+The landing page carries the claim in three places — the `.hero-research` pill, the
+`Research` nav link, and the `.research-card` that leads the teachers section (whose h2 is
+**"Made for Learning"**, per Rich, 2026-08-23) — and every one of them is a LINK into this
+library, because the claim is substantiated there, not asserted on the landing page.
+
+- **`research.css` COPIES the design tokens from `styles.css`, never links them** — the
+  same deliberate choice `database.css` made. Change brand tokens in both.
+- **The charts are pure CSS bars, not a chart library.** The site's only external asset
+  is Google Fonts, and that stays true here; the numbers are real measured effect sizes,
+  so styled divs at true scale are both cheaper and more honest than a canvas chart.
+- **The honesty framing is load-bearing.** The library says plainly that the studies
+  tested 3D learning environments and spatial training as a category, not Edusim itself.
+  School audiences respect that line; erasing it would damage the very credibility the
+  section exists to build. The invented-precision figures from the source dashboard (a
+  "100% gap closure", fabricated PFC-load percentages) were deliberately NOT carried
+  over — only claims the underlying report actually cites appear, and the equity finding
+  is stated qualitatively.
+- **No hard world-counts in research copy.** The gallery grows; the library says "more
+  than thirty" where the landing page's own counts say 33. Anything stating an exact
+  count joins the list of static HTML that drifts silently.
+- Sources on ResearchGate link the **bare publication id** (`/publication/NNNN`), which
+  redirects to the slugged URL — hand-reconstructed slugs from the PDF's line-wrapped
+  works-cited list are how a reference page fills up with 404s.
+
 ### Two independent persistence systems — don't conflate them
 
 **`config.js`'s `DB_NAME` is still `'3dcoder-world'` and must stay that way.** The project
