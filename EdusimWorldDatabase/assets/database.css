@@ -229,13 +229,16 @@ a { color: inherit; }
   color: var(--ink);
 }
 
-.brand-mark {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  box-shadow: var(--shadow-pop);
-  flex: none;
-  object-fit: cover;
+/* The name in the wordmark's own face, matching the marketing site's nav. Solid amber,
+   deliberately without the hero's gradient/outline/glow: at 1.4rem a cream ring fills the
+   counters, and this bar is cream, where solid amber carries the contrast on its own. */
+.brand-word {
+  font-family: "Gluten", "Fredoka", sans-serif;
+  font-weight: 800;
+  font-size: 1.42rem;
+  line-height: 1.05;
+  color: #c25c14;
+  letter-spacing: 0.01em;
 }
 
 .brand small {
@@ -363,7 +366,11 @@ a { color: inherit; }
 /* A 360px handset cannot hold brand + the launch button + burger, and the launch button
    is the one thing on this bar that must never be dropped — so the wordmark goes first. */
 @media (max-width: 430px) {
-  .brand span:not(.brand-mark) { display: none; }
+  /* Was `.brand span:not(.brand-mark)`, which hid the wordmark's own span once the mark
+     image was removed and left an EMPTY link in the corner. The name stays and only the
+     "World Database" line goes. Same fix the marketing site's bar needed. */
+  .brand small { display: none; }
+  .brand-word { font-size: 1.12rem; }
   .nav-cta.btn { padding: 10px 14px; }
 }
 
@@ -1130,10 +1137,18 @@ input[type="file"]:focus {
 .footer-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   color: #fff;
   font-family: "Fredoka", sans-serif;
   font-weight: 600;
+}
+
+/* A LIGHTER amber than the nav's. This sits on the dark footer bar, where #c25c14 runs
+   at about 2:1 and reads as brown; #f2a541 is the palette's own orange and clears 6:1. */
+.footer-word {
+  font-family: "Gluten", "Fredoka", sans-serif;
+  font-weight: 800;
+  color: #f2a541;
 }
 
 .footer-links {

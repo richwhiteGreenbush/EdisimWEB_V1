@@ -80,19 +80,18 @@ function ewd_header(array $opts = []): void
 <link rel="apple-touch-icon" href="assets/edusim-mark.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Gluten:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/database.css" />
 </head>
 <body<?= $bodyClass !== '' ? ' class="' . e($bodyClass) . '"' : '' ?>>
 
 <nav class="site-nav">
   <div class="wrap">
-    <!-- The mark is a square crop of the logo's own E, same as the marketing site: at
-         40px the whole wordmark is an unreadable blue smudge. alt="" because the word
-         Edusim is written right beside it. -->
+    <!-- The name set in the wordmark's own face, same as the marketing site: the
+         cropped-photo chip is gone from the bar and the mark now serves only as the
+         favicon and the apple-touch-icon, where an icon has to be a picture. -->
     <a class="brand" href="index.php">
-      <img class="brand-mark" src="assets/edusim-mark.png" alt="" width="40" height="40" />
-      <span>Edusim
+      <span class="brand-word">Edusim
         <small>World Database</small>
       </span>
     </a>
@@ -150,9 +149,7 @@ function ewd_footer(): void
   <div class="wrap">
     <div class="footer-row">
       <div class="footer-brand">
-        <img class="brand-mark" src="assets/edusim-mark.png" alt="" width="32" height="32"
-             style="width:32px;height:32px;" loading="lazy" />
-        Edusim: Web Edition
+        <span class="footer-word">Edusim</span>: Web Edition
       </div>
       <ul class="footer-links">
         <li><a href="index.php">Browse worlds</a></li>
