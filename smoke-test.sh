@@ -66,9 +66,6 @@ check "home page"            "$SITE/"                    200
 check "stylesheet"           "$SITE/styles.css"          200
 check "hands-on guide"       "$SITE/guide/"              200
 check "logo wordmark"        "$SITE/assets/edusim-wordmark.jpg" 200
-# The hero's third button. It is a RELATIVE href, so this also proves the gallery is
-# mounted where the marketing page thinks it is -- the one thing a broken deploy layout
-# would silently get wrong.
 # Fetch to a FILE, then grep the file. Two traps have already been hit here:
 #   * `curl | grep -q` is wrong under `set -o pipefail` -- grep exits on the first match,
 #     SIGPIPEs curl, and the pipeline reports curl's 141, so the check fails precisely
@@ -77,10 +74,13 @@ check "logo wordmark"        "$SITE/assets/edusim-wordmark.jpg" 200
 # A temp file has neither failure mode and costs nothing.
 home_html="$(mktemp)"
 curl -s --max-time "$TIMEOUT" "$SITE/" -o "$home_html"
-if grep -q 'href="worlds/"' "$home_html"; then
-  printf '  \033[32mok\033[0m   %-46s links to worlds/\n' "hero gallery button"; pass=$((pass+1))
+# The gallery links went ABSOLUTE in the 2026 redesign, for the same reason the app
+# links always were: the page is mirrored on GitHub Pages, where a relative worlds/
+# is a dead end. Match on the path so this passes against the local mirror too.
+if grep -q 'href="https://edusim3dweb.com/worlds/"' "$home_html"; then
+  printf '  \033[32mok\033[0m   %-46s links to the World Database\n' "gallery links"; pass=$((pass+1))
 else
-  printf '  \033[31mFAIL\033[0m %-46s no href="worlds/" in the page\n' "hero gallery button"; fail=$((fail+1))
+  printf '  \033[31mFAIL\033[0m %-46s no World Database link in the page\n' "gallery links"; fail=$((fail+1))
 fi
 rm -f "$home_html"
 
