@@ -2535,6 +2535,69 @@ geometries / 110 meshes / **7 transparent** / **3 point lights** / 44 textures. 
 889ms to load. Well inside the ~1.5M / <1000 envelope, with the section's two 640px canvases
 the largest single cost.
 
+### JavaScript Basics, and a world whose exhibits ARE its programs
+
+`JsBasicsProps.js` + `jsbasicsLayout()`. A gallery world -- in `PRESET_WORLDS`, deliberately
+not in `MENU_WORLDS`. The world that teaches the Program panel's JavaScript mode: five
+lessons down an avenue, each taught by a working machine beside a board showing its code,
+with the Code Beacon -- a lighthouse in JavaScript yellow -- at the far end.
+
+**`prop()` takes `programJs` now, and that one field is the world's mechanism.** It rides
+into the record as `programJs` + `programMode: 'js'` (persisted fields, like everything in a
+record), so a preset prop ships RUNNING JavaScript through the same `startFromRecord`
+funnel a student's own saved code uses. Six objects here do: the beacon's lamp, the golden
+screw, the mood stone, a patrolling robot, and Ping and Pong. The carousel introduced
+ship-with-a-program for blocks; this is the same idea in the other language, and the whole
+point of the world is that a student can open any of them and READ it.
+
+**The hero is two objects on purpose.** The tower stands still; the lamp -- a separate prop
+at `BEACON_DECK_Y`, an exported constant so the two agree without asking each other --
+turns on `forever { rotate 2 }`. That is the observatory's dome-and-telescope pattern
+promoted to the hero itself, and the placard by the door prints the four lines. The lamp
+carries two opposed beam cones (apex AT the lamp -- a beam is narrow at its source; the
+first pass had the cones backwards), `fog: false`, additive-ish translucency, so the
+rotation reads from anywhere in the world.
+
+**A TINT CAN ONLY BE AS DETAILED AS THE MESH UNDER IT, hit within the hour of writing it
+down.** The beacon's spiral daymark is a per-vertex tint, and the first shaft was lathed
+from its six authored stations -- so the spiral's diagonal edge had a whole storey of
+vertical interpolation to smear across and the tower rendered airbrushed. The lathe now
+runs over the profile resampled at 1.2ft rows. Same lesson, third file: the fix is always
+more mesh or a texture, never a hotter tint.
+
+**Ping and Pong are an eternal conversation as a teaching exhibit.** Each robot's
+`whenSaid()` answers the other's `say()` after a polite spin (`repeat(12, rotate(30))` --
+twelve small turns, because one `rotate(360)` is instant and therefore invisible); Ping's
+main script opens the conversation once at boot. The hats' no-re-entry guard is what keeps
+politeness from becoming runaway, and the pair demonstrates say/whenSaid/wait/repeat in one
+glance of speech bubbles.
+
+Smaller things worth keeping:
+
+- **The code boards paint real syntax highlighting on canvas**, with the editor's own token
+  colours copied into `TOKEN_COLORS` -- the board a student reads and the pane they then
+  type into must be one palette. Fit-to-longest-line before drawing (the cardTexture rule);
+  `map` + `emissiveMap` from the same texture so the dark panel stays legible at any sun
+  angle; posts OUTSIDE the panel because the text is left-aligned (the activity-board rule).
+- **The mood stone is NEAR-WHITE because a colour tint multiplies** -- white is the only
+  base every colour in its cycle actually shows on. Its facets are flat because
+  IcosahedronGeometry is non-indexed and `computeVertexNormals` can only make face normals
+  -- the reef-rock trap, used deliberately for once.
+- **The toy blocks are a soft loft, not a box**: a vertical `solidLoft` whose section
+  rounds harder at top and bottom closes every edge and corner. Letter plates are
+  alpha-tested planes proud of each face, one shared canvas per block.
+- **The patrol robot's square is `glide` + instant `rotate`** -- glide is the only smooth
+  translation, so patrols read as driving; `moveUp` bobbing was rejected because moveUp is
+  stepwise and reads as teleporting.
+- **The browser station points at the app's own coding guide** (`guide/coding.html`) --
+  same-origin, so it frames.
+
+**Performance, measured**: 30 records (27 props) / **100 draw calls** / 378k drawn / 61
+meshes / **5 transparent** / **0 point lights** / 23 textures. 322ms to build; the world
+file is 9.0 KB. The beacon is ~20k triangles, the screw 6k, the boards 0.3k each --
+the whole world is lighter than one of the volcano's rock specimens, and it reads better
+from the spawn than anything half its cost.
+
 ### A Bug's Life, and building a world around CHALLENGES
 
 `BugProps.js` + `bugsLayout()`. The only preset laid out as a **workshop** rather than as a

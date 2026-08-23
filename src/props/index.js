@@ -35,6 +35,7 @@ import * as Seattle from './SeattleProps.js';
 import * as Robot from './RobotProps.js';
 import * as Greenbush from './GreenbushProps.js';
 import * as Volcano from './VolcanoProps.js';
+import * as JsBasics from './JsBasicsProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -563,6 +564,14 @@ export const PROP_BUILDERS = {
   'scoria-field': Volcano.scoriaField,
   'volcanic-bomb': Volcano.volcanicBomb,
   'rock-cycle-chart': Volcano.rockCycleChart,
+
+  // JavaScript Basics
+  'code-beacon': JsBasics.codeBeacon,
+  'beacon-lamp': JsBasics.beaconLamp,
+  'code-board': JsBasics.codeBoard,
+  'code-spinner': JsBasics.codeSpinner,
+  'mood-crystal': JsBasics.moodCrystal,
+  'practice-block': JsBasics.practiceBlock,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

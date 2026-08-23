@@ -1213,6 +1213,32 @@ export const WORLD_THEMES = {
     stars: false,
   },
 
+  jsbasics: {
+    // A bright, optimistic teaching campus -- the friendliest daylight in the app, since
+    // the world's own colours are the JS yellow and a deep editor navy and both need a
+    // clean sky to stand against. The sun comes from BEHIND the spawn (+Z, the robots
+    // world's trick): every board and machine faces the student, and a face in its own
+    // shade on the world's first screen would undo the whole invitation.
+    groundDetail: 'ground-soil.jpg',
+    sky: 0x8ec9ec,
+    fogNear: 260,
+    fogFar: 620,
+    groundLow: 0x4e6b3a,
+    groundHigh: 0x8fac66,
+    amplitude: 2.2,
+    flatRadius: 60,
+    blendRadius: 170,
+    hemiSky: 0xd7e6f2,
+    // Light and nearly unsaturated -- the Seattle saucer lesson: the beacon's gallery
+    // soffit and every board's underside take their entire light from this bounce.
+    hemiGround: 0x99a08c,
+    hemiIntensity: 1.5,
+    sunColor: 0xfff3dc,
+    sunIntensity: 2.2,
+    sunPosition: [70, 150, 170],
+    stars: false,
+  },
+
   volcano: {
     // An active volcanic field under an ash haze. The single hardest thing about this world
     // is that a volcanic landscape is genuinely NEAR-MONOCHROME -- everything is grey-brown

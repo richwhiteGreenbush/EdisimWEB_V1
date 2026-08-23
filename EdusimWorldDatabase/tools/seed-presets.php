@@ -711,6 +711,29 @@ $WORLDS = [
             . "world is only 390 feet across and you have to be able to stand back far enough to see all "
             . "of it. The placard by the door says so.",
     ],
+    'jsbasics' => [
+        'title' => 'JavaScript Basics',
+        'tags'  => 'coding, javascript, official, starter',
+        'description' =>
+            "A bright little campus where every machine is running JavaScript you can read \u{2014} "
+            . "walk up to anything, press Program, pick JavaScript, and the code that drives it is "
+            . "right there.\n\n"
+            . "The Code Beacon anchors the world: a lighthouse in JavaScript yellow whose lamp is a "
+            . "separate object turning on forever { rotate 2 }. The tower stands still, the light "
+            . "sweeps, and the placard at the door tells you exactly which four lines make that "
+            . "happen \u{2014} change the 2 and the beam changes speed.\n\n"
+            . "Five lessons line the path, easy first, each taught by a working machine beside a "
+            . "board showing its code in real editor colours. Lesson 1: every action needs await "
+            . "\u{2014} try one line on a toy letter block. Lesson 2: forever() keeps going, "
+            . "demonstrated by a golden screw that never stops turning. Lesson 3: repeat() counts "
+            . "\u{2014} drive the lime robot round its painted square. Lesson 4: wait() makes "
+            . "rhythm, kept by a mood stone that has been breathing colour all day. Lesson 5: "
+            . "whenSaid() lets objects talk \u{2014} meet Ping and Pong, two robots who have been "
+            . "in polite conversation since the world was built.\n\n"
+            . "Blocks and JavaScript are two views of the same program, so you can switch the "
+            . "editor back and forth any time and nothing is lost. The browser panel by the spawn "
+            . "opens the coding guide.",
+    ],
     'volcano' => [
         'title' => 'Volcanoes & Rocks',
         'tags'  => 'science, coding, official, starter',

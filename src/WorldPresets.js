@@ -2,6 +2,7 @@ import { applyWorldTheme } from './SceneSetup.js';
 import { WEB_BROWSER_DEFAULT_URL } from './config.js';
 import { youtubeEmbedUrl } from './WebUrl.js';
 import { createBlockInstance } from './BlockDefs.js';
+import { BEACON_DECK_Y } from './props/JsBasicsProps.js';
 
 import { uuid } from './Uuid.js';
 // The ready-made worlds behind Menu > Load World.
@@ -34,8 +35,9 @@ const ORB_ROSE = '#e0455f';
 
 function prop(name, x, z, {
   y = 0, rotY = 0, rotX = 0, absoluteY = false, scale = 1, options = {}, program = null,
+  programJs = null,
 } = {}) {
-  return { kind: 'preset-prop', prop: name, options, x, z, y, rotY, rotX, absoluteY, scale, program };
+  return { kind: 'preset-prop', prop: name, options, x, z, y, rotY, rotX, absoluteY, scale, program, programJs };
 }
 
 // One block for a program shipped ON a prop (see `program` above).
@@ -8699,6 +8701,174 @@ function volcanoLayout() {
   return { theme: 'volcano', spawn: { ...SP, yaw: 0 }, items };
 }
 
+// ---------------------------------------------------------------------------
+// JavaScript Basics -- the world that teaches the Program panel's JavaScript mode
+// ---------------------------------------------------------------------------
+
+// A workshop world in the A Bug's Life pattern: an avenue from the spawn to the hero,
+// lessons down both sides, and the middle strip empty because a fresh construction piece
+// lands 10ft ahead of the student. What is new is that EVERY MACHINE SHIPS RUNNING
+// JAVASCRIPT -- `prop()`'s `programJs` field, the twister's ship-with-a-program mechanism
+// through the new startFromRecord dispatch -- so the first thing anyone sees is five
+// programs running, and every one opens into readable code rather than blocks.
+function jsbasicsLayout() {
+  const items = [];
+  const SP = { x: 0, z: 55 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- the hero: the Code Beacon and its separately-programmed lamp --------
+  //
+  // The lamp is its own object running `forever { rotate 2 }`, the observatory's
+  // dome-and-telescope trick: the tower stands still, the light turns, and the placard
+  // says exactly which four lines make that happen. absoluteY, because the lamp stands
+  // on the tower's deck, not on the ground.
+  items.push(prop('code-beacon', 0, -72, { options: { seed: 7 } }));
+  items.push(prop('beacon-lamp', 0, -72, {
+    y: BEACON_DECK_Y, absoluteY: true,
+    options: { seed: 9, beam: 30 },
+    programJs: 'await forever(async () => {\n  await rotate(2);\n});\n',
+  }));
+  items.push(prop('info-placard', -9, -46, {
+    rotY: facing(-9, -46, SP.x, SP.z),
+    options: {
+      eyebrow: 'THE CODE BEACON',
+      title: 'The lamp is running JavaScript',
+      body: 'The tower and the lamp are two separate objects. The lamp runs forever { rotate 2 } — click the glowing lens up in the lamp room, press Program, and the JavaScript is right there. Change the 2 and the beam changes speed.',
+      accent: '#e3c93a',
+    },
+  }));
+
+  // --- arrival furniture ---------------------------------------------------
+  items.push(prop('welcome-board', -13, 37, {
+    rotY: face(-13, 37),
+    options: {
+      eyebrow: '⚡ JAVASCRIPT BASICS',
+      lead: 'Every machine here is running JavaScript you can read.',
+      lines: ['Click a machine, press Program, pick JavaScript.', 'Five lessons line the path — easy first.'],
+      footnote: 'Blocks and JavaScript are two views of one program — switch any time',
+    },
+  }));
+  items.push(...browserStation(10, 43, {
+    faceX: SP.x, faceZ: SP.z, url: 'https://edusim3dweb.com/guide/coding.html',
+  }));
+
+  // --- lesson 1: await -----------------------------------------------------
+  //
+  // Three toy blocks, deliberately the least intimidating objects in the app: the first
+  // JavaScript anyone writes here is one line, on a die.
+  items.push(prop('code-board', -17, 24, {
+    rotY: facing(-17, 24, -4, 40),
+    options: {
+      number: 1,
+      title: 'Every action needs await',
+      code: "// click a toy block, press Program,\n// choose JavaScript, then type:\nawait rotate(90);",
+      caption: 'Try it on the letter blocks beside you.',
+      accent: '#e3c93a',
+    },
+  }));
+  items.push(prop('practice-block', -11.5, 19, { rotY: 0.3, options: { seed: 15, letter: 'J', color: 0xe3c93a } }));
+  items.push(prop('practice-block', -14.5, 15.5, { rotY: -0.2, options: { seed: 16, letter: 'S', color: 0x4d9fe0 } }));
+  items.push(prop('practice-block', -10, 13.5, { rotY: 0.8, options: { seed: 17, letter: '!', color: 0xe0453c } }));
+
+  // --- lesson 2: forever ---------------------------------------------------
+  items.push(prop('code-board', 17, 20, {
+    rotY: facing(17, 20, 4, 36),
+    options: {
+      number: 2,
+      title: 'forever() keeps going',
+      code: 'await forever(async () => {\n  await rotate(1.5);\n});',
+      caption: 'The golden screw beside you runs exactly this.',
+      accent: '#74c043',
+    },
+  }));
+  items.push(prop('code-spinner', 11, 13, {
+    options: { seed: 11 },
+    programJs: 'await forever(async () => {\n  await rotate(1.5);\n});\n',
+  }));
+
+  // --- lesson 3: repeat ----------------------------------------------------
+  //
+  // The robot has no program: writing this one is the exercise, and the pad's painted
+  // square is the path the code actually traces, corner start and all -- the Robot
+  // Challenge World's honesty rule.
+  items.push(prop('code-board', -18, 0, {
+    rotY: facing(-18, 0, -5, 16),
+    options: {
+      number: 3,
+      title: 'repeat() counts',
+      code: 'await repeat(4, async () => {\n  await glide(8, 2);\n  await rotate(90);\n});',
+      caption: 'Program the lime robot to drive its painted square.',
+      accent: '#4d9fe0',
+    },
+  }));
+  items.push(prop('robot-pad', -11.5, -6, {
+    options: { seed: 3, size: 13, accent: 0x74c043, mark: 'square', number: 3, name: 'LOOP', start: [-4, -4] },
+  }));
+  items.push(prop('robot', -15.5, -10, { rotY: 0, y: 0.19, options: { seed: 21, skin: 'lime' } }));
+
+  // --- lesson 4: wait ------------------------------------------------------
+  items.push(prop('code-board', 18, -4, {
+    rotY: facing(18, -4, 5, 12),
+    options: {
+      number: 4,
+      title: 'wait() makes rhythm',
+      code: "await forever(async () => {\n  await changeColor('#e0453c');\n  await wait(1);\n  await changeColor('#4d9fe0');\n  await wait(1);\n});",
+      caption: 'The mood stone has been breathing colour all day.',
+      accent: '#c792ea',
+    },
+  }));
+  items.push(prop('mood-crystal', 12, -10, {
+    options: { seed: 13 },
+    programJs: "await forever(async () => {\n  await changeColor('#e0453c');\n  await wait(1);\n  await changeColor('#e3c93a');\n  await wait(1);\n  await changeColor('#4d9fe0');\n  await wait(1);\n});\n",
+  }));
+
+  // --- lesson 5: whenSaid, and the two robots who never stop talking -------
+  //
+  // Ping opens the conversation once; each robot answers the other after a polite spin.
+  // The eternal chatter is the demonstration -- say() and whenSaid() carrying a message
+  // between two objects -- and the hats' no-re-entry guard is what keeps politeness from
+  // becoming runaway.
+  items.push(prop('code-board', -16, -24, {
+    rotY: facing(-16, -24, -3, -8),
+    options: {
+      number: 5,
+      title: 'whenSaid() lets objects talk',
+      code: "whenSaid('ping', async () => {\n  await wait(1);\n  await say('pong');\n});",
+      caption: 'Ping and Pong have talked like this all day.',
+      accent: '#f2971f',
+    },
+  }));
+  items.push(prop('robot', -9, -30, {
+    rotY: Math.PI / 2 - 0.3,
+    options: { seed: 23, skin: 'cyan' },
+    programJs: "whenSaid('pong', async () => {\n  await wait(1.2);\n  await repeat(12, async () => {\n    await rotate(30);\n  });\n  await say('ping');\n});\nawait wait(2);\nawait say('ping');\n",
+  }));
+  items.push(prop('robot', -3, -30, {
+    rotY: -Math.PI / 2 + 0.3,
+    options: { seed: 24, skin: 'coral' },
+    programJs: "whenSaid('ping', async () => {\n  await wait(1.2);\n  await repeat(12, async () => {\n    await rotate(-30);\n  });\n  await say('pong');\n});\n",
+  }));
+
+  // --- the patrol robot: motion you meet before any lesson -----------------
+  items.push(prop('robot', 12, -26, {
+    rotY: 0,
+    options: { seed: 25, skin: 'violet' },
+    programJs: 'await forever(async () => {\n  await glide(8, 2.5);\n  await rotate(90);\n});\n',
+  }));
+
+  // --- planting: the verified PNW set, kept off the sightline --------------
+  items.push(prop('flowering-cherry', -31, 41, { options: { seed: 31 } }));
+  items.push(prop('flowering-cherry', 32, 37, { options: { seed: 32 } }));
+  items.push(prop('japanese-maple', 26, -18, { options: { seed: 33 } }));
+  items.push(prop('rhododendron-bed', -16, -44, { rotY: 0.6, options: { seed: 34 } }));
+  items.push(prop('rhododendron-bed', 15, -46, { rotY: -0.5, options: { seed: 35 } }));
+  items.push(prop('flower-bed', -22, 8, { options: { seed: 36 } }));
+  items.push(prop('flower-bed', 22, 6, { options: { seed: 37 } }));
+
+  return { theme: 'jsbasics', spawn: { ...SP, yaw: 0 }, items };
+}
+
+
 export const PRESET_WORLDS = {
   park: { label: 'The Park', hint: 'The default world: a great meadow, a pond, a bandstand and the bear dens', build: parkLayout },
   museum: { label: 'The Museum', hint: 'A gallery of sculpture and painting, with a plaza out front', build: museumLayout },
@@ -8834,6 +9004,11 @@ export const PRESET_WORLDS = {
     hint: 'A hilltop dome at dusk with its shutter open — walk in and stand under a 36-inch reflector',
     build: observatoryLayout,
   },
+  jsbasics: {
+    label: 'JavaScript Basics',
+    hint: 'Five lessons in real JavaScript, taught by machines that are already running it',
+    build: jsbasicsLayout,
+  },
   volcano: {
     label: 'Volcanoes & Rocks',
     hint: 'A stratovolcano with a quarter cut out of it, the lava it is making, and the twelve rocks of the rock cycle',
@@ -8914,6 +9089,14 @@ function toRecord(item, groundHeightAt) {
   // Only set when there is one: `program: undefined` on every record in every world is a
   // key that gets written to IndexedDB and serialised into every exported world file.
   if (item.program?.length) base.program = item.program;
+  // A prop can ship running JAVASCRIPT instead -- the JavaScript Basics world is built on
+  // it. Same funnel as `program`: WorldStore.addAndRun() dispatches on programMode, the
+  // green play icon appears, and a student can open the Program panel and read the code.
+  // Only set when present, for the same serialisation-hygiene reason as `program`.
+  if (item.programJs) {
+    base.programJs = item.programJs;
+    base.programMode = 'js';
+  }
 
   if (item.kind === 'light-orb') return { ...base, kind: 'light-orb', color: item.color };
   // A browser panel carries no files either -- WebBrowserManager.createPanel() rebuilds
