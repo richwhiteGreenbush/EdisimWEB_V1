@@ -227,27 +227,13 @@ a {
   color: var(--ink);
 }
 
-.brand-mark {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: linear-gradient(160deg, var(--blue), var(--purple));
-  display: grid;
-  place-items: center;
-  font-size: 1.3rem;
-  box-shadow: var(--shadow-pop);
-  flex: none;
-}
-
-/* The mark is a crop of the logo's own E now, not an emoji, so the tile is the picture
-   rather than a box with something in it: the gradient and the centring grid come off,
-   and `object-fit: cover` is what keeps it square instead of letterboxing to the crop's
-   aspect. Everything else above -- the 12px radius, the drop shadow, `flex: none` --
-   still applies and is what makes it read as a chip. */
-img.brand-mark {
-  display: block;
-  object-fit: cover;
-  background: none;
+.brand-word {
+  font-family: "Gluten", "Fredoka", sans-serif;
+  font-weight: 800;
+  font-size: 1.42rem;
+  line-height: 1.05;
+  color: #c25c14;
+  letter-spacing: 0.01em;
 }
 
 /* --denim, not --green. This sits half an inch from the mark, and the mark is now a crop
@@ -393,7 +379,14 @@ img.brand-mark {
    is the one thing on this bar that must never be dropped -- so the wordmark goes first.
    Measured with the current "▶ Launch Edusim" label: no overflow at 360, 390 or 430. */
 @media (max-width: 430px) {
-  .brand span:not(.brand-mark) { display: none; }
+  /* Was `.brand span:not(.brand-mark)`, which hid the wordmark's own span once the
+     mark image was removed and left an EMPTY link in the corner. The name now stays
+     and only the "Web Edition" line goes: the brand is the one thing in this bar that
+     should never be a blank space. Re-measured: no overflow at 360, 390 or 430. */
+  .brand small { display: none; }
+  /* 1.12rem, not 1.25: the name is ~78px at 1.25 where the old image chip was 40px,
+     and at 360 that put the bar 5px over. Measured at 360, 390 and 430. */
+  .brand-word { font-size: 1.12rem; }
   .nav-cta.btn { padding: 10px 14px; }
 }
 
@@ -529,30 +522,157 @@ img.brand-mark {
   max-width: 16ch;
 }
 
-/* The logo lockup, standing in for the headline. It is a rectangular photo dropped onto
-   a gradient that is nearly -- but not exactly -- the same sky, so the join has to be
-   admitted rather than hidden: rounded corners, a white rim and a real shadow make it a
-   card sitting in the sky instead of a mismatched patch of one.
+/* ---------------------------------------------------------------------------
+   THE WORDMARK — the brand name as TEXT, in Gluten 800.
 
-   `max-width` is deliberately modest: this element replaces both the old eyebrow chip and
-   a three-line h1, so it can spend what those cost and no more. It was also once holding
-   the hero short enough for the screenshot below to peek above the fold; that screenshot
-   is gone, but the width is still the right one for a logo card. The `min()` keeps it off
-   the edges on a phone. */
-/* `h1.hero-logo`, not `.hero-logo` -- `.hero h1` above sets `max-width: 16ch`, which on
-   a single class loses to nothing and quietly won: 16ch of Fredoka at the clamp's top
-   size is about 520px, so the card rendered at that width whatever this rule asked for.
-   The element selector is what buys the extra specificity to beat it. */
-.hero h1.hero-logo {
-  margin: 0;
-  max-width: min(480px, 100%);
+   This replaced `assets/edusim-wordmark.jpg`. It is one real text node, so it is
+   selectable, searchable, translatable, and it scales with the reader's own font
+   size — none of which a JPEG did. The artwork itself is still in the repo and
+   still serves as the favicon, the apple-touch-icon and the og:image.
+
+   The amber ramp is not invented: it was sampled from the real artwork's own
+   letter pixels (152k of them) and hue-rotated -175deg from its blue to amber,
+   which is the recolour the brief asked for.
+   ------------------------------------------------------------------------- */
+
+:root {
+  --wm-1: #ffe0ad;   /* top highlight  */
+  --wm-2: #f7ac47;
+  --wm-3: #ef8524;
+  --wm-4: #d9691a;
+  --wm-5: #b04f12;   /* bottom shadow  */
+  --wm-cream: #fdf0d8;
+  --wm-glow: rgba(240, 150, 60, 0.55);
 }
 
-.hero-logo img {
-  width: 100%;
-  border-radius: var(--radius-lg);
-  border: 5px solid rgba(255, 255, 255, 0.82);
-  box-shadow: 0 20px 44px -14px rgba(16, 52, 82, 0.55);
+/* `.hero h1.hero-logo`, not `.hero-logo`: `.hero h1` above sets max-width:16ch,
+   color:#fff and a text-shadow, and a single class loses to it. Same specificity
+   trap the image version had to work around. */
+.hero h1.hero-logo {
+  margin: 0;
+  max-width: none;
+  color: inherit;
+  text-shadow: none;
+  line-height: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* The glow rides a WRAPPER, so it is cast by the cream-outlined silhouette. A
+   text-shadow glow is cast by the bare glyph and ends up smeared underneath the
+   outline, which reads as haze on the letters rather than light behind them. */
+.hero-logo .lockup {
+  display: inline-block;
+  filter:
+    drop-shadow(0 0 10px var(--wm-glow))
+    drop-shadow(0 0 26px rgba(240, 150, 60, 0.28))
+    drop-shadow(0 7px 14px rgba(16, 52, 82, 0.40));
+}
+
+.hero-logo .wordmark {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  font-family: "Gluten", "Fredoka", "Nunito", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(3rem, 11vw, 6.4rem);
+  /* LOAD-BEARING: the gradient below is band-limited against a 1em box. Raise this
+     and the amber highlight slides off the tops of the letters. */
+  line-height: 1;
+  /* The cream outline fattens every glyph by half its width per side, eating a full
+     stroke-width out of each letter gap. This buys it back, and delivers the wide,
+     generous spacing the artwork has. */
+  letter-spacing: 0.045em;
+  padding: 0 0.1em;          /* room so the outline on E and m is not clipped */
+  /* The fallback fill, and it is never transparent — see the @supports note below. */
+  color: var(--wm-4);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .hero-logo .wordmark {
+    background-image: linear-gradient(180deg,
+      var(--wm-1) 0%, var(--wm-2) 22%, var(--wm-3) 52%, var(--wm-4) 82%, var(--wm-5) 100%);
+    /* Band-limited to the glyphs. Across the whole line box the burnt and dark stops
+       land BELOW the baseline where there is no letter to paint, and the wordmark
+       comes out washed-out mid-amber. */
+    background-size: 100% 0.78em;
+    background-position: 0 0.05em;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* THE OUTLINE IS ITS OWN LAYER, BEHIND — and `paint-order: stroke fill` cannot do
+   this job, which is worth knowing before anyone "simplifies" it. With
+   background-clip:text the gradient IS the element background, and backgrounds paint
+   before every part of the text, so a -webkit-text-stroke on the same element always
+   lands on top of the gradient and swamps the letters in cream. Measured: paint-order
+   computed to "stroke" and was supported, and the letters still came out cream. */
+.hero-logo .wordmark::before {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  padding: 0 0.1em;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.105em var(--wm-cream);
+}
+
+/* A transparent fill selects as an empty coloured bar, so selection restores a real one. */
+.hero-logo .wordmark::selection { background: var(--wm-5); color: var(--wm-cream); -webkit-text-fill-color: var(--wm-cream); }
+.hero-logo .wordmark::-moz-selection { background: var(--wm-5); color: var(--wm-cream); }
+
+/* The brand line the artwork used to carry under the letters. Deliberately NOT given
+   the display treatment: at this size a cream ring fills the counters, and unlike the
+   wordmark (a logotype, WCAG-exempt) this is ordinary prose held to full contrast. */
+.hero-logo .hero-tagline {
+  font-family: "Gluten", "Fredoka", "Nunito", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(1rem, 2.4vw, 1.45rem);
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  -webkit-text-fill-color: currentColor;   /* this property INHERITS — see above */
+  background: none;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Forced-colors forces `color` and drops `text-shadow`, but -webkit-text-fill-color,
+   -webkit-text-stroke and filter are non-standard and are NOT in that forced set — so
+   without this the fill stays transparent with nothing left behind it and the H1
+   vanishes for exactly the readers who can least afford it. */
+@media (forced-colors: active) {
+  .hero-logo .wordmark,
+  .hero-logo .hero-tagline {
+    background: none;
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
+    -webkit-text-stroke: 0;
+    filter: none;
+  }
+  .hero-logo .wordmark::before { content: none; }
+  .hero-logo .lockup { filter: none; }
+}
+
+/* Printing defaults to print-color-adjust: economy, which drops background images AND
+   background colours — on gradient-clipped text that is a blank headline on paper. And
+   a cream outline on white paper is invisible anyway, so print gets its own honest
+   version: solid deep amber, no ring, no glow. */
+@media print {
+  .hero-logo .wordmark {
+    background: none;
+    color: #9a4512;
+    -webkit-text-fill-color: #9a4512;
+  }
+  .hero-logo .wordmark::before { content: none; }
+  .hero-logo .lockup { filter: none; }
+  .hero-logo .hero-tagline { color: #000; -webkit-text-fill-color: #000; text-shadow: none; }
 }
 
 /* Dark ink, not white. This paragraph sits low in the sky gradient, over --sky-bottom

@@ -38,19 +38,18 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Gluten:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
 <nav class="site-nav">
   <div class="wrap">
-    <!-- The mark is a square crop of the logo's own E, not the whole lockup: at 40px the
-         full wordmark is an unreadable blue smudge, while one letter of it still reads
-         as the logo. alt="" because the word Edusim is right beside it in text. -->
+    <!-- The name, set in the wordmark's own face rather than a cropped photo chip. The
+         mark image is gone from the bar; it still serves as the favicon and the
+         apple-touch-icon, where an icon genuinely has to be a picture. -->
     <a class="brand" href="#top">
-      <img class="brand-mark" src="assets/edusim-mark.png" alt="" width="40" height="40" />
-      <span>Edusim
+      <span class="brand-word">Edusim
         <small>Web Edition</small>
       </span>
     </a>
@@ -77,12 +76,14 @@
 
 <header class="hero" id="top">
   <div class="wrap">
-    <!-- The logo IS the headline: it carries the name and the tagline in one picture, and
-         its own sky-over-field is the gradient this header is painted with. It stays a
-         real h1 with the whole brand line as alt text. -->
+    <!-- The wordmark is TEXT, not a picture. It is one real text node: selectable,
+         translatable, found by Ctrl-F, and it scales with the user's own font size.
+         The amber-on-cream treatment lives in styles.css; the tagline stays INSIDE the
+         h1 so the heading's accessible name is still the whole brand line, exactly what
+         the old image's alt text carried. -->
     <h1 class="hero-logo">
-      <img src="assets/edusim-wordmark.jpg" width="890" height="492" loading="eager"
-           alt="Edusim: Web Edition — a 3D virtual world for curious minds" />
+      <span class="lockup"><span class="wordmark" data-text="Edusim">Edusim</span></span>
+      <span class="hero-tagline">A 3D virtual world for curious minds</span>
     </h1>
     <p class="hero-sub">
       Edusim is a free 3D world that runs in your browser.

@@ -12,9 +12,9 @@ python3 docs/assets/cut.py      # run from the repo root
 | --- | --- | --- | --- |
 | `edusim-logo-master.png` | 890 × 643 | — | Nothing directly. Keep it: it is what every crop below comes from |
 | `edusim-logo.jpg` | 890 × 643 | the whole thing, unresampled | `README.md` |
-| `edusim-wordmark.jpg` | 890 × 492 | `(0, 105) 890 × 492` | The site hero. Wordmark, vignettes and tagline |
+| `edusim-wordmark.jpg` | 890 × 492 | `(0, 105) 890 × 492` | **Nothing, since 2026-08-23.** It was the site hero until the hero became live text (see below). Kept as the source of the wordmark's colours and for rollback |
 | `edusim-social.jpg` | 1200 × 630 | `(0, 130) 890 × 467`, then scaled to 1200 × 630 | `og:image` / `twitter:image`. 1.91:1 is the ratio Facebook, LinkedIn and Slack unfurl at |
-| `edusim-mark.png` | 160 × 160 | `(5, 170) 250 × 250`, then down to 160 | The nav and footer chips, and `apple-touch-icon`. Displayed at 40px, 32px and 26px |
+| `edusim-mark.png` | 160 × 160 | `(5, 170) 250 × 250`, then down to 160 | `apple-touch-icon`, and the nav chips on the **guide** and **research** pages. No longer in the marketing page's nav bar. Displayed at 40px, 32px and 26px |
 
 Five things worth knowing before recutting any of these:
 
@@ -34,9 +34,21 @@ Five things worth knowing before recutting any of these:
   no square framing — where the previous artwork was a 1038 × 1050 bordered square. So the
   crops are now vertical trims of the full width rather than windows cut out of the
   middle, and `edusim-logo.jpg` is the master itself rather than a resample of it.
-- **`docs/index.html` declares the hero image's intrinsic `width`/`height`**, and those
-  attributes are what reserve its space before the file arrives. They have to match
-  `edusim-wordmark.jpg`'s real size or the hero jumps as it loads.
+- **THE HERO IS NO LONGER AN IMAGE** (2026-08-23). `docs/index.html`'s `h1.hero-logo` is
+  live text set in **Gluten 800** with an amber gradient, a cream outline and a warm glow;
+  the marketing page's nav brand is the same face in solid amber. So the note that used to
+  live here — about declaring the hero image's intrinsic `width`/`height` so the header did
+  not jump as the file loaded — no longer applies to anything.
+
+  Two things that follow, and both are easy to trip over:
+
+  - **The amber is this artwork's own colour, hue-rotated.** The ramp in `styles.css`
+    (`--wm-1`..`--wm-5`) was sampled from 152k of this file's letter pixels and rotated
+    **-175°** from its blue to amber. So this JPEG is still the source of truth for the
+    brand colour even though no page displays it any more — which is why it is kept.
+  - **`edusim-social.jpg` is still the BLUE artwork**, so a link shared to Slack or email
+    unfurls blue while the page itself is now orange. Recutting the social card is the
+    obvious follow-up and has deliberately not been done yet.
 
 The site's sky and field colors are sampled from this artwork; see the palette note at the
 top of `../styles.css`.
