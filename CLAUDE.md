@@ -258,14 +258,18 @@ app's own default spot.
 whatever was already saved.
 
 **Every world card on the marketing page carries one of these links** (`.world-open` in
-`docs/index.html`, 22 of them). Three things about that block:
+`docs/index.html` — 33 of them since the 2026 redesign, which gave every published world a
+card and grouped them into five categories; the page is generated content, so keep the
+card→id pairs correct when the gallery changes). Three things about that block:
 
 - **The card → id map is keyed by TITLE, not by position.** The grid gets reordered and
   worlds get inserted; a positional map would silently point a card at the wrong world
   instead of failing. The two gallery worlds with no card are **My World** (an empty
   sandbox — nothing to show) and **1940's New York**, which is deliberate: its only door is
-  a billboard behind the Library, and the section text three paragraphs up promises the
-  reader that at least one world is not on the list.
+  a billboard behind the Library, and the worlds section's intro promises the reader that
+  one world is not on the list. Worlds UNPUBLISHED on production (13 Water Cycle, 28
+  A Rabbit's Den, 30 Whimsical World, as of 2026-08-22) get no card either — a card for an
+  unpublished id is a dead link that toasts an error in the app.
 - **Link text is the world's own name**, not "open this world". Twenty-two identical link
   texts on one page is what a screen reader reads out twenty-two times.
 - **The `.world-open` button takes no auto margin.** `.world-chips` already carries
