@@ -1812,6 +1812,220 @@ Composition lessons that cost a rebuild each:
   and clipped by the bezel; the browser panel at 41° covered an activity board at 47°. A 70°
   *vertical* fov is only ~51° either side on 16:9, so 49 is not "just inside".
 
+### The Machu Picchu rebuild, and a SHIPPED MODEL as a record kind
+
+World 21 rebuilt against the i5/i7 target: every prop remade at much higher fidelity, the
+palette widened, and the three procedural llamas replaced by a supplied `Llama.glb`. It was
+**60 records / 126 draw calls / 240k drawn / 183k of geometry**; it is now **77 records /
+262 calls / 1.27M drawn / 928k of geometry / 177 meshes / 85 textures / 5 transparent / 3 point lights**,
+23.3KB of world file. Draw calls roughly doubled for five times the geometry, which is the
+right direction: every prop still merges to one or a few meshes.
+
+**`AndesProps.js` IS NOW A BARREL over `src/props/andes/`.** Four families at 500-1,100
+lines each — `peaks`, `masonry`, `buildings`, `ground` — plus `llama-retired`. Merged into
+one file that is 3,500 lines with four sets of private helpers competing for names in one
+scope. The split is by VIEWING DISTANCE, which is also how the fidelity budget is argued:
+`peaks` is read at 170-300ft and spends everything on silhouette, `masonry` is read at arm's
+length and spends it on the face of the stone. `props/index.js` imports the namespace, so
+every `PROP_BUILDERS` key is unchanged and no saved world can tell.
+
+#### A supplied model, baked and shipped: `startup-llama`
+
+**The llamas are a NEW RECORD KIND, not a prop, and not embedded bytes.** `startup-llama`
+joins `startup-library`/`startup-tree`/`startup-billboard` in `WorldStore.rehydrateOne()`:
+the model is fetched from `public/llama/` on every load and the record carries only a
+transform, a `targetHeight` and an `options` object. Seven llamas therefore cost ONE 117KB
+fetch and about 200 bytes of world file between them. Embedding the glb in `gltf` records
+instead would have put a base64 copy in each of the seven, in IndexedDB, in every export and
+in every copy a student sends a classmate.
+
+**The `options` field is new on a startup record and is the only one that takes it.** The
+other three loaders take no arguments, and every record written before this simply has none,
+which is why `rehydrateOne` reads it with `?.` and the loader defaults it.
+
+**THE SUPPLIED FILE WAS 1,053,804 BYTES FOR 2,060 TRIANGLES.** 26 animation clips, a
+46-joint skeleton and a pile of IK/pole-target nodes — none of which this app can use, since
+there is no `AnimationMixer` anywhere in it. `tools/bake-llama.mjs` evaluates the skin once
+at the bind pose and writes plain geometry: **117,656 bytes, 89% smaller, same 2,060
+triangles.** Two things about that bake:
+
+- **Normals are transformed by three's OWN skinning expression**, the upper 3x3 of
+  `bindMatrixInverse * (sum w_i * boneWorld_i * boneInverse_i) * bindMatrix`. An
+  inverse-transpose "correction" is more textbook-correct and would shade differently from
+  the file it replaces. Verified vertex by vertex against the original: **mean normal dot
+  1.000000, worst 1.000000, max position error 2.7e-5** on a 5.43-unit model.
+- **The bind pose already faced +Z**, which is this project's own convention, so nothing
+  had to be reoriented. It is re-centred to base-on-ground and x/z-centred at bake time.
+
+**ONE FILE BECOMES A HERD, because the fleece is recoloured by MATERIAL NAME at load.** The
+model ships a three-tone scheme (`Main`, a lighter `Main_Light`, a much darker desaturated
+`Main_Dark`) and `llamaFleeceTones()` reproduces those two RELATIONSHIPS rather than picking
+three flat colours — measured off the file, Light is Main at +0.057 lightness and Dark is
+Main at 0.62 of it with the saturation pulled out. Whatever fleece a record asks for, the
+model's own shading survives. Two traps:
+
+- **HSL is read and written in sRGB explicitly.** Colour management is on, so the working
+  space is linear-sRGB where "lightness" is not the perceptual quantity those offsets were
+  measured in. Left to the default a white llama comes out grey.
+- **The BYTES are cached and the Object3D is NOT**, the same one-level-lower rule
+  `SurfaceTextures.js` follows. `disposeObject3D()` destroys a removed object's geometries,
+  materials and maps outright, so a shared Object3D would be torn out from under every other
+  llama the moment one was deleted. An ArrayBuffer is not a GPU resource.
+
+**The woven pack blanket is draped by RAYCASTING the animal**, not by hand-picked
+coordinates — the "ask the host where its surface is" rule that `RobotProps.onShell` and the
+volcano's `surfaceAt` exist for. It is a CLOSED solid (outer face, inner face and a rim strip
+all the way round): measured, **0 boundary edges**. A zero-thickness sheet is invisible
+edge-on and leaves an open boundary, which is the one thing this rebuild was not allowed to do.
+
+**`llama` the prop builder is RETIRED, NOT DELETED** (`andes/llama-retired.js`). The key is
+persisted — it is inside every copy of world 21 already saved, downloaded or shared — and
+`buildProp()` throws on an unknown name, so deleting it would turn three objects in somebody's
+saved world into three console lines. Same rule the retired `moveX/moveY/moveZ` blocks follow.
+
+#### What the rebuild cost, and the traps it hit
+
+**A VERTEX COLOUR IS LINEAR, AND THAT IS THE MOST EXPENSIVE MISTAKE IN THIS FILE.** Three
+separate props were written with tint expressions returning 0.5-0.9 as if those were sRGB
+values: the fountain apron rendered as a sheet of white paving, the Intihuatana — a hero
+teaching object — as chalk, and the temple's bedrock as pale concrete. 0.55 linear is 0.78
+sRGB. The wall beside them measured 0.39. Anything computed as a bare `k` and written into
+a colour attribute has to be pitched in LINEAR, or converted.
+
+**A PALETTE AUTHORED FOR FLAT FACES CLIPS ONCE THE FACES ARE DOMED.** The granite constants
+(0x9a958c through 0xc0bbaf) came straight from the pre-rebuild file and were fine there.
+With `ashlarPanel` giving every block a pillowed face that catches a highlight, under this
+world's 2.75 sun plus a 1.5 hemisphere the walls rendered as pale cushions — bubble wrap.
+Darkened about 22% across both `masonry` and `buildings`. The peaks had the identical
+problem and were worse: authored 0xa89a84 to 0xc0b6a6, the hero rendered as a **white chalk
+spike**. Same trap VolcanoProps hit with marble, and the inverse of Ellis Island's black hull.
+
+**THE FOG WAS STILL EATING THE HERO.** This world had already been moved off 55/330 once for
+exactly this reason and had not been moved far enough: at 70/520 the peak 296ft from the
+spawn was a FIFTY PER CENT blend into the sky. It is 110/800, the citadel inside 200ft is
+essentially unfogged, and the atmosphere is carried by the `cloud-bank` props — which is what
+they are for.
+
+**A CLIFF BAND MUST BE ABLE TO DIE.** The first pass phase-shifted the bands by ±0.45 of a
+band, which wobbles them and leaves every one a continuous ring: both ridge peaks read
+unmistakably as WEDDING CAKES, and because vegetation was gated on slope and the bands make
+the slope, the green striped along the same rings. Fixed by swinging the phase ±1.2 bands (so
+a band on one flank lines up with the GAP on another), by a per-bearing amplitude that goes
+to ~0.16 on some bearings, and by breaking the vegetation's correlation with a patch field.
+`tb` stays continuous in bearing however far the phase swings, so a big swing costs no cracks.
+
+**...AND THEN THE SAME SWING SHATTERED THE SUMMITS.** The ridge profile `cos(x·π/2)^0.75` has
+an unbounded derivative as x→1, so near the top a small wander in the height the profile is
+READ at becomes a huge wander in radius. Measured on both ridge peaks: in t = [0.80, 0.95)
+nearly a third of adjacent radial samples stepped further than the arc between them (worst
+3.13ft of radius over 0.19ft of arc), adjacent normals reached 148° apart, and the top of both
+peaks — the part standing against open sky, the only part that is pure silhouette — came out
+as a ring of thin radial fins speckled black and white, with the snow line painting it. The
+band mix now fades out from t=0.58 on the concave branch and 0.90 on the sugarloaf, whose
+`SUMMIT` floor makes it immune.
+
+**A TEXTURE WHOSE TILE IS SMALLER THAN THE MESH MIPS TO A FLAT MULTIPLY.** The peaks' canopy
+map was added because a vertex tint can only resolve ~11ft patches and 11ft green blobs read
+as camouflage — and then it inherited the peak's own UVs, which are built for the relief bump
+(u tiles ~43 times round, v every 9ft). One texel came out at **0.42 inches** and the
+"crowns" at under two. Measured, the tile's mean was 0.961 with an sd of 0.024 and at 296ft
+one texel was 0.077 screen pixels: the GPU mipped it straight to its mean, so the whole map
+was a uniform 4% darkening and solved nothing. It carries its own `repeat` now (~65ft tile),
+and `uTiles * repeat.x` is kept a whole number or the wrapped seam stops landing on an
+integer u and draws a line down the mountain.
+
+**A GATE WIDE ENOUGH TO CLEAR A DOOR IS WIDER THAN THE NICHES' OWN SPACING.** `incaWall`
+spaced its niches across the full width and skipped whichever landed on the doorway; at
+`width/(niches+0.7)` two niches sit at 0.185·width while the gate is about 0.28·width, so
+BOTH were skipped on every doorway wall. Measured, the wall built byte-identical geometry at
+`niches: 2` and at `niches: 0`, and both of this world's doorway walls were a blank field of
+stone with 26 lines of comment above describing a feature that never rendered once. Niches
+are spaced over the PIERS now, which cannot fail that way because a pier is by construction
+the part of the wall that is not the door.
+
+**A REJECTION SAMPLER WITH A FRACTIONAL GAP IS SCALE-INVARIANT.** `ichuGrass` used
+`minGap = radius * 0.42`, and the number of points that fit at 0.42R inside radius R is a
+constant near 14 whatever R is — so `count` saturated and was inert above it. Measured, the
+default (radius 5, count 18) built 14 and the world's own call (radius 6, count 20) built 13
+and 16: every ichu patch on the ridge was a third barer than the layout asked for, and
+doubling `count` to compensate returned the identical clumps. The gap is a foot now, in feet,
+and the sampler relaxes and retries rather than silently under-delivering a PERSISTED option.
+
+**NYQUIST, AGAIN, ON A DIRECTION VECTOR.** `smoothNoise3` has a period of one lattice unit,
+so a unit direction scaled by k traces 2πk cycles round a sphere's equator. The Polylepis
+foliage puff ran k = 3.2 against 12 azimuthal samples — 0.6 samples per cycle, fifteen times
+past the nine this project requires. It did not make fine foliage, it made aliasing: adjacent
+equator radii jumped 0.31ft over a 0.63ft step, a 27° surface tilt of pure noise that
+`computeVertexNormals` then smooth-shaded into blotches reading as a rendering fault. Crown
+texture comes from having twelve puffs, not from denting each one.
+
+**A REGULAR COLOUR CYCLE TURNS A MASS BACK INTO SLATS.** `incaHouse`'s thatch is thirteen
+overlapping wavy bars — already a mass — coloured `[mid, dark, pale][i % 3]`, which is a
+light-dark-light band every three rows. That stripe, not the geometry, is what made every
+roof in the village read as painted planks. A seeded pick over a tighter range, dirtier
+toward the eave, reads as one weathered thatch.
+
+**THE PEAKS DO NOT CAST SHADOWS, and that is 17% of the frame.** Every mesh is drawn twice,
+main pass plus the sun's shadow map, and three peaks are 247k triangles of the world's 950k.
+They stand 170-300ft out with the sun high and behind them, so what they would cast falls
+away from the citadel and off the back of the world. They still RECEIVE, which is free.
+
+**A shipped `LoftKit.tube()` IS WOUND INWARD**, found while rebuilding `ground.js` and
+recorded here rather than fixed. Measured on the same curve: `THREE.TubeGeometry` gives 144
+outward faces and 0 inward; `LoftKit.tube()` gives 0 outward and 144 inward, and its
+`computeVertexNormals()` normals point INTO the tube. With `(binormal, normal)` from a
+parallel-transported frame the ring runs clockwise about the tangent, so the index order is
+the mirror of three's. This is the "reads DARK, not missing" failure this file records for
+`revolve` and for odd axis permutations. **LoftKit was deliberately NOT changed** — it is
+shared and shipped, ChalkProps, RobotProps, VolcanoProps and CellProps all sweep tubes
+through it, and flipping it would flip all of them. `ground.js` carries its own verified
+swept solid instead. Anything that fixes this has to re-verify those four worlds.
+
+**AN INVERTED TRAPEZOID ON THE HERO BUILDING.** `bd_place` composes `T·Ry·Rx·Rz`, so a
+`Math.PI` yaw flips the local X axis and a Z-roll applied with it leans the jambs the WRONG
+WAY. The Torreon's back doorway therefore splayed OUTWARD as it rose — measured, a clear
+opening of 2.40ft at the sill and 3.12ft at the head, when it must be 3.72 → 2.98. That is
+the one feature this whole world exists to teach, upside down on the hero building, while the
+house door and both Torreon windows were correct — so a student comparing them saw the temple
+contradicting every other opening on the site. **The roll must be negated whenever the yaw is
+π.** Better still, bake the matrix in the order actually wanted rather than relying on a fixed
+Euler order — the trap `RomeProps.xformed()` and `gooseSolid()` both exist to escape.
+
+**A BACKING SLAB MUST BE THINNER THAN WHAT IT BACKS.** `incaHouse`'s gable backing was
+extruded the full `WALL`, so it spanned exactly the same ±WALL/2 that the coursed blocks —
+`WALL * 0.92` wide — are centred in, leaving it 0.86in proud on BOTH faces. Both gable ends
+of all five roofed houses rendered as one flat near-black triangle from eaves to ridge, and
+the block loop that builds them was invisible from anywhere, inside or out. `ashlarPanel`
+already had this right (`MS_BACKING_FRONT` 0.14 against `MS_FACE_Z` 0.42).
+
+**A TANGENTIAL OFFSET ON A CURVED WALL IS A CHORD, AND A CHORD FALLS OUTSIDE THE CIRCLE.**
+The Torreon's drilled bosses were stepped `off` sideways from the window centre and then
+seated along the WINDOW's radial, which leaves them `r(sec θ − 1)` proud — 0.71ft at 3.8ft
+round a 10.5ft wall, measured as 0.31ft of open air behind every one. Four pale nubs hovering
+off the masonry, each casting its own shadow, which is exactly the failure their own comment
+claimed to avoid. Place by BEARING (`a2 = a + off / r`) and yaw the boss by `a2`. They were
+also far too big: a 0.52-radius knob projecting six inches on a 12ft tower is not a tie point,
+it is a ball on a stick, and four of them round two windows read as eyes.
+
+**`tools/check-andes.mjs` is the regression check for all of this**, and it exists because
+"leave no open spaces" is mechanically testable: an edge used by exactly one triangle is a
+hole. It welds by POSITION, not by index — a merged geometry keeps each part's own corner
+copies, so an index-based count calls a closed solid open — and it runs TWO cell sizes and
+takes the minimum, because a vertex sitting exactly on a lattice boundary in one grid will
+not in the other. **Do not add a half-cell offset to the key**: that shifts the lattice and
+splits vertices that share a position, which invents boundary edges — it reported 324 on a
+peak that has none. Current state: every solid in the world is closed, and the only two open
+meshes in it are the fountain's translucent water JET and `andeanFlowers`' DoubleSide petal
+discs, which are surfaces rather than solids and are supposed to be open.
+
+**Per-prop, measured**: andean-peak 82.4k triangles each (was ~1.6k), inca-terraces 55.2k
+(was 23.0k, of which crops are most — `crops: 'none'` drops one to 22.8k), inca-house 12.5k,
+andean-flowers 11.8k, polylepis-tree 11.3k, ichu-grass 8.4k, granite-outcrop 5.9k (was **48**),
+temple-of-the-sun 28.9k, terrace-crop 13.4k, intihuatana 11.2k, cloud-bank 7.2k, inca-wall
+4.1k, inca-fountain 5.4k, inca-stairs 2.5k, **startup-llama 2.5k**. The hero llamas are 2% of
+the world's geometry, which is what a supplied 2,060-triangle model costs; the hero mountains
+are 26%.
+
 ### Inside an Animal Cell, and Inside a Twister
 
 `CellProps.js` / `cellLayout()` and `StormProps.js` / `twisterLayout()`. Both are gallery

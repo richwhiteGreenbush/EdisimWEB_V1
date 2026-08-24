@@ -335,7 +335,16 @@ export const PROP_BUILDERS = {
   'inca-fountain': Andes.incaFountain,
   'andean-peak': Andes.andeanPeak,
   'cloud-bank': Andes.cloudBank,
+  // RETIRED FROM THE LAYOUT, KEPT IN THE TABLE. Machu Picchu now places the shipped
+  // model (`startup-llama`) instead, but this key is PERSISTED: it is inside every copy
+  // of world 21 a student has already saved, downloaded or sent a classmate. Deleting it
+  // would not tidy anything up -- buildProp() throws on an unknown name, so it would turn
+  // somebody's saved world into three missing objects and three console lines. Same rule
+  // the retired moveX/moveY/moveZ blocks follow.
   llama: Andes.llama,
+  'polylepis-tree': Andes.polylepisTree,
+  'andean-flowers': Andes.andeanFlowers,
+  'terrace-crop': Andes.terraceCrop,
   'granite-outcrop': Andes.graniteOutcrop,
   'ichu-grass': Andes.ichuGrass,
 

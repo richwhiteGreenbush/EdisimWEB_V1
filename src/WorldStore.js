@@ -3,7 +3,7 @@ import { recordHasProgram } from './ProgramManager.js';
 import { buildBatchLoadingManager, loadModelFile, scaleToHeight, seatBaseAt } from './ModelLoader.js';
 import { loadImagePlane, loadImageElement } from './MediaLoader.js';
 import { inflateFromCanvas } from './BalloonInflator.js';
-import { loadLibraryModel, loadTreeModel, loadBillboardImage } from './StartupAssets.js';
+import { loadLibraryModel, loadTreeModel, loadBillboardImage, loadLlamaModel } from './StartupAssets.js';
 import { createLightOrb } from './LightOrb.js';
 import { createPrimitiveMesh, buildBuiltModel } from './Primitives.js';
 import { applyWorldTheme, createThemeMarker, createSpawnMarker } from './SceneSetup.js';
@@ -174,10 +174,22 @@ export class WorldStore {
   }
 
   async rehydrateOne(record) {
-    if (record.kind === 'startup-library' || record.kind === 'startup-tree' || record.kind === 'startup-billboard') {
-      const loader =
-        record.kind === 'startup-library' ? loadLibraryModel : record.kind === 'startup-tree' ? loadTreeModel : loadBillboardImage;
-      const result = await loader();
+    if (
+      record.kind === 'startup-library' || record.kind === 'startup-tree'
+      || record.kind === 'startup-billboard' || record.kind === 'startup-llama'
+    ) {
+      const loaders = {
+        'startup-library': loadLibraryModel,
+        'startup-tree': loadTreeModel,
+        'startup-billboard': loadBillboardImage,
+        'startup-llama': loadLlamaModel,
+      };
+      // `options` is carried for the llama, which recolours ONE shipped model into a whole
+      // herd (fleece / blanket / seed) instead of shipping a file per animal. The other
+      // three loaders take no arguments and every record written before this field existed
+      // simply has no `options`, which is why it is read with `?.` and defaulted by the
+      // loader rather than required here.
+      const result = await loaders[record.kind](record.options);
       const object3D = result?.mesh || result;
       const tick = result?.tick;
       applyTransform(object3D, record.transform);

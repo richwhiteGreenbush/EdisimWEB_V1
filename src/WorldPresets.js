@@ -79,8 +79,8 @@ function facing(x, z, tx = 0, tz = 0) {
 // so a scale factor here would silently mean "N times the model's raw authored size".
 // WorldStore re-normalizes to this height and then seats the model's base on the
 // ground. See ModelLoader.scaleToHeight()/seatBaseAt().
-function asset(kind, x, z, { height, y = 0, rotY = 0 } = {}) {
-  return { kind, x, z, y, rotY, height };
+function asset(kind, x, z, { height, y = 0, rotY = 0, options } = {}) {
+  return { kind, x, z, y, rotY, height, options };
 }
 
 // ---------------------------------------------------------------------------
@@ -5180,10 +5180,49 @@ function machuPicchuLayout() {
   const grass = [[-64, 70], [72, 78], [-90, -14], [88, -20], [-34, -84], [34, -96], [-100, 46], [104, 40]];
   grass.forEach(([x, z], i) => items.push(prop('ichu-grass', x, z, { options: { radius: 6, count: 20, seed: 600 + i * 5 } })));
 
-  // Llamas on the terraces, which is exactly where they are.
-  items.push(prop('llama', -26, 74, { rotY: 1.2, options: { height: 5.6, seed: 37 } }));
-  items.push(prop('llama', -16, 66, { rotY: 2.1, options: { height: 5.2, fleece: 0x8a7358, seed: 41 } }));
-  items.push(prop('llama', 34, 70, { rotY: -0.8, options: { height: 5.4, fleece: 0xe4dccc, seed: 43 } }));
+  // Colour, and every one of these is genuinely on this site -- inventing scenery to
+  // brighten an educational world would be worse than leaving it grey.
+  //
+  // Polylepis (queñua) is the highest-growing tree in the world and its bark is bright
+  // red-orange, peeling in papery sheets; it is the single most colourful living thing on
+  // the ridge. Kept to the flanks and away from the arrival sightline, since a tree beats
+  // a landmark on ANGLE rather than on size -- the lesson Seattle's cherries taught.
+  const trees = [[-94, 58, 15], [92, 26, 13.5], [-72, -78, 17], [76, -70, 14], [-102, -34, 12.5]];
+  trees.forEach(([x, z, h], i) => items.push(prop('polylepis-tree', x, z, { options: { height: h, seed: 53 + i * 11 } })));
+
+  // Bomarea, salvia, lupin and the small orchids the site is famous for -- over four
+  // hundred species grow here, which is a fact the world can SHOW rather than state.
+  const flowers = [[-33, 54], [-48, 40], [10, 106], [-20, 34], [46, 56], [-64, -50]];
+  flowers.forEach(([x, z], i) => items.push(prop('andean-flowers', x, z, { options: { radius: 4.5, count: 38, seed: 67 + i * 7 } })));
+
+  // Kitchen plots by the houses. The andenes themselves are planted by incaTerraces, which
+  // knows where its own treads are -- a crop patch placed as a separate record would have
+  // to guess a tread height and would sit in mid-air the moment the terrace changed.
+  items.push(prop('terrace-crop', -38, 6, { rotY: 0.2, options: { kind: 'maize', width: 13, depth: 6, seed: 71 } }));
+  items.push(prop('terrace-crop', 40, 10, { rotY: -0.15, options: { kind: 'potato', width: 12, depth: 5.5, seed: 79 } }));
+
+  // THE HERD. These are `startup-llama` records, not props: one shipped model in
+  // public/llama/ (see StartupAssets.loadLlamaModel) recoloured per animal, so seven
+  // llamas cost one 117KB fetch and about 200 bytes of world file between them.
+  //
+  // Fleece colours are the real range a llama herd comes in -- white through fawn, brown,
+  // grey and near-black -- because a herd in one colour reads as seven copies of one
+  // object, which is what the old three procedurally-built ones did. Two carry a woven
+  // pack blanket: that is the iconic Andean image AND it is the placard's own point about
+  // why there is no wheel anywhere in this empire.
+  //
+  // They are HERO objects here, so two of them stand near the approach where they are read
+  // at about 30ft, and the rest are spread over the terraces and the plaza. None sits on
+  // the sightline to Huayna Picchu.
+  const llama = (x, z, height, fleece, rotY, seed, blanket = false) =>
+    asset('startup-llama', x, z, { height, rotY, options: { fleece, blanket, seed } });
+  items.push(llama(-25, 97, 5.6, 0xd8c29a, 1.1, 37));
+  items.push(llama(17, 89, 5.35, 0xefe6d6, -0.7, 41));
+  items.push(llama(-24, 78, 5.85, 0x8b6b47, 1.9, 43, true));
+  items.push(llama(-13, 63, 5.2, 0x3f342c, 2.4, 47));
+  items.push(llama(37, 71, 5.5, 0x9c958c, -0.9, 53));
+  items.push(llama(22, 52, 5.7, 0xe8dcc4, -1.4, 59, true));
+  items.push(llama(-38, 30, 5.4, 0xa5754e, 1.3, 61));
   items.push(
     prop('info-placard', -44, 82, {
       rotY: face(-44, 82),
@@ -9270,7 +9309,12 @@ function toRecord(item, groundHeightAt) {
   // the whole thing from the URL, exactly as a light orb rebuilds from its colour.
   if (item.kind === 'web-browser') return { ...base, kind: 'web-browser', url: item.url };
   if (item.kind.startsWith('startup-')) {
-    return { ...base, kind: item.kind, targetHeight: item.height, baseOnGround: true };
+    const record = { ...base, kind: item.kind, targetHeight: item.height, baseOnGround: true };
+    // Only the llama takes options (fleece / blanket / seed), and only when the layout
+    // sets them. Same serialisation hygiene as `program`: an `options: undefined` on every
+    // startup asset in every world is a key written to IndexedDB and into every export.
+    if (item.options) record.options = item.options;
+    return record;
   }
   return { ...base, kind: 'preset-prop', prop: item.prop, options: item.options || {} };
 }

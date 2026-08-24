@@ -619,10 +619,21 @@ export const WORLD_THEMES = {
   machupicchu: {
     groundDetail: 'ground-soil.jpg',
     sky: 0x7fb0dc,
-    fogNear: 70,
-    fogFar: 520,
-    groundLow: 0x3a5230,
-    groundHigh: 0x6d8848,
+    // THE FOG WAS STILL EATING THE HERO. This world had already been moved off 55/330
+    // once, because at those distances Huayna Picchu -- the reason anyone recognises the
+    // place -- came out as a grey ghost. It had not been moved far enough: the peak stands
+    // 296ft from the spawn, which at 70/520 is a FIFTY PER CENT blend into the sky colour,
+    // so half the contrast of the one object the world is built around was being spent on
+    // haze. At 110/800 it is 28%, the citadel inside 200ft is essentially unfogged, and the
+    // atmosphere is carried by the `cloud-bank` props lying in the valley -- which is what
+    // they are for, and which is the only part of this that is actually a cloud forest.
+    fogNear: 110,
+    fogFar: 800,
+    // A WIDER GROUND RAMP. Both ends used to be the same green, so the ridge read as a
+    // mown lawn; the high end is now a warm sunlit olive and the low a deeper shadowed
+    // green, which is the range a steep grassed ridge actually shows.
+    groundLow: 0x33502c,
+    groundHigh: 0x84965a,
     amplitude: 2.4,
     flatRadius: 44,
     blendRadius: 140,
