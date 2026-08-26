@@ -1,0 +1,14 @@
+# robots.txt for edusim3dweb.com
+#
+# Everything on this site is open to crawling. The wildcard group below applies
+# to every crawler that has no group of its own -- search engines (Googlebot,
+# Bingbot, DuckDuckBot, ...) and AI crawlers (GPTBot, ClaudeBot, Google-Extended,
+# PerplexityBot, CCBot, ...) alike. No bot is singled out, so nothing here goes
+# stale as new crawlers appear.
+
+User-agent: *
+Allow: /
+
+# Regenerate with `node tools/build-sitemap.mjs` after editing docs/ or re-seeding
+# the gallery -- the sitemap lists every static page plus each published world.
+Sitemap: https://edusim3dweb.com/sitemap.xml
