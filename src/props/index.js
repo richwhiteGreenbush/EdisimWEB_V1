@@ -37,6 +37,7 @@ import * as Greenbush from './GreenbushProps.js';
 import * as Volcano from './VolcanoProps.js';
 import * as JsBasics from './JsBasicsProps.js';
 import * as Chalk from './ChalkProps.js';
+import * as Wonder from './WonderProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -601,6 +602,27 @@ export const PROP_BUILDERS = {
   'chalk-butterfly': Chalk.chalkButterfly,
   'chalk-blackboard': Chalk.chalkBlackboard,
   'chalk-easel': Chalk.chalkEasel,
+
+  // Alice in Wonderland
+  alice: Wonder.alice,
+  'cheshire-cat': Wonder.cheshireCat,
+  'mad-hatter': Wonder.madHatter,
+  'white-rabbit': Wonder.whiteRabbit,
+  'tea-table': Wonder.teaTable,
+  'tea-chair': Wonder.teaChair,
+  'giant-teacup': Wonder.giantTeacup,
+  'giant-mushroom': Wonder.giantMushroom,
+  'mushroom-ring': Wonder.mushroomRing,
+  'wonder-tree': Wonder.wonderTree,
+  'wonder-flower': Wonder.wonderFlower,
+  'rose-bush': Wonder.roseBush,
+  'heart-hedge': Wonder.heartHedge,
+  'rabbit-hole': Wonder.rabbitHole,
+  'card-soldier': Wonder.cardSoldier,
+  'wonder-signpost': Wonder.wonderSignpost,
+  'drink-me-table': Wonder.drinkMeTable,
+  'wonder-clock': Wonder.wonderClock,
+  'wonder-sparkles': Wonder.wonderSparkles,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

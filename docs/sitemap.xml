@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://edusim3dweb.com/</loc><lastmod>2026-08-23</lastmod></url>
+  <url><loc>https://edusim3dweb.com/</loc><lastmod>2026-08-28</lastmod></url>
   <url><loc>https://edusim3dweb.com/guide/</loc><lastmod>2026-08-23</lastmod></url>
   <url><loc>https://edusim3dweb.com/guide/builder.html</loc><lastmod>2026-08-23</lastmod></url>
   <url><loc>https://edusim3dweb.com/guide/coding.html</loc><lastmod>2026-08-23</lastmod></url>
@@ -54,4 +54,5 @@
   <url><loc>https://edusim3dweb.com/worlds/world.php?id=36</loc></url>
   <url><loc>https://edusim3dweb.com/worlds/world.php?id=37</loc></url>
   <url><loc>https://edusim3dweb.com/worlds/world.php?id=38</loc></url>
+  <url><loc>https://edusim3dweb.com/worlds/world.php?id=40</loc></url>
 </urlset>

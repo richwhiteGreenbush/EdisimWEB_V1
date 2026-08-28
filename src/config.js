@@ -1340,6 +1340,36 @@ export const WORLD_THEMES = {
     sunPosition: [55, 140, 160],
     stars: false,
   },
+  wonderland: {
+    // Alice in Wonderland. A dream at golden-afternoon pitch: the sky is a lavender
+    // periwinkle -- and since the sky colour is also the fog colour, distance does not
+    // haze out, it dissolves into dream. Kept far enough back that every hero inside
+    // 60ft is essentially unfogged (the Machu Picchu lesson: fog eats heroes first).
+    sky: 0xb7a9e4,
+    fogNear: 105,
+    fogFar: 430,
+    // Grass one notch greener than any honest lawn: this is a storybook plate, and the
+    // saturated characters need a ground that commits to the same register.
+    groundLow: 0x3e8a52,
+    groundHigh: 0x9fdc7e,
+    amplitude: 4.2,
+    // Broad flat middle: the tea party, the heroes and the rabbit hole all stand
+    // inside 55ft, and characters read best on level ground.
+    flatRadius: 52,
+    blendRadius: 150,
+    hemiSky: 0xe8ddff,
+    // Light and nearly unsaturated (the Seattle saucer lesson): the characters are
+    // clusters of rounded solids, and this bounce is the entire light on the underside
+    // of every chin, brim and mushroom cap.
+    hemiGround: 0x9aa78e,
+    hemiIntensity: 1.75,
+    // Warm sun from BEHIND the spawn (+Z, the robot-world trick): every character
+    // faces the arrival, so a sun from the far side would put every face in shade.
+    sunColor: 0xffe9c4,
+    sunIntensity: 2.1,
+    sunPosition: [70, 145, 150],
+    stars: false,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger

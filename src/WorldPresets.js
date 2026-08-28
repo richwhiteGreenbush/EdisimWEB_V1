@@ -3,6 +3,7 @@ import { WEB_BROWSER_DEFAULT_URL } from './config.js';
 import { youtubeEmbedUrl } from './WebUrl.js';
 import { createBlockInstance } from './BlockDefs.js';
 import { BEACON_DECK_Y } from './props/JsBasicsProps.js';
+import { PERCH } from './props/WonderProps.js';
 
 import { uuid } from './Uuid.js';
 // The ready-made worlds behind Menu > Load World.
@@ -9070,6 +9071,188 @@ function chalkLayout() {
 }
 
 
+// ---------------------------------------------------------------------------
+// Alice in Wonderland
+// ---------------------------------------------------------------------------
+
+// Four hero characters read at walking-up distance, arranged round one arrival frame:
+// Alice waving dead ahead, the White Rabbit fretting to the right on the way to his
+// hole, the mad tea party filling the left, and the Cheshire Cat fading in and out on
+// a branch to the right-forward -- with the Queen's rose garden as the far backdrop.
+// The middle strip stays walkable from the spawn to the garden gap.
+function wonderlandLayout() {
+  const items = [];
+  const SP = { x: 0, z: 52 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // --- arrival: signpost, welcome board, browser station --------------------
+  //
+  // The signpost's arrows point at the real destinations: yaw is the world bearing of
+  // each target from the post (an arrow points along its own +X, rotY-style).
+  const arrowYaw = (tx, tz) => {
+    const dx = tx - 9;
+    const dz = tz - 40;
+    return Math.atan2(-dz, dx);
+  };
+  items.push(prop('wonder-signpost', 9, 40, {
+    options: {
+      seed: 61,
+      arrows: [
+        { text: 'TEA PARTY', yaw: arrowYaw(-26, 6), tilt: 0.07, colour: 0x64c4b4 },
+        { text: 'RABBIT HOLE', yaw: arrowYaw(27, 13), tilt: -0.09, colour: 0xd35f74 },
+        { text: 'THE QUEEN’S ROSES', yaw: arrowYaw(0, -58), tilt: 0.05, colour: 0xe0455f },
+        { text: 'THAT WAY', yaw: 4.1, tilt: -0.12, colour: 0xf2c94c },
+      ],
+    },
+  }));
+  items.push(prop('welcome-board', -18, 34, {
+    rotY: face(-18, 34),
+    options: {
+      eyebrow: 'CURIOUSER AND CURIOUSER',
+      lines: ['WELCOME TO', 'WONDERLAND'],
+      lead: 'Alice is waving hello. The White Rabbit is late. The Mad Hatter is pouring tea that never runs out, and the Cheshire Cat is fading in and out of his tree.',
+      footnote: 'Every creature here can be programmed — two challenge boards in the garden show you how.',
+      accent: '#e0a8d0',
+      face: '#33254e',
+    },
+  }));
+  items.push(...browserStation(-9, 38, {
+    faceX: SP.x, faceZ: SP.z,
+    url: 'https://en.wikipedia.org/wiki/Alice%27s_Adventures_in_Wonderland',
+  }));
+
+  // --- the heroes of the arrival frame --------------------------------------
+  items.push(prop('alice', -2.5, 24, { rotY: face(-2.5, 24), options: { seed: 5 } }));
+  // The Rabbit frets in place, announcing his lateness forever -- and challenge 1
+  // teaches a student to make him RUN. The challenge's circle is a real 5.7ft radius
+  // (72 passes of forward 0.5 + rotate 5), hanging off his RIGHT (clockwise, the
+  // measured direction) -- from here that sweeps x 5.7..11.4ish and stays 2.8ft clear
+  // of Alice at her closest.
+  items.push(prop('white-rabbit', 11, 28.5, {
+    rotY: face(11, 28.5),
+    options: { seed: 13 },
+    program: [
+      block('forever', {}, [
+        block('say', { text: "I'm late! I'm late!" }),
+        block('wait', { seconds: 4 }),
+      ]),
+    ],
+  }));
+  items.push(activity(20, 31, {
+    number: 1,
+    rotY: face(20, 31),
+    title: 'Help the White Rabbit run',
+    target: 'Click the White Rabbit, press Program, and give him legs:',
+    steps: [
+      ctrlStep('forever'),
+      moveStep('move forward 0.5 feet', 1),
+      moveStep('rotate 5 degrees', 1),
+    ],
+    tip: 'Little steps plus little turns run him in a circle. Try rotate 10 — the circle tightens. Keep his say blocks above the forever so he still complains.',
+    accent: '#d23558',
+  }));
+
+  // --- the rabbit hole corner ------------------------------------------------
+  items.push(prop('rabbit-hole', 27, 13, { rotY: face(27, 13), options: { seed: 53, width: 8.5 } }));
+  items.push(prop('drink-me-table', 19.5, 13, { rotY: face(19.5, 13), options: { seed: 67 } }));
+  items.push(prop('wonder-clock', 27.5, -30.5, { rotY: face(27.5, -30.5), options: { seed: 71 } }));
+
+  // --- the mad tea party (west) ----------------------------------------------
+  items.push(prop('tea-table', -26, 6, { rotY: -0.5, options: { seed: 17 } }));
+  items.push(prop('mad-hatter', -28.6, 2.4, { rotY: face(-28.6, 2.4), options: { seed: 11 } }));
+  items.push(prop('tea-chair', -21.6, 9.6, { rotY: face(-21.6, 9.6) + Math.PI, options: { seed: 19, colour: 0x64c4b4 } }));
+  items.push(prop('tea-chair', -27.5, 11.2, { rotY: -0.5 + Math.PI + 0.3, options: { seed: 20, colour: 0xe0a8d0 } }));
+  items.push(prop('tea-chair', -32.3, 8.0, { rotY: -0.5 + Math.PI - 0.6, options: { seed: 21, colour: 0xf2c94c, tall: true } }));
+  items.push(prop('wonder-tree', -38, -7, { rotY: 0.8, options: { seed: 38, height: 21, canopy: 'blossom' } }));
+  // The giant teacup spins all day -- one more program to open and change.
+  items.push(prop('giant-teacup', -15, -13, {
+    rotY: 0.3,
+    options: { seed: 23, radius: 2.3, colour: 0xf0b8cc },
+    program: [block('forever', {}, [block('rotate', { degrees: 0.8 })])],
+  }));
+
+  // --- the Cheshire tree (east-forward), and the cat on his branch -----------
+  //
+  // The tree turns its perch branch (authored along local +X) across the sightline;
+  // the cat sits AT the branch's own exported local point, carried through the tree's
+  // yaw, and faces the spawn -- so his body lies along the branch and his grin looks
+  // straight down the arrival path.
+  const TREE = { x: 20, z: -25, rotY: Math.PI };
+  items.push(prop('wonder-tree', TREE.x, TREE.z, {
+    rotY: TREE.rotY, options: { seed: 37, height: 23, canopy: 'teal', perch: true },
+  }));
+  const catX = TREE.x + Math.sin(TREE.rotY + Math.PI / 2) * PERCH.x + Math.sin(TREE.rotY) * PERCH.z;
+  const catZ = TREE.z + Math.cos(TREE.rotY + Math.PI / 2) * PERCH.x + Math.cos(TREE.rotY) * PERCH.z;
+  items.push(prop('cheshire-cat', catX, catZ, {
+    y: PERCH.y,
+    rotY: face(catX, catZ),
+    options: { seed: 7, length: 6.3 },
+    program: [
+      block('forever', {}, [
+        block('wait', { seconds: 2.5 }),
+        block('setOpacity', { percent: 55 }),
+        block('wait', { seconds: 0.4 }),
+        block('setOpacity', { percent: 15 }),
+        block('wait', { seconds: 1.2 }),
+        block('setOpacity', { percent: 55 }),
+        block('wait', { seconds: 0.4 }),
+        block('setOpacity', { percent: 100 }),
+      ]),
+    ],
+  }));
+  items.push(activity(29, -12, {
+    number: 2,
+    rotY: face(29, -12),
+    title: 'Make the Cheshire Cat vanish',
+    target: 'Click the cat on his branch, press Program, and write your own fade:',
+    steps: [
+      ctrlStep('forever'),
+      lookStep('set opacity to 15 %', 1),
+      ctrlStep('wait 1 seconds', 1),
+      lookStep('set opacity to 100 %', 1),
+      ctrlStep('wait 1 seconds', 1),
+    ],
+    tip: 'He already fades on his own — open his program and read it first. Opacity 15 is a ghost-cat; 0 is gone entirely, grin and all.',
+    accent: '#8a5cf5',
+  }));
+  items.push(prop('wonder-sparkles', 18, -24, { options: { seed: 73, radius: 20 } }));
+  items.push(prop('wonder-sparkles', -24, 4, { options: { seed: 74, radius: 17, count: 100 } }));
+
+  // --- the mushroom groves ----------------------------------------------------
+  items.push(prop('giant-mushroom', -38, -22, { options: { seed: 29, height: 7.5, capColour: 0xd0453e } }));
+  items.push(prop('giant-mushroom', -33.5, -26, { rotY: 1.2, options: { seed: 30, height: 5, capColour: 0x3f9e8a } }));
+  items.push(prop('giant-mushroom', -41, -28.5, { rotY: 2.4, options: { seed: 31, height: 4.2, capColour: 0xc8843c } }));
+  items.push(prop('giant-mushroom', 33, -37, { rotY: 0.6, options: { seed: 32, height: 8, capColour: 0x8a5cc8 } }));
+  items.push(prop('mushroom-ring', 12, -5, { options: { seed: 33, radius: 3.4 } }));
+
+  // --- the dreaming flowers ---------------------------------------------------
+  items.push(prop('wonder-flower', -14, 17, { rotY: face(-14, 17), options: { seed: 41, height: 6.5, petal: 0xe0455f, heart: 0xf2c94c } }));
+  items.push(prop('wonder-flower', 26.5, 1, { rotY: face(26.5, 1), options: { seed: 42, height: 7.5, petal: 0x8a5cf5, heart: 0xf0993c } }));
+  items.push(prop('wonder-flower', -29, -33, { rotY: face(-29, -33), options: { seed: 44, height: 8, petal: 0xf2a541, heart: 0xd23558 } }));
+  items.push(prop('wonder-flower', 38, 7, { rotY: face(38, 7), options: { seed: 45, height: 6, petal: 0xe58ab4, heart: 0xf2c94c } }));
+
+  // --- the Queen's rose garden: the far backdrop ------------------------------
+  items.push(prop('heart-hedge', -13, -52, { rotY: 0.45, options: { seed: 47, length: 10 } }));
+  items.push(prop('heart-hedge', 13, -55, { rotY: -0.35, options: { seed: 48, length: 10 } }));
+  items.push(prop('heart-hedge', 0, -64, { rotY: 0.12, options: { seed: 49, length: 9 } }));
+  items.push(prop('card-soldier', -6.5, -55, { rotY: face(-6.5, -55), options: { seed: 59, suit: 'heart', rank: '2' } }));
+  items.push(prop('card-soldier', 6.5, -57, { rotY: face(6.5, -57), options: { seed: 60, suit: 'spade', rank: '5' } }));
+  items.push(prop('card-soldier', 17, -48, { rotY: face(17, -48) - 0.5, options: { seed: 62, suit: 'club', rank: '7' } }));
+  items.push(prop('rose-bush', -11, -47, { options: { seed: 43, painted: true } }));
+  items.push(prop('rose-bush', 3.5, -50.5, { rotY: 1.1, options: { seed: 46 } }));
+  items.push(prop('rose-bush', 13, -61, { rotY: 2.3, options: { seed: 50 } }));
+  items.push(prop('rose-bush', -19, -58, { rotY: 0.4, options: { seed: 51, painted: true } }));
+
+  // --- the perimeter trees ----------------------------------------------------
+  items.push(prop('wonder-tree', -48, 26, { rotY: 0.4, options: { seed: 81, height: 22, canopy: 'teal' } }));
+  items.push(prop('wonder-tree', -52, -40, { rotY: 2.1, options: { seed: 82, height: 26, canopy: 'teal' } }));
+  items.push(prop('wonder-tree', 47, 27, { rotY: 4.2, options: { seed: 83, height: 20, canopy: 'teal' } }));
+  items.push(prop('wonder-tree', 44, -48, { rotY: 1.1, options: { seed: 84, height: 24, canopy: 'blossom' } }));
+  items.push(prop('wonder-tree', 56, -10, { rotY: 3.0, options: { seed: 85, height: 22, canopy: 'bare' } }));
+
+  return { theme: 'wonderland', spawn: { ...SP, yaw: 0 }, items };
+}
+
 export const PRESET_WORLDS = {
   park: { label: 'The Park', hint: 'The default world: a great meadow, a pond, a bandstand and the bear dens', build: parkLayout },
   museum: { label: 'The Museum', hint: 'A gallery of sculpture and painting, with a plaza out front', build: museumLayout },
@@ -9214,6 +9397,11 @@ export const PRESET_WORLDS = {
     label: 'Simon in the Land of Chalk Drawings',
     hint: 'A meadow of chalk drawings come alive — a puppy and a rocket are drawing right now, and the easel is waiting for yours',
     build: chalkLayout,
+  },
+  wonderland: {
+    label: 'Alice in Wonderland',
+    hint: 'Down the rabbit hole — Alice is waving, the Hatter is pouring, the White Rabbit is late, and the Cheshire Cat keeps vanishing',
+    build: wonderlandLayout,
   },
   volcano: {
     label: 'Volcanoes & Rocks',

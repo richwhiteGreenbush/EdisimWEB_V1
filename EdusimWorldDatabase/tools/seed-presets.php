@@ -781,6 +781,29 @@ $WORLDS = [
             . "Two activities: teach the puppy to draw a square instead of its circle, and drive "
             . "the chalk train in a giant loop. Walk under the rainbow before you leave.",
     ],
+    'wonderland' => [
+        'title'   => 'Alice in Wonderland',
+        'creator' => 'Lewis Carroll',
+        'tags'    => 'story, reading, characters, coding, imagination, official',
+        'description' =>
+            "Alice is waving hello, and everyone else is exactly as you left them in the book. "
+            . "The White Rabbit stands on the path in his pinstriped waistcoat, holding up his "
+            . "pocket watch and announcing that he is late \u{2014} the burrow he is late FOR is "
+            . "the dark hole under the mound behind him, with a tiny door ajar inside and a "
+            . "DRINK ME bottle waiting on a glass table beside it.\n\n"
+            . "The mad tea party is fully laid: a long cloth crowded with teapots, a leaning "
+            . "tower of cups and a two-tier cake stand, mismatched heart-backed chairs, and the "
+            . "Mad Hatter behind it in his green 10/6 top hat, teacup raised. Up in the twisted "
+            . "tree opposite, the Cheshire Cat lounges along a branch, striped rose and violet, "
+            . "grinning ear to ear \u{2014} and fading in and out on a program you can open and "
+            . "read. At the far end of the garden, card soldiers with halberds guard the "
+            . "Queen's rose bushes, where the white roses are half painted red, bucket and "
+            . "brush still at the scene of the crime.\n\n"
+            . "Two activities: give the White Rabbit legs (a forever loop that runs him in a "
+            . "circle), and write the Cheshire Cat's vanishing act yourself with set-opacity "
+            . "blocks. The giant teacup is already spinning \u{2014} open its program and "
+            . "change the number.",
+    ],
 ];
 
 // ---------------------------------------------------------------------------
