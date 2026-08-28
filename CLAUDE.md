@@ -3021,6 +3021,106 @@ prop: cheshire-cat 54.5k triangles, alice 55.8k, white-rabbit 38.8k, mad-hatter 
 tea-table 16.0k, card-soldier 9.8k, wonder-tree 6.9-8.3k. The heroes are ~60% of the
 world's geometry, which is the budget doing what this world exists for.
 
+### The Neighborhood, and building a world around a STREET
+
+`NeighborhoodProps.js` + `neighborhoodLayout()`. Gallery world 41 (seeded with creator
+"Fred Rogers", the way chalk seeds as "Simon" and wonderland as "Lewis Carroll"), key
+`neighborhood`, in `PRESET_WORLDS` and deliberately not in any menu. A mid-century model
+town after the miniature neighborhood of a certain television program's opening titles:
+brick blocks and a factory at the back, painted shops and houses down the middle, a
+trolley on rails set into Main Street, and mid-century cars at the curbs. The heroes are
+the BUILDINGS, the STREET and the CARS, at 114 models -- the biggest world in the app.
+
+**SURFACE COURSES ARE TEXTURE, NEVER GEOMETRY AND NEVER TINT, and that one decision
+carries all nineteen buildings.** A building's wall is a flat extruded shell with no
+interior vertices, so a per-vertex clapboard tint has nothing to land on (the villi-floor
+lesson), and courses as geometry are thousands of solids per facade (the Greenbush
+lesson). Every wall and roof carries a NEAR-WHITE tileable canvas -- clapboard courses,
+brick bond, shingle butts, barn boards, sidewalk expansion joints, asphalt aggregate as
+luminance only -- multiplied by the material's own colour, so ONE 128px clapboard tile
+serves a mustard shop, the barn-red block and a white cottage. `extrudeOutline` lays its
+UVs in FEET, which is what makes a 0.5ft board course land at 0.5ft on every building
+regardless of size, and a 6ft concrete tile put a sidewalk joint every six feet by
+construction. Two calibration lessons: clapboard gets NO vertical joints (they turned
+every wall into brick -- the whole clapboard read is the shadow under each butt edge),
+and the canvas is cached per KIND while the THREE.Texture wrapping it is fresh per call,
+the SurfaceTextures one-level-lower rule.
+
+**The wall shell is an extruded PLAN with doubled corner points** (`cornerRect`): the
+side band shares one vertex per outline point, so an undoubled corner smears the two wall
+normals into a 45-degree pillow edge. Doubling each corner (offset by 4 thousandths, so
+no zero-length edge confuses the run-length UVs) gives each wall its own corner vertex
+and a crisp arris. Windows are BUILT FORWARD of the solid wall (the Machu niche / Ellis
+Registry rule): pane 0.03 proud, muntins 0.065, frame 0.1, sill projecting furthest --
+and LIT panes go to a separate emissive mesh per building, because in the reference model
+the big red block's rows of warm yellow windows are most of its identity.
+
+**A ROOF SLAB'S PITCH SIGN IS INVISIBLE FROM THE STREET AND WRONG FROM EVERYWHERE ELSE.**
+rotX(pi/2 - pitch) RAISES the slab's outer edge, so every gable in the first pass was a
+VALLEY -- and it read fine from eye level for three whole verification rounds, because
+from below the near slab looks the same either way and the gable infill hides the
+profile. From the first quartering view every roof in the village was a butterfly. The
+outer edge must FALL: pi/2 + pitch on the positive side, mirrored on the other, and the
+same sign rule runs the barn's two gambrel pitches and the factory's shed slabs up to its
+clerestory monitor.
+
+**The street is ONE prop** (`nb-street-grid`): every asphalt slab, sidewalk, kerb,
+painted marking and trolley rail in the world, merged to three meshes (asphalt with
+feet-tiled aggregate, concrete with jointed tiles, markings+rails vertex-coloured). One
+prop because the seams between separately-placed segments are exactly where z-fighting
+and hairline gaps live. The decomposition rules are worked out on paper in the builder:
+asphalt owns the intersections; N-S sidewalks run THROUGH the corner zones and E-W walk
+slabs abut their outer edges exactly (abutment shares an edge, never an area); and every
+sidewalk edge that meets asphalt is TUCKED 0.1ft into it so no vertical face is coplanar
+with another. Lane numbers are stated in a comment (`Main x=+-6, track x=0, Maple z=-26,
+Orchard z=-96, Elm x=-74, Oak x=74`) because every drive program's corners are written
+against them.
+
+**The trolley scoots BACKWARD, because `glide` takes negative feet.** The runner
+multiplies the facing vector by `Number(block.params.feet)` with no clamp, so
+`forever { glide 148, wait, glide -148, wait }` shuttles Main Street exactly the way the
+television trolley does, with no turnaround. It ships running (the monorail rule), as
+does the green sedan lapping the Oak Street block on the correct side of every street.
+
+**POSITIVE `rotate` TURNS LEFT, MEASURED TWICE -- and the measurement that can be trusted
+is a POSITION LOG, not a glance at a screenshot.** rotation.y += deg takes a -Z heading
+toward -X; a first screenshot read led the wrong way, +90 sent the sedan through the
+shops' backyards, and only sampling the object's position at its corners settled it:
+right turns are rotate -90, and the activity board teaches "minus 90 turns the car to the
+RIGHT". (The Alice world's note reads as the opposite convention -- trust coordinates,
+not prose.) Also learned here: A HIDDEN BROWSER PANE STOPS rAF, which freezes every
+program and makes runners look dead -- two long debugging detours were the pane's
+visibility, not the runner's health. Never diagnose program state without the pane
+fronted, and never use requestAnimationFrame in verification scripts.
+
+**The cars are two lofts two-toned by tint, and THE TINT IS ONLY AS SHARP AS THE MESH --
+hit within the hour of writing it down.** Painted pillars over a 30-sample cabin smeared
+into a black slug; at 110 samples they have edges. The pillar bands must run to the
+loft's closing domes, and the domes themselves are painted body colour -- glass wrapped
+over a dome reads as a dark ring around the roof (it made the coupe read as a pickup).
+Painted wheel arches (a dark half-disc in the hull tint) do the work a cut-out cannot;
+wheels are lathes tinted by radius (whitewall band, chrome cap) and sit flush with the
+body's widest point, because tucked 0.2ft under the bulge they vanish into the rocker
+shadow entirely. Styles sedan/coupe/wagon/pickup/van from one builder; the van carries
+SPEEDY DELIVERY boards and is activity 1's target.
+
+Composition and placement notes: the arrival is one-point perspective up Main with the
+Town Hall cupola terminating the vista 230ft out (the height-sets-distance rule run in
+reverse -- a 40ft cupola holds a street of 20ft buildings together); the four nearest
+street trees stepped back from the spawn twice before the frame cleared; and the tractor
+and pickup were both first parked INSIDE the barn's rotated footprint -- an AABB check on
+paper against the rotY'd building would have caught what only a walk round the corner
+did. Tree crowns are five puffs pulled to 0.6 of the crown radius around a bridging
+centre mass (the wonder-tree balloon-cluster lesson, relearned at 0.85).
+
+**Performance, measured at the spawn**: 116 records (113 props + browser) / **513 draw
+calls** / 650k triangles drawn / 292 meshes / **0 point lights** / 7 transparent / 189
+textures / 1.9ms warm CPU render. The 30KB world file is the biggest in the app and
+still loads in about a second; 513 calls is the highest count of any world -- the price
+of ~19 buildings at 3-5 texture-split meshes each -- and sits comfortably under the
+<1000 wall. `tools/check-neighborhood.mjs` holds all 31 builder cases to recorded
+open-edge baselines (zero everywhere except the chain-built trees).
+
 ### A Bug's Life, and building a world around CHALLENGES
 
 `BugProps.js` + `bugsLayout()`. The only preset laid out as a **workshop** rather than as a
