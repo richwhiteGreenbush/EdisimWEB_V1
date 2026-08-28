@@ -1370,6 +1370,38 @@ export const WORLD_THEMES = {
     sunPosition: [70, 145, 150],
     stars: false,
   },
+  neighborhood: {
+    // The Neighborhood. A mild, friendly late-morning: the reference model sits under
+    // a pale hazy studio sky, so the blue here is soft and a little grey rather than
+    // a postcard cobalt. Fog far enough out that the whole 300ft main-street vista
+    // reads (the town's far skyline is at ~160ft), near enough that the world edge
+    // dissolves rather than ending.
+    sky: 0xbcc9dd,
+    fogNear: 150,
+    fogFar: 520,
+    // Lawn green, brighter than an honest verge: this is a model railroad's grass mat.
+    groundLow: 0x4e8a48,
+    groundHigh: 0x93c46a,
+    // The ENTIRE street grid must sit on level ground -- a flat street prop over
+    // hilly terrain either buries its slabs or floats them. flatRadius covers the
+    // whole network (Maple St runs to x = +-132); the hills only rise at the rim.
+    amplitude: 5,
+    flatRadius: 158,
+    blendRadius: 195,
+    hemiSky: 0xdfe8f4,
+    // Light and nearly unsaturated (the Seattle saucer lesson): the cars are large
+    // smooth hulls whose lower halves are lit entirely by this bounce, and the
+    // streets themselves are the ground most of the town stands on.
+    hemiGround: 0x9aa08e,
+    hemiIntensity: 1.7,
+    // Warm sun from behind-right of the spawn (+Z, the robot-world trick): the whole
+    // town faces the arrival down Main Street, so a sun from the far side would put
+    // every facade in shade.
+    sunColor: 0xfff0d4,
+    sunIntensity: 2.05,
+    sunPosition: [85, 150, 130],
+    stars: false,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger

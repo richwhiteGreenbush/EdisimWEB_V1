@@ -9253,6 +9253,245 @@ function wonderlandLayout() {
   return { theme: 'wonderland', spawn: { ...SP, yaw: 0 }, items };
 }
 
+// ---------------------------------------------------------------------------
+// The Neighborhood -- a mid-century model town seen down its own Main Street
+// ---------------------------------------------------------------------------
+
+// North is -Z. The spawn stands at the south mouth of Main Street looking straight up
+// it: trolley rails converging on the Town Hall cupola 220ft away, the shops mid-block,
+// the brick skyline and the rock hill at the back. The street grid is ONE prop with the
+// whole network baked into world coordinates (see NB_STREET in NeighborhoodProps.js),
+// so it is placed at the origin, unrotated, and every drive program's corners are
+// written against the same lane numbers the grid was drawn with:
+//   Main x=+-6 lanes, track x=0; Maple z=-26; Orchard z=-96; Elm x=-74; Oak x=74.
+//
+// The moving things arrive already moving (the monorail rule): the trolley shuttles
+// Main Street forward and BACKWARD (glide takes negative feet, exactly like the
+// television trolley), and the green sedan drives around the Oak Street block on lane
+// centres with a right-angle turn at each corner.
+function neighborhoodLayout() {
+  const items = [];
+  const SP = { x: 6, z: 68 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+  const WALK = 0.5;   // sidewalk top -- furniture standing on concrete takes y: WALK
+  const ROAD = 0.3;   // asphalt top -- cars ride here
+  const RAIL = 0.36;  // rail top -- the trolley rides here
+
+  // --- the street, and everything that moves on it ---------------------------
+  items.push(prop('nb-street-grid', 0, 0, { options: {} }));
+  items.push(prop('nb-trolley', 0, 26, {
+    y: RAIL, rotY: Math.PI,
+    program: [
+      block('forever', {}, [
+        block('glide', { feet: 148, seconds: 15 }),
+        block('wait', { seconds: 2.5 }),
+        block('glide', { feet: -148, seconds: 15 }),
+        block('wait', { seconds: 2.5 }),
+      ]),
+    ],
+  }));
+  // The green sedan laps the block bounded by Main, Orchard, Oak and Maple, on the
+  // correct side of every street: north on Main's east lane, east on Orchard's south
+  // lane, south on Oak's west lane, west on Maple's north lane. Corners at (7,-32),
+  // (7,-102), (68,-102), (68,-32); legs 70 and 61 feet.
+  items.push(prop('nb-car', 7, -32, {
+    y: ROAD, rotY: Math.PI,
+    options: { seed: 71, style: 'sedan', colour: 0x4b7c4e, roofColour: 0xece6d6 },
+    program: [
+      block('forever', {}, [
+        block('glide', { feet: 70, seconds: 7 }),
+        block('rotate', { degrees: -90 }),
+        block('glide', { feet: 61, seconds: 6 }),
+        block('rotate', { degrees: -90 }),
+        block('glide', { feet: 70, seconds: 7 }),
+        block('rotate', { degrees: -90 }),
+        block('glide', { feet: 61, seconds: 6 }),
+        block('rotate', { degrees: -90 }),
+      ]),
+    ],
+  }));
+  // Parked cars. None on the moving cars' lanes: the van's delivery run is Main's east
+  // lane from z=30 to z=-10, the sedan's lap is listed above, the trolley owns x=0.
+  items.push(prop('nb-car', 9, 30, { y: ROAD, rotY: Math.PI, options: { seed: 72, style: 'van', colour: 0xece6d6, roofColour: 0xb03430 } }));
+  items.push(prop('nb-car', -8.7, 10, { y: ROAD, options: { seed: 73, style: 'coupe', colour: 0xc3c7ca, roofColour: 0x2c2f33 } }));
+  items.push(prop('nb-car', -30, -36.3, { y: ROAD, rotY: -Math.PI / 2, options: { seed: 74, style: 'sedan', colour: 0x4e8a8c, roofColour: 0xece6d6 } }));
+  items.push(prop('nb-car', -44, -15.7, { y: ROAD, rotY: Math.PI / 2, options: { seed: 75, style: 'wagon', colour: 0xc2a06c, roofColour: 0x6d4c36 } }));
+  items.push(prop('nb-car', 83.3, -60, { y: ROAD, rotY: Math.PI, options: { seed: 76, style: 'coupe', colour: 0xa23a30, roofColour: 0xf1eddf } }));
+  items.push(prop('nb-car', -68, -32, { y: ROAD, rotY: Math.PI, options: { seed: 77, style: 'sedan', colour: 0x305080, roofColour: 0xc3c7ca } }));
+  items.push(prop('nb-car', 37, 46, { rotY: -2.1, options: { seed: 78, style: 'pickup', colour: 0xa23a30, whitewall: false } }));
+
+  // --- arrival: welcome, kiosk, sign, first challenge -------------------------
+  items.push(prop('welcome-board', -22, 38, {
+    rotY: face(-22, 38),
+    options: {
+      eyebrow: 'A BEAUTIFUL DAY IN THIS NEIGHBORHOOD',
+      lines: ['WELCOME TO', 'THE NEIGHBORHOOD'],
+      lead: 'The trolley is running, the shops are open, and a green sedan is driving itself around the block. Walk up Main Street and meet everybody.',
+      footnote: 'Every car here can be programmed — the challenge boards show you how. Won’t you be my neighbor?',
+      accent: '#e0b054',
+      face: '#31404e',
+    },
+  }));
+  items.push(prop('standing-sign', -16.5, -4, {
+    rotY: face(-16.5, -4),
+    options: { lines: ['TROLLEY CROSSING'], subtitle: 'look both ways · drive friendly', width: 6.5, face: '#31404e', accent: '#e0b054' },
+  }));
+  items.push(...browserStation(25, 44, {
+    faceX: SP.x, faceZ: SP.z,
+    url: 'https://en.wikipedia.org/wiki/Mister_Rogers%27_Neighborhood',
+  }));
+  items.push(activity(22, 28, {
+    number: 1,
+    rotY: face(22, 28),
+    title: 'Speedy delivery!',
+    target: 'Click the delivery van parked at the curb, press Program, and send it up the street:',
+    steps: [
+      moveStep('glide 40 feet over 5 seconds'),
+      lookStep('say Speedy delivery!'),
+      ctrlStep('wait 2 seconds'),
+      moveStep('go back to start'),
+    ],
+    tip: 'glide follows the way the van is facing. Try a longer glide — 100 feet reaches the shops — and add more say blocks for more deliveries.',
+    accent: '#8e2420',
+  }));
+  // The second challenge lives at the Elm Street corner, beside the blue sedan parked
+  // at the block's south-west corner. Its lap: east 62 on Maple's north lane to Main
+  // (-6,-32), north 58 to Orchard (-6,-90), west 62 on Elm, south 58 back -- repeat 2
+  // of [glide 62, rotate 90, glide 58, rotate 90] closes it.
+  items.push(activity(-56, -44, {
+    number: 2,
+    rotY: face(-56, -44),
+    title: 'Drive around the block',
+    target: 'Click the blue sedan at the corner, press Program, and drive it around the block:',
+    steps: [
+      ctrlStep('repeat 2 times'),
+      moveStep('glide 58 feet over 6 seconds', 1),
+      moveStep('rotate -90 degrees', 1),
+      moveStep('glide 62 feet over 6 seconds', 1),
+      moveStep('rotate -90 degrees', 1),
+    ],
+    tip: 'Minus 90 turns the car to the RIGHT. Four right turns is a full block — two glides and two turns, repeated twice, brings it home. The green sedan runs the same idea; open its program and read it.',
+    accent: '#305080',
+  }));
+
+  // --- the south blocks: school west, farm east -------------------------------
+  items.push(prop('nb-modern-school', -54, 30, { rotY: Math.PI / 2, options: { seed: 21 } }));
+  items.push(prop('flag-pole', -36, 14, { options: { height: 22 } }));
+  items.push(prop('nb-house', -33, 26, { rotY: Math.PI / 2, options: { seed: 22, storeys: 1, colour: 0x93aa7c, roofColour: 0x585e66, ridgeAxis: 'z', porch: false } }));
+  items.push(prop('nb-barn', 58, 34, { rotY: -Math.PI / 2, options: { seed: 23 } }));
+  items.push(prop('nb-tractor', 40, 14, { rotY: 2.4, options: { seed: 24 } }));
+  items.push(prop('nb-picket-fence', 46, 22, { rotY: 0.2, options: { seed: 25, length: 18 } }));
+
+  // --- the mid blocks: houses at Maple, shops up Main --------------------------
+  items.push(prop('nb-house', -32, 2, { rotY: Math.PI, options: { seed: 26, colour: 0xdfa83e, roofColour: 0xa23a2c, ridgeAxis: 'z', shutters: 0xf3f0e6 } }));
+  items.push(prop('nb-picket-fence', -32, 10.6, { options: { seed: 27, length: 17 } }));
+  items.push(prop('nb-house', 34, 3, { rotY: Math.PI, options: { seed: 28, colour: 0xb23a30, roofColour: 0x70747a, doorCol: 0x3c5a8b } }));
+  items.push(prop('nb-picket-fence', 34, 11, { options: { seed: 29, length: 17 } }));
+  items.push(prop('nb-house', 34, 26, { rotY: -Math.PI / 2, options: { seed: 30, colour: 0xb9bdc0, roofColour: 0x42444a, ridgeAxis: 'z', doorCol: 0x8e2f28 } }));
+  items.push(prop('nb-house', -104, 2, { rotY: Math.PI, options: { seed: 31, storeys: 1, colour: 0x8093c5, roofColour: 0x585e66, shutters: 0xf3f0e6 } }));
+
+  items.push(prop('nb-shop', -31, -52.5, { rotY: Math.PI / 2, options: { seed: 32, width: 16, colour: 0xdfa83e, sign: 'MUSIC SHOP', awning: 0x51795b, doorCol: 0x3e6648 } }));
+  items.push(prop('nb-shop', -31, -69.5, { rotY: Math.PI / 2, options: { seed: 33, width: 16, colour: 0xeee2c8, sign: 'BAKERY', awning: 0xc23b3b, awningStripe: 0xf3f0e6, doorCol: 0x8e2f28 } }));
+  items.push(prop('nb-shop', 31, -52.5, { rotY: -Math.PI / 2, options: { seed: 34, width: 16, colour: 0x8093c5, sign: 'BOOK SHOP', doorCol: 0x3c5a8b, shutters: 0xf3f0e6 } }));
+  items.push(prop('nb-shop', 31, -69.5, { rotY: -Math.PI / 2, options: { seed: 35, width: 16, colour: 0x93aa7c, sign: 'TOY STORE', awning: 0xdfa83e, doorCol: 0x8e2f28 } }));
+
+  // --- the outer villages ------------------------------------------------------
+  items.push(prop('nb-chapel', -106, -68, { rotY: Math.PI / 2, options: { seed: 36 } }));
+  items.push(prop('nb-house', -104, -51, { options: { seed: 37, storeys: 1, colour: 0xf1eddf, roofColour: 0x4c6851, porch: false } }));
+  items.push(prop('nb-colonial', 105, -58, { rotY: -Math.PI / 2, options: { seed: 38 } }));
+  items.push(prop('nb-motel', 106, 16, { rotY: -Math.PI / 2, options: { seed: 39 } }));
+  items.push(prop('nb-house', 122, -90, { rotY: -Math.PI / 2, options: { seed: 40, colour: 0xc2a06c, roofColour: 0x6d4c36, ridgeAxis: 'z' } }));
+
+  // --- the back skyline --------------------------------------------------------
+  items.push(prop('nb-factory', -114, -130, { options: { seed: 41 } }));
+  items.push(prop('nb-brick-block', -38, -130, { options: { seed: 42, storeys: 4, width: 34, depth: 26, sign: 'PUBLIC SCHOOL No. 1', lit: 0.4 } }));
+  items.push(prop('nb-red-block', 36, -128, { options: { seed: 43 } }));
+  items.push(prop('nb-brick-block', 114, -128, { options: { seed: 44, storeys: 2, width: 40, depth: 26, storefronts: true, entrance: false, colour: 0x7d4234, lit: 0.5 } }));
+  items.push(prop('nb-tower-hall', 0, -162, { options: { seed: 45 } }));
+  items.push(prop('nb-rock-hill', 58, -162, { options: { seed: 46, width: 56, height: 26 } }));
+
+  // --- street furniture --------------------------------------------------------
+  for (const [lx, lz] of [[-13.2, 40], [13.2, 12], [-13.2, -52], [13.2, -64], [-13.2, -120], [13.2, -128]]) {
+    items.push(prop('lamp-post', lx, lz, { y: WALK, options: { lit: false } }));
+  }
+  items.push(prop('nb-stop-sign', 14.5, -10, { y: WALK, options: { seed: 47 } }));
+  items.push(prop('nb-stop-sign', -14.5, -42, { y: WALK, rotY: Math.PI, options: { seed: 48 } }));
+  items.push(prop('nb-stop-sign', 14.5, -80, { y: WALK, options: { seed: 49 } }));
+  items.push(prop('nb-stop-sign', -14.5, -112, { y: WALK, rotY: Math.PI, options: { seed: 50 } }));
+  items.push(prop('fire-hydrant', 13.6, 22, { y: WALK }));
+  items.push(prop('fire-hydrant', -13.6, -70, { y: WALK }));
+  items.push(prop('nb-mailbox', 13.6, 38, { y: WALK, rotY: -Math.PI / 2, options: { seed: 51 } }));
+  items.push(prop('bench', -13.8, -56, { y: WALK, rotY: Math.PI / 2 }));
+  items.push(prop('bench', 13.8, -46, { y: WALK, rotY: -Math.PI / 2 }));
+  items.push(prop('bench', -34, 40, { rotY: Math.PI / 2 }));
+  items.push(prop('flower-bed', -24, 46, { options: { seed: 52, width: 8, depth: 4 } }));
+  items.push(prop('flower-bed', 20, 38, { options: { seed: 53, width: 7, depth: 4 } }));
+  items.push(prop('flower-bed', -46, 12, { options: { seed: 54, width: 9, depth: 4 } }));
+  items.push(prop('picnic-set', -30, 46, {}));
+  items.push(prop('nb-hedge', -31, -43.5, { rotY: Math.PI / 2, options: { seed: 55, length: 12 } }));
+  items.push(prop('nb-hedge', 31, -43.5, { rotY: Math.PI / 2, options: { seed: 56, length: 12 } }));
+  items.push(prop('nb-hedge', -97, -60, { options: { seed: 57, length: 10 } }));
+
+  // --- planting: street trees, autumn corners, backdrop -----------------------
+  const tree = (x, z, variant, seed, height = 24) => items.push(prop('nb-tree', x, z, { rotY: (seed % 7) * 0.9, options: { seed, variant, height } }));
+  const conifer = (x, z, seed, height = 20) => items.push(prop('nb-conifer', x, z, { options: { seed, height } }));
+  // Main Street verges
+  tree(-27, 54, 'green', 81, 21);
+  tree(-23, 12, 'autumn', 82, 20);
+  tree(27, 58, 'green', 83, 20);
+  tree(23, 10, 'gold', 84, 20);
+  tree(-21.5, -6, 'green', 85, 20);
+  tree(21.5, -34.5, 'autumn', 86, 20);
+  tree(-21, -80, 'gold', 87, 22);
+  tree(21, -84, 'green', 88, 23);
+  tree(-20.5, -100, 'green', 89, 21);
+  tree(20.5, -104, 'autumn', 90, 22);
+  // Maple Street
+  tree(-60, -6, 'green', 91, 24);
+  tree(-88, -6, 'autumn', 92, 22);
+  tree(-124, -46, 'green', 93, 25);
+  tree(50, -6, 'green', 94, 23);
+  tree(98, -6, 'autumn', 95, 22);
+  tree(124, -46, 'gold', 96, 24);
+  tree(-124, -10, 'gold', 97, 22);
+  tree(124, -12, 'green', 98, 24);
+  // Orchard Street and the villages
+  tree(-48, -75, 'autumn', 99, 21);
+  tree(48, -76, 'green', 100, 22);
+  tree(-120, -47, 'green', 101, 24);
+  tree(-96, -82, 'gold', 102, 21);
+  tree(96, -78, 'autumn', 103, 22);
+  tree(120, -70, 'green', 104, 23);
+  // Houses and yards
+  tree(-46, -4, 'green', 105, 25);
+  tree(46, 8, 'autumn', 106, 22);
+  tree(-36, 48, 'green', 107, 23);
+  tree(76, 26, 'gold', 108, 23);
+  tree(96, 36, 'green', 109, 24);
+  tree(-70, 20, 'autumn', 110, 23);
+  tree(-92, 12, 'green', 111, 25);
+  tree(120, -104, 'green', 112, 23);
+  // Backdrop bands at the rim
+  conifer(-80, -148, 121, 24);
+  conifer(-58, -152, 122, 20);
+  conifer(-26, -152, 123, 22);
+  conifer(26, -150, 124, 21);
+  conifer(88, -144, 125, 23);
+  conifer(96, -136, 126, 19);
+  conifer(-140, -110, 127, 22);
+  conifer(140, -60, 128, 21);
+  tree(-134, -136, 'green', 113, 26);
+  tree(-60, -146, 'autumn', 114, 23);
+  tree(132, -110, 'gold', 115, 24);
+  tree(140, 16, 'green', 116, 25);
+  tree(-140, 30, 'autumn', 117, 24);
+  tree(-136, -74, 'green', 118, 25);
+  tree(140, -22, 'green', 119, 23);
+  tree(70, -110, 'green', 120, 22);
+
+  return { theme: 'neighborhood', spawn: { ...SP, yaw: 0 }, items };
+}
+
 export const PRESET_WORLDS = {
   park: { label: 'The Park', hint: 'The default world: a great meadow, a pond, a bandstand and the bear dens', build: parkLayout },
   museum: { label: 'The Museum', hint: 'A gallery of sculpture and painting, with a plaza out front', build: museumLayout },
@@ -9402,6 +9641,11 @@ export const PRESET_WORLDS = {
     label: 'Alice in Wonderland',
     hint: 'Down the rabbit hole — Alice is waving, the Hatter is pouring, the White Rabbit is late, and the Cheshire Cat keeps vanishing',
     build: wonderlandLayout,
+  },
+  neighborhood: {
+    label: 'The Neighborhood',
+    hint: 'A beautiful day in a mid-century model town — ride your eyes down Main Street, program the cars, and won’t you be my neighbor',
+    build: neighborhoodLayout,
   },
   volcano: {
     label: 'Volcanoes & Rocks',

@@ -38,6 +38,7 @@ import * as Volcano from './VolcanoProps.js';
 import * as JsBasics from './JsBasicsProps.js';
 import * as Chalk from './ChalkProps.js';
 import * as Wonder from './WonderProps.js';
+import * as Neighborhood from './NeighborhoodProps.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -623,6 +624,30 @@ export const PROP_BUILDERS = {
   'drink-me-table': Wonder.drinkMeTable,
   'wonder-clock': Wonder.wonderClock,
   'wonder-sparkles': Wonder.wonderSparkles,
+
+  // The Neighborhood
+  'nb-house': Neighborhood.nbHouse,
+  'nb-colonial': Neighborhood.nbColonial,
+  'nb-chapel': Neighborhood.nbChapel,
+  'nb-shop': Neighborhood.nbShop,
+  'nb-brick-block': Neighborhood.nbBrickBlock,
+  'nb-red-block': Neighborhood.nbRedBlock,
+  'nb-factory': Neighborhood.nbFactory,
+  'nb-tower-hall': Neighborhood.nbTowerHall,
+  'nb-modern-school': Neighborhood.nbModernSchool,
+  'nb-motel': Neighborhood.nbMotel,
+  'nb-barn': Neighborhood.nbBarn,
+  'nb-street-grid': Neighborhood.nbStreetGrid,
+  'nb-trolley': Neighborhood.nbTrolley,
+  'nb-car': Neighborhood.nbCar,
+  'nb-tractor': Neighborhood.nbTractor,
+  'nb-tree': Neighborhood.nbTree,
+  'nb-conifer': Neighborhood.nbConifer,
+  'nb-hedge': Neighborhood.nbHedge,
+  'nb-rock-hill': Neighborhood.nbRockHill,
+  'nb-stop-sign': Neighborhood.nbStopSign,
+  'nb-mailbox': Neighborhood.nbMailbox,
+  'nb-picket-fence': Neighborhood.nbPicketFence,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

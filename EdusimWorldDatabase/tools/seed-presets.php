@@ -781,6 +781,29 @@ $WORLDS = [
             . "Two activities: teach the puppy to draw a square instead of its circle, and drive "
             . "the chalk train in a giant loop. Walk under the rainbow before you leave.",
     ],
+    'neighborhood' => [
+        'title'   => 'The Neighborhood',
+        'creator' => 'Fred Rogers',
+        'tags'    => 'community, town, coding, vehicles, buildings, official',
+        'description' =>
+            "It's a beautiful day in this neighborhood \u{2014} a mid-century American model "
+            . "town you walk into down its own Main Street. The trolley is already running, "
+            . "scooting forward and backward along the rails set into the road, and a green "
+            . "sedan is driving itself around the block: up Main, along Orchard, down Oak and "
+            . "home again, corner after corner, all day.\n\n"
+            . "Every building is open for looking: a music shop, a bakery, a book shop and a "
+            . "toy store with their awnings out and their windows glowing; painted clapboard "
+            . "houses behind picket fences; the four-storey red block whose every window burns "
+            . "warm yellow; the brick school, the trolley works with its arched windows and "
+            . "smokestack, and the Town Hall clock tower that closes the whole street. A barn, "
+            . "a tractor, a tourist-court motel and a little white chapel hold the edges of "
+            . "town, and the bare rock hill rises behind everything.\n\n"
+            . "Two challenge boards teach the town's own tricks: send the SPEEDY DELIVERY van "
+            . "up the street and back with glide and say, then program the blue sedan at the "
+            . "Elm Street corner to drive all the way around its block \u{2014} two glides, two "
+            . "right turns, repeated twice. Every car, and the trolley itself, opens up when "
+            . "you click it. Won't you be my neighbor?",
+    ],
     'wonderland' => [
         'title'   => 'Alice in Wonderland',
         'creator' => 'Lewis Carroll',
