@@ -2937,6 +2937,90 @@ drawn / 79 meshes / **3 transparent** / **0 point lights** / 55 textures. 38ms t
 lightest populated world in the app -- the look is carried by outline and scribble, and
 tessellation the style cannot show buys nothing at any budget.
 
+### Alice in Wonderland, and building CHARACTERS read at six feet
+
+`WonderProps.js` + `wonderlandLayout()`. Gallery world 40 (seeded with creator "Lewis
+Carroll", the way chalk seeds as "Simon"), key `wonderland`, in `PRESET_WORLDS` and
+deliberately not in any menu. Four hero characters -- Alice, the Cheshire Cat, the Mad
+Hatter, the White Rabbit -- around one arrival frame: Alice waving dead ahead, the mad
+tea party filling the left, the Cat fading in and out on his branch to the right, the
+Rabbit announcing his lateness on the path to his hole.
+
+**This is the robot world's problem four times over: a character is read at SIX FEET and
+almost entirely in its FACE.** The whole file runs on RobotProps' local idiom -- `onShell`
+(a point on an ellipsoid plus its TRUE normal), `stud` (a closed flattened ball sunk along
+that normal -- every eye, iris, pupil, nose, blush, spot and button), `chain` for every
+limb, and closed `lathed()` profiles. Three constructions are new and worth reusing:
+
+- **`shellArc()` + `sweepProfile` is how a MOUTH is built.** A run of points lying ON the
+  head's ellipsoid along an azimuth/elevation path, pushed a hair proud, swept with a
+  rounded-rectangle profile: the Cat's ear-to-ear grin is a dark backing band, a white
+  tooth band on top of it, thirteen plum divider chains lying ON the white band, and two
+  lip-line chains framing it -- all following the head's own surface, so no part of the
+  grin can float. The Hatter's smaller grin and every character's smile/brow/lash arc are
+  the same construction. The eyes stack studs (bezel, iris, pupil) with ONE glow-mesh
+  highlight ball each -- without the highlight a matte pupil reads as a hole in the face.
+- **A garment is PAINTED ONTO the body loft, never built over it.** Alice's dress and
+  apron are one loft (white sentinel + tint by (y, azimuth): bib, panel, waistband,
+  pleat shading); the Hatter's vest and lapels ride his coat loft; the Rabbit's
+  waistcoat, pinstripes and shirt front ride his body. One solid, two garments, no seam
+  to open -- the Liberty tint technique doing costume work. Pinstripes obey Nyquist as
+  tints: 8 stripes over 80 sides is the floor.
+- **Hair is a cap that BURIES ITSELF around the face.** Alice's hair is a closed shell
+  slightly larger than the head whose front extent drops below the head's own at face
+  height -- hair inside the head is invisible, it emerges over the crown and back, and
+  the transition row is the hairline. No open edge exists anywhere in that arrangement.
+
+**`mergeParts`' Euler composes Rx·Ry·Rz -- Rz FIRST, then Ry -- so `[pi/2, yaw, 0]` aims
+every cone at +Z whatever the yaw says.** Bit twice in one file (the Cat's cheek ruffs and
+the Rabbit's tufts sprayed along the crown like a mohawk). `aimRot(dir)` (tip about Z,
+then swing about Y) is the local fix; laid()/xformed() remain the general one.
+
+Composition traps, each found by looking:
+
+- **An eyeless grin is a SKULL.** The Hatter's hat brim plus his hair ring swallowed his
+  closed-happy eyes and the friendliest character in the world came out sinister. Face
+  features sit LOW on a hatted head, the hair ring stops short of the face (|azimuth| <
+  2.15) at temple height, and the hat lifted 0.18ft. Related: his band stripes read only
+  as pink-on-CREAM -- pink on deep red was one dark band.
+- **A canopy of separate balls is a bunch of balloons.** wonderTree's crown puffs are
+  pulled 0.68 toward the trunk axis and a central mass bridges the trunk top into the
+  cluster; every pair overlaps by construction.
+- **The tablecloth carries the table's mass.** With the hem stopped a foot up, thin
+  turned legs read as nothing and the whole tea table floated. The hem hangs to 0.8ft
+  with its ripple warp, and the legs fattened anyway.
+- **The rabbit hole is the Machu niche rule at landscape scale.** A mouth CARVED into
+  the mound (a warp) is invisible from thirty feet -- what reads as "hole" is a
+  near-black ARCH standing forward inside the carved funnel, with the tiny door ajar on
+  its face and a dark floor tongue running out of it. Carve alone was tried twice.
+- **An activity's path is geometry to CLEAR, not prose.** `forever { forward 0.5,
+  rotate 5 }` is 72 passes = a 36ft circumference = a 5.7ft-radius circle hanging off
+  the performer's right (clockwise, the measured direction). The Rabbit was moved until
+  that circle stays 2.8ft clear of Alice. Compute r = steps x feet / 2pi for any board
+  before placing its target.
+- **The Cat's perch is the observatory pattern.** `PERCH` (exported constants, tree-local)
+  is where wonderTree's `perch: true` branch tops out; the layout carries it through the
+  tree's yaw and stands `cheshire-cat` there as its OWN record -- so the hero of the
+  world is clickable and programmable, and ships with the vanishing setOpacity program
+  activity 2 then teaches. His stripes are tints in the authored frame (bands along the
+  body axis; bands by ANGLE about the curl centre on the tail, which follows the curl).
+
+**`tools/check-wonder.mjs` holds every builder to a RECORDED open-edge baseline** rather
+than to zero, and the reason is structural: these characters are chains, and a chain
+tube's rim is geometrically open but buried inside its socket ball -- sealed visually,
+with a 2% cover margin. A winding-number cover test was tried and cannot verify a margin
+that thin (the probe steps through it); coarse-grid welding only fuses rims smaller than
+the cell. So the tool asserts no prop EXCEEDS its inspected baseline -- a regression
+shows as a rise -- and inter-part gaps, which produce no open edges at all, stay a
+visual-pass responsibility.
+
+**Performance, measured at the spawn**: 48 records (45 props + browser) / **196 draw
+calls** / 730k drawn / 95 geometries / 96 meshes / **1 transparent** / **0 point
+lights** / 72 textures. 830ms to build, 315ms to load; the world file is 15.2 KB. Per
+prop: cheshire-cat 54.5k triangles, alice 55.8k, white-rabbit 38.8k, mad-hatter 34.3k,
+tea-table 16.0k, card-soldier 9.8k, wonder-tree 6.9-8.3k. The heroes are ~60% of the
+world's geometry, which is the budget doing what this world exists for.
+
 ### A Bug's Life, and building a world around CHALLENGES
 
 `BugProps.js` + `bugsLayout()`. The only preset laid out as a **workshop** rather than as a
