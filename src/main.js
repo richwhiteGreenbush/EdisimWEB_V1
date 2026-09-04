@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { buildWorld, applyWorldTheme } from './SceneSetup.js';
+import { buildWorld, applyWorldTheme, setSunPhase } from './SceneSetup.js';
 import { PlayerController } from './PlayerController.js';
 import { Menu } from './Menu.js';
 import { PlacedRegistry } from './PlacedRegistry.js';
@@ -229,6 +229,11 @@ const menuActions = {
     else if (feet < 1) menu.toast('You are four inches tall. Go and look at the grass.', { tone: 'success' });
     else menu.toast('You are twenty-two feet tall.', { tone: 'success' });
   },
+  // Null puts the world back to the light its author composed it for.
+  sunPhase: (phase) => {
+    setSunPhase(phase);
+    if (phase === null) menu.toast('Back to this world\u2019s own time of day.');
+  },
   settings: () => {
     menu.setCollapsed(true);
     settingsPanel.open();
@@ -269,6 +274,7 @@ const menu = new Menu({
   onPhotoClick: menuActions.photo,
   onFlyClick: menuActions.fly,
   onEyeHeightClick: menuActions.eyeHeight,
+  onSunPhaseChange: menuActions.sunPhase,
   onSettingsClick: menuActions.settings,
   onClearClick: menuActions.clear,
   onVRClick: async () => {

@@ -157,8 +157,57 @@ const state = {
   hemi: null,
   sun: null,
   stars: null,
+  sunDisc: null,
   themeName: null,
+  // The environment OVERLAY: offsets applied over whatever theme is live, rather than
+  // instead of it. `sunPhase` is null when the world is showing its own authored time.
+  overlay: { sunPhase: null },
 };
+
+// A day, as five keyframes. `null` means "whatever the theme itself says", so noon is the
+// world exactly as its author composed it and the ends are departures from that -- which
+// is what keeps this from flattening forty-one carefully-tuned palettes into one.
+//
+// `elev` is a FRACTION of the theme's own sun elevation and it never goes below about a
+// fifth, for a reason that is geometry rather than taste: sun.shadow.camera is an
+// orthographic box 400ft deep measured along the light, so the ground's footprint along
+// that axis grows as 1/sin(elevation) and at a true sunset the far half of the world
+// simply loses its shadows. The COLOUR is allowed to run all the way to night, which is
+// what anybody actually reads as sunset, and nobody notices that the sun stopped
+// descending at twenty degrees.
+const DAY_KEYS = [
+  { t: 0.00, sky: 0x121c2e, sunColor: 0x5f739e, sunI: 0.22, hemiI: 0.42, elev: 0.22, stars: true },
+  { t: 0.14, sky: 0x9a6a72, sunColor: 0xffb98a, sunI: 0.5, hemiI: 0.58, elev: 0.28, stars: false },
+  { t: 0.30, sky: 0xe8a887, sunColor: 0xffd0a0, sunI: 0.9, hemiI: 0.8, elev: 0.55, stars: false },
+  { t: 0.50, sky: null, sunColor: null, sunI: 1, hemiI: 1, elev: 1, stars: false },
+  { t: 0.70, sky: 0xe09a72, sunColor: 0xffc089, sunI: 0.88, hemiI: 0.78, elev: 0.52, stars: false },
+  { t: 0.86, sky: 0x8a5b6b, sunColor: 0xff9f78, sunI: 0.44, hemiI: 0.54, elev: 0.26, stars: false },
+  { t: 1.00, sky: 0x101827, sunColor: 0x56699a, sunI: 0.2, hemiI: 0.4, elev: 0.22, stars: true },
+];
+
+function dayAt(phase) {
+  const t = Math.max(0, Math.min(1, phase));
+  let a = DAY_KEYS[0];
+  let b = DAY_KEYS[DAY_KEYS.length - 1];
+  for (let i = 0; i < DAY_KEYS.length - 1; i++) {
+    if (t >= DAY_KEYS[i].t && t <= DAY_KEYS[i + 1].t) {
+      a = DAY_KEYS[i];
+      b = DAY_KEYS[i + 1];
+      break;
+    }
+  }
+  const span = b.t - a.t;
+  const k = span > 0 ? (t - a.t) / span : 0;
+  return {
+    sky: a.sky === null || b.sky === null ? (k < 0.5 ? a.sky : b.sky) : null,
+    skyA: a.sky, skyB: b.sky, k,
+    sunColorA: a.sunColor, sunColorB: b.sunColor,
+    sunI: a.sunI + (b.sunI - a.sunI) * k,
+    hemiI: a.hemiI + (b.hemiI - a.hemiI) * k,
+    elev: a.elev + (b.elev - a.elev) * k,
+    stars: k < 0.5 ? a.stars : b.stars,
+  };
+}
 
 export function buildWorld(scene) {
   const geometry = new THREE.PlaneGeometry(GROUND_SIZE, GROUND_SIZE, TERRAIN_SEGMENTS, TERRAIN_SEGMENTS);
@@ -201,6 +250,24 @@ export function buildWorld(scene) {
   const stars = buildStarfield();
   scene.add(stars);
 
+  // A visible sun, so scrubbing the time reads as the sun moving rather than as the
+  // colours changing for no reason. Scene furniture exactly as the starfield is: added
+  // to the scene and never registered, so ObjectMenu, PlayIcon, duplicate and persistence
+  // all correctly know nothing about it.
+  //
+  // fog: false is mandatory -- fogFar runs from 155 to 800 across the themes, and a sun
+  // parked well beyond the far plane would otherwise be painted the fog colour, which is
+  // to say invisible.
+  const sunDisc = new THREE.Mesh(
+    new THREE.CircleGeometry(26, 24),
+    new THREE.MeshBasicMaterial({ color: 0xfff2d6, fog: false, transparent: true, opacity: 0.92 }),
+  );
+  sunDisc.visible = false;
+  sunDisc.castShadow = false;
+  sunDisc.receiveShadow = false;
+  scene.add(sunDisc);
+
+  state.sunDisc = sunDisc;
   state.scene = scene;
   state.ground = ground;
   state.hemi = hemi;
@@ -274,4 +341,89 @@ export function applyWorldTheme(themeName) {
   state.stars.visible = !!theme.stars;
 
   state.themeName = name;
+
+  // THE OVERLAY IS RE-APPLIED AFTER EVERY THEME CHANGE, and that is not tidiness.
+  //
+  // The line above that replaces scene.fog builds a BRAND NEW THREE.Fog every time. Any
+  // module that cached the old instance is, from here on, modulating an orphan -- with no
+  // error and no console line, so the symptom is "my sunset stops working after I load a
+  // world", which reads as a bug in the world. Nothing here caches anything: the overlay
+  // is re-derived from state.scene.fog each time it is applied.
+  applyEnvironmentOverlay();
+}
+
+// Applies the live overlay over whatever theme is current. Safe to call at any time, and
+// a no-op when the world is showing its own authored time of day.
+export function applyEnvironmentOverlay() {
+  const theme = WORLD_THEMES[state.themeName] || WORLD_THEMES[DEFAULT_THEME];
+  if (!state.scene || !theme) return;
+  const phase = state.overlay.sunPhase;
+
+  if (phase === null || phase === undefined) {
+    if (state.sunDisc) state.sunDisc.visible = false;
+    return;
+  }
+
+  const day = dayAt(phase);
+
+  // Colour. Every value blends FROM the theme's own, so a world keeps its character --
+  // Mars stays rusty at dusk and the Moon stays airless.
+  const base = new THREE.Color(theme.sky);
+  const skyA = day.skyA === null ? base : new THREE.Color(day.skyA);
+  const skyB = day.skyB === null ? base : new THREE.Color(day.skyB);
+  const sky = skyA.clone().lerp(skyB, day.k);
+  state.scene.background = sky;
+  // Read the LIVE fog rather than a cached reference -- see the note above.
+  if (state.scene.fog) state.scene.fog.color.copy(sky);
+
+  const sunBase = new THREE.Color(theme.sunColor);
+  const sunA = day.sunColorA === null ? sunBase : new THREE.Color(day.sunColorA);
+  const sunB = day.sunColorB === null ? sunBase : new THREE.Color(day.sunColorB);
+  state.sun.color.copy(sunA.clone().lerp(sunB, day.k));
+  state.sun.intensity = theme.sunIntensity * day.sunI;
+  state.hemi.intensity = theme.hemiIntensity * day.hemiI;
+
+  // Direction. Keep the theme's own DISTANCE and swing only the bearing and height, or
+  // the shadow frustum's distance to the light changes underneath the whole world.
+  const p = theme.sunPosition;
+  const radius = Math.hypot(p[0], p[1], p[2]) || 60;
+  const baseElev = Math.asin(Math.max(-1, Math.min(1, p[1] / radius)));
+  const baseAz = Math.atan2(p[0], p[2]);
+  // East to west across the day, a half turn centred on the theme's own bearing.
+  const az = baseAz + (phase - 0.5) * Math.PI;
+  const elev = Math.max(0.16, baseElev * day.elev);
+  const horiz = Math.cos(elev) * radius;
+  state.sun.position.set(Math.sin(az) * horiz, Math.sin(elev) * radius, Math.cos(az) * horiz);
+
+  // The theme's own starfield still wins: the Moon has stars at noon and always should.
+  state.stars.visible = !!theme.stars || day.stars;
+
+  if (state.sunDisc) {
+    state.sunDisc.visible = true;
+    state.sunDisc.position.copy(state.sun.position).multiplyScalar(6.5);
+    state.sunDisc.material.color.copy(state.sun.color);
+    state.sunDisc.lookAt(0, state.sunDisc.position.y * 0.2, 0);
+  }
+}
+
+// 0 = first light, 0.5 = the world's own authored noon, 1 = night. `null` puts the world
+// back to exactly the time its author composed it for.
+export function setSunPhase(phase) {
+  state.overlay.sunPhase = phase === null ? null : Math.max(0, Math.min(1, phase));
+  if (phase === null && state.themeName) {
+    // Put the theme's own lighting back, which the overlay has been sitting on top of.
+    const theme = WORLD_THEMES[state.themeName];
+    state.scene.background = new THREE.Color(theme.sky);
+    if (state.scene.fog) state.scene.fog.color.set(theme.sky);
+    state.sun.color.set(theme.sunColor);
+    state.sun.intensity = theme.sunIntensity;
+    state.hemi.intensity = theme.hemiIntensity;
+    state.sun.position.set(theme.sunPosition[0], theme.sunPosition[1], theme.sunPosition[2]);
+    state.stars.visible = !!theme.stars;
+  }
+  applyEnvironmentOverlay();
+}
+
+export function getSunPhase() {
+  return state.overlay.sunPhase;
 }

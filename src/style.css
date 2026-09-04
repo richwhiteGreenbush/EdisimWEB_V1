@@ -1537,3 +1537,33 @@ body.photo-mode .stretch-done-chip {
   color: #06251a;
   font-weight: 600;
 }
+
+/* A slider row inside a menu dropdown. Laid out like a menu button so the group reads as
+   one list rather than as buttons with a stray form control dropped among them. */
+.menu-slider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 3px 0;
+  padding: 7px 10px;
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.9);
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 8px;
+}
+
+.menu-slider span {
+  flex: 0 0 auto;
+}
+
+.menu-slider input[type='range'] {
+  flex: 1 1 0;
+  min-width: 0;
+  accent-color: #fbbf24;
+}
+
+.menu-subtle {
+  font-size: 11px;
+  opacity: 0.75;
+}

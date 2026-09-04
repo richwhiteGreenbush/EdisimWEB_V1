@@ -17,6 +17,7 @@ export class Menu {
     onPhotoClick,
     onFlyClick,
     onEyeHeightClick,
+    onSunPhaseChange,
     onSettingsClick,
   }) {
     this.root = document.createElement('div');
@@ -197,10 +198,40 @@ export class Menu {
       sizeRow.appendChild(btn);
     }
 
+    // TIME OF DAY. A slider rather than a draggable sun, and deliberately: a slider is
+    // operable by keyboard and by touch, and dragging a disc in the sky is neither. It
+    // also does not have to fight PlayerController for the pointer -- the look-drag is
+    // registered on the canvas at boot, and stopImmediatePropagation from a later listener
+    // on the same element cannot suppress an earlier one, which is why BuildGizmo has to
+    // use capture-phase window listeners for its own grabs.
+    //
+    // What it teaches is the whole reason it is here: the sun visibly swings, and every
+    // shadow in the world swings with it.
+    const sunWrap = document.createElement('label');
+    sunWrap.className = 'menu-slider';
+    const sunLabel = document.createElement('span');
+    sunLabel.textContent = 'Time of day';
+    this.sunSlider = document.createElement('input');
+    this.sunSlider.type = 'range';
+    this.sunSlider.min = '0';
+    this.sunSlider.max = '1';
+    this.sunSlider.step = '0.01';
+    this.sunSlider.value = '0.5';
+    this.sunSlider.title = 'Drag to move the sun across the sky and watch the shadows swing';
+    this.sunSlider.addEventListener('input', () => onSunPhaseChange?.(Number(this.sunSlider.value)));
+    sunWrap.append(sunLabel, this.sunSlider);
+
+    const sunReset = this._button('Back to this world\u2019s own time', 'Undo the time of day and put the world back to the light its author gave it');
+    sunReset.classList.add('menu-subtle');
+    sunReset.addEventListener('click', () => {
+      this.sunSlider.value = '0.5';
+      onSunPhaseChange?.(null);
+    });
+
     const lookAround = this._group(
       'Look Around',
       'See this world another way — from the air, from an ant\u2019s eye, or through a camera',
-      [photoBtn, flyBtn, sizeRow]
+      [photoBtn, flyBtn, sizeRow, sunWrap, sunReset]
     );
 
     this.clearBtn = this._button('Clear World', 'Remove everything you have placed');
