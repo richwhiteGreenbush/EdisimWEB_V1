@@ -241,7 +241,13 @@ export class WorldStore {
       const object3D = buildProp(record.prop, record.options);
       applyTransform(object3D, record.transform);
       this.scene.add(object3D);
-      this.addAndRun(record, object3D);
+      // Forwarding the builder's own tick is what lets a preset prop animate at all. The
+      // gif and startup-* branches have always passed one; this branch did not, so of the
+      // 511 entries in PROP_BUILDERS exactly zero could move. A builder opts in by
+      // stamping `group.userData.tick = { update(dt, camera), dispose() }` -- the same
+      // shape the GIF tick already uses, read off userData because buildProp() already
+      // stamps `presetProp` on the same object.
+      this.addAndRun(record, object3D, { tick: object3D.userData.tick });
       return;
     }
 
@@ -269,7 +275,7 @@ export class WorldStore {
       const mesh = await createPrimitiveMesh(record);
       applyTransform(mesh, record.transform);
       this.scene.add(mesh);
-      this.addAndRun(record, mesh);
+      this.addAndRun(record, mesh, { tick: mesh.userData.tick });
       return;
     }
 
@@ -277,7 +283,7 @@ export class WorldStore {
       const group = await buildBuiltModel(record);
       applyTransform(group, record.transform);
       this.scene.add(group);
-      this.addAndRun(record, group);
+      this.addAndRun(record, group, { tick: group.userData.tick });
       return;
     }
 

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { restTransform } from './RootMotion.js';
 import { nextPlacementXZ } from './Placement.js';
 import { loadImageElement } from './MediaLoader.js';
 import { buildBatchLoadingManager, loadModelFile } from './ModelLoader.js';
@@ -292,10 +293,14 @@ export async function renderModelFromCluster({ rootId, registry, worldStore, men
   const parts = [];
   for (const id of ids) {
     const { object3D, record } = registry.get(id);
+    // restTransform(): a piece carrying a motion sticker must be baked into the model at
+    // the pose it RESTS at, not at whatever frame of its animation Render Model was
+    // pressed on. See RootMotion.js.
+    const rest = restTransform(object3D);
     const placement = {
-      position: object3D.position.clone().sub(origin).toArray(),
-      rotation: [object3D.rotation.x, object3D.rotation.y, object3D.rotation.z],
-      scale: object3D.scale.toArray(),
+      position: [rest.position[0] - origin.x, rest.position[1] - origin.y, rest.position[2] - origin.z],
+      rotation: rest.rotation,
+      scale: rest.scale,
     };
 
     if (record.kind === 'primitive') {

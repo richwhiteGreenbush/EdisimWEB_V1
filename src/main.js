@@ -406,7 +406,7 @@ function animate(timestamp) {
   timer.update(timestamp);
   const dt = Math.min(timer.getDelta(), 0.1);
   player.update(dt);
-  registry.tick();
+  registry.tick(dt, camera);
   programManager.tick();
   markerTrail.tick();
   playIconManager.tick();

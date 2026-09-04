@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+import { restTransform } from './RootMotion.js';
 import { runProgram, runBranch } from './ProgramRunner.js';
 import { compileJs, buildJsRuntime, JS_RUNTIME_NAMES } from './JsProgram.js';
 
@@ -58,11 +60,20 @@ export class ProgramManager {
   // again and it begins from where it now is -- and it is also the only definition that
   // survives an object having been dragged, rendered from primitives or duplicated, none
   // of which write back to the record.
+  // Where `go back to start` goes back to.
+  //
+  // Read through restTransform() so that "start" means where the object actually LIVES,
+  // not where a bob or a spin happened to have it on the frame the program was started.
+  // Without this, pressing play on a bobbing object teaches it a home half an inch above
+  // or below its own record, and every `go back to start` after that drifts.
   captureHome(object3D) {
+    const rest = restTransform(object3D);
     return {
-      position: object3D.position.clone(),
-      quaternion: object3D.quaternion.clone(),
-      scale: object3D.scale.clone(),
+      position: new THREE.Vector3().fromArray(rest.position),
+      quaternion: new THREE.Quaternion().setFromEuler(
+        new THREE.Euler(rest.rotation[0], rest.rotation[1], rest.rotation[2]),
+      ),
+      scale: new THREE.Vector3().fromArray(rest.scale),
     };
   }
 

@@ -96,7 +96,15 @@ export const PROP_BUILDERS = {
   'bootprint-trail': Moon.bootprintTrail,
   'earth-in-sky': Moon.earthInSky,
   'moon-habitat': Moon.moonHabitat,
-  'solar-array': Moon.solarArray,
+  // NOT 'solar-array', and the rename is the fix rather than the bug. This table had
+  // THREE keys declared twice -- 'solar-array', 'rain-curtain' and 'flag-pole' -- and an
+  // object literal keeps the LAST one silently, so Moon.solarArray was unreachable and the
+  // Moon and Mars layouts were both rendering the space station's 40ft truss where a 7ft
+  // lunar panel belongs. The bare key is left pointing where it already pointed, because a
+  // PROP_BUILDERS key is persisted inside every saved and published world that uses it;
+  // the shadowed builder gets a NEW key instead and its own layouts are moved onto it.
+  // Add-only, exactly as the rest of this table's keys are.
+  'lunar-solar-array': Moon.solarArray,
   'lunar-plaque': Moon.lunarPlaque,
 
   // Mars
@@ -249,7 +257,10 @@ export const PROP_BUILDERS = {
 
   // The Water Cycle
   'cumulus-cloud': Water.cumulusCloud,
-  'rain-curtain': Water.rainCurtain,
+  // NOT 'rain-curtain' -- see the note on 'lunar-solar-array'. Storm.rainCurtain won that
+  // key, so the Water Cycle world was drawing the twister's rain: it asks for
+  // { radius, count } and the winner takes { width }, so both were quietly ignored.
+  'water-rain-curtain': Water.rainCurtain,
   'vapour-column': Water.vapourColumn,
   'water-body': Water.waterBody,
   'mountain-peak': Water.mountainPeak,
@@ -295,7 +306,11 @@ export const PROP_BUILDERS = {
   'reflecting-pool': Capitol.reflectingPool,
   'chamber-desks': Capitol.chamberDesks,
   'statuary-figure': Capitol.statuaryFigure,
-  'flag-pole': Capitol.flagPole,
+  // NOT 'flag-pole' -- see the note on 'lunar-solar-array'. Greenbush.flagPole won that
+  // key, so this builder never rendered anywhere at all. Ellis Island and the Capitol are
+  // both moved onto this one; The Neighborhood and Greenbush keep the bare key, which is
+  // the builder they have always actually been getting.
+  'capitol-flag-pole': Capitol.flagPole,
 
   // The Great Barrier Reef
   'sea-turtle': Barrier.seaTurtle,

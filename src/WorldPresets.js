@@ -1048,7 +1048,7 @@ function moonLayout() {
   items.push(prop('earth-in-sky', -72, -150, { y: 84, absoluteY: true, options: { radius: 26 } }));
 
   items.push(prop('moon-habitat', -52, 10, { rotY: 0.4 }));
-  items.push(prop('solar-array', -24, 24, { rotY: -0.5 }));
+  items.push(prop('lunar-solar-array', -24, 24, { rotY: -0.5 }));
 
   for (const [x, z, radius, seed] of [
     [-56, -62, 18, 3],
@@ -1264,9 +1264,9 @@ function marsLayout() {
   // Kept well clear of the greenhouse and the entrance sign: a three-panel array is
   // over 20ft across the booms, so a nominal 10ft gap between centres is still an
   // overlap, and a panel sails straight through whatever it was parked beside.
-  items.push(prop('solar-array', -40, 26, { rotY: -0.4 }));
-  items.push(prop('solar-array', -62, 6, { rotY: -0.15 }));
-  items.push(prop('solar-array', -52, -34, { rotY: 0.3 }));
+  items.push(prop('lunar-solar-array', -40, 26, { rotY: -0.4 }));
+  items.push(prop('lunar-solar-array', -62, 6, { rotY: -0.15 }));
+  items.push(prop('lunar-solar-array', -52, -34, { rotY: 0.3 }));
 
   // The rover, with its own tracks running back past the spawn point so a student
   // arrives standing in them and can follow them to the machine that made them.
@@ -3668,7 +3668,7 @@ function waterCycleLayout() {
   // The rain curtain hangs under the dark cloud, which is the one that is raining. A
   // cloud only rains when its droplets have collided into drops too heavy to stay up, and
   // making exactly one cloud dark and exactly that one rain is how the world says so.
-  items.push(prop('rain-curtain', -70, -8, { y: 10, absoluteY: true, options: { radius: 15, height: 44, count: 300, seed: 13 } }));
+  items.push(prop('water-rain-curtain', -70, -8, { y: 10, absoluteY: true, options: { radius: 15, height: 44, count: 300, seed: 13 } }));
   items.push(
     prop('cycle-arrow', -46, 2, {
       rotY: 0.6,
@@ -4319,7 +4319,7 @@ function ellisLayout() {
   [[-56, 92], [56, 90], [-64, 34], [64, 60]].forEach(([x, z], i) => {
     items.push(prop('shade-tree', x, z, { options: { height: 18 + (i % 2) * 4, seed: 200 + i * 9, leafColor: 0x4c6b3a } }));
   });
-  items.push(prop('flag-pole', 40, 88, { options: { height: 24, seed: 41 } }));
+  items.push(prop('capitol-flag-pole', 40, 88, { options: { height: 24, seed: 41 } }));
 
   // More of the dock. The station handled five thousand people on an ordinary day, and an
   // empty quay reads as a country halt.
@@ -4474,8 +4474,8 @@ function capitolLayout() {
     }),
   );
 
-  items.push(prop('flag-pole', -18, 40, { options: { height: 28, seed: 29 } }));
-  items.push(prop('flag-pole', 18, 40, { options: { height: 28, seed: 31 } }));
+  items.push(prop('capitol-flag-pole', -18, 40, { options: { height: 28, seed: 29 } }));
+  items.push(prop('capitol-flag-pole', 18, 40, { options: { height: 28, seed: 31 } }));
 
   // --- The Mall -----------------------------------------------------------
   // Elms in rows, which is what the Mall actually is: a formal allee, not scattered trees.

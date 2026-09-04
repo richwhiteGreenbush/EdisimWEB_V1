@@ -62,8 +62,27 @@ export class PlacedRegistry {
     for (const id of [...this.items.keys()]) this.remove(id);
   }
 
-  tick() {
-    for (const item of this.items.values()) item.tick?.update?.();
+  // Called every frame from main.js's animate loop.
+  //
+  // `dt` and `camera` are passed through deliberately. For years this was `update?.()`
+  // with no arguments and only animated GIFs used it, so nobody noticed -- but a tick
+  // that counts FRAMES instead of seconds runs at a different speed on every machine,
+  // which is exactly the reason `glide` reads a real clock rather than counting ticks.
+  // Widening it is backward compatible: MediaLoader's GIF tick takes no parameters and
+  // ignores extras.
+  //
+  // The camera goes through for the same reason it is cheap to: a creature that turns to
+  // watch the student needs to know where they are standing, and handing it the camera
+  // beats every alternative (a module-level singleton, a second registration path, a
+  // manager that walks the registry a second time).
+  //
+  // NOTE the ordering this runs in: registry.tick() is called BEFORE programManager.tick(),
+  // so anything here reads LAST frame's position for an object a program is moving. That
+  // is invisible under `glide` and a full eight feet of lag under `forever { moveForward
+  // 8 }`. Anything that has to sample a programmed object belongs after the program runs
+  // -- which is where markerTrail.tick() already sits, for exactly this reason.
+  tick(dt = 0, camera = null) {
+    for (const item of this.items.values()) item.tick?.update?.(dt, camera);
   }
 
   get count() {
