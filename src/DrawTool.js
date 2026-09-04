@@ -1,5 +1,5 @@
 import { inflateFromCanvas } from './BalloonInflator.js';
-import { nextPlacementXZ, faceCamera } from './Placement.js';
+import { nextPlacementXZ, faceCamera, countOfKind } from './Placement.js';
 import { PALETTE_SWATCHES } from './config.js';
 
 import { uuid } from './Uuid.js';
@@ -180,7 +180,7 @@ export class DrawTool {
     }
 
     const liftY = -mesh.geometry.boundingBox.min.y;
-    const { x, z } = nextPlacementXZ(this.camera, this.registry.count);
+    const { x, z } = nextPlacementXZ(this.camera, countOfKind(this.registry, 'balloon'));
     const groundY = this.groundHeightAt(x, z);
     mesh.position.set(x, groundY + liftY, z);
     faceCamera(mesh, this.camera);

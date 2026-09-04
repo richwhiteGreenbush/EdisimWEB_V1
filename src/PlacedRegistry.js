@@ -32,9 +32,12 @@ export class PlacedRegistry {
     this.bulkLoading = false;
   }
 
-  add(id, object3D, { tick, record } = {}) {
+  add(id, object3D, { tick, baseTick, stickerTick, record } = {}) {
     object3D.userData.placedId = id;
-    this.items.set(id, { object3D, tick, record });
+    // baseTick and stickerTick are kept alongside the composed `tick` so a motion sticker
+    // can be swapped at runtime without disposing the record's own tick with it -- an
+    // animated GIF's canvas timer must survive a student trying all six stickers.
+    this.items.set(id, { object3D, tick, baseTick, stickerTick, record });
     // A placed thing ARRIVES rather than simply being there. One hook, seven call sites,
     // all fifteen record kinds. Skipped for the world-theme and world-spawn markers,
     // which are invisible bookkeeping objects rather than things anybody watches.

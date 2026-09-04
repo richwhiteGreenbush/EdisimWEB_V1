@@ -28,6 +28,19 @@ export class PlayerController {
     this.yaw = 0;
     this.pitch = 0;
 
+    // HOW TALL THE STUDENT IS, in feet, at runtime.
+    //
+    // The CONSTANT EYE_HEIGHT must not move -- it is the calibration point every prop in
+    // this project is sized against, and MODEL_TARGET_HEIGHT sits beside it. This is a
+    // separate, per-session value that defaults to it, so that setting yourself four
+    // inches tall re-opens all forty-one worlds as somewhere nobody has been without
+    // changing what a foot means anywhere else.
+    //
+    // A Bug's Life is the case that earns it: that whole world is already built at sixty
+    // times life size, and the joke has never once completed because the student arrives
+    // at normal height.
+    this.eyeHeight = EYE_HEIGHT;
+
     this.keys = new Set();
 
     // The one pointer currently dragging the view -- a mouse button or a finger. Held
@@ -142,7 +155,7 @@ export class PlayerController {
         moveZ /= drive;
         moveX /= drive;
       }
-      const step = MOVE_SPEED * dt;
+      const step = MOVE_SPEED * dt * (this.moveScale ?? 1);
       const sin = Math.sin(this.yaw);
       const cos = Math.cos(this.yaw);
       // Facing is (-sin, -cos); the player's right is that turned 90deg: (cos, -sin).
@@ -157,7 +170,25 @@ export class PlayerController {
       pos.z *= scale;
     }
 
-    pos.y = this.groundHeightAt(pos.x, pos.z) + EYE_HEIGHT;
+    pos.y = this.groundHeightAt(pos.x, pos.z) + this.eyeHeight;
+  }
+
+  // Scaled walking, and a near plane that suits the size.
+  //
+  // The step has to scale or an ant crosses the Park in the time a person crosses a room,
+  // which does not read as being small -- it reads as the world having shrunk. The near
+  // plane has to drop for the opposite reason: at 0.1 a two-inch student standing next to
+  // a grass blade has the blade clipped away in front of their face.
+  setEyeHeight(feet) {
+    const next = Math.max(0.15, Math.min(60, Number(feet) || EYE_HEIGHT));
+    this.eyeHeight = next;
+    const ratio = next / EYE_HEIGHT;
+    this.moveScale = Math.max(0.06, Math.min(6, ratio));
+    this.camera.near = THREE.MathUtils.clamp(0.1 * ratio, 0.01, 0.5);
+    this.camera.updateProjectionMatrix();
+    // Re-seat immediately, or the student stays at their old height until they next walk.
+    const pos = this.camera.position;
+    pos.y = this.groundHeightAt(pos.x, pos.z) + this.eyeHeight;
   }
 
   // Drops the player back at a world's intended starting point. Loading a preset world
@@ -168,7 +199,7 @@ export class PlayerController {
     this.pitch = pitch;
     this.keys.clear();
     this.setAnalogMove(0, 0);
-    this.camera.position.set(x, this.groundHeightAt(x, z) + EYE_HEIGHT, z);
+    this.camera.position.set(x, this.groundHeightAt(x, z) + this.eyeHeight, z);
     this.camera.rotation.set(this.pitch, this.yaw, 0, 'YXZ');
   }
 

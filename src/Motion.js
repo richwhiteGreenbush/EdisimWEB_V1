@@ -274,6 +274,19 @@ export function stickerTickFor(record, object3D) {
   };
 }
 
+// Re-applies a record's motion sticker to a LIVE registry item, so choosing one from the
+// object menu takes effect immediately instead of on the next reload.
+//
+// The base tick is kept separate from the sticker on the item, and that separation is the
+// whole reason this is safe: the composed tick's dispose() would otherwise tear down an
+// animated GIF's canvas timer as well every time a student tried a different sticker.
+export function refreshSticker(item, record, object3D) {
+  if (!item) return;
+  item.stickerTick?.dispose?.();
+  item.stickerTick = stickerTickFor(record, object3D) || null;
+  item.tick = composeTicks(item.baseTick, item.stickerTick);
+}
+
 // A record's own tick and its sticker both have to run. Composed rather than chosen,
 // because a GIF that bobs is a perfectly reasonable thing for a student to make.
 export function composeTicks(...ticks) {

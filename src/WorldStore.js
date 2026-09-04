@@ -84,8 +84,9 @@ export class WorldStore {
     // fifteen record kinds, including a balloon the student painted thirty seconds ago
     // and an imported model, with no per-kind code at all. Composed rather than chosen:
     // a GIF that bobs is a perfectly reasonable thing to make.
-    const tick = composeTicks(extra.tick, stickerTickFor(record, object3D));
-    this.registry.add(record.id, object3D, { ...extra, tick, record });
+    const stickerTick = stickerTickFor(record, object3D);
+    const tick = composeTicks(extra.tick, stickerTick);
+    this.registry.add(record.id, object3D, { ...extra, tick, baseTick: extra.tick, stickerTick, record });
     if (recordHasProgram(record)) {
       // startFromRecord dispatches on the record's programMode, so a saved JavaScript
       // program resumes from every rehydration path exactly as a block program does.

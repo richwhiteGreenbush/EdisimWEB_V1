@@ -26,6 +26,9 @@ import { ConstructionManager } from './ConstructionManager.js';
 import { PrimitiveMenu } from './PrimitiveMenu.js';
 import { BuildGizmo } from './BuildGizmo.js';
 import { Motion } from './Motion.js';
+import { Cinema, arrivalRig, flyRig } from './Cinema.js';
+import { PhotoMode } from './PhotoMode.js';
+import { SettingsPanel } from './SettingsPanel.js';
 import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD } from './config.js';
 import { takeLinkedWorldId, fetchLinkedWorld } from './WorldLink.js';
 
@@ -82,6 +85,13 @@ async function loadPresetWorld(name) {
   const { records, spawn, label } = buildPresetWorldRecords(name, { groundHeightAt });
   await worldStore.loadFromRecords(records);
   player.resetTo(spawn);
+  // The world ARRIVES rather than cutting. Every preset in this project is composed
+  // around one arrival frame -- the notes for each of them argue about the angle at
+  // length -- and until now that frame was delivered as a hard cut. The swoop ends
+  // exactly on it, and arrivalRig returns null when the student has asked for no camera
+  // movement, so this is also how that preference is honoured.
+  const swoop = arrivalRig(cinema, spawn);
+  if (swoop) cinema.take('Arrival', swoop);
   return label;
 }
 
@@ -193,11 +203,44 @@ const menuActions = {
         menu.toast('Could not build that world.', { tone: 'error' });
       });
   },
+  // --- Looking at the world -----------------------------------------------------
+  photo: () => {
+    menu.setCollapsed(true);
+    photoMode.open();
+  },
+  fly: () => {
+    menu.setCollapsed(true);
+    if (!cinema.take('Fly', flyRig(cinema))) return;
+    menu.toast('Look up and press forward to climb. Esc to come back down.');
+  },
+  // `null` means "back to normal". EYE_HEIGHT itself is never written -- it is the
+  // calibration point every prop in this project is sized against.
+  eyeHeight: (feet) => {
+    menu.setCollapsed(true);
+    if (vrView.active) {
+      // VRView reads EYE_HEIGHT in two places and VRMenu bakes its header anchor from it
+      // at MODULE LOAD, so a runtime height leaves the in-scene VR menu hanging five feet
+      // over a two-inch person's head. Gated off rather than made to agree.
+      menu.toast('Come out of the headset view to change your size.', { tone: 'error' });
+      return;
+    }
+    player.setEyeHeight(feet ?? EYE_HEIGHT);
+    if (feet === null) menu.toast('Back to your own size.');
+    else if (feet < 1) menu.toast('You are four inches tall. Go and look at the grass.', { tone: 'success' });
+    else menu.toast('You are twenty-two feet tall.', { tone: 'success' });
+  },
+  settings: () => {
+    menu.setCollapsed(true);
+    settingsPanel.open();
+  },
+
   clear: async () => {
     if (registry.count === 0) {
       menu.toast('Nothing to clear yet.');
       return;
     }
+    // A rig pointed at an object in a world that is about to stop existing.
+    cinema.release();
     registry.clear();
     playIconManager.clear();
     markerTrail.clear();
@@ -223,6 +266,10 @@ const menu = new Menu({
   onSaveWorldClick: menuActions.saveWorld,
   onLoadWorldClick: menuActions.loadWorldFile,
   onLoadPresetClick: menuActions.loadPreset,
+  onPhotoClick: menuActions.photo,
+  onFlyClick: menuActions.fly,
+  onEyeHeightClick: menuActions.eyeHeight,
+  onSettingsClick: menuActions.settings,
   onClearClick: menuActions.clear,
   onVRClick: async () => {
     // Collapse first: the menu is hidden while VR is on, and leaving it open means it
@@ -241,6 +288,11 @@ const menu = new Menu({
   },
 });
 
+// The camera rig. Constructed after `menu` because it toasts through it, and before
+// ObjectMenu, which hands it to its Camera sub-page. vrView does not exist yet -- it is
+// attached below, and take() is the only thing that reads it.
+const cinema = new Cinema({ camera, player, registry, menu });
+
 const markerTrail = new MarkerTrail({
   scene,
   onNotice: (message) => menu.toast(message),
@@ -253,6 +305,18 @@ const playIconManager = new PlayIconManager({ scene, camera, domElement: canvas,
 const speechBubbles = new SpeechBubbleManager({ scene, registry });
 
 const worldStore = new WorldStore({ scene, registry, menu, programManager, playIconManager, webBrowserManager, speechBubbles, markerTrail });
+
+const photoMode = new PhotoMode({
+  scene, camera, renderer, registry, worldStore, menu, player, groundHeightAt, cinema,
+});
+const settingsPanel = new SettingsPanel({
+  onChange: (name) => {
+    // Turning motion off mid-lesson has to take effect on the objects already moving.
+    // Stickers check reducedMotion() every frame and put themselves back to rest, so the
+    // only thing left to do is stop any one-shot that is in flight.
+    if (name === 'motion') motion.clear();
+  },
+});
 
 const importManager = new ImportManager({
   scene,
@@ -282,6 +346,7 @@ const objectMenu = new ObjectMenu({
   menu,
   worldStore,
   programEditor,
+  cinema,
   // Clicking a world-portal billboard runs the same action Load World does. It is the
   // only way to reach a preset marked `hidden` -- 1940's New York is reachable from the
   // billboard behind the Library and from nowhere else.
@@ -392,6 +457,11 @@ const vrView = new VRView({
   },
 });
 
+// take() refuses while a headset session is live: VRView builds its dolly from
+// camera.position.y and player.yaw and the stereo path copies camera.quaternion outright,
+// so a rig driving the camera would go straight into the headset at full amplitude.
+cinema.attach({ vrView });
+
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -407,7 +477,7 @@ if (import.meta.env.DEV) {
     camera, player, renderer, scene, THREE, menu, registry, importManager, drawTool,
     worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager, speechBubbles,
     webBrowserManager, vrView, constructionManager, primitiveMenu, markerTrail, buildGizmo,
-    motion,
+    motion, cinema, photoMode, settingsPanel,
   };
 }
 
@@ -418,10 +488,17 @@ if (import.meta.env.DEV) {
 function animate(timestamp) {
   timer.update(timestamp);
   const dt = Math.min(timer.getDelta(), 0.1);
-  player.update(dt);
+  // A camera rig owns the eyes while it is running -- the same true/false arbitration
+  // vrView.render() uses at the bottom of this function.
+  if (!cinema.active) player.update(dt);
   registry.tick(dt, camera);
   motion.tick(dt);
   programManager.tick();
+  // AFTER the programs have moved things, and BEFORE webBrowserManager.tick(), which
+  // renders the CSS3D layer itself and therefore wants the final camera. A ride that read
+  // its subject before programManager.tick() would be exactly one frame stale -- invisible
+  // under `glide`, eight feet of lag under `forever { moveForward 8 }`.
+  cinema.tick(dt);
   markerTrail.tick();
   playIconManager.tick();
   speechBubbles.tick();
@@ -430,5 +507,10 @@ function animate(timestamp) {
   buildGizmo.tick();
   // vrView draws the frame itself when a headset or stereo view is running.
   if (!vrView.render()) renderer.render(scene, camera);
+  // IMMEDIATELY after the draw, in the same task. The renderer is built without
+  // preserveDrawingBuffer, so a WebGL drawing buffer read from a click handler on a later
+  // tick comes back as a black rectangle with no error at all. This is the only place a
+  // photograph can legally be taken.
+  photoMode.afterRender();
 }
 renderer.setAnimationLoop(animate);

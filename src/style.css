@@ -1084,3 +1084,456 @@ body.vr-active #toast-host {
   border-color: rgba(125, 211, 252, 0.5);
   color: #7dd3fc;
 }
+
+/* --- Camera rigs, motion stickers and settings -------------------------------- */
+
+/* The way out of a camera rig. Same reasoning, placement and z-index as
+   .stretch-done-chip above: above the drag ghost (40), below toasts (50), and clear of
+   the bottom toast band so the hint and the only exit button never overlap. It cannot be
+   Escape alone -- there is no Escape key on a tablet, and a rig takes the whole screen. */
+.cinema-chip {
+  position: fixed;
+  left: 50%;
+  bottom: 76px;
+  transform: translateX(-50%);
+  z-index: 41;
+  background: rgba(24, 28, 33, 0.97);
+  color: #f2f5f7;
+  border: 1px solid rgba(125, 211, 252, 0.6);
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.cinema-chip:hover {
+  background: rgba(40, 48, 56, 0.97);
+}
+
+.cinema-chip[hidden] {
+  display: none;
+}
+
+/* While a rig owns the eyes, the D-pad is meaningless for walking -- except while
+   DRIVING, where the arrow keys steer the object, so TouchNav has to stay reachable.
+   Hiding it outright would strand a tablet student with no way to drive at all. */
+body.cinema-active #menu {
+  opacity: 0.35;
+}
+
+/* The six motion stickers, three to a row. A grid rather than a column because six
+   stacked buttons push Back off the bottom of a short screen. */
+.om-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin: 2px 0 6px;
+}
+
+.om-grid .om-sticker {
+  margin: 0;
+  padding: 7px 4px;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* The one that is currently on. A student needs to be able to see which sticker an
+   object is already wearing, or "Bring it to life" reads as six buttons that all do
+   something and none of which is selected. */
+.om-grid .om-sticker.is-on {
+  background: rgba(74, 222, 128, 0.22);
+  border-color: rgba(74, 222, 128, 0.85);
+  color: #eafff1;
+}
+
+.om-life {
+  border-color: rgba(74, 222, 128, 0.5);
+}
+
+.om-camera {
+  border-color: rgba(125, 211, 252, 0.5);
+}
+
+.om-stop {
+  border-color: rgba(248, 180, 120, 0.5);
+}
+
+/* A quiet line of explanation under a set of buttons -- not a button, so it must not
+   look like one. */
+.om-note {
+  margin: 6px 2px 2px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(226, 232, 240, 0.62);
+}
+
+.om-field input[type='range'] {
+  width: 128px;
+  accent-color: #4ade80;
+}
+
+/* A dropdown param inside a block. Sized and coloured to sit in a block pill exactly as
+   the number and text fields do -- a select that looks like a browser default reads as
+   part of the page rather than as part of the block. */
+.pe-field-select {
+  min-width: 84px;
+  padding: 1px 4px;
+  cursor: pointer;
+}
+
+/* --- The settings panel ------------------------------------------------------- */
+
+/* Same box and the same z-index as #draw-panel and UrlPrompt (30): it is a modal the
+   student opens from the menu, and it must sit above the object menu (25) and below
+   toasts (50), since a failed save toasts from behind it. */
+#settings-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(9, 12, 16, 0.62);
+}
+
+#settings-panel[hidden] {
+  display: none;
+}
+
+.set-box {
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  background: rgba(22, 26, 32, 0.98);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 14px;
+  padding: 20px 22px 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  color: #e2e8f0;
+}
+
+.set-box h2 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.set-lede {
+  margin: 0 0 16px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: rgba(226, 232, 240, 0.68);
+}
+
+.set-row {
+  padding: 12px 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.set-row > label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.set-help {
+  margin: 0 0 8px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: rgba(226, 232, 240, 0.6);
+}
+
+.set-choices {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.set-choice {
+  flex: 1 1 auto;
+  padding: 7px 10px;
+  font-size: 12.5px;
+  font-family: inherit;
+  color: #e2e8f0;
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.set-choice.is-on {
+  background: rgba(125, 211, 252, 0.22);
+  border-color: rgba(125, 211, 252, 0.8);
+  color: #f0f9ff;
+}
+
+.set-done {
+  width: 100%;
+  margin-top: 16px;
+  padding: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #06251a;
+  background: #4ade80;
+  border: 0;
+  border-radius: 9px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* The three size buttons sit on one row inside Look Around -- they are one choice with
+   three values, not three separate actions, and stacking them says otherwise. */
+.menu-size-row {
+  display: flex;
+  gap: 4px;
+  margin: 3px 0;
+}
+
+.menu-size-row .menu-size-btn {
+  flex: 1 1 0;
+  margin: 0;
+  padding: 7px 2px;
+  font-size: 11.5px;
+  text-align: center;
+}
+
+.menu-btn-settings {
+  border-color: rgba(148, 163, 184, 0.45);
+  color: rgba(226, 232, 240, 0.85);
+}
+
+/* --- Photo mode ---------------------------------------------------------------- */
+
+/* z-index 28: above the CSS3D layer (5) and the object menu (25), below the draw and
+   settings modals (30) and far below toasts (50) -- a failed save has to be readable
+   over the viewfinder. pointer-events are off on the frame itself so the look-drag keeps
+   working while composing; only the controls take clicks. */
+#photo-mode {
+  position: fixed;
+  inset: 0;
+  z-index: 28;
+  pointer-events: none;
+}
+
+#photo-mode[hidden] {
+  display: none;
+}
+
+/* Everything else in the app goes away. This is the whole point of a photo mode: you are
+   looking at the world and nothing else. Toasts stay -- they are how "saved" is said. */
+body.photo-mode #menu,
+body.photo-mode #touch-nav,
+body.photo-mode #object-menu,
+body.photo-mode #css3d-layer,
+body.photo-mode .cinema-chip,
+body.photo-mode .stretch-done-chip {
+  display: none !important;
+}
+
+.pm-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 11vh;
+  min-height: 74px;
+  background: #05070a;
+}
+
+.pm-bar-top {
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+/* Title left, the way out right. Both live up here so the bottom bar carries only the
+   three controls a student operates -- crowded into one bar, Done was clipped off the
+   bottom edge of the screen. */
+.pm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: min(880px, 100%);
+  padding: 0 14px;
+}
+
+.pm-bar-bottom {
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+/* The rule-of-thirds grid: four hairlines, no boxes. Anything heavier competes with the
+   picture it exists to help compose. */
+.pm-grid {
+  position: absolute;
+  inset: 11vh 0;
+  min-height: 0;
+}
+
+.pm-grid span {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.pm-grid span:nth-child(1),
+.pm-grid span:nth-child(2) {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.pm-grid span:nth-child(1) { left: 33.33%; }
+.pm-grid span:nth-child(2) { left: 66.66%; }
+
+.pm-grid span:nth-child(3),
+.pm-grid span:nth-child(4) {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.pm-grid span:nth-child(3) { top: 33.33%; }
+.pm-grid span:nth-child(4) { top: 66.66%; }
+
+.pm-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: min(880px, 100%);
+  padding: 0 14px;
+}
+
+.pm-title {
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: rgba(226, 232, 240, 0.6);
+}
+
+.pm-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+}
+
+.pm-chips {
+  display: flex;
+  gap: 4px;
+  flex: 1 1 0;
+  flex-wrap: wrap;
+}
+
+.pm-chips:last-child {
+  justify-content: flex-end;
+}
+
+.pm-chip {
+  padding: 5px 9px;
+  font-size: 11.5px;
+  font-family: inherit;
+  color: rgba(226, 232, 240, 0.82);
+  background: rgba(148, 163, 184, 0.14);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.pm-chip.is-on {
+  background: rgba(248, 250, 252, 0.92);
+  border-color: #fff;
+  color: #0b1116;
+}
+
+/* A real shutter button: round, red, and the biggest thing on the bar. It is the one
+   control a student must find without reading anything. */
+.pm-shutter {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  background: #ef4444;
+  cursor: pointer;
+  padding: 0;
+}
+
+.pm-shutter:hover {
+  background: #f87171;
+}
+
+.pm-exit {
+  padding: 4px 12px;
+  font-size: 11.5px;
+  font-family: inherit;
+  color: rgba(226, 232, 240, 0.75);
+  background: none;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+/* The developed picture, sitting on the screen as an actual print. */
+.pm-result {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: rgba(5, 7, 10, 0.88);
+  pointer-events: auto;
+}
+
+.pm-photo {
+  background: #f8fafc;
+  padding: 12px 12px 34px;
+  border-radius: 3px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  max-width: min(72vw, 720px);
+}
+
+.pm-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 56vh;
+  object-fit: contain;
+  background: #0b1116;
+}
+
+.pm-result-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0 14px;
+}
+
+.pm-act {
+  padding: 9px 15px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #e2e8f0;
+  background: rgba(148, 163, 184, 0.16);
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.pm-act-primary {
+  background: #4ade80;
+  border-color: #4ade80;
+  color: #06251a;
+  font-weight: 600;
+}

@@ -14,6 +14,10 @@ export class Menu {
     onLoadWorldClick,
     onLoadPresetClick,
     onVRClick,
+    onPhotoClick,
+    onFlyClick,
+    onEyeHeightClick,
+    onSettingsClick,
   }) {
     this.root = document.createElement('div');
     this.root.id = 'menu';
@@ -153,6 +157,52 @@ export class Menu {
       onLoadWorldClick?.();
     });
 
+    // LOOK AROUND. Everything about how you SEE the world, behind one door -- the same
+    // argument Create Model makes about everything you put INTO it. Without a group these
+    // would be four more top-level rows in a menu whose whole design note is that it is
+    // short enough to read.
+    const photoBtn = this._button(
+      'Take a Photo',
+      'Hide everything and frame a picture — save it, or hang it up in the world where you took it'
+    );
+    photoBtn.addEventListener('click', () => {
+      this.closeGroups();
+      onPhotoClick?.();
+    });
+
+    const flyBtn = this._button(
+      'Fly Around',
+      'Lift off the ground and fly — look up and press forward to climb. Esc to come back down'
+    );
+    flyBtn.addEventListener('click', () => {
+      this.closeGroups();
+      onFlyClick?.();
+    });
+
+    // Three sizes rather than a slider: a slider invites a student to sit at 2.7ft, which
+    // is nothing in particular. Ant, person and giant are three places worth standing.
+    const sizeRow = document.createElement('div');
+    sizeRow.className = 'menu-size-row';
+    for (const [label, feet, title] of [
+      ['🐜 Ant', 0.3, 'See the world from four inches off the ground'],
+      ['🧍 Me', null, 'Back to normal — five feet tall'],
+      ['🗿 Giant', 22, 'Tower over the whole world'],
+    ]) {
+      const btn = this._button(label, title);
+      btn.classList.add('menu-size-btn');
+      btn.addEventListener('click', () => {
+        this.closeGroups();
+        onEyeHeightClick?.(feet);
+      });
+      sizeRow.appendChild(btn);
+    }
+
+    const lookAround = this._group(
+      'Look Around',
+      'See this world another way — from the air, from an ant\u2019s eye, or through a camera',
+      [photoBtn, flyBtn, sizeRow]
+    );
+
     this.clearBtn = this._button('Clear World', 'Remove everything you have placed');
     this.clearBtn.addEventListener('click', () => onClearClick?.());
 
@@ -162,6 +212,19 @@ export class Menu {
     );
     this.vrBtn.classList.add('menu-btn-vr');
     this.vrBtn.addEventListener('click', () => onVRClick?.());
+
+    // Last, and deliberately quiet. It is the only row nobody needs on a first visit and
+    // the only one somebody might need urgently -- a student who feels unwell wants the
+    // motion switch, and wants it findable rather than pretty.
+    this.settingsBtn = this._button(
+      'Settings',
+      'Turn movement, head bob and camera fly-arounds down or off'
+    );
+    this.settingsBtn.classList.add('menu-btn-settings');
+    this.settingsBtn.addEventListener('click', () => {
+      this.closeGroups();
+      onSettingsClick?.();
+    });
 
     const hint = document.createElement('div');
     hint.className = 'menu-hint';
@@ -176,8 +239,11 @@ export class Menu {
       loadWorldFileBtn,
       createModel.toggle,
       createModel.panel,
+      lookAround.toggle,
+      lookAround.panel,
       this.clearBtn,
       this.vrBtn,
+      this.settingsBtn,
       hint
     );
     this.root.append(this.toggleBtn, this.panel);
