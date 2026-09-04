@@ -127,7 +127,11 @@ export class Cinema {
     // Still arriving, just not travelling.
     this.blend = cameraMovesOn() ? 0 : 1;
     document.body.classList.add('cinema-active');
-    this.chip.textContent = rig.driving ? '\u2713 Done driving' : '\u2713 Back to me';
+    // The label has to match what the rig IS. "Back to me" is right for a rig the student
+    // chose and can leave; it is meaningless during an arrival, where there is no "me" to
+    // go back to yet -- the world has only just been built and they have not stood in it.
+    this.chip.textContent = rig.chipLabel
+      || (rig.driving ? '\u2713 Done driving' : '\u2713 Back to me');
     this.chip.hidden = false;
     return true;
   }
@@ -461,6 +465,10 @@ export function arrivalRig(cinema, spawn, { seconds = 2.1 } = {}) {
   const lookTo = new THREE.Vector3(x - Math.sin(yaw) * 30, groundY - 1.5, z - Math.cos(yaw) * 30);
   let t = 0;
   return {
+    // Skippable, and labelled as such. A two-second cinematic is charming the first time
+    // and an obstacle the twentieth, and a student who has seen it should not have to sit
+    // through it to get to the world.
+    chipLabel: 'Skip \u203a',
     update(dt, ctx) {
       t += dt;
       const p = Math.min(1, t / seconds);
@@ -470,7 +478,10 @@ export function arrivalRig(cinema, spawn, { seconds = 2.1 } = {}) {
       return p >= 1;
     },
     end() {
-      // Land the student exactly on the spawn the world asked for.
+      // Land the student exactly on the spawn the world asked for, whether the swoop ran
+      // to the end or was skipped. release() then also restores its own captured pose,
+      // which for an arrival IS this spawn -- take() was called immediately after
+      // player.resetTo(spawn), so the two agree by construction.
       player.resetTo(spawn);
     },
   };
