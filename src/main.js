@@ -26,6 +26,7 @@ import { ConstructionManager } from './ConstructionManager.js';
 import { PrimitiveMenu } from './PrimitiveMenu.js';
 import { BuildGizmo } from './BuildGizmo.js';
 import { Motion } from './Motion.js';
+import { tickWind, uniforms as windUniforms, setWind } from './Wind.js';
 import { Cinema, arrivalRig, flyRig } from './Cinema.js';
 import { PhotoMode } from './PhotoMode.js';
 import { SettingsPanel } from './SettingsPanel.js';
@@ -92,8 +93,23 @@ async function loadPresetWorld(name) {
   // movement, so this is also how that preference is honoured.
   const swoop = arrivalRig(cinema, spawn);
   if (swoop) cinema.take('Arrival', swoop);
+  // Anything with `when this world opens` on it starts now -- while the camera is still
+  // flying in, which is exactly when a student should see it happen.
+  programManager.broadcast('start');
+  lastSunPhase = null;
   return label;
 }
+
+// Where the day's named moments sit on the 0..1 scrub, and the phase we were last at, so
+// an event can fire on the CROSSING. `broadcast` already walks both block hats and
+// JavaScript hats, so a whenWorld block and a JS whenSaid('sunset') both hear these.
+const SUN_EVENTS = [
+  [0.2, 'sunrise'],
+  [0.5, 'noon'],
+  [0.72, 'sunset'],
+  [0.92, 'night'],
+];
+let lastSunPhase = null;
 
 const loadWorldInput = document.createElement('input');
 loadWorldInput.type = 'file';
@@ -231,8 +247,22 @@ const menuActions = {
   },
   // Null puts the world back to the light its author composed it for.
   sunPhase: (phase) => {
+    const before = lastSunPhase;
     setSunPhase(phase);
-    if (phase === null) menu.toast('Back to this world\u2019s own time of day.');
+    lastSunPhase = phase;
+    if (phase === null) {
+      menu.toast('Back to this world\u2019s own time of day.');
+      return;
+    }
+    // Fire world events on the CROSSING, not on the value, or dragging the slider through
+    // dusk broadcasts "sunset" on every one of the sixty input events that gesture
+    // produces -- and each of those would restart every lamp in the world.
+    if (before === null || before === undefined) return;
+    for (const [at, event] of SUN_EVENTS) {
+      if ((before < at && phase >= at) || (before > at && phase <= at)) {
+        programManager.broadcast(event);
+      }
+    }
   },
   settings: () => {
     menu.setCollapsed(true);
@@ -483,7 +513,7 @@ if (import.meta.env.DEV) {
     camera, player, renderer, scene, THREE, menu, registry, importManager, drawTool,
     worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager, speechBubbles,
     webBrowserManager, vrView, constructionManager, primitiveMenu, markerTrail, buildGizmo,
-    motion, cinema, photoMode, settingsPanel,
+    motion, cinema, photoMode, settingsPanel, windUniforms, setWind,
   };
 }
 
@@ -497,6 +527,9 @@ function animate(timestamp) {
   // A camera rig owns the eyes while it is running -- the same true/false arbitration
   // vrView.render() uses at the bottom of this function.
   if (!cinema.active) player.update(dt);
+  // One uniform write for every swaying leaf in the world. Before registry.tick so the
+  // wind and anything reading the camera this frame agree about where the student is.
+  tickWind(dt, camera);
   registry.tick(dt, camera);
   motion.tick(dt);
   programManager.tick();

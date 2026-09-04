@@ -39,6 +39,7 @@ import * as JsBasics from './JsBasicsProps.js';
 import * as Chalk from './ChalkProps.js';
 import * as Wonder from './WonderProps.js';
 import * as Neighborhood from './NeighborhoodProps.js';
+import { applyWind, WIND_PROPS } from '../Wind.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
 //
@@ -673,5 +674,11 @@ export function buildProp(name, options = {}) {
   if (!builder) throw new Error(`Unknown preset prop: "${name}"`);
   const object3D = builder(options);
   object3D.userData.presetProp = name;
+  // The wind is applied HERE, by key, rather than from inside each builder: one place, no
+  // edits to forty prop files, and opt-in by name so nothing sways that should not. A
+  // hedge moves and a stone wall does not, and no property of the geometry can tell you
+  // which -- it is a judgement about what the thing IS.
+  const wind = WIND_PROPS.get(name);
+  if (wind) applyWind(object3D, wind);
   return object3D;
 }

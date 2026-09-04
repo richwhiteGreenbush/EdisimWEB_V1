@@ -88,8 +88,71 @@ export function mergeColored(parts) {
   }
 
   const merged = mergeGeometries(geometries, false);
+
+  // PART RANGES: where each input's vertices ended up inside the merged buffer.
+  //
+  // Six lines, a few dozen bytes per prop, and they are the whole difference between "the
+  // T. rex is one merged mesh, so nothing on it can move" and "the T. rex's jaw opens for
+  // zero draw calls". This loop was already walking the parts one at a time and already
+  // reading each one's position.count to size the colour array -- it simply threw the
+  // ranges away.
+  //
+  // A part can be NAMED (`part.part = 'jaw'`) so a builder's tick can find its own pieces
+  // without counting them, which is what stops an articulated prop breaking silently the
+  // next time somebody inserts a solid halfway up its parts list.
+  //
+  // THE RULE THAT COMES WITH THIS: anything that moves a range must recompute the
+  // geometry's bounding volumes afterwards, or three separate things break and none of
+  // them looks like the same bug -- the mesh is frustum-culled against a stale sphere and
+  // VANISHES when you look slightly away; ObjectMenu's raycast early-outs on that same
+  // sphere so the moved part is clickable only where it used to be; and PlayIcon does a
+  // fresh Box3.setFromObject every frame, which reads the stale box, so the green play
+  // button hangs in the air over where the animal was standing. See PropKit.rotateRange().
+  const ranges = [];
+  let offset = 0;
+  for (let i = 0; i < geometries.length; i++) {
+    const count = geometries[i].attributes.position.count;
+    ranges.push({ name: parts[i].part ?? null, start: offset, count });
+    offset += count;
+  }
+  merged.userData.partRanges = ranges;
+
   for (const geometry of geometries) geometry.dispose();
   return merged;
+}
+
+// Rotates one merged part in place, about a pivot, on the CPU.
+//
+// Deliberately not a shader. Nothing in src/ has ever patched a shader; PropKit.mesh()
+// sets castShadow unconditionally so a shader-displaced jaw would cast a rigid rest-pose
+// shadow; and ObjectMenu raycasts CPU geometry, so a shader-moved jaw would be clickable
+// only where it used to be. Rotating two thousand vec3s is tens of microseconds on the
+// machine this is built for, and has none of those problems.
+export function rotateRange(geometry, range, axis, angle, pivot) {
+  if (!range || !angle) return;
+  const pos = geometry.attributes.position;
+  const nor = geometry.attributes.normal;
+  const q = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+  const v = new THREE.Vector3();
+  const end = range.start + range.count;
+  for (let i = range.start; i < end; i++) {
+    v.fromBufferAttribute(pos, i).sub(pivot).applyQuaternion(q).add(pivot);
+    pos.setXYZ(i, v.x, v.y, v.z);
+    if (nor) {
+      v.fromBufferAttribute(nor, i).applyQuaternion(q);
+      nor.setXYZ(i, v.x, v.y, v.z);
+    }
+  }
+  pos.needsUpdate = true;
+  if (nor) nor.needsUpdate = true;
+  // Not optional -- see the note in mergeColored above.
+  geometry.computeBoundingSphere();
+  geometry.computeBoundingBox();
+}
+
+// Finds a named range on a merged geometry.
+export function partRange(geometry, name) {
+  return geometry.userData.partRanges?.find((r) => r.name === name) || null;
 }
 
 // Convenience wrapper: mergeColored() straight into a vertex-colored mesh.

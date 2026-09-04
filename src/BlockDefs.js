@@ -48,6 +48,34 @@ export const BLOCK_DEFS = {
     params: { text: { type: 'text', default: 'hello' } },
   },
 
+  // WORLD EVENTS. The sky is a thing a program can WAIT FOR, which is the whole argument
+  // for having a time of day in a coding app rather than a picture of one -- weather
+  // nobody can react to is scenery.
+  //
+  // It needs almost no machinery: ProgramManager.broadcast() already walks both block
+  // hats and JavaScript hats with a re-entry guard, so this is a second hat type matched
+  // in the same loop and every JS whenSaid('sunset') hears it too, across the language
+  // boundary, for free.
+  whenWorld: {
+    category: 'control',
+    hasChildren: true,
+    hat: true,
+    label: [{ text: 'when' }, { field: 'event' }],
+    params: {
+      event: {
+        type: 'select',
+        default: 'sunset',
+        options: [
+          { value: 'sunrise', label: 'the sun comes up' },
+          { value: 'noon', label: 'it is the middle of the day' },
+          { value: 'sunset', label: 'the sun goes down' },
+          { value: 'night', label: 'it gets dark' },
+          { value: 'start', label: 'this world opens' },
+        ],
+      },
+    },
+  },
+
   // --- Motion ---------------------------------------------------------------
   //
   // `moveForward` and `glide` travel along the object's OWN facing, which is the whole
@@ -236,7 +264,7 @@ export const BLOCK_DEFS = {
 // What the palette offers, in order. Retired types are deliberately absent -- see the
 // note on them above.
 export const PALETTE_ORDER = [
-  'repeat', 'forever', 'wait', 'whenSaid', 'duplicate',
+  'repeat', 'forever', 'wait', 'whenSaid', 'whenWorld', 'duplicate',
   'moveForward', 'moveUp', 'glide', 'rotate', 'goHome',
   'say', 'changeSize', 'setSize', 'setOpacity', 'changeColor',
   'markerColor', 'markerDown', 'markerUp', 'eraseMarks',

@@ -215,6 +215,40 @@ export const STICKERS = [
     },
   },
   {
+    // THE ONE THAT MAKES A WORLD FEEL INHABITED. Walk past the Triceratops and its head
+    // comes round to follow you -- slightly late, the way a real animal tracks. Nobody is
+    // told it will do that, and within a minute every child in the room is walking a
+    // circle round it to find where it stops turning.
+    //
+    // Deliberately the whole object rather than a head. Rotating a merged prop's head
+    // needs partRanges to survive DinoProps.creature()'s SECOND merge for the detail
+    // batch, which they do not today -- and this version needs no per-builder edits at
+    // all, so it works on every one of the 511 props and on a balloon a student painted
+    // thirty seconds ago. PropKit.rotateRange() is the machinery for the real thing when
+    // a builder is ready to name its parts.
+    kind: 'watch', label: 'Watch me', hint: 'Turns to follow you as you walk past.',
+    needsCamera: true,
+    apply: (o, rest, phase, camera, memo) => {
+      if (!camera) return;
+      // The bearing FROM the object TO the camera. atan2(x, z) and not atan2(z, x): a
+      // plain Object3D faces its own +Z, the convention every prop here is authored to.
+      const dx = camera.position.x - o.position.x;
+      const dz = camera.position.z - o.position.z;
+      if (dx * dx + dz * dz < 1e-4) return;
+      const want = Math.atan2(dx, dz);
+      // Clamped to the object's own resting facing, so a prop composed to face the spawn
+      // does not slowly rotate to present its back to the world.
+      let delta = want - rest.rotation[1];
+      while (delta > Math.PI) delta -= Math.PI * 2;
+      while (delta < -Math.PI) delta += Math.PI * 2;
+      const clamped = Math.max(-1.15, Math.min(1.15, delta));
+      // Eased, not snapped. An instantaneous turn reads as a bug; a lag of about a third
+      // of a second reads as an animal noticing.
+      memo.yaw = memo.yaw === undefined ? clamped : memo.yaw + (clamped - memo.yaw) * 0.06;
+      o.rotation.y = rest.rotation[1] + memo.yaw;
+    },
+  },
+  {
     kind: 'float', label: 'Float', hint: 'Drifts slowly around, like something in water.',
     apply: (o, rest, phase) => {
       // A lissajous rather than a circle: 1:2 traces a figure of eight, which reads as
@@ -242,9 +276,12 @@ export function stickerTickFor(record, object3D) {
   const speed = Number.isFinite(spec.speed) ? spec.speed : 1;
   let phase = 0;
   let holding = false;
+  // Per-sticker scratch, so a sticker that has to remember something between frames (the
+  // eased yaw of `watch`) does not need a closure of its own or a field on the record.
+  const memo = {};
 
   return {
-    update(dt) {
+    update(dt, camera) {
       // Checked every frame rather than at construction: a student can turn animation off
       // in the middle of a lesson, and the object has to go back to rest when they do.
       if (reducedMotion()) {
@@ -265,7 +302,7 @@ export function stickerTickFor(record, object3D) {
       // across the world.
       resetToRest(object3D);
       phase += dt * speed;
-      sticker.apply(object3D, rest, phase);
+      sticker.apply(object3D, rest, phase, camera, memo);
     },
     dispose() {
       if (holding) endRootMotion(object3D);
