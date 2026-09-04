@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { PLAY_ICON_SIZE, PLAY_ICON_MARGIN } from './config.js';
+import { runningPulse } from './Motion.js';
 import { recordHasProgram } from './ProgramManager.js';
 
 const CLICK_MOVE_THRESHOLD = 6; // px -- beyond this, a mousedown->mouseup is a look-drag, not a click
@@ -101,8 +102,19 @@ export class PlayIconManager {
 
   // Keeps icons following their object every frame, since a running program can
   // move/resize its own object (and Size/Move edits can too).
+  //
+  // It also BREATHES, but only while the program is actually running. Six programmed
+  // robots of which three are running looked identical before this; now the three that
+  // are running pulse and the three that are not sit still, which is the difference
+  // between a badge that says "this can run" and one that says "this IS running".
+  //
+  // programManager.isRunning(id) has existed since programs shipped and was called by
+  // NOTHING in src/ -- it was written for exactly this. One shared clock, so six running
+  // objects pulse together rather than each on its own phase, which reads as six
+  // unrelated glitches rather than as one world doing something.
   tick() {
     if (!this.icons.size) return;
+    const now = performance.now();
     for (const [id, sprite] of this.icons) {
       const item = this.registry.get(id);
       if (!item) {
@@ -110,6 +122,11 @@ export class PlayIconManager {
         continue;
       }
       this.positionIcon(sprite, item.object3D);
+      // Amplitude deliberately small. ConstructionManager parks a hammer badge directly
+      // above this icon for an imported build piece, so a pulse much bigger than this
+      // collides with it -- and the point is a heartbeat, not a throb.
+      const k = this.programManager?.isRunning?.(id) ? runningPulse(now, 0.11) : 1;
+      sprite.scale.set(PLAY_ICON_SIZE * k, PLAY_ICON_SIZE * k, 1);
     }
   }
 

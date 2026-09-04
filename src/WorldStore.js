@@ -9,6 +9,7 @@ import { createPrimitiveMesh, buildBuiltModel } from './Primitives.js';
 import { applyWorldTheme, createThemeMarker, createSpawnMarker } from './SceneSetup.js';
 import { buildProp } from './props/index.js';
 import { DEFAULT_THEME } from './config.js';
+import { stickerTickFor, composeTicks } from './Motion.js';
 
 // The spawn a set of records asks for, as PlayerController.resetTo() wants it, or null.
 //
@@ -78,7 +79,13 @@ export class WorldStore {
   // Every rehydration path funnels through here so a saved program resumes
   // automatically whether it came from IndexedDB or a loaded world file.
   addAndRun(record, object3D, extra = {}) {
-    this.registry.add(record.id, object3D, { ...extra, record });
+    // Motion stickers are attached HERE rather than in each branch, because this is the
+    // one funnel every rehydration path goes through -- so `record.motion` works on all
+    // fifteen record kinds, including a balloon the student painted thirty seconds ago
+    // and an imported model, with no per-kind code at all. Composed rather than chosen:
+    // a GIF that bobs is a perfectly reasonable thing to make.
+    const tick = composeTicks(extra.tick, stickerTickFor(record, object3D));
+    this.registry.add(record.id, object3D, { ...extra, tick, record });
     if (recordHasProgram(record)) {
       // startFromRecord dispatches on the record's programMode, so a saved JavaScript
       // program resumes from every rehydration path exactly as a block program does.
@@ -136,13 +143,22 @@ export class WorldStore {
     // matching `world-theme` record comes back round through rehydrateOne() below.
     applyWorldTheme(records.find((record) => record?.kind === 'world-theme')?.theme || DEFAULT_THEME);
 
-    for (const record of records) {
-      try {
-        await this.rehydrateOne(record);
-        await this.saveObject(record);
-      } catch (err) {
-        console.error('Failed to load a record from the world file:', record?.kind, err);
+    // Bulk: no birth pop. See PlacedRegistry.add() -- popping every record of a 116-object
+    // world at once is a fireworks display in front of somebody trying to look at a town.
+    // try/finally, because a record that throws must not leave the flag stuck on and
+    // silently kill the pop for the rest of the session.
+    this.registry.bulkLoading = true;
+    try {
+      for (const record of records) {
+        try {
+          await this.rehydrateOne(record);
+          await this.saveObject(record);
+        } catch (err) {
+          console.error('Failed to load a record from the world file:', record?.kind, err);
+        }
       }
+    } finally {
+      this.registry.bulkLoading = false;
     }
 
     // Hand back where this world wants the player, or null if it does not say.
@@ -164,12 +180,17 @@ export class WorldStore {
       return;
     }
 
-    for (const record of records || []) {
-      try {
-        await this.rehydrateOne(record);
-      } catch (err) {
-        console.error('Failed to restore a placed object:', record?.primaryFileName || record?.kind, err);
+    this.registry.bulkLoading = true;
+    try {
+      for (const record of records || []) {
+        try {
+          await this.rehydrateOne(record);
+        } catch (err) {
+          console.error('Failed to restore a placed object:', record?.primaryFileName || record?.kind, err);
+        }
       }
+    } finally {
+      this.registry.bulkLoading = false;
     }
   }
 

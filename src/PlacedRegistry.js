@@ -1,3 +1,5 @@
+import { popIn } from './Motion.js';
+
 // Tracks every live, placed Object3D (from imports, images, or drawn balloons) so
 // ImportManager, DrawTool, and WorldStore can all add/remove/dispose through one place.
 
@@ -21,11 +23,24 @@ export class PlacedRegistry {
     this.scene = scene;
     this.programManager = programManager;
     this.items = new Map(); // id -> { object3D, tick, record }
+    this.motion = null;
+    // Set while a whole world is being rehydrated. add() is the single funnel every
+    // placement goes through, which is exactly what makes it the right hook for the birth
+    // pop -- and exactly why it needs this: without it, opening a world pops all 116 of
+    // The Neighborhood's records at once, which is not an arrival, it is a fireworks
+    // display in front of somebody trying to look at a town.
+    this.bulkLoading = false;
   }
 
   add(id, object3D, { tick, record } = {}) {
     object3D.userData.placedId = id;
     this.items.set(id, { object3D, tick, record });
+    // A placed thing ARRIVES rather than simply being there. One hook, seven call sites,
+    // all fifteen record kinds. Skipped for the world-theme and world-spawn markers,
+    // which are invisible bookkeeping objects rather than things anybody watches.
+    if (this.motion && !this.bulkLoading && record?.kind !== 'world-theme' && record?.kind !== 'world-spawn') {
+      popIn(this.motion, object3D);
+    }
   }
 
   get(id) {

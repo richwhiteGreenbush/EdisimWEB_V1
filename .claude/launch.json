@@ -2,17 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "3dcoder-dev",
+      "name": "edusim",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "port": 5173,
-      "autoPort": true
-    },
-    {
-      "name": "edusim-docs",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["vite", "docs", "--port", "4173", "--strictPort"],
-      "port": 4173
+      "port": 5173
     }
   ]
 }

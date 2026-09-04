@@ -25,6 +25,7 @@ import { placePrimitive } from './Primitives.js';
 import { ConstructionManager } from './ConstructionManager.js';
 import { PrimitiveMenu } from './PrimitiveMenu.js';
 import { BuildGizmo } from './BuildGizmo.js';
+import { Motion } from './Motion.js';
 import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD } from './config.js';
 import { takeLinkedWorldId, fetchLinkedWorld } from './WorldLink.js';
 
@@ -44,6 +45,12 @@ const { ground } = buildWorld(scene);
 const player = new PlayerController(camera, canvas, ground);
 const programManager = new ProgramManager();
 const registry = new PlacedRegistry(scene, programManager);
+// One spring for the whole app. Assigned onto the registry rather than injected because
+// PlacedRegistry.add() is the single funnel every placement goes through, and that is
+// where a placed object gets its arrival. buildGizmo does not exist yet -- it is attached
+// below, and nothing animates before a frame is drawn.
+const motion = new Motion({ registry, programManager });
+registry.motion = motion;
 const groundHeightAt = (x, z) => player.groundHeightAt(x, z);
 const touchNav = new TouchNav();
 const webBrowserManager = new WebBrowserManager({
@@ -293,6 +300,11 @@ const buildGizmo = new BuildGizmo({
 
 const primitiveMenu = new PrimitiveMenu({ registry, menu, worldStore, buildGizmo });
 
+// The gizmo is the other thing that can own an object's transform, and Motion must never
+// fight it -- a spring running on a piece the student has under their thumb is a stutter
+// that reads as a bug in the gizmo.
+motion.attach({ buildGizmo });
+
 // The "duplicate" block's effect, handed over now that both the registry and the world
 // store exist. ProgramManager is built at the top of this file because PlacedRegistry
 // takes it as a constructor argument, so it cannot be given these up front -- and it
@@ -395,6 +407,7 @@ if (import.meta.env.DEV) {
     camera, player, renderer, scene, THREE, menu, registry, importManager, drawTool,
     worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager, speechBubbles,
     webBrowserManager, vrView, constructionManager, primitiveMenu, markerTrail, buildGizmo,
+    motion,
   };
 }
 
@@ -407,6 +420,7 @@ function animate(timestamp) {
   const dt = Math.min(timer.getDelta(), 0.1);
   player.update(dt);
   registry.tick(dt, camera);
+  motion.tick(dt);
   programManager.tick();
   markerTrail.tick();
   playIconManager.tick();

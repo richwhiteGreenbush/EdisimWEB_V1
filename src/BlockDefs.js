@@ -73,13 +73,36 @@ export const BLOCK_DEFS = {
     label: [{ text: 'move up by' }, { field: 'feet' }, { text: 'feet' }],
     params: { feet: { type: 'number', default: 1, step: 0.5 } },
   },
+  // The one block that spans time -- and therefore the only one that can be given a
+  // SHAPE. A glide that starts at full speed and stops dead reads as something being
+  // pushed on a trolley; the same ten feet over the same two seconds with an ease on it
+  // reads as something that meant to go there.
+  //
+  // `ease` is a new param on an existing PERSISTED block, which is the whole reason it is
+  // a param and not a change of behaviour: createBlockInstance() gives NEW blocks the
+  // default below, while every block already saved in IndexedDB, in a downloaded world
+  // file, and in the twenty-odd published gallery worlds simply has no such key -- and
+  // ProgramRunner reads it as `?? 'straight'`, so all of those move exactly as they do
+  // today. Same discipline as programJsAuto and targetHeight.
   glide: {
     category: 'motion',
     hasChildren: false,
-    label: [{ text: 'glide' }, { field: 'feet' }, { text: 'feet over' }, { field: 'seconds' }, { text: 'seconds' }],
+    label: [
+      { text: 'glide' }, { field: 'feet' }, { text: 'feet over' },
+      { field: 'seconds' }, { text: 'seconds' }, { field: 'ease' },
+    ],
     params: {
       feet: { type: 'number', default: 10, step: 1 },
       seconds: { type: 'number', default: 2, min: 0.1, step: 0.1 },
+      ease: {
+        type: 'select',
+        default: 'smooth',
+        options: [
+          { value: 'smooth', label: 'smoothly' },
+          { value: 'straight', label: 'straight' },
+          { value: 'bouncy', label: 'bouncy' },
+        ],
+      },
     },
   },
   goHome: {

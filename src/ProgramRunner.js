@@ -1,4 +1,14 @@
 import * as THREE from 'three';
+import { EASE } from './Motion.js';
+
+// Named for children rather than for animators: "smoothly" and "bouncy" are words a
+// nine-year-old picks out of a list. `straight` is the original linear behaviour and is
+// what every block saved before this existed still gets.
+const GLIDE_EASES = {
+  straight: EASE.linear,
+  smooth: EASE.smooth,
+  bouncy: EASE.outBack,
+};
 import { applyColorTint } from './ColorTint.js';
 import { applyOpacity } from './Opacity.js';
 
@@ -73,9 +83,13 @@ function* runBlock(block, ctx) {
       const from = ctx.object3D.position.clone();
       const delta = forwardOf(ctx.object3D).clone().multiplyScalar(feet);
       const started = performance.now();
+      // `?? 'straight'` and not the schema default: a block saved before `ease` existed
+      // has no such key, and every one of those has to keep moving exactly as it always
+      // has. New blocks get 'smooth' from createBlockInstance instead.
+      const shape = GLIDE_EASES[block.params.ease ?? 'straight'] || GLIDE_EASES.straight;
       for (;;) {
         const t = Math.min(1, (performance.now() - started) / (seconds * 1000));
-        ctx.object3D.position.copy(from).addScaledVector(delta, t);
+        ctx.object3D.position.copy(from).addScaledVector(delta, shape(t));
         yield { type: 'tick' };
         if (t >= 1) break;
       }
