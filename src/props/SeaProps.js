@@ -3244,7 +3244,32 @@ export function waterSurface({ size = 360, height = 46, seed = 101, tint = 0x2f8
   plane.castShadow = false;
   plane.receiveShadow = false;
   void seed;
-  return group(plane);
+
+  const g = group(plane);
+  // THE CHEAPEST MOTION IN THE APP. One texture offset a frame -- a uniform write, zero
+  // draw calls, zero geometry -- and the light on the ceiling of the sea starts drifting
+  // the way light through water actually does.
+  //
+  // It works because `caustics` is handed to BOTH `map` and `emissiveMap` above, so one
+  // offset animates the colour and the self-lit glow together; and because this texture
+  // already sets RepeatWrapping. That last part is not a given: PropKit.canvasTexture()
+  // sets colorSpace and anisotropy and NOT wrap, so the default is ClampToEdge -- and
+  // offsetting a texture that has not had wrap set smears one edge row across the whole
+  // surface, which on a 360ft sheet reads as a rendering fault rather than as motion.
+  //
+  // Two speeds would need a second Texture sharing the same `source`; one is enough to
+  // stop the ceiling reading as a photograph.
+  //
+  // This is also the first thing in the app to use the per-record tick that
+  // PlacedRegistry has been calling every frame since the beginning -- see
+  // WorldStore.rehydrateOne's preset-prop branch.
+  g.userData.tick = {
+    update(dt) {
+      caustics.offset.x += dt * 0.006;
+      caustics.offset.y -= dt * 0.0045;
+    },
+  };
+  return g;
 }
 
 // Sunbeams coming down through the surface.

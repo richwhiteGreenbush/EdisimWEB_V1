@@ -215,6 +215,17 @@ export const STICKERS = [
     },
   },
   {
+    kind: 'float', label: 'Float', hint: 'Drifts slowly around, like something in water.',
+    apply: (o, rest, phase) => {
+      // A lissajous rather than a circle: 1:2 traces a figure of eight, which reads as
+      // wandering where a circle reads as a fairground ride.
+      o.position.x = rest.position[0] + Math.sin(phase) * 1.6;
+      o.position.z = rest.position[2] + Math.sin(phase * 2) * 0.8;
+      o.position.y = rest.position[1] + Math.sin(phase * 0.7) * 0.35;
+      o.rotation.y = rest.rotation[1] + Math.sin(phase * 0.5) * 0.3;
+    },
+  },
+  {
     // THE ONE THAT MAKES A WORLD FEEL INHABITED. Walk past the Triceratops and its head
     // comes round to follow you -- slightly late, the way a real animal tracks. Nobody is
     // told it will do that, and within a minute every child in the room is walking a
@@ -246,17 +257,6 @@ export const STICKERS = [
       // of a second reads as an animal noticing.
       memo.yaw = memo.yaw === undefined ? clamped : memo.yaw + (clamped - memo.yaw) * 0.06;
       o.rotation.y = rest.rotation[1] + memo.yaw;
-    },
-  },
-  {
-    kind: 'float', label: 'Float', hint: 'Drifts slowly around, like something in water.',
-    apply: (o, rest, phase) => {
-      // A lissajous rather than a circle: 1:2 traces a figure of eight, which reads as
-      // wandering where a circle reads as a fairground ride.
-      o.position.x = rest.position[0] + Math.sin(phase) * 1.6;
-      o.position.z = rest.position[2] + Math.sin(phase * 2) * 0.8;
-      o.position.y = rest.position[1] + Math.sin(phase * 0.7) * 0.35;
-      o.rotation.y = rest.rotation[1] + Math.sin(phase * 0.5) * 0.3;
     },
   },
 ];
