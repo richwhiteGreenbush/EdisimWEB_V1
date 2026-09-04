@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { nextPlacementXZ } from './Placement.js';
+import { nextPlacementXZ, countOfKind } from './Placement.js';
 import {
   ORB_RADIUS,
   ORB_HALO_SCALE,
@@ -51,7 +51,7 @@ export function createLightOrb(color = PALETTE_SWATCHES[0]) {
 }
 
 export function placeLightOrb({ scene, camera, registry, groundHeightAt, color }) {
-  const { x, z } = nextPlacementXZ(camera, registry.count);
+  const { x, z } = nextPlacementXZ(camera, countOfKind(registry, 'light-orb'));
   const group = createLightOrb(color);
   const groundY = groundHeightAt(x, z);
   group.position.set(x, groundY + ORB_HOVER_HEIGHT, z);

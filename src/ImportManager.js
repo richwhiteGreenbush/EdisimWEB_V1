@@ -1,6 +1,6 @@
 import { loadImagePlane } from './MediaLoader.js';
 import { buildBatchLoadingManager, loadModelFile, scaleToHeight, groundLiftFor } from './ModelLoader.js';
-import { nextPlacementXZ, faceCamera } from './Placement.js';
+import { nextPlacementXZ, faceCamera, countOfKind } from './Placement.js';
 import {
   MODEL_MAX_BYTES,
   IMAGE_MAX_BYTES,
@@ -149,7 +149,7 @@ export class ImportManager {
     scaleToHeight(object3D, MODEL_TARGET_HEIGHT);
     const lift = groundLiftFor(object3D);
 
-    const { x, z } = nextPlacementXZ(this.camera, this.registry.count);
+    const { x, z } = nextPlacementXZ(this.camera, countOfKind(this.registry, ['gltf', 'obj']));
     const y = this.groundHeightAt(x, z);
     object3D.position.set(x, y + lift, z);
     object3D.traverse((node) => {
@@ -185,7 +185,7 @@ export class ImportManager {
     const isGif = ext === 'gif';
     const { mesh, planeHeight, tick } = await loadImagePlane(file, { isGif });
 
-    const { x, z } = nextPlacementXZ(this.camera, this.registry.count);
+    const { x, z } = nextPlacementXZ(this.camera, countOfKind(this.registry, ['image', 'gif']));
     const groundY = this.groundHeightAt(x, z);
     mesh.position.set(x, groundY + planeHeight / 2, z);
     faceCamera(mesh, this.camera);

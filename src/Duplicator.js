@@ -1,6 +1,7 @@
 import { BLOCK_DEFS, DUPLICATE_BLOCK } from './BlockDefs.js';
 
 import { uuid } from './Uuid.js';
+import { restTransform } from './RootMotion.js';
 // Backs the "duplicate" program block: makes a second, independent copy of a placed
 // object, wherever that object currently is.
 //
@@ -92,11 +93,18 @@ export function duplicatePlacedObject({ id, offset = 4, registry, worldStore, me
   // moving or resizing this object has not written those changes back to the record
   // (persistTransform only runs on an ObjectMenu edit), so the record's transform can
   // be many feet stale and the copy would appear back at the object's starting point.
+  //
+  // ...but restTransform() rather than the raw live values, because a MOTION is not a
+  // move: an object bobbing on the spot has a live position that is one frame of a loop,
+  // and copying that gives the duplicate a permanent half-inch of altitude nobody asked
+  // for. A program that genuinely travelled still reads live, because travel is not a
+  // declared root motion. See RootMotion.js.
   const object3D = item.object3D;
+  const base = restTransform(object3D);
   const transform = {
-    position: [object3D.position.x + offset, object3D.position.y, object3D.position.z],
-    rotation: [object3D.rotation.x, object3D.rotation.y, object3D.rotation.z],
-    scale: object3D.scale.toArray(),
+    position: [base.position[0] + offset, base.position[1], base.position[2]],
+    rotation: base.rotation,
+    scale: base.scale,
   };
 
   const copy = cloneRecord(item.record, transform);

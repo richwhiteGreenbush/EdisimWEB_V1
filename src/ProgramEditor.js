@@ -384,6 +384,29 @@ export class ProgramEditor {
       }
 
       const schema = def.params[token.field];
+
+      // A dropdown, for a param whose values are a short fixed list of NAMES rather than
+      // a number. `glide`'s ease is the first: "smoothly" is a word a nine-year-old picks
+      // out of a list and would never think to type. Built as a real <select> so it comes
+      // with keyboard support and a touch-friendly native picker for free.
+      if (schema.type === 'select') {
+        const select = document.createElement('select');
+        select.className = 'pe-field pe-field-select';
+        for (const option of schema.options || []) {
+          const opt = document.createElement('option');
+          opt.value = option.value;
+          opt.textContent = option.label;
+          select.appendChild(opt);
+        }
+        select.value = params[token.field] ?? schema.default;
+        select.disabled = paletteOnly;
+        select.addEventListener('pointerdown', (e) => e.stopPropagation());
+        select.addEventListener('click', (e) => e.stopPropagation());
+        select.addEventListener('change', () => onFieldChange?.(token.field, select.value));
+        el.appendChild(select);
+        continue;
+      }
+
       const input = document.createElement('input');
       input.className = schema.type === 'text' ? 'pe-field pe-field-text' : 'pe-field';
       input.type = schema.type === 'color' ? 'color' : schema.type === 'text' ? 'text' : 'number';

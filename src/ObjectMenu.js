@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { STICKERS, refreshSticker } from './Motion.js';
+import { orbitRig, rideRig, driveRig } from './Cinema.js';
 import { applyColorTint } from './ColorTint.js';
 import { PALETTE_SWATCHES } from './config.js';
 
@@ -6,7 +8,7 @@ const CLICK_MOVE_THRESHOLD = 6; // px -- beyond this, a mousedown->mouseup is a 
 const CLICK_TIME_THRESHOLD = 500; // ms
 
 export class ObjectMenu {
-  constructor({ scene, camera, domElement, registry, menu, worldStore, programEditor, onPortalClick }) {
+  constructor({ scene, camera, domElement, registry, menu, worldStore, programEditor, cinema, onPortalClick }) {
     this.scene = scene;
     this.camera = camera;
     this.domElement = domElement;
@@ -14,6 +16,7 @@ export class ObjectMenu {
     this.menu = menu;
     this.worldStore = worldStore;
     this.programEditor = programEditor;
+    this.cinema = cinema;
     this.onPortalClick = onPortalClick;
 
     this.raycaster = new THREE.Raycaster();
@@ -190,8 +193,127 @@ export class ObjectMenu {
     if (item?.record?.kind === 'light-orb') {
       this.panel.appendChild(this.button('Color', () => this.renderColor()));
     }
+    // Two sub-pages rather than eight buttons. This panel is read by an eight-year-old,
+    // and the fastest way to make it unreadable is to keep adding rows to it -- so
+    // everything about MOVING goes behind one door and everything about LOOKING behind
+    // another, and the root panel stays four rows long.
+    this.panel.appendChild(this.button('✨ Bring it to life', () => this.renderMotion(), 'om-life'));
+    this.panel.appendChild(this.button('🎥 Camera', () => this.renderCamera(), 'om-camera'));
     this.panel.appendChild(this.button('Program', () => this.openProgramEditor()));
     this.panel.appendChild(this.button('Close', () => this.close(), 'om-close'));
+  }
+
+  // BRING IT TO LIFE. Six named motions, one tap each. This is the on-ramp for the child
+  // who is not going to open the block editor on their first afternoon -- and because a
+  // sticker is a property of a record rather than a program, it survives being duplicated
+  // and travels inside a world file with no new code anywhere.
+  renderMotion() {
+    this.panel.innerHTML = '';
+    const item = this.registry.get(this.activeId);
+    if (!item) return this.close();
+
+    const title = document.createElement('div');
+    title.className = 'om-title';
+    title.textContent = 'Bring it to life';
+    this.panel.appendChild(title);
+
+    const current = item.record?.motion?.kind || null;
+
+    const grid = document.createElement('div');
+    grid.className = 'om-grid';
+    for (const sticker of STICKERS) {
+      const btn = this.button(sticker.label, () => this.applyMotion(sticker.kind));
+      btn.classList.add('om-sticker');
+      btn.title = sticker.hint;
+      if (sticker.kind === current) btn.classList.add('is-on');
+      grid.appendChild(btn);
+    }
+    this.panel.appendChild(grid);
+
+    // Speed matters more than it looks: the same wobble at 0.4 is a boat at anchor and at
+    // 3 is a wasp. One number is the whole difference between six motions and eighteen.
+    const wrap = document.createElement('label');
+    wrap.className = 'om-field';
+    const span = document.createElement('span');
+    span.textContent = 'Speed';
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.min = '0.2';
+    slider.max = '3';
+    slider.step = '0.1';
+    slider.value = String(item.record?.motion?.speed ?? 1);
+    slider.addEventListener('input', () => {
+      if (!item.record?.motion) return;
+      this.applyMotion(item.record.motion.kind, Number(slider.value), { keepOpen: true });
+    });
+    wrap.append(span, slider);
+    this.panel.appendChild(wrap);
+
+    this.panel.appendChild(this.button('Hold still', () => this.applyMotion(null), 'om-stop'));
+    this.panel.appendChild(this.button('Back', () => this.renderRoot(), 'om-back'));
+  }
+
+  applyMotion(kind, speed, { keepOpen = false } = {}) {
+    const item = this.registry.get(this.activeId);
+    if (!item?.record) return this.close();
+    const nextSpeed = Number.isFinite(speed) ? speed : (item.record.motion?.speed ?? 1);
+    if (!kind) {
+      delete item.record.motion;
+    } else {
+      item.record.motion = { kind, speed: nextSpeed };
+    }
+    // Re-attach live so the choice takes effect NOW rather than on the next reload -- and
+    // through refreshSticker, which swaps only the sticker and leaves the record's own
+    // tick (an animated GIF's canvas timer, say) alone.
+    refreshSticker(item, item.record, item.object3D);
+    this.worldStore?.saveObject(item.record);
+    if (keepOpen) return;
+    this.renderMotion();
+  }
+
+  // CAMERA. Forty-one worlds are composed for one viewpoint five feet off the ground;
+  // these are the four ways to leave it. Every one of them costs zero draw calls, because
+  // none of them adds a render -- they replace the one the app was already doing.
+  renderCamera() {
+    this.panel.innerHTML = '';
+    const item = this.registry.get(this.activeId);
+    if (!item) return this.close();
+
+    const title = document.createElement('div');
+    title.className = 'om-title';
+    title.textContent = 'Camera';
+    this.panel.appendChild(title);
+
+    const go = (label, make, hint) => {
+      const btn = this.button(label, () => {
+        const rig = make();
+        if (!rig) {
+          this.menu?.toast('Cannot point the camera at that one.', { tone: 'error' });
+          return;
+        }
+        this.cinema?.take(label, rig);
+        this.close();
+      });
+      btn.title = hint;
+      this.panel.appendChild(btn);
+    };
+
+    const id = this.activeId;
+    go('Show me this', () => orbitRig(this.cinema, id),
+       'Lifts the view up and turns the whole thing round in front of you.');
+    go('Ride it', () => rideRig(this.cinema, id, { mode: 'chase' }),
+       'Float above it while its program runs.');
+    go('See what it sees', () => rideRig(this.cinema, id, { mode: 'eyes' }),
+       'Look out of it, facing the way it faces.');
+    go('Drive it', () => driveRig(this.cinema, id),
+       'Steer it yourself with the arrow keys.');
+
+    const note = document.createElement('div');
+    note.className = 'om-note';
+    note.textContent = 'Press Esc to come back.';
+    this.panel.appendChild(note);
+
+    this.panel.appendChild(this.button('Back', () => this.renderRoot(), 'om-back'));
   }
 
   renderColor() {

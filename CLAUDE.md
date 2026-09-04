@@ -377,12 +377,23 @@ sky back to daylight instead of inheriting it.
 
 ### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / the curriculum set / My World / (New York, Under the Sea)
 
-The menu reads **Get More Worlds → Save World → Load World File → Create Model → Clear
-World → VR Headset View**, in that order: get a world, keep this one, open a file, then
-what am I building, then the two whole-session actions. **Load Object** (Import / Draw / Light Orb / Web Browser) is not
+The menu reads **Get More Worlds → Save World → Load World File → Create Model → Look
+Around → Clear World → VR Headset View → Settings**, in that order: get a world, keep this
+one, open a file, then what am I building, then how am I looking at it, then the
+whole-session actions. **Load Object** (Import / Draw / Light Orb / Web Browser) is not
 top-level — it is a dropdown *inside* Create Model, because bringing in a model, painting
 a balloon, dropping an orb and hanging a browser panel are the same job as adding a
 shape: putting something of your own into the world.
+
+**Look Around** is the same argument applied to the other half: everything about how you
+SEE a world behind one door — Take a Photo, Fly Around, the three sizes (🐜 Ant / 🧍 Me /
+🗿 Giant, three places worth standing rather than a slider inviting a student to sit at
+2.7ft), and the Time of Day slider. Without a group these are four more top-level rows in
+a menu whose whole design note is that it is short enough to read.
+
+**Settings is last and deliberately quiet.** It is the only row nobody needs on a first
+visit and the only one somebody might need urgently — a student who feels unwell wants the
+motion switch, and wants it findable rather than pretty.
 
 Both levels are built by `Menu.js`'s `_group()`, which pairs a `▸`/`▾` toggle button with
 a `.menu-submenu` panel. **The two levels are tracked in separate lists and that is
@@ -3457,6 +3468,176 @@ runs independently and is unaffected. On a genuine click it raycasts against
 a floating panel (Size % / Move ft / Program stub) at the click point. Edits mutate
 the live object3D directly, then `persistTransform()` re-derives `record.transform`
 and calls `worldStore.saveObject()`.
+
+### Motion and camera: the animation contract, one spring, and the borrowed eye
+
+Five modules, and the reason they are five rather than fifteen is that half the app's
+"add an ease" and "point the camera somewhere else" jobs turn out to be the same two
+pieces of plumbing invented over and over.
+
+**`PlacedRegistry.tick()` has been calling `item.tick?.update?.()` on every placed record
+every frame since the beginning, and only animated GIFs ever used it** — because
+`WorldStore.rehydrateOne()`'s `preset-prop` branch was the one branch that never passed a
+tick through. That is a single argument, and until it was added not one of the 511 prop
+builders could animate itself. The `primitive` and `built-model` branches had the same
+gap. `tick(dt, camera)` now: a tick that counts FRAMES runs at a different speed on every
+machine, which is exactly why `glide` reads a real clock, and the camera goes through
+because a creature that turns to watch the student has to know where they are standing.
+
+**`RootMotion.js` is the contract, and it had to exist BEFORE anything animated.** Four
+places read the live transform off a registered object and write it somewhere permanent —
+`BuildGizmo.persist()`, `Duplicator`, `ProgramManager.captureHome()` and
+`renderModelFromCluster()`. So an object that has been bobbing since load gets that
+mid-air pose baked into IndexedDB the moment anybody touches it with the gizmo, and again
+on the next refresh, and again, so it walks away across sessions. There is no migration
+for that: a record's transform is the only truth there is. All four now read
+`restTransform()`, which returns the rest pose while something is animating the root and
+the live transform otherwise. Anything that moves a root calls `beginRootMotion()` first;
+`resetToRest()` every frame is what stops two motions on one object integrating each
+other's output.
+
+**`Motion.js` is one spring, one array, one tick, and it is time-boxed and guarded on
+purpose.** Six separate things were each secretly "add an ease" — a glide that lands, a
+piece that pops in, a world that arrives instead of cutting. Written apart they are six
+easing curves that disagree and six places that forget the guard above. The guard is
+`programManager.isRunning(id)` — which had existed since programs shipped and was called
+by NOTHING in `src/` — plus `buildGizmo.activeId`. The birth pop hooks
+`PlacedRegistry.add()`, a genuine single funnel covering all seven call sites and all
+fifteen record kinds, and is suppressed while a world bulk-loads: popping all 116 records
+of The Neighborhood at once is not an arrival, it is a fireworks display in front of
+somebody trying to look at a town.
+
+**Motion stickers are a persisted `record.motion = { kind, speed }`**, attached in
+`WorldStore.addAndRun` — the one funnel every rehydration path goes through — so they
+work on all fifteen kinds including a balloon painted thirty seconds ago. Seven of them;
+`watch` is the one that makes a world feel inhabited, and it is deliberately the whole
+object rather than a head, because `partRanges` do not survive `DinoProps.creature()`'s
+second merge for the detail batch. The base tick and the sticker tick are kept separate on
+the registry item, or swapping stickers would dispose an animated GIF's canvas timer.
+
+**`Cinema.js` writes THE SAME camera object, and that is the load-bearing decision.** The
+instinctive move — a second camera at the render line — is wrong here specifically:
+`WebBrowserPanel` renders the whole CSS3D layer through the app camera captured at its
+construction, and `browserStation()` puts a live panel at the spawn of every preset but My
+World, so every one of those panels would stay painted for a viewpoint nobody is looking
+through while ObjectMenu, PlayIcon, ConstructionManager and BuildGizmo all missed their
+clicks at the same moment. It is the INVERSE of `VRView`, which needs proxies only because
+`WebXRManager` overwrites whatever it is handed. `main.js` is `if (!cinema.active)
+player.update(dt)`, and `cinema.tick(dt)` runs AFTER `programManager.tick()` because the
+program is what moves a ridden object this frame — reading it earlier is one frame stale,
+invisible under `glide` and eight feet of lag under `forever { moveForward 8 }`.
+
+Things the rigs had to learn:
+
+- **Arrow-key TURNING lives inside `PlayerController.update()`**, which is the thing being
+  suppressed. `driveRig` applies `TURN_SPEED` itself off `player.keys`.
+- **`WORLD_BOUND_RADIUS` only ever clamped the PLAYER.** Anything a rig drives has to
+  reimplement it or it walks out into the fog and cannot be got back — this app has no undo.
+- **Do not parent the camera to the ridden object**: `changeSize` multiplies
+  `object3D.scale` and a parented camera inherits that into its near and far planes.
+- **Framing takes the MAX of the vertical and horizontal solves.** `fov 70` is VERTICAL, so
+  a 41ft T. rex seen broadside overflows a height-only distance — and both clamps really
+  fire: a wildflower solves to 0.4ft (inside `camera.near`) and Whimsical World's Mars to
+  593ft, outside `WORLD_BOUND_RADIUS` and past every theme's `fogFar`, so the hero shot
+  would be a rectangle of fog.
+- **The way out cannot be Escape alone.** There is no Escape key on a tablet and a rig
+  takes the whole screen, so `.cinema-chip` copies `.stretch-done-chip` exactly: z-index
+  41, above the drag ghost and below toasts, clear of the toast band.
+
+**Photo mode captures inside `animate()`, immediately after `renderer.render()` and in the
+same task.** The renderer is built without `preserveDrawingBuffer`, so a read from a click
+handler on a later tick returns a BLACK RECTANGLE with no error at all. Do not reach for a
+`WebGLRenderTarget` to fix it: three forces the linear working space and `NoToneMapping`
+for non-XR targets, so the picture comes back dark and flat and visibly not the frame the
+student composed. "Hang it here" makes the photograph an ordinary `image` record — so it
+saves, exports, rehydrates on a classmate's machine and duplicates with no per-kind code —
+downscaled to 1024px, because a full capture is 650KB against a world file that is 9–30KB.
+A photo can never contain a browser panel: the CSS3D layer is composited OVER the canvas.
+
+**`Wind.js` is the app's first custom shader**, and the constraint that looks like it
+forbids the wind is exactly what makes it free. Every prop is one merged mesh, which is why
+a limb cannot be rotated — and why displacing every leaf is a per-vertex ALU cost on
+triangles already being drawn. Zero draw calls, measured. Four things that would otherwise
+bite, none of which errors:
+
+- **DO NOT ADD A SWAY ATTRIBUTE.** `mergeGeometries` refuses a batch whose inputs do not
+  share an identical attribute set — it returns null and the prop SILENTLY DISAPPEARS —
+  and `LoftKit.mergeParts` strips everything outside `position/normal/uv/color`. The weight
+  comes from local `position.y`, which already IS height above the base in feet because
+  every prop here is authored origin-at-base-centre.
+- **The weight must reach zero at the base**, or a grass field slides sideways across the
+  ground like a sheet of paper.
+- **A `customDepthMaterial` carries the same injection.** `PropKit.mesh()` sets
+  `castShadow = true` unconditionally, so without it every swaying tree casts a rigid
+  rest-pose shadow — which reads as a lighting bug, not a missing feature.
+- **Wrap `uTime`.** Unbounded elapsed time in a `mediump` vertex shader bands visibly
+  inside one lesson. And `customProgramCacheKey` must vary with the constants, or two
+  differently-tuned props share a compiled program and the second renders with the first's
+  numbers.
+
+Applied in `buildProp()` **by `PROP_BUILDERS` key** — one place, no edits to forty prop
+files, opt-in by name because "does this sway" is a judgement about what a thing IS: a
+hedge does and a stone wall does not, and no property of the geometry can tell you which.
+All 48 keys are verified against the real table. The **Nudge** rides the same shader —
+grass parting as you walk through it — which in an app where nothing collides with
+anything is the only acknowledgement the world ever gives that the student has a body.
+`normalize(vec2(0.0))` is NaN and one NaN vertex takes the whole merged mesh off screen,
+which presents as the prop being deleted when you stand exactly on it; hence the epsilon.
+
+**The environment overlay sits OVER the theme, never instead of it**, and is re-applied at
+the end of `applyWorldTheme` for a specific reason: that function replaces `scene.fog` with
+a BRAND NEW `THREE.Fog` every time, so anything caching the old instance silently modulates
+an orphan from the next world load onward — the symptom is "my sunset stops working when I
+load a world", which reads as a bug in the world. Nothing caches; the fog is re-read.
+The sun's elevation is clamped to about a fifth of the theme's own while the COLOUR runs
+all the way to night, because `sun.shadow.camera` is an ortho box 400ft deep measured along
+the light and the ground's footprint along that axis grows as `1/sin(elevation)` — at a
+true sunset the far half of the world loses its shadows. Nobody notices the sun stopping at
+twenty degrees; everybody notices the shadows going. The control is a **slider, not a
+draggable sun**: a slider is operable by keyboard and by touch, and it does not have to win
+a fight with `PlayerController`'s look-drag, which is registered on the canvas at boot where
+`stopImmediatePropagation` from a later listener cannot reach it.
+
+**`whenWorld` is a second hat type matched in the loop `broadcast()` already runs**, so a
+JavaScript `whenSaid('sunset')` hears it too across the language boundary, with no new
+mechanism. Events fire on the CROSSING of a threshold, never on the value, or dragging the
+slider through dusk restarts every lamp in the world sixty times. `ProgramManager`'s hat
+filter now asks the schema whether a block is a hat rather than naming `whenSaid` — and
+forgetting a hat type in that line does not error, it silently RUNS the hat's body at
+startup, which is the worst available symptom.
+
+**`Settings.js` is the screen that did not exist.** Head bob plus shake plus swoops plus
+wind plus a scrubbing sun is a real vestibular hazard for a fraction of any class of
+thirty, and there was nowhere to turn any of it down. It is localStorage and not IndexedDB,
+because settings are per-MACHINE and must survive Clear World, a loaded world file and an
+evicted database — and every read is wrapped, because localStorage THROWS rather than
+returning null in a browser configured to block site data, and a throw at module load takes
+the app down with a blank page. `reducedMotion()` still ARRIVES: it runs the final frame
+immediately rather than refusing, so "reduced motion" never quietly means "broken".
+
+**Three `PROP_BUILDERS` keys were declared TWICE** — `rain-curtain`, `solar-array` and
+`flag-pole` — and an object literal keeps the last silently. The Water Cycle was drawing
+the twister's rain curtain, the Moon and Mars were drawing the space station's 40ft truss
+where a 7ft lunar panel belongs, and `Capitol.flagPole` never rendered anywhere at all. The
+bare keys still resolve where they already resolved, because a `PROP_BUILDERS` key is
+persisted inside every saved and published world that uses it; the shadowed builders got
+NEW keys (`lunar-solar-array`, `water-rain-curtain`, `capitol-flag-pole`) and their own
+layouts were moved onto them. Add-only, like every other key in that table.
+
+**`nextPlacementXZ` was still being handed `registry.count` in four places.** At
+`SPAWN_SPACING = 6` against `SPAWN_DISTANCE = 20` the spiral radius passes the drop point
+at n = 12, so in the Park's 118-record world an imported model, a balloon or a light orb
+landed 65ft away behind the student's shoulder while the toast said "placed".
+`Placement.countOfKind()` counts live records of the kind being placed, which is what
+`placePrimitive` and `placeWebBrowser` already did.
+
+**Testing note, and it costs an afternoon to rediscover: a hidden browser pane stops
+`requestAnimationFrame`.** Nothing ticks, no program runs, no spring advances, and every
+symptom looks like the feature being broken. `document.hidden` is the check. Related: a
+dynamic `import()` from the console under Vite gives a SEPARATE MODULE INSTANCE, so
+`setSunPhase()` called that way writes to a `state` whose `scene` is null and silently does
+nothing — drive the app through `window.__debug` or the real DOM, never through a
+re-import.
 
 ### The marker: an in-world 3D pen
 

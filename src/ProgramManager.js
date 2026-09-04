@@ -1,4 +1,7 @@
+import * as THREE from 'three';
+import { restTransform } from './RootMotion.js';
 import { runProgram, runBranch } from './ProgramRunner.js';
+import { BLOCK_DEFS } from './BlockDefs.js';
 import { compileJs, buildJsRuntime, JS_RUNTIME_NAMES } from './JsProgram.js';
 
 // Does this record carry anything runnable? The one predicate every "has a program"
@@ -58,11 +61,20 @@ export class ProgramManager {
   // again and it begins from where it now is -- and it is also the only definition that
   // survives an object having been dragged, rendered from primitives or duplicated, none
   // of which write back to the record.
+  // Where `go back to start` goes back to.
+  //
+  // Read through restTransform() so that "start" means where the object actually LIVES,
+  // not where a bob or a spin happened to have it on the frame the program was started.
+  // Without this, pressing play on a bobbing object teaches it a home half an inch above
+  // or below its own record, and every `go back to start` after that drifts.
   captureHome(object3D) {
+    const rest = restTransform(object3D);
     return {
-      position: object3D.position.clone(),
-      quaternion: object3D.quaternion.clone(),
-      scale: object3D.scale.clone(),
+      position: new THREE.Vector3().fromArray(rest.position),
+      quaternion: new THREE.Quaternion().setFromEuler(
+        new THREE.Euler(rest.rotation[0], rest.rotation[1], rest.rotation[2]),
+      ),
+      scale: new THREE.Vector3().fromArray(rest.scale),
     };
   }
 
@@ -148,7 +160,11 @@ export class ProgramManager {
     // Top-level hats are registered, not run. If the program is nothing BUT hats there is
     // no main runner at all -- which is correct: an object whose only script is "when an
     // object says X" should sit still until somebody says X.
-    const main = program.filter((block) => block.type !== 'whenSaid');
+    // Generalised from `!== 'whenSaid'` when whenWorld landed: ask the schema whether a
+    // block is a hat rather than naming them here, so the next hat type cannot be
+    // forgotten in this one line -- and forgetting it here does not error, it silently
+    // RUNS the hat's body once at start-up, which is the worst possible symptom.
+    const main = program.filter((block) => !BLOCK_DEFS[block.type]?.hat);
     if (main.length) {
       this.spawn(id, runProgram(main, object3D, this.effectsFor(id, object3D, home)));
     }
@@ -171,8 +187,15 @@ export class ProgramManager {
 
     for (const [id, entry] of this.programs) {
       for (const block of entry.program) {
-        if (block.type !== 'whenSaid') continue;
-        if (String(block.params?.text ?? '').trim().toLowerCase() !== key) continue;
+        // Two hat types, one loop. `whenSaid` matches a spoken phrase and `whenWorld`
+        // matches a world event, and both arrive here as the same normalised key -- so a
+        // student can also make one object `say` "sunset" and drive every lamp in the
+        // world from a block, which is a perfectly good thing to discover.
+        let want = null;
+        if (block.type === 'whenSaid') want = block.params?.text;
+        else if (block.type === 'whenWorld') want = block.params?.event;
+        else continue;
+        if (String(want ?? '').trim().toLowerCase() !== key) continue;
         if (!block.children?.length) continue;
 
         const hatKey = `${id}@${block.id}`;

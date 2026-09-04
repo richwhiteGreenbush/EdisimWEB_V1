@@ -9,6 +9,7 @@ import { createPrimitiveMesh, buildBuiltModel } from './Primitives.js';
 import { applyWorldTheme, createThemeMarker, createSpawnMarker } from './SceneSetup.js';
 import { buildProp } from './props/index.js';
 import { DEFAULT_THEME } from './config.js';
+import { stickerTickFor, composeTicks } from './Motion.js';
 
 // The spawn a set of records asks for, as PlayerController.resetTo() wants it, or null.
 //
@@ -78,7 +79,14 @@ export class WorldStore {
   // Every rehydration path funnels through here so a saved program resumes
   // automatically whether it came from IndexedDB or a loaded world file.
   addAndRun(record, object3D, extra = {}) {
-    this.registry.add(record.id, object3D, { ...extra, record });
+    // Motion stickers are attached HERE rather than in each branch, because this is the
+    // one funnel every rehydration path goes through -- so `record.motion` works on all
+    // fifteen record kinds, including a balloon the student painted thirty seconds ago
+    // and an imported model, with no per-kind code at all. Composed rather than chosen:
+    // a GIF that bobs is a perfectly reasonable thing to make.
+    const stickerTick = stickerTickFor(record, object3D);
+    const tick = composeTicks(extra.tick, stickerTick);
+    this.registry.add(record.id, object3D, { ...extra, tick, baseTick: extra.tick, stickerTick, record });
     if (recordHasProgram(record)) {
       // startFromRecord dispatches on the record's programMode, so a saved JavaScript
       // program resumes from every rehydration path exactly as a block program does.
@@ -136,13 +144,22 @@ export class WorldStore {
     // matching `world-theme` record comes back round through rehydrateOne() below.
     applyWorldTheme(records.find((record) => record?.kind === 'world-theme')?.theme || DEFAULT_THEME);
 
-    for (const record of records) {
-      try {
-        await this.rehydrateOne(record);
-        await this.saveObject(record);
-      } catch (err) {
-        console.error('Failed to load a record from the world file:', record?.kind, err);
+    // Bulk: no birth pop. See PlacedRegistry.add() -- popping every record of a 116-object
+    // world at once is a fireworks display in front of somebody trying to look at a town.
+    // try/finally, because a record that throws must not leave the flag stuck on and
+    // silently kill the pop for the rest of the session.
+    this.registry.bulkLoading = true;
+    try {
+      for (const record of records) {
+        try {
+          await this.rehydrateOne(record);
+          await this.saveObject(record);
+        } catch (err) {
+          console.error('Failed to load a record from the world file:', record?.kind, err);
+        }
       }
+    } finally {
+      this.registry.bulkLoading = false;
     }
 
     // Hand back where this world wants the player, or null if it does not say.
@@ -164,12 +181,17 @@ export class WorldStore {
       return;
     }
 
-    for (const record of records || []) {
-      try {
-        await this.rehydrateOne(record);
-      } catch (err) {
-        console.error('Failed to restore a placed object:', record?.primaryFileName || record?.kind, err);
+    this.registry.bulkLoading = true;
+    try {
+      for (const record of records || []) {
+        try {
+          await this.rehydrateOne(record);
+        } catch (err) {
+          console.error('Failed to restore a placed object:', record?.primaryFileName || record?.kind, err);
+        }
       }
+    } finally {
+      this.registry.bulkLoading = false;
     }
   }
 
@@ -241,7 +263,13 @@ export class WorldStore {
       const object3D = buildProp(record.prop, record.options);
       applyTransform(object3D, record.transform);
       this.scene.add(object3D);
-      this.addAndRun(record, object3D);
+      // Forwarding the builder's own tick is what lets a preset prop animate at all. The
+      // gif and startup-* branches have always passed one; this branch did not, so of the
+      // 511 entries in PROP_BUILDERS exactly zero could move. A builder opts in by
+      // stamping `group.userData.tick = { update(dt, camera), dispose() }` -- the same
+      // shape the GIF tick already uses, read off userData because buildProp() already
+      // stamps `presetProp` on the same object.
+      this.addAndRun(record, object3D, { tick: object3D.userData.tick });
       return;
     }
 
@@ -269,7 +297,7 @@ export class WorldStore {
       const mesh = await createPrimitiveMesh(record);
       applyTransform(mesh, record.transform);
       this.scene.add(mesh);
-      this.addAndRun(record, mesh);
+      this.addAndRun(record, mesh, { tick: mesh.userData.tick });
       return;
     }
 
@@ -277,7 +305,7 @@ export class WorldStore {
       const group = await buildBuiltModel(record);
       applyTransform(group, record.transform);
       this.scene.add(group);
-      this.addAndRun(record, group);
+      this.addAndRun(record, group, { tick: group.userData.tick });
       return;
     }
 

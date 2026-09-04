@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { restTransform, rebaseRestPose } from './RootMotion.js';
 import {
   STRETCH_HANDLE_RADIUS,
   STRETCH_MIN_SIZE,
@@ -741,11 +742,16 @@ export class BuildGizmo {
   persist() {
     const item = this.registry.get(this.activeId);
     if (!item?.record) return;
-    item.record.transform = {
-      position: item.object3D.position.toArray(),
-      rotation: [item.object3D.rotation.x, item.object3D.rotation.y, item.object3D.rotation.z],
-      scale: item.object3D.scale.toArray(),
-    };
+    // restTransform(), not the live transform. If anything is animating this object's
+    // root -- a motion sticker, a spring, a bob -- the live values are one frame of that
+    // animation, and writing them here would bake a mid-flight pose into the record and
+    // into IndexedDB. See RootMotion.js; the gizmo is the first of the four places that
+    // would have done it.
+    item.record.transform = restTransform(item.object3D);
+    // The student has just moved this object for real, so a running motion has to start
+    // measuring from HERE rather than snapping back to where the object stood when the
+    // motion began. No-op when nothing is animating it.
+    rebaseRestPose(item.object3D, item.record.transform);
     this.worldStore?.saveObject(item.record);
   }
 }
