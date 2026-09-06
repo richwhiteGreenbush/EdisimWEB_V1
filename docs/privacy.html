@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Student privacy — Edusim collects nothing</title>
+<meta name="description" content="Edusim collects no student data at all. No accounts, no logins, no email addresses, no names, no analytics on children. Work is saved in the browser on the device and never leaves it. A plain-language privacy page for teachers, parents and technology directors." />
+<link rel="canonical" href="https://edusim3dweb.com/privacy.html" />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="assets/edusim-mark.png" />
+<meta property="og:type" content="article" />
+<meta property="og:site_name" content="Edusim: Web Edition" />
+<meta property="og:title" content="Student privacy — Edusim collects nothing" />
+<meta property="og:description" content="Edusim collects no student data at all. No accounts, no logins, no email addresses, no names, no analytics on children. Work is saved in the browser on the device and never leaves it. A plain-language privacy page for teachers, parents and technology directors." />
+<meta property="og:url" content="https://edusim3dweb.com/privacy.html" />
+<meta property="og:image" content="https://edusim3dweb.com/assets/edusim-social.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Student privacy — Edusim collects nothing" />
+<meta name="twitter:description" content="Edusim collects no student data at all. No accounts, no logins, no email addresses, no names, no analytics on children. Work is saved in the browser on the device and never leaves it. A plain-language privacy page for teachers, parents and technology directors." />
+<meta name="twitter:image" content="https://edusim3dweb.com/assets/edusim-social.jpg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Gluten:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/doc.css" />
+<!-- First-party page counting: one POST to this site's own server, no cookies, no
+     identifiers, no third-party script. See docs/assets/edusim-analytics.js for why
+     that matters more here than on an ordinary site, and privacy.html for the promise
+     it keeps. Relative rather than root-absolute, because docs/ is ALSO published to
+     GitHub Pages under a subdirectory, where a leading slash is a 404. -->
+<script defer src="assets/edusim-analytics.js"></script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to the content</a>
+
+<nav class="dnav">
+  <div class="wrap">
+    <a class="dbrand" href="index.html"><span>Edusim</span><small>Web Edition</small></a>
+    <div class="dnav-links">
+      <a href="index.html">Home</a>
+      <a href="schools/index.html">For schools</a>
+      <a href="spatial-reasoning/index.html">Spatial reasoning</a>
+      <a href="research/index.html">Research</a>
+      <a href="guide/teachers.html">Lesson plans</a>
+      <a href="privacy.html" aria-current="page">Privacy</a>
+      <a class="dbtn" href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">Open Edusim</a>
+    </div>
+  </div>
+</nav>
+
+<header class="dhero">
+  <div class="wrap">
+    <span class="eyebrow">🔒 Student privacy</span>
+    <h1>Edusim collects nothing about your students</h1>
+    <p class="lead">
+      No accounts. No logins. No names, no email addresses, no class codes, no parental
+      consent forms. Not because we promise not to look &mdash; because there is nothing
+      to look at. This page says exactly what happens to data when a child opens Edusim,
+      in plain language, with no exceptions hidden further down.
+    </p>
+    <div class="cta">
+      <a class="dbtn ghost" href="schools/it-brief.html">📋 The one-page IT brief</a>
+      <button class="dbtn ghost printbtn no-print" type="button" onclick="window.print()">🖨️ Print this page</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="dsection">
+  <div class="wrap">
+    <div class="col">
+      <h2>The short version</h2>
+      <p>
+        Edusim is a web page. A student opens it and is immediately building &mdash; there
+        is no sign-up step, because there is no account system to sign up to. Their work
+        is saved by the browser, on their own device, in the same way a browser remembers
+        the settings of any website. It is never uploaded anywhere, and nobody else can
+        reach it.
+      </p>
+      <p>
+        <strong>This is an architectural fact, not a policy choice.</strong> Edusim has no
+        server that stores student work, no user table, and no way to associate anything a
+        student does with a person. A promise not to collect data can be changed by
+        editing a document; a product with nowhere to put the data cannot.
+      </p>
+    </div>
+
+    <ul class="qa">
+      <li><b>Does a student need an account?</b><span>No. There is no account system at all &mdash; not for students, not for teachers, not optionally.</span></li>
+      <li><b>Do you ask for a name, email address or age?</b><span>No. Edusim has no field anywhere that asks a child for anything about themselves.</span></li>
+      <li><b>Where is a student&rsquo;s work stored?</b><span>In their own browser, on their own device, using the browser&rsquo;s built-in storage (IndexedDB). It never leaves the machine unless the student chooses to export a file.</span></li>
+      <li><b>Can a teacher see what a student built?</b><span>Only if the student hands it to them. <strong>Save World</strong> exports a file the student can email, drop in a shared folder, or hand in however your school already hands work in.</span></li>
+      <li><b>Is there chat, messaging or any way to contact another user?</b><span>No. There are no other users. Edusim is single-player by design and there is nothing in it that connects one child to another.</span></li>
+      <li><b>Are there advertisements?</b><span>None, anywhere, ever. There is no advertising network on this site or in the app, and no plan for one.</span></li>
+      <li><b>Is anything sold, shared or licensed to a third party?</b><span>Nothing is collected, so there is nothing that could be. There is no data-sharing arrangement with anyone.</span></li>
+      <li><b>Is there a paid tier that changes any of this?</b><span>No. Edusim is free, with no upgrade, no trial that expires, and no premium version that behaves differently.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="dsection tint">
+  <div class="wrap">
+    <div class="col">
+      <h2>What the website itself records</h2>
+      <p>
+        We do count how many people open these pages, because we cannot improve a resource
+        nobody can measure. That counting is deliberately built so it cannot become
+        surveillance, and it is worth stating exactly how, because &ldquo;we use privacy-friendly
+        analytics&rdquo; is a sentence every site says.
+      </p>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>It runs on our own server</h3>
+        <p>No Google Analytics, no third-party analytics product, no tracking script of any kind. The count is recorded by this site, on this site&rsquo;s own server.</p>
+      </div>
+      <div class="card">
+        <h3>No cookies, no identifiers</h3>
+        <p>Edusim sets no tracking cookies at all. Nothing stored in your browser by the counter can identify you, and nothing is sent that could be used to recognise you on a later visit.</p>
+      </div>
+      <div class="card">
+        <h3>No IP addresses are stored</h3>
+        <p>Your IP address is not written to any file or database. The server sees it to answer the request, as every web server must, and then it is gone.</p>
+      </div>
+      <div class="card">
+        <h3>Only totals exist</h3>
+        <p>What is stored is of the form &ldquo;the lesson-plans page was opened 41 times on 6 September.&rdquo; There is no record of individual visits, so a session cannot be reconstructed by us or by anybody else.</p>
+      </div>
+      <div class="card">
+        <h3>Do Not Track is honoured</h3>
+        <p>If your browser sends Do&nbsp;Not&nbsp;Track or Global Privacy Control, nothing is counted at all &mdash; not anonymously, not in aggregate. The request is simply never made.</p>
+      </div>
+      <div class="card">
+        <h3>The web server keeps standard logs</h3>
+        <p>Like every web server on the internet, the hosting provider writes ordinary access logs. Those are the host&rsquo;s, are not used for analytics, and are not connected to anything in Edusim.</p>
+      </div>
+    </div>
+
+    <div class="callout" style="--accent: var(--orange);">
+      <p>
+        <strong>The one third party on this site, stated plainly.</strong> These pages load
+        their typefaces from Google Fonts, so opening a page here makes one request to
+        <span class="mono">fonts.googleapis.com</span> and <span class="mono">fonts.gstatic.com</span>,
+        which Google sees. That is the only off-site request the website makes, it carries
+        no information about the visitor beyond what any web request carries, and
+        <strong>the Edusim app itself loads no fonts and makes no third-party requests
+        whatsoever.</strong> We name it here rather than round it down to zero, because a
+        privacy page that quietly omits its one exception is not worth reading.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="dsection">
+  <div class="wrap">
+    <div class="col">
+      <h2>The two places a student can reach the wider internet</h2>
+      <p>
+        Edusim has two features that put real web content inside a world. Neither collects
+        anything, and both are worth knowing about before a class uses them, because what
+        they load is not ours.
+      </p>
+      <h3>Web browser panels</h3>
+      <p>
+        A student can place a panel in the world that displays a live web page, and type an
+        address into it. That page is loaded directly by the student&rsquo;s browser, exactly as
+        if they had opened a new tab &mdash; so <strong>whatever your school&rsquo;s content
+        filter already does to a browser tab, it does to a panel</strong>. Edusim does not
+        proxy the request, cannot see it, and records nothing about it.
+      </p>
+      <h3>YouTube video panels</h3>
+      <p>
+        A student can paste a YouTube link and get the video as a panel in the world. The
+        video is served by YouTube and is subject to YouTube&rsquo;s own terms and to whatever
+        your district already permits. If YouTube is blocked on your network, the panel is
+        blank &mdash; nothing else changes.
+      </p>
+      <p>
+        Every such link is rewritten to <span class="mono">www.youtube-nocookie.com</span>
+        before the panel is built, whichever form of YouTube address the student pasted.
+        That is YouTube&rsquo;s privacy-enhanced host: it serves the same video without setting
+        personalisation cookies unless the video is played. It is not a complete
+        protection &mdash; YouTube still sees the request &mdash; and we prefer to describe it
+        accurately than to imply more.
+      </p>
+      <div class="callout" style="--accent: var(--blue);">
+        <p>
+          <strong>If you want neither feature in a lesson, simply do not teach them.</strong>
+          They live behind <span class="mono">Menu &#9656; Create Model &#9656; Load Object</span>
+          and nothing in Edusim opens a web page on its own. Every one of the 35 built-in
+          worlds also contains one information panel that opens a page from this site.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dsection tint">
+  <div class="wrap">
+    <div class="col">
+      <h2>Sharing a world to the World Database</h2>
+      <p>
+        The one place a student can send something to us is the
+        <a href="https://edusim3dweb.com/worlds/" target="_blank" rel="noopener noreferrer">World Database</a>,
+        where a world can be published for other people to open. This is entirely optional,
+        it is never automatic, and it takes a deliberate multi-step action.
+      </p>
+      <p>What a shared world carries, and nothing else:</p>
+      <ul>
+        <li><strong>A first name or nickname</strong>, typed by whoever shares it. Teachers should tell students to use a first name only, or a made-up one &mdash; the field is free text and we cannot enforce it.</li>
+        <li><strong>An optional class or group name</strong>, such as &ldquo;Mrs Álvarez, Grade 4&rdquo;.</li>
+        <li><strong>A description and a screenshot of the world</strong>, both supplied by the sharer.</li>
+        <li><strong>The world file itself</strong> &mdash; the 3D objects, nothing more.</li>
+      </ul>
+      <p>
+        No email address is asked for and none is stored. The submitter&rsquo;s IP address is
+        stored only as a one-way hash, so that a flood of automated submissions can be
+        stopped without the database holding an address in the clear. Whoever shares a
+        world is given a key that lets them take it down again later, and that key is
+        stored only as a hash too &mdash; nobody, including us, can look it up for them.
+      </p>
+      <div class="callout" style="--accent: var(--green);">
+        <p>
+          <strong>Teachers can turn sharing off entirely, or require approval.</strong> A
+          school running its own copy can set moderation so every shared world waits for a
+          teacher to approve it. If you would like a world taken down from ours, ask &mdash;
+          there is no form and no argument.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dsection">
+  <div class="wrap">
+    <div class="col">
+      <h2>Where Edusim sits in the law</h2>
+      <p>
+        We are not offering legal advice, and your district counsel is the right person to
+        make the determination. What we can do is state the facts your review will ask for.
+      </p>
+      <ul>
+        <li><strong>COPPA</strong> governs the collection of personal information from children under 13. Edusim collects no personal information from anyone, of any age.</li>
+        <li><strong>FERPA</strong> governs education records. Edusim creates no education records: student work never reaches us, and there is no record connecting work to a student.</li>
+        <li><strong>State student-privacy laws</strong> and the Student Privacy Pledge are typically about what a vendor does with student data it holds. Edusim holds none.</li>
+        <li><strong>GDPR and UK GDPR</strong> concern personal data. The website processes none beyond ordinary server logs held by the host, and the app processes none at all.</li>
+      </ul>
+      <p>
+        Because there is no account, no roster and no data transfer, there is generally
+        <strong>no data-processing agreement to sign</strong> &mdash; which is precisely why a
+        teacher can use Edusim on a Tuesday without a purchase order or an IT ticket. If
+        your district requires a signed document regardless of what a tool collects, ask
+        and we will work through it with you.
+      </p>
+    </div>
+
+    <div class="cite-box">
+      <h4>Verifying any of this yourself</h4>
+      <p>
+        Every claim on this page is checkable without taking our word for it. Edusim&rsquo;s
+        entire source code is public, and the network tab of your own browser&rsquo;s developer
+        tools will show you every request the app makes while a student uses it &mdash; which,
+        with the two panel features unused, is the app&rsquo;s own files and nothing else.
+      </p>
+      <code>Source: https://github.com/richwhiteGreenbush/EdisimWEB_V1</code>
+    </div>
+
+    <div class="col">
+      <h3>Questions, or a takedown request</h3>
+      <p>
+        Edusim: Web Edition is made at the Greenbush Southeast Kansas Education Service
+        Center. Write to
+        <a href="mailto:rich.white@greenbush.org">rich.white@greenbush.org</a> with anything
+        at all &mdash; a privacy review question, a district form that needs completing, or a
+        world you would like removed from the gallery.
+      </p>
+      <p class="print-url">edusim3dweb.com/privacy.html</p>
+      <p class="no-print">
+        <a class="dbtn" href="schools/it-brief.html">Next: the one-page deployment brief for IT &rarr;</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="dfoot">
+  <div class="wrap">
+    <p><strong>Edusim: Web Edition</strong> — a free 3D building-and-coding world for K&ndash;8. No account, no install, no cost, and no student data collected.</p>
+    <p class="links">
+      <a href="index.html">Home</a> &middot;
+      <a href="schools/index.html">For schools</a> &middot;
+      <a href="schools/evidence-brief.html">Evidence brief</a> &middot;
+      <a href="schools/it-brief.html">IT &amp; deployment brief</a> &middot;
+      <a href="spatial-reasoning/index.html">Spatial reasoning</a> &middot;
+      <a href="research/index.html">Research library</a> &middot;
+      <a href="guide/teachers.html">Lesson plans</a> &middot;
+      <a href="privacy.html">Privacy</a> &middot;
+      <a href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">Launch Edusim</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

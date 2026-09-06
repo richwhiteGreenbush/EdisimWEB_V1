@@ -43,6 +43,52 @@ function ewd_db(): PDO
     return $pdo;
 }
 
+/**
+ * A deployment's own settings: at present, which world is in the spotlight.
+ *
+ * A key/value table rather than a column on `worlds`, because "is this world the
+ * spotlight" is a property of the SITE (there is one, and only one) rather than of the
+ * world. As a column it would need a migration, an index, and a rule enforced in code
+ * that no more than one row may have it set -- all to store a single integer.
+ */
+function ewd_setting(string $key, ?string $default = null): ?string
+{
+    $stmt = ewd_db()->prepare('SELECT value FROM settings WHERE key = ?');
+    $stmt->execute([$key]);
+    $v = $stmt->fetchColumn();
+    return $v === false ? $default : (string)$v;
+}
+
+function ewd_set_setting(string $key, ?string $value): void
+{
+    if ($value === null || $value === '') {
+        ewd_db()->prepare('DELETE FROM settings WHERE key = ?')->execute([$key]);
+        return;
+    }
+    ewd_db()->prepare(
+        'INSERT INTO settings (key, value) VALUES (?, ?)
+         ON CONFLICT (key) DO UPDATE SET value = excluded.value'
+    )->execute([$key, $value]);
+}
+
+/**
+ * The spotlit world, or null.
+ *
+ * Resolved to a full row rather than an id, and the row is re-checked for `published`
+ * every time: a world can be hidden or deleted after being spotlit, and a spotlight band
+ * pointing at a 404 -- or worse, re-surfacing something a teacher deliberately hid -- is
+ * the failure this lookup exists to make impossible.
+ */
+function ewd_spotlight_world(): ?array
+{
+    $id = (int)(ewd_setting('spotlight_world_id') ?? 0);
+    if ($id <= 0) {
+        return null;
+    }
+    $world = ewd_find_world($id);
+    return ($world && $world['status'] === 'published') ? $world : null;
+}
+
 function ewd_ensure_dirs(): void
 {
     foreach ([EWD_DATA_DIR, EWD_WORLD_DIR, EWD_UPLOAD_DIR, EWD_SHOT_DIR] as $dir) {
@@ -158,6 +204,16 @@ function ewd_migrate(PDO $pdo): void
     SQL);
 
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_world_tags_tag ON world_tags (tag_id)');
+
+    // Deployment settings. One row per setting; see ewd_setting() above for why this is
+    // a table rather than a column on `worlds`. IF NOT EXISTS like every statement here,
+    // so an existing database gains it on the next request with no migration step.
+    $pdo->exec(<<<'SQL'
+        CREATE TABLE IF NOT EXISTS settings (
+            key   TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        )
+    SQL);
 
     $pdo->exec(<<<'SQL'
         CREATE TABLE IF NOT EXISTS submission_log (

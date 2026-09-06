@@ -38,6 +38,12 @@ $counts     = ewd_count_by_status();
 $tags       = ewd_popular_tags(10);
 $filtering  = $search !== '' || $tag !== '' || $theme !== '';
 
+// The monthly world spotlight, set from the teacher tools. Deliberately suppressed while
+// a filter is on: a band promoting one world above a list the visitor has explicitly
+// narrowed is an advertisement interrupting a search, and the spotlight's job is to be
+// seen by somebody browsing rather than by somebody looking for something else.
+$spotlight = $filtering ? null : ewd_spotlight_world();
+
 ewd_header([
     'title'  => 'Browse worlds',
     'active' => 'browse',
@@ -58,6 +64,31 @@ ewd_hero(
 
 <main class="section">
   <div class="wrap">
+
+    <?php if ($spotlight): ?>
+      <?php
+        // The spotlight exists to give somebody who shared a world a reason to send
+        // people the gallery's own link, which is the cheapest growth this project has.
+        // So the builder's name is as prominent as the world's, and the whole band links
+        // to their page rather than straight into the app.
+        $spShot = $spotlight['shot_thumb_path'] !== '' ? $spotlight['shot_thumb_path'] : $spotlight['shot_path'];
+      ?>
+      <a class="spotlight" href="<?= e('world.php?id=' . (int)$spotlight['id']) ?>">
+        <img src="<?= e(EWD_SHOT_URL . '/' . $spShot) ?>" loading="eager" width="640" height="400"
+             alt="A screenshot of “<?= e($spotlight['title']) ?>”, built in Edusim by <?= e($spotlight['creator']) ?>." />
+        <div class="spotlight-body">
+          <span class="spotlight-kicker">★ World spotlight</span>
+          <h2><?= e($spotlight['title']) ?></h2>
+          <p class="spotlight-by">
+            Built by <strong><?= e($spotlight['creator']) ?></strong><?php
+              if ($spotlight['group_name'] !== '') { echo ' · ' . e($spotlight['group_name']); }
+            ?>
+          </p>
+          <p class="spotlight-desc"><?= e(ewd_truncate((string)$spotlight['description'], 190)) ?></p>
+          <span class="spotlight-go">Take a look →</span>
+        </div>
+      </a>
+    <?php endif; ?>
 
     <form class="filter-bar" method="get" action="index.php">
       <div class="filter-row">

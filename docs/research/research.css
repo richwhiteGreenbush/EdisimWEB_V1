@@ -409,3 +409,36 @@ ol.src-list a { word-break: break-all; font-size: 0.84rem; }
   .rhero .eyebrow { border: 2px solid var(--denim); }
   body { background: #fff; }
 }
+
+/* --- cite this page --------------------------------------------------------
+   On every page of the library. It is here because the audience that links to a
+   resource like this -- university ed-tech syllabi, library guides, district
+   curriculum pages -- cites things, and a page that hands over a formatted
+   reference and a stable address gets cited where a page that does not gets
+   screenshotted. Dashed rather than solid, because it is apparatus about the
+   page rather than part of the argument on it. */
+.citebox {
+  background: var(--cream);
+  border: 2px dashed rgba(30, 42, 58, 0.22);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  max-width: 74ch;
+}
+
+.citebox h3 { margin-bottom: 0.35em; font-size: 1.1rem; }
+.citebox p { font-size: 0.94rem; color: var(--ink-soft); }
+
+.cite-ref {
+  background: #fff;
+  border: 1px solid rgba(30, 42, 58, 0.14);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  /* A reference is copied out by hand or by selection, so it must never be clipped at a
+     container edge, however long the URL in it is. */
+  word-break: break-word;
+  color: var(--ink);
+}
+
+.cite-url { margin: 0; font-size: 0.86rem; word-break: break-all; }

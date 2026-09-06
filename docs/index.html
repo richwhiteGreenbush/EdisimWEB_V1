@@ -4,17 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-TK6Y2Q8NP2"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-TK6Y2Q8NP2');
-</script>
-<title>Edusim: Web Edition — Build it. Code it. Explore it.</title>
-<meta name="description" content="Edusim is a free, research-based 3D learning tool for kids that runs in your browser. Build models out of simple shapes, code them with drag-and-drop blocks or real JavaScript, and explore 33 ready-made learning worlds — dinosaurs, the Moon, a cut-away volcano, the human body, famous landmarks and more. Built on the spatial-reasoning research. No downloads, no accounts, no ads." />
+<title>Edusim: Web Edition — free 3D building and coding for kids, no account needed</title>
+<meta name="description" content="Edusim is a free 3D building-and-coding world for K–8 that runs in any browser — no account required, nothing to install, and no student data collected. Explore 35 ready-made learning worlds (dinosaurs, the Moon, a cut-away volcano, the human body, famous landmarks), build models from simple shapes, and program them with blocks or real JavaScript. Built on the spatial-reasoning research." />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <!-- The logo mark is what a phone shows when the page is saved to a home screen, and a
      square crop of the wordmark reads there where the whole lockup would not. -->
@@ -23,23 +14,31 @@
 <!-- Social preview. This page gets passed around by teachers in email and chat, and
      without these an unfurled link shows a bare title on a grey box. Absolute URLs are
      required here, since a scraper has no page to resolve a relative path against. -->
+<link rel="canonical" href="https://edusim3dweb.com/" />
+<meta property="og:url" content="https://edusim3dweb.com/" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Edusim: Web Edition" />
 <meta property="og:title" content="Edusim: Web Edition — a 3D virtual world for curious minds" />
-<meta property="og:description" content="A research-based learning tool for kids. Build it out of shapes. Code it with blocks or real JavaScript. Explore 33 learning worlds — dinosaurs, the Moon, a cut-away volcano, the human body, the Colosseum and more. Free, in your browser." />
-<meta property="og:image" content="https://richwhitegreenbush.github.io/EdisimWEB_V1/assets/edusim-social.jpg" />
+<meta property="og:description" content="A research-based learning tool for kids. Build it out of shapes. Code it with blocks or real JavaScript. Explore 35 learning worlds — dinosaurs, the Moon, a cut-away volcano, the human body, the Colosseum and more. Free, in your browser, with no account." />
+<meta property="og:image" content="https://edusim3dweb.com/assets/edusim-social.jpg" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:image:alt" content="The word Edusim in chunky rounded amber letters with a cream outline, on a bright blue sky over a deep blue field, with the lines 'A 3D virtual world for curious minds' and 'Build it. Code it. Explore it.' beneath it." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Edusim: Web Edition — a 3D virtual world for curious minds" />
 <meta name="twitter:description" content="Build it. Code it. Explore it. A free 3D sandbox in your browser — no download, no account, no ads." />
-<meta name="twitter:image" content="https://richwhitegreenbush.github.io/EdisimWEB_V1/assets/edusim-social.jpg" />
+<meta name="twitter:image" content="https://edusim3dweb.com/assets/edusim-social.jpg" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Gluten:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
+<!-- First-party page counting: one POST to this site's own server, no cookies, no
+     identifiers, no third-party script. See docs/assets/edusim-analytics.js for why
+     that matters more here than on an ordinary site, and privacy.html for the promise
+     it keeps. Relative rather than root-absolute, because docs/ is ALSO published to
+     GitHub Pages under a subdirectory, where a leading slash is a 404. -->
+<script defer src="assets/edusim-analytics.js"></script>
 </head>
 <body>
 
@@ -65,6 +64,7 @@
       <li><a href="guide/index.html">Guide</a></li>
       <li><a href="research/index.html">Research</a></li>
       <li><a href="#teachers">Teachers</a></li>
+      <li><a href="schools/index.html">Schools</a></li>
     </ul>
     <!-- "Edusim" is its own span so it can be dropped in the one narrow band where the
          full label pushes the six nav links onto a second line — see .nav-cta-word. The
@@ -98,11 +98,26 @@
       <a class="btn btn-ghost" href="#tutorials">📘 Start a tutorial</a>
     </div>
 
-    <!-- The research claim, up front and clickable. One line, because the hero's job is
-         the launch button — the full case lives in research/. -->
+    <!-- The research claim, up front and clickable. It used to be one line of prose here
+         with the numbers three screens further down, inside the teachers section — which
+         meant the strongest differentiator this project has was invisible to anyone who
+         did not scroll to the bottom. The four measured effect sizes are the claim; the
+         sentence was only a promise that a claim existed.
+
+         Four figures and not the whole argument, because the hero's job is still the
+         launch button. Each one links into the library where it is sourced. -->
     <a class="hero-research" href="research/index.html">
       🔬 <strong>A research-based learning tool for kids</strong> — built on the
       spatial-reasoning research. <span class="hr-more">See the evidence →</span>
+    </a>
+
+    <a class="hero-evidence" href="research/index.html"
+       aria-label="Four measured findings from the spatial-reasoning research — see the evidence">
+      <span class="he-fig"><b>g&nbsp;=&nbsp;0.47</b><small>Spatial skills are trainable<br />217 studies</small></span>
+      <span class="he-fig"><b>g&nbsp;=&nbsp;0.96</b><small>Double the effect<br />ages 0–8</small></span>
+      <span class="he-fig"><b>g&nbsp;=&nbsp;0.28</b><small>It transfers to maths<br />29 studies</small></span>
+      <span class="he-fig"><b>+7.08</b><small>3D beats 2D in class<br />vs +1.76 controls</small></span>
+      <span class="he-more">See the evidence →</span>
     </a>
 
     <!-- Proof before prose: four real screenshots, straight out of the app. -->
@@ -454,8 +469,8 @@
               <li>🐻 Historic bear dens</li>
               <li>🪨 Real puddingstone rock</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=1"
-               target="_blank" rel="noopener noreferrer">▶ The Park</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=1"
+               target="_blank" rel="noopener noreferrer">The Park <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--purple);">
@@ -474,8 +489,8 @@
               <li>🌹 Roses half painted red</li>
               <li>🍄 DRINK ME, EAT ME, and a key</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=40"
-               target="_blank" rel="noopener noreferrer">▶ Alice in Wonderland</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=40"
+               target="_blank" rel="noopener noreferrer">Alice in Wonderland <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--red);">
@@ -494,8 +509,8 @@
               <li>🏪 Music shop, bakery, toy store</li>
               <li>🕰️ A clock tower ends the street</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=41"
-               target="_blank" rel="noopener noreferrer">▶ The Neighborhood</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=41"
+               target="_blank" rel="noopener noreferrer">The Neighborhood <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--blue);">
@@ -514,8 +529,8 @@
               <li>🤖 Five robots along the back wall</li>
               <li>🧩 Three coding challenges</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=36"
-               target="_blank" rel="noopener noreferrer">▶ Greenbush Science Center</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=36"
+               target="_blank" rel="noopener noreferrer">Greenbush Science Center <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--orange);">
@@ -534,8 +549,8 @@
               <li>🔴 Velvet ropes &amp; benches</li>
               <li>🧩 A programmable mobile</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=2"
-               target="_blank" rel="noopener noreferrer">▶ The Museum</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=2"
+               target="_blank" rel="noopener noreferrer">The Museum <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--purple);">
@@ -554,8 +569,8 @@
               <li>🌍 Globe on a tilted axis</li>
               <li>💡 Reading lamps that glow</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=3"
-               target="_blank" rel="noopener noreferrer">▶ The Library</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=3"
+               target="_blank" rel="noopener noreferrer">The Library <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         </div>
@@ -582,8 +597,8 @@
               <li>🤖 Robots that never stop chatting</li>
               <li>📜 Real code on every board</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=38"
-               target="_blank" rel="noopener noreferrer">▶ JavaScript Basics</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=38"
+               target="_blank" rel="noopener noreferrer">JavaScript Basics <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--green);">
@@ -602,8 +617,8 @@
               <li>🎨 A painted course on every pad</li>
               <li>⚙️ Two machines already running</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=35"
-               target="_blank" rel="noopener noreferrer">▶ Robot Challenge World</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=35"
+               target="_blank" rel="noopener noreferrer">Robot Challenge World <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--blue);">
@@ -622,8 +637,8 @@
               <li>🏚️ A cutaway through the nest</li>
               <li>🐛 Ants farming aphids for real</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=24"
-               target="_blank" rel="noopener noreferrer">▶ A Bug's Life</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=24"
+               target="_blank" rel="noopener noreferrer">A Bug's Life <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         </div>
@@ -651,8 +666,8 @@
               <li>🦴 A working fossil dig</li>
               <li>🌋 Jungle, ferns &amp; a volcano</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=6"
-               target="_blank" rel="noopener noreferrer">▶ Dinosaur Island</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=6"
+               target="_blank" rel="noopener noreferrer">Dinosaur Island <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--purple);">
@@ -671,8 +686,8 @@
               <li>🧬 DNA, cells &amp; a nerve cell</li>
               <li>📊 A chart for every body system</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=7"
-               target="_blank" rel="noopener noreferrer">▶ Fantastic Voyage</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=7"
+               target="_blank" rel="noopener noreferrer">Fantastic Voyage <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--red);">
@@ -691,8 +706,8 @@
               <li>🔥 Lava you can stand next to</li>
               <li>🧩 Three coding challenges</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=37"
-               target="_blank" rel="noopener noreferrer">▶ Volcanoes & Rocks</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=37"
+               target="_blank" rel="noopener noreferrer">Volcanoes & Rocks <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--green);">
@@ -711,8 +726,8 @@
               <li>🐠 Clownfish in their anemone</li>
               <li>🔎 Hidden — you have to find it</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=10"
-               target="_blank" rel="noopener noreferrer">▶ Under the Sea</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=10"
+               target="_blank" rel="noopener noreferrer">Under the Sea <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--blue);">
@@ -731,8 +746,8 @@
               <li>🪸 Living reef beside bleached reef</li>
               <li>☀️ Sunbeams through the surface</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=18"
-               target="_blank" rel="noopener noreferrer">▶ Great Barrier Reef</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=18"
+               target="_blank" rel="noopener noreferrer">Great Barrier Reef <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--orange);">
@@ -750,8 +765,8 @@
               <li>🏷️ Real sizes on every sign</li>
               <li>⚡ Two coding challenges</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=25"
-               target="_blank" rel="noopener noreferrer">▶ Inside an Animal Cell</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=25"
+               target="_blank" rel="noopener noreferrer">Inside an Animal Cell <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--purple);">
@@ -769,8 +784,8 @@
               <li>🚜 A farm caught mid-storm</li>
               <li>⚡ Open the funnel’s program</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=26"
-               target="_blank" rel="noopener noreferrer">▶ Inside a Twister</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=26"
+               target="_blank" rel="noopener noreferrer">Inside a Twister <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         </div>
@@ -798,8 +813,8 @@
               <li>🚙 Six-wheeled rover &amp; scout copter</li>
               <li>🌗 Phobos in a butterscotch sky</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=5"
-               target="_blank" rel="noopener noreferrer">▶ On Mars</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=5"
+               target="_blank" rel="noopener noreferrer">On Mars <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--green);">
@@ -818,8 +833,8 @@
               <li>👣 Footprints that never fade</li>
               <li>🌍 Earth in a starry sky</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=4"
-               target="_blank" rel="noopener noreferrer">▶ The Moon</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=4"
+               target="_blank" rel="noopener noreferrer">The Moon <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--blue);">
@@ -837,8 +852,8 @@
               <li>👨‍🚀 Astronauts on deck</li>
               <li>🔨 Five building challenges</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=31"
-               target="_blank" rel="noopener noreferrer">▶ Space Station Survival</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=31"
+               target="_blank" rel="noopener noreferrer">Space Station Survival <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--orange);">
@@ -857,8 +872,8 @@
               <li>☄️ Comets with the tail the right way</li>
               <li>🪨 An asteroid belt that is mostly empty</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=12"
-               target="_blank" rel="noopener noreferrer">▶ Solar System Walk</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=12"
+               target="_blank" rel="noopener noreferrer">Solar System Walk <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--purple);">
@@ -876,8 +891,8 @@
               <li>🧭 Find the North Star</li>
               <li>⚡ Speed up the whole sky</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=32"
-               target="_blank" rel="noopener noreferrer">▶ The Constellations</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=32"
+               target="_blank" rel="noopener noreferrer">The Constellations <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--red);">
@@ -895,8 +910,8 @@
               <li>🌕 A full Moon overhead</li>
               <li>⚡ The dome runs a program</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=33"
-               target="_blank" rel="noopener noreferrer">▶ Telescope Observatory</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=33"
+               target="_blank" rel="noopener noreferrer">Telescope Observatory <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         </div>
@@ -924,8 +939,8 @@
               <li>⛵ Khufu's buried ship</li>
               <li>🎨 Carving with its paint still in it</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=11"
-               target="_blank" rel="noopener noreferrer">▶ Ancient Egypt</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=11"
+               target="_blank" rel="noopener noreferrer">Ancient Egypt <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--blue);">
@@ -944,8 +959,8 @@
               <li>🏟️ The oldest stone amphitheatre</li>
               <li>🕯️ The plaster casts, off to one side</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=14"
-               target="_blank" rel="noopener noreferrer">▶ Ancient Pompeii</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=14"
+               target="_blank" rel="noopener noreferrer">Ancient Pompeii <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--orange);">
@@ -964,8 +979,8 @@
               <li>🗿 The Arch of Constantine</li>
               <li>🧱 Why two thirds of it is missing</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=20"
-               target="_blank" rel="noopener noreferrer">▶ The Colosseum</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=20"
+               target="_blank" rel="noopener noreferrer">The Colosseum <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--purple);">
@@ -984,8 +999,8 @@
               <li>☀️ A temple aligned to the solstice</li>
               <li>🦙 Why there are no wheels here</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=21"
-               target="_blank" rel="noopener noreferrer">▶ Machu Picchu</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=21"
+               target="_blank" rel="noopener noreferrer">Machu Picchu <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--red);">
@@ -1004,8 +1019,8 @@
               <li>💎 Inlaid stone flowers</li>
               <li>🪞 A building delivered twice</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=22"
-               target="_blank" rel="noopener noreferrer">▶ The Taj Mahal</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=22"
+               target="_blank" rel="noopener noreferrer">The Taj Mahal <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--green);">
@@ -1024,8 +1039,8 @@
               <li>🧱 Battlements imported from Italy</li>
               <li>🕰️ A clock twenty feet across</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=23"
-               target="_blank" rel="noopener noreferrer">▶ Red Square</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=23"
+               target="_blank" rel="noopener noreferrer">Red Square <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--blue);">
@@ -1044,8 +1059,8 @@
               <li>⛓️ Liberty's broken chain</li>
               <li>✍️ E for eyes, H for heart, X for mind</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=16"
-               target="_blank" rel="noopener noreferrer">▶ Ellis Island</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=16"
+               target="_blank" rel="noopener noreferrer">Ellis Island <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--orange);">
@@ -1064,8 +1079,8 @@
               <li>🏗️ The monument's mismatched marble</li>
               <li>🥉 Statuary, two from every state</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=17"
-               target="_blank" rel="noopener noreferrer">▶ The U.S. Capitol</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=17"
+               target="_blank" rel="noopener noreferrer">The U.S. Capitol <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--purple);">
@@ -1083,8 +1098,8 @@
               <li>🚌 A red double-decker</li>
               <li>☎️ A proper phone box</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=27"
-               target="_blank" rel="noopener noreferrer">▶ Big Ben & Westminster</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=27"
+               target="_blank" rel="noopener noreferrer">Big Ben & Westminster <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--red);">
@@ -1102,8 +1117,8 @@
               <li>🏗️ The famous crane</li>
               <li>🪧 Placards to read</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=29"
-               target="_blank" rel="noopener noreferrer">▶ Cologne Cathedral</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=29"
+               target="_blank" rel="noopener noreferrer">Cologne Cathedral <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--green);">
@@ -1122,8 +1137,8 @@
               <li>⚙️ Real gear teeth, with the pegs in</li>
               <li>🪞 Notebooks in mirror writing</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=15"
-               target="_blank" rel="noopener noreferrer">▶ Da Vinci's Studio</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=15"
+               target="_blank" rel="noopener noreferrer">Da Vinci's Studio <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--blue);">
@@ -1142,8 +1157,8 @@
               <li>🧵 Cotton bales on the levee</li>
               <li>📖 Where "Mark Twain" comes from</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=19"
-               target="_blank" rel="noopener noreferrer">▶ Delta River Boat</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=19"
+               target="_blank" rel="noopener noreferrer">Delta River Boat <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         <article class="world-card reveal" style="--accent: var(--orange);">
@@ -1162,8 +1177,8 @@
               <li>🚝 The 1962 monorail, still running</li>
               <li>🧩 Three coding challenges</li>
             </ul>
-            <a class="world-open" href="https://edusim3dweb.com/app/?world=34"
-               target="_blank" rel="noopener noreferrer">▶ Seattle Center</a>
+            <a class="world-open" href="https://edusim3dweb.com/worlds/world.php?id=34"
+               target="_blank" rel="noopener noreferrer">Seattle Center <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
         </div>
@@ -1292,6 +1307,16 @@
         <p>And built on research-based practices — not just kid-tested, but study-backed.</p>
       </div>
 
+      <!-- The wedge, in one sentence, in the one section written for the adult reading
+           this page. It is the same sentence used on the schools page, in the two briefs
+           and in every pitch, deliberately: a positioning line that is phrased three
+           different ways is three different positions. -->
+      <p class="wedge reveal">
+        Edusim is the only 3D building-and-coding platform a K&ndash;8 teacher can start in
+        <strong>thirty seconds</strong> — no account, no install, no IT ticket, no cost —
+        with <strong>35 curricular worlds</strong> ready to explore on day one.
+      </p>
+
       <!-- The research flag: the one card in this section that outranks the grid. The
            claim ("research-based") is load-bearing for a school audience, so it gets the
            numbers on its face and a door to the full library behind it. -->
@@ -1330,6 +1355,11 @@
             <span class="rc-what">Spatial training lifts math scores too</span>
             <span class="rc-src">29 studies · 3,765 students</span>
           </div>
+          <div class="rc-stat">
+            <span class="rc-num">+7.08 pts</span>
+            <span class="rc-what">3D modeling beat 2D in a real classroom</span>
+            <span class="rc-src">PSVT:R gain, against +1.76 for controls</span>
+          </div>
         </div>
       </div>
 
@@ -1355,8 +1385,58 @@
           <p>Skill cards, world guides and build-along tutorials, all print-ready.</p>
         </div>
       </div>
+      <!-- The trade-off, stated rather than discovered. Said plainly it reads as a
+           design principle; found in week three it reads as a missing feature, and the
+           two are the same fact. -->
+      <div class="tradeoff reveal">
+        <h3>What Edusim deliberately does not do</h3>
+        <p>
+          There are <strong>no accounts</strong>, so there is no teacher dashboard, no
+          rostering and no cross-device save — and <strong>no student data is collected,
+          ever</strong>. Students save work in the browser and hand it in as a file.
+        </p>
+        <p>
+          That is the whole trade. It is why there is nothing for a technology department
+          to approve, nothing to purchase, and no consent form — and why a teacher can use
+          it tomorrow morning without asking anyone.
+        </p>
+        <p class="tradeoff-links">
+          <a href="privacy.html">🔒 What we collect (nothing) →</a>
+          <a href="schools/index.html">🏫 For schools &amp; districts →</a>
+        </p>
+      </div>
+
+
+      <!-- The one way to reach the same teacher twice.
+
+           THE ACTION IS A mailto:, AND THAT IS A DELIBERATE CHOICE RATHER THAN A STUB.
+           Every hosted form provider — Mailchimp, Buttondown, ConvertKit — means a
+           third-party script or a third-party POST carrying an email address off this
+           domain, on a site whose entire pitch to a technology director is that it makes
+           no third-party requests and collects nothing. A mailto: sends the address from
+           the teacher's own mail client, to a person, with nothing in between and no
+           account for us to hold. It costs the polish of an inline success message and
+           it keeps the privacy page true.
+
+           The subject line is prefilled so the replies arrive already sorted. -->
+      <div class="signup reveal">
+        <div class="signup-copy">
+          <h3>📬 New worlds and lesson plans, about once a month</h3>
+          <p>
+            One short email when a new world, lesson plan or printable goes up. Nothing
+            else, ever — and it is a plain email list, not a mailing platform, so your
+            address stays between you and us.
+          </p>
+        </div>
+        <a class="btn btn-primary signup-btn"
+           href="mailto:rich.white@greenbush.org?subject=Edusim%20updates%20please&amp;body=Add%20me%20to%20the%20Edusim%20list%20for%20new%20worlds%20and%20lesson%20plans.%0A%0A(Optional%20—%20it%20helps%20to%20know%20who%20is%20out%20there.)%0AGrades%20I%20teach%3A%0ASchool%20or%20district%3A%0A">
+          Email to subscribe
+        </a>
+      </div>
+
       <div class="cta-row reveal">
         <a class="btn btn-primary" href="guide/teachers.html">📄 The teacher's guide</a>
+        <a class="btn btn-ghost" href="schools/index.html">🏫 For schools</a>
         <a class="btn btn-ghost" href="guide/index.html">All printable cards</a>
         <a class="btn btn-ghost" href="research/index.html">🔬 The research library</a>
       </div>
@@ -1386,9 +1466,16 @@
       <a href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">Launch the app</a> ·
       <a href="https://edusim3dweb.com/worlds/" target="_blank" rel="noopener noreferrer">World Database</a> ·
       <a href="guide/index.html">Hands-On Guide</a> ·
+      <a href="guide/teachers.html">Lesson plans</a> ·
       <a href="research/index.html">The research</a> ·
-      <a href="guide/teachers.html">For teachers</a> ·
+      <a href="spatial-reasoning/index.html">Spatial reasoning</a> ·
+      <a href="schools/index.html">For schools</a> ·
+      <a href="privacy.html">Student privacy</a> ·
       <a href="https://github.com/richwhiteGreenbush/EdisimWEB_V1" target="_blank" rel="noopener noreferrer">Source on GitHub</a>
+    </p>
+    <p class="foot-sub">
+      📬 <a href="mailto:rich.white@greenbush.org?subject=Edusim%20updates%20please">Get new worlds and lesson plans by email</a>,
+      about once a month.
     </p>
   </div>
 </footer>

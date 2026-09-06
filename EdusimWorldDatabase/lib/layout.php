@@ -33,6 +33,11 @@ function ewd_header(array $opts = []): void
     $imageAlt  = (string)($opts['imageAlt'] ?? '');
     $ogType    = (string)($opts['ogType'] ?? 'website');
 
+    // Pre-encoded JSON-LD from the caller, or null. Passed in already-serialised rather
+    // than as an array so the one page that has structured data owns its own vocabulary
+    // and this function stays page-agnostic.
+    $jsonLd    = $opts['jsonLd'] ?? null;
+
     // Every page lives in the same directory, so `assets/…` works everywhere and there is
     // no base-path setting that can be wrong.
     header('Content-Type: text/html; charset=utf-8');
@@ -82,6 +87,13 @@ function ewd_header(array $opts = []): void
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Gluten:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/database.css" />
+<?php if (is_string($jsonLd) && $jsonLd !== ''): ?>
+<script type="application/ld+json"><?= $jsonLd ?></script>
+<?php endif; ?>
+<!-- First-party page counting: one POST to this site's own server, no cookies, no
+     identifiers, no third-party script. Same file the marketing pages load -- the
+     gallery is a directory inside that site, so `../assets/` is the site's own. -->
+<script defer src="<?= e(EWD_SITE_URL) ?>assets/edusim-analytics.js"></script>
 </head>
 <body<?= $bodyClass !== '' ? ' class="' . e($bodyClass) . '"' : '' ?>>
 

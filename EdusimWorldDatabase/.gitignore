@@ -4,6 +4,13 @@
 data/worlds.sqlite
 data/worlds.sqlite-wal
 data/worlds.sqlite-shm
+
+# The page counters. A SECOND database file, separate from the worlds one so that this
+# app's one publicly-writable endpoint (hit.php) can never contend with -- or bloat --
+# the file holding every world a student has shared. See lib/stats.php.
+data/stats.sqlite
+data/stats.sqlite-wal
+data/stats.sqlite-shm
 data/worlds/*.json
 uploads/screenshots/*
 

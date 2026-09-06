@@ -91,7 +91,8 @@ sync_all() {
   rsync -a --delete --exclude '.DS_Store' --exclude '_preview-check.html' \
     --exclude 'worlds/' --exclude 'app/' "$HERE/docs/" "$SITE/"
   rsync -a --delete --exclude '.DS_Store' \
-    --exclude 'data/worlds.sqlite*' --exclude 'data/worlds/*.json' \
+    --exclude 'data/worlds.sqlite*' --exclude 'data/stats.sqlite*' \
+    --exclude 'data/worlds/*.json' \
     --exclude 'uploads/screenshots/*' --exclude 'lib/config.local.php' \
     "$HERE/EdusimWorldDatabase/" "$SITE/worlds/"
   mkdir -p "$SITE/worlds/data/worlds" "$SITE/worlds/uploads/screenshots"

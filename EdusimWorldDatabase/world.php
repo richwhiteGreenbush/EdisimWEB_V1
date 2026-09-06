@@ -12,6 +12,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/lib/db.php';
 require_once __DIR__ . '/lib/layout.php';
 require_once __DIR__ . '/lib/admin.php';
+require_once __DIR__ . '/lib/teaching.php';
 
 $id  = (int)($_GET['id'] ?? 0);
 $key = (string)($_GET['key'] ?? '');
@@ -79,6 +80,12 @@ $kinds = ewd_summarise_kinds(json_decode((string)$world['kinds_json'], true) ?: 
 $theme = (string)$world['theme'];
 $shot  = (string)$world['shot_path'];
 
+// The teacher layer, for the worlds this project ships. Null for anything a student
+// shared, which is correct: grade band, objective and standards are editorial judgements
+// about the built-in worlds and nobody else's to claim. See lib/teaching.php for why the
+// lookup is by slug rather than by id or theme.
+$teach = ewd_teaching((string)$world['slug']);
+
 // The canonical, absolute address of this world -- what the share buttons hand to other
 // sites and what a social crawler is told to treat as the real url.
 //
@@ -90,6 +97,45 @@ $shareUrl   = ewd_abs_url('world.php?id=' . (int)$world['id']);
 $shareTitle = (string)$world['title'];
 $shareBlurb = ewd_truncate((string)$world['description'], 160);
 
+// Structured data, for the worlds this project ships. A world page is a free, no-account
+// learning resource with a grade band and an educational use, and schema.org has an exact
+// vocabulary for saying so -- which is the difference between a search engine reading
+// this page as "a page about dinosaurs" and reading it as a K-8 teaching resource.
+//
+// ONLY for pages with a teacher layer. A student's shared world has no grade band and no
+// learning objective, and asserting one would be marking up a claim nobody made.
+//
+// json_encode does the escaping. JSON_UNESCAPED_SLASHES keeps the urls readable and
+// JSON_HEX_TAG is what stops a `</script>` inside a world description -- which is user
+// text -- from closing this block early.
+$jsonLd = null;
+if ($teach) {
+    $jsonLd = json_encode([
+        '@context'          => 'https://schema.org',
+        '@type'             => 'LearningResource',
+        'name'              => $shareTitle,
+        'description'       => $shareBlurb,
+        'url'               => $shareUrl,
+        'learningResourceType' => '3D virtual world',
+        'educationalUse'    => 'Instruction',
+        'interactivityType' => 'active',
+        'typicalAgeRange'   => ewd_age_range($teach['band']),
+        'teaches'           => 'Students ' . lcfirst($teach['objective']),
+        'inLanguage'        => 'en',
+        'isAccessibleForFree' => true,
+        'image'             => $shot !== '' ? ewd_abs_url(EWD_SHOT_URL . '/' . $shot) : null,
+        'publisher'         => [
+            '@type' => 'Organization',
+            'name'  => 'Greenbush Southeast Kansas Education Service Center',
+        ],
+        'isPartOf' => [
+            '@type' => 'WebSite',
+            'name'  => 'Edusim: Web Edition',
+            'url'   => EWD_CANONICAL_ORIGIN . '/',
+        ],
+    ], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_UNESCAPED_UNICODE);
+}
+
 ewd_header([
     'title'       => $shareTitle,
     'description' => $shareBlurb,
@@ -97,6 +143,7 @@ ewd_header([
     'image'       => $shot !== '' ? ewd_abs_url(EWD_SHOT_URL . '/' . $shot) : '',
     'imageAlt'    => 'A screenshot of “' . $shareTitle . '”, a world built in Edusim by ' . (string)$world['creator'] . '.',
     'ogType'      => 'article',
+    'jsonLd'      => $jsonLd,
 ]);
 ?>
 
@@ -162,6 +209,42 @@ ewd_header([
                 <a class="chip" href="<?= e('index.php?tag=' . eu($t)) ?>">#<?= e($t) ?></a>
               <?php endforeach; ?>
             </div>
+          <?php endif; ?>
+
+          <?php if ($teach): ?>
+            <?php /* The teacher layer. It sits under the description rather than in the
+                     sidebar deliberately: the sidebar is what you DO with the world
+                     (open it, share it, what is in it), and this is what the world is
+                     FOR, which belongs with the prose about it.
+
+                     The standards line says "aligns to" rather than "meets", and the
+                     note underneath says why. Overstating an alignment is the fastest
+                     way to lose the one reader who checks. */ ?>
+            <section class="teachbox" aria-labelledby="teach-h">
+              <h2 id="teach-h">🍎 For teachers</h2>
+              <dl class="teach-list">
+                <dt>Grade band</dt>
+                <dd><?= e($teach['band']) ?></dd>
+                <dt>Learning objective</dt>
+                <dd>Students <?= e(lcfirst($teach['objective'])) ?></dd>
+                <dt>Aligns to</dt>
+                <dd><?= e($teach['standards']) ?></dd>
+              </dl>
+              <p class="teach-links">
+                <?php if ($teach['lesson'] !== null): ?>
+                  <a class="btn btn-green btn-sm" href="<?= e(EWD_GUIDE_URL_DIR . $teach['lesson']) ?>" target="_blank" rel="noopener noreferrer">📄 The lesson plan</a>
+                <?php endif; ?>
+                <?php if ($teach['card'] !== null): ?>
+                  <a class="btn btn-ghost btn-sm" href="<?= e(EWD_GUIDE_URL_DIR . $teach['card']) ?>" target="_blank" rel="noopener noreferrer">🖨️ Printable student card</a>
+                <?php endif; ?>
+                <a class="btn btn-ghost btn-sm" href="<?= e(EWD_SITE_URL) ?>schools/index.html" target="_blank" rel="noopener noreferrer">🏫 For schools</a>
+              </p>
+              <p class="teach-note">
+                These are <em>alignments</em>, not a certification — check the exact code
+                for the grade you teach. Edusim is free, needs no account, and
+                <a href="<?= e(EWD_SITE_URL) ?>privacy.html" target="_blank" rel="noopener noreferrer">collects no student data</a>.
+              </p>
+            </section>
           <?php endif; ?>
         </div>
       </div>
