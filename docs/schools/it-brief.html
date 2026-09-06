@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IT &amp; deployment brief — nothing to install, nothing to approve</title>
+<meta name="description" content="A one-page deployment and privacy brief for school technology directors: Edusim is a static web page, needs no install, no accounts, no admin console changes and no data-processing agreement. What to allowlist, what it needs from a device, and what it collects (nothing)." />
+<link rel="canonical" href="https://edusim3dweb.com/schools/it-brief.html" />
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="../assets/edusim-mark.png" />
+<meta property="og:type" content="article" />
+<meta property="og:site_name" content="Edusim: Web Edition" />
+<meta property="og:title" content="IT &amp; deployment brief — nothing to install, nothing to approve" />
+<meta property="og:description" content="A one-page deployment and privacy brief for school technology directors: Edusim is a static web page, needs no install, no accounts, no admin console changes and no data-processing agreement. What to allowlist, what it needs from a device, and what it collects (nothing)." />
+<meta property="og:url" content="https://edusim3dweb.com/schools/it-brief.html" />
+<meta property="og:image" content="https://edusim3dweb.com/assets/edusim-social.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="IT &amp; deployment brief — nothing to install, nothing to approve" />
+<meta name="twitter:description" content="A one-page deployment and privacy brief for school technology directors: Edusim is a static web page, needs no install, no accounts, no admin console changes and no data-processing agreement. What to allowlist, what it needs from a device, and what it collects (nothing)." />
+<meta name="twitter:image" content="https://edusim3dweb.com/assets/edusim-social.jpg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Gluten:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/doc.css" />
+<!-- First-party page counting: one POST to this site's own server, no cookies, no
+     identifiers, no third-party script. See docs/assets/edusim-analytics.js for why
+     that matters more here than on an ordinary site, and privacy.html for the promise
+     it keeps. Relative rather than root-absolute, because docs/ is ALSO published to
+     GitHub Pages under a subdirectory, where a leading slash is a 404. -->
+<script defer src="../assets/edusim-analytics.js"></script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to the content</a>
+
+<nav class="dnav">
+  <div class="wrap">
+    <a class="dbrand" href="../index.html"><span>Edusim</span><small>Web Edition</small></a>
+    <div class="dnav-links">
+      <a href="../index.html">Home</a>
+      <a href="../schools/index.html">For schools</a>
+      <a href="../spatial-reasoning/index.html">Spatial reasoning</a>
+      <a href="../research/index.html">Research</a>
+      <a href="../guide/teachers.html">Lesson plans</a>
+      <a href="../privacy.html">Privacy</a>
+      <a class="dbtn" href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">Open Edusim</a>
+    </div>
+  </div>
+</nav>
+
+<header class="dhero">
+  <div class="wrap">
+    <span class="eyebrow">📋 One page · for technology directors</span>
+    <h1>There is nothing to install, provision or approve</h1>
+    <p class="lead">
+      Everything a school technology department needs to decide about Edusim, on one page.
+      Written to be forwarded without editing, and short enough to be read in a corridor.
+    </p>
+    <div class="cta">
+      <button class="dbtn ghost printbtn no-print" type="button" onclick="window.print()">🖨️ Print this brief</button>
+      <a class="dbtn ghost no-print" href="../privacy.html">🔒 The full privacy page</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="dsection">
+  <div class="wrap">
+    <div class="col">
+      <h2>What it is</h2>
+      <p>
+        Edusim: Web Edition is a static web page that renders 3D graphics with WebGL. There
+        is no installer, no extension, no plug-in, no runtime and no client software of any
+        kind. A student opens a URL and is building. It is made at the Greenbush Southeast
+        Kansas Education Service Center and is free, with no paid tier.
+      </p>
+    </div>
+
+    <div class="dscroll">
+      <table class="dtable">
+        <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+        <tbody>
+          <tr><td>Install required</td><td>None. It is a web page.</td></tr>
+          <tr><td>Accounts required</td><td>None &mdash; for students or for teachers. There is no account system.</td></tr>
+          <tr><td>Admin console changes</td><td>None. Nothing to push, whitelist in a management console, or license.</td></tr>
+          <tr><td>Chromebooks</td><td>Fully supported, including <strong>ephemeral mode</strong>. No minimum RAM tier beyond what a browser needs.</td></tr>
+          <tr><td>Other platforms</td><td>Any current browser on Windows, macOS, ChromeOS, Linux, iPad or Android tablet.</td></tr>
+          <tr><td>Network</td><td>Ordinary HTTPS to one domain. No websockets, no custom ports, no peer-to-peer, no UDP.</td></tr>
+          <tr><td>Student data collected</td><td>None. No names, no email addresses, no identifiers, no analytics on children.</td></tr>
+          <tr><td>Data-processing agreement</td><td>Generally none to sign, because no student data is transferred. Ask if your district requires one regardless.</td></tr>
+          <tr><td>Cost</td><td>$0, with no upgrade tier and no trial that expires.</td></tr>
+          <tr><td>Advertising</td><td>None, anywhere.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="dsection tint">
+  <div class="wrap">
+    <div class="col">
+      <h2>What to allowlist</h2>
+      <p>
+        If your filter works on an allowlist rather than a blocklist, these are the hosts
+        Edusim needs. There are three, and only the first is required.
+      </p>
+      <ul>
+        <li><span class="mono">edusim3dweb.com</span> &mdash; the app, the world gallery, the lesson plans and this page. <strong>Required.</strong></li>
+        <li><span class="mono">fonts.googleapis.com</span> and <span class="mono">fonts.gstatic.com</span> &mdash; typefaces for the website pages. Optional: blocked, the pages render in a system font and everything still works. <strong>The app itself loads no fonts.</strong></li>
+        <li><span class="mono">www.youtube-nocookie.com</span> &mdash; only if you want students to be able to place a YouTube video panel inside a world. Blocked, that one feature shows an empty panel and nothing else changes.</li>
+      </ul>
+      <div class="callout" style="--accent: var(--blue);">
+        <p>
+          <strong>Content filtering keeps working exactly as it does now.</strong> Edusim can
+          place a panel in a world that shows a live web page, and that page is fetched by
+          the student&rsquo;s own browser as an ordinary request &mdash; it is not proxied through
+          us and it is not tunnelled. Whatever your filter does to a browser tab, it does
+          to a panel. Nothing in Edusim can be used to reach a site your filter blocks.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dsection">
+  <div class="wrap">
+    <div class="col">
+      <h2>What it needs from a device</h2>
+    </div>
+    <ul class="qa">
+      <li><b>A browser with WebGL</b><span>Chrome, Edge, Firefox and Safari from roughly 2020 onward. WebGL is on by default in every managed ChromeOS build; if a policy has disabled hardware acceleration, Edusim will run slowly or not at all, and that is the single most likely cause of a problem report.</span></li>
+      <li><b>Browser storage on the device</b><span>Student work is saved with IndexedDB, in the browser, on the machine. If site data is blocked by policy, Edusim still runs perfectly &mdash; work simply does not persist between sessions, and students should export a file at the end of the period.</span></li>
+      <li><b>Nothing else</b><span>No microphone, no camera, no location, no clipboard access, no notifications, no local file-system access beyond an ordinary file picker when a student chooses to open or save a world file.</span></li>
+    </ul>
+    <div class="col">
+      <div class="callout" style="--accent: var(--green);">
+        <p>
+          <strong>Ephemeral mode is worth calling out</strong>, because it is where several
+          competing 3D tools fail. Edusim runs normally on a device that wipes itself at
+          sign-out; the only consequence is that work does not survive the wipe, so a class
+          on ephemeral devices should end with <strong>Save World</strong> and a handed-in
+          file. No configuration change is needed to make this work.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dsection tint">
+  <div class="wrap">
+    <div class="col">
+      <h2>Privacy, in one paragraph</h2>
+      <p>
+        Edusim collects nothing about students. There are no accounts, so there is no user
+        record; work is stored by the browser on the device and is never uploaded. The
+        website counts page views on its own server with no cookies, no identifiers and no
+        IP addresses stored, honours Do&nbsp;Not&nbsp;Track and Global Privacy Control, and
+        loads no third-party analytics or advertising script of any kind. Because nothing
+        is collected, there is nothing to breach, sell, subpoena or retain.
+        <a class="no-print" href="../privacy.html">The full privacy page</a> states every
+        exception, including the one third-party request the website makes.
+      </p>
+      <p>
+        <strong>COPPA:</strong> no personal information is collected from anyone, of any age.
+        <strong>FERPA:</strong> no education records are created &mdash; student work never
+        reaches us. Your district counsel makes the determination; these are the facts the
+        review will ask for.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="dsection">
+  <div class="wrap">
+    <div class="col">
+      <h2>What it does not do</h2>
+      <p>
+        Stated plainly, because discovering a missing feature in week three is worse than
+        being told about it now.
+      </p>
+      <ul>
+        <li><strong>No single sign-on.</strong> No Clever, no ClassLink, no Google or Microsoft sign-in &mdash; there is nothing to sign in to.</li>
+        <li><strong>No rostering, dashboard or gradebook.</strong> Teachers see student work when a student hands in a file.</li>
+        <li><strong>No cross-device save.</strong> Work lives on the device it was made on, or in a file the student carries.</li>
+        <li><strong>No chat, messaging or multiplayer.</strong> There is no way for one student to contact another, by design.</li>
+      </ul>
+      <p>
+        Every one of these is a consequence of having no accounts, and having no accounts
+        is what lets a teacher use Edusim tomorrow morning without a purchase order, a
+        consent form or a ticket to you.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="dsection tint">
+  <div class="wrap">
+    <div class="col">
+      <h2>Testing it yourself</h2>
+      <ol>
+        <li>Open <span class="mono">edusim3dweb.com/app/</span> on a managed student device.</li>
+        <li>You should be standing in a park within a few seconds. Walk with the arrow keys.</li>
+        <li>Open <strong>Menu &#9656; Create Model</strong> and place a cube. That is the whole onboarding.</li>
+        <li>Watch the network tab if you want to confirm what is and is not requested.</li>
+      </ol>
+      <p>
+        If it does not load, the cause is almost always hardware acceleration disabled by
+        policy or the domain blocked at the filter. Both are visible in the browser console
+        immediately.
+      </p>
+      <p>
+        Questions, a district form that needs completing, or a security review:
+        <a href="mailto:rich.white@greenbush.org">rich.white@greenbush.org</a>. The source
+        code is public at <span class="mono">github.com/richwhiteGreenbush/EdisimWEB_V1</span>.
+      </p>
+      <p class="print-url">edusim3dweb.com/schools/it-brief.html &middot; Free, no account required</p>
+      <p class="no-print">
+        <a class="dbtn" href="evidence-brief.html">The evidence brief for curriculum leaders &rarr;</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="dfoot">
+  <div class="wrap">
+    <p><strong>Edusim: Web Edition</strong> — a free 3D building-and-coding world for K&ndash;8. No account, no install, no cost, and no student data collected.</p>
+    <p class="links">
+      <a href="../index.html">Home</a> &middot;
+      <a href="../schools/index.html">For schools</a> &middot;
+      <a href="../schools/evidence-brief.html">Evidence brief</a> &middot;
+      <a href="../schools/it-brief.html">IT &amp; deployment brief</a> &middot;
+      <a href="../spatial-reasoning/index.html">Spatial reasoning</a> &middot;
+      <a href="../research/index.html">Research library</a> &middot;
+      <a href="../guide/teachers.html">Lesson plans</a> &middot;
+      <a href="../privacy.html">Privacy</a> &middot;
+      <a href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">Launch Edusim</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -10,7 +10,10 @@
 //   - the app, as ONE entry -- the ?world=N variants are all the same client-rendered
 //     page, so listing each id would hand crawlers 33 copies of identical HTML
 //   - the gallery: its front page, plus one world.php?id=N page per world card on
-//     docs/index.html. The card list is the maintained source of published ids
+//     docs/index.html. Those cards now LINK to world.php?id=N directly (they used to
+//     link into the app as ?world=N and were rewritten so readers and crawlers reach
+//     the indexable page rather than a JavaScript app), so the match below is on `id=`.
+//     The card list is the maintained source of published ids
 //     (unpublished worlds have no card), and the worlds that deliberately have no
 //     card -- My World, 1940's New York -- stay out of the sitemap for the same
 //     reason they have no card.
@@ -74,7 +77,7 @@ pages.push({ url: `${SITE}/worlds/` });
 
 const indexHtml = readFileSync(join(docsDir, 'index.html'), 'utf8');
 const ids = [...new Set(
-  [...indexHtml.matchAll(/class="world-open"[^>]*[?&]world=(\d+)/g)].map((m) => Number(m[1])),
+  [...indexHtml.matchAll(/class="world-open"[^>]*[?&]id=(\d+)/g)].map((m) => Number(m[1])),
 )].sort((a, b) => a - b);
 if (ids.length === 0) throw new Error('No .world-open card links found in docs/index.html');
 for (const id of ids) pages.push({ url: `${SITE}/worlds/world.php?id=${id}` });

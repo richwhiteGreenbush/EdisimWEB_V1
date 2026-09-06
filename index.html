@@ -6,6 +6,20 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Edusim: Web Edition</title>
     <link rel="stylesheet" href="/src/style.css" />
+    <!-- First-party page counting. Root-absolute on purpose: the app is served from
+         /app/ on the production host, so this resolves to the marketing site's own
+         assets directory one level up -- the same file every page of the site loads,
+         so the app and the site count into one set of numbers.
+
+         It is the deliberate INVERSE of StartupAssets.js's urls, which must stay
+         relative for exactly this reason. Here the file genuinely does live at the
+         domain root; there it lives inside the bundle.
+
+         In `npm run dev`, where the app IS the origin root, this 404s -- and that is
+         handled rather than tolerated: the script never loads, `window.edusimCount`
+         stays undefined, and every caller in src/ reaches it through `?.`. Counting
+         is the one feature that must never be able to stop the app. -->
+    <script defer src="/assets/edusim-analytics.js"></script>
   </head>
   <body>
     <canvas id="scene"></canvas>

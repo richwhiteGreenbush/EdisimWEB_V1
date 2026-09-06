@@ -150,7 +150,7 @@ if (!ewd_is_admin()) {
 // Moderation actions -- every one is a POST with a CSRF token
 // ---------------------------------------------------------------------------
 
-if (in_array($action, ['approve', 'hide', 'publish', 'delete'], true)) {
+if (in_array($action, ['approve', 'hide', 'publish', 'delete', 'spotlight', 'unspotlight'], true)) {
     if (!ewd_csrf_ok()) {
         ewd_flash('error', 'That request expired. Try again.');
         ewd_redirect('admin.php');
@@ -176,6 +176,16 @@ if (in_array($action, ['approve', 'hide', 'publish', 'delete'], true)) {
             ewd_delete_world($targetId);
             ewd_flash('success', '“' . $world['title'] . '” has been deleted, with its screenshot and world file.');
             break;
+        case 'spotlight':
+            // Setting one spotlight clears the previous one by construction: it is a
+            // single setting row holding a single id, not a flag on each world.
+            ewd_set_setting('spotlight_world_id', (string)$targetId);
+            ewd_flash('success', '“' . $world['title'] . '” is now the world spotlight on the gallery front page.');
+            break;
+        case 'unspotlight':
+            ewd_set_setting('spotlight_world_id', null);
+            ewd_flash('success', 'The world spotlight has been cleared.');
+            break;
     }
     // Redirect back to the same filter the teacher was looking at, so working through a
     // queue does not throw them back to the top of the list after every click.
@@ -200,6 +210,7 @@ $result = ewd_list_worlds([
     'perPage' => 24,
 ]);
 $counts = ewd_count_by_status();
+$spotlightId = (int)(ewd_setting('spotlight_world_id') ?? 0);
 
 ewd_header(['title' => 'Teacher tools']);
 ?>
@@ -274,6 +285,16 @@ ewd_header(['title' => 'Teacher tools']);
                   <input type="hidden" name="id" value="<?= (int)$world['id'] ?>" />
                   <input type="hidden" name="return_status" value="<?= e($status) ?>" />
                   <button class="btn btn-ghost btn-sm" type="submit">Hide</button>
+                </form>
+                <?php /* Only offered for published worlds: a spotlight band on the front
+                         page pointing at a hidden or pending world is a link to a 404 for
+                         everyone but a teacher who is signed in. */ ?>
+                <form method="post" action="admin.php">
+                  <?= ewd_csrf_field() ?>
+                  <input type="hidden" name="action" value="<?= $spotlightId === (int)$world['id'] ? 'unspotlight' : 'spotlight' ?>" />
+                  <input type="hidden" name="id" value="<?= (int)$world['id'] ?>" />
+                  <input type="hidden" name="return_status" value="<?= e($status) ?>" />
+                  <button class="btn btn-ghost btn-sm" type="submit"><?= $spotlightId === (int)$world['id'] ? '★ In the spotlight' : '☆ Spotlight' ?></button>
                 </form>
               <?php endif; ?>
 

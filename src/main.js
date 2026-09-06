@@ -426,6 +426,19 @@ programManager.onScriptError = (id, err) =>
 // thrown away a moment later, and so a refresh cannot replay the link. See WorldLink.js.
 const linkedWorldId = takeLinkedWorldId();
 
+// The activation event the whole funnel is measured against: a session that got as far
+// as the app itself. Fired here rather than left to the page counter in
+// docs/assets/edusim-analytics.js, because that one counts a VISIT once per browser
+// session across the whole site -- and the app is opened with target="_blank" from every
+// link that leads to it, which browsers treat inconsistently for sessionStorage. An
+// explicit count from inside the app is the only one that is reliably per-app-session.
+//
+// `?.` because the script is genuinely absent in `npm run dev` and for any visitor
+// sending Do Not Track. Nothing below depends on it.
+try {
+  window.edusimCount?.('app', '/app/');
+} catch (err) { /* counting must never delay the boot */ }
+
 worldStore
   .rehydrateAll()
   .then(async () => {

@@ -1,0 +1,319 @@
+/* ===========================================================
+   Edusim — the document pages.
+
+   privacy.html, schools/, and spatial-reasoning/ share this
+   file. They are the pages written for GROWN-UPS: a technology
+   director deciding whether this can be allowed on the network,
+   a curriculum director deciding whether it is worth a period,
+   a teacher searching for what spatial reasoning even is. The
+   marketing page's bouncy kid-first system is wrong for all
+   three, and so is a fourth design system -- this is the
+   research library's voice, which those readers already meet
+   the moment they click through.
+
+   Tokens are COPIED from ../styles.css rather than linked, the
+   same deliberate choice research.css and database.css each
+   made. If the brand tokens change, change them in all four.
+
+   THE PRINT RULES ARE NOT POLISH. Two pages here exist to be
+   printed and handed to somebody: the evidence brief a coach
+   forwards to a curriculum director, and the deployment brief
+   a coach forwards to IT. A one-page brief that prints across
+   three pages with a navigation bar on the first one is not
+   the document it claims to be, so `@media print` below is
+   part of the deliverable rather than an afterthought.
+   =========================================================== */
+
+:root {
+  --red: #e0455f;
+  --orange: #f2a541;
+  --green: #3fb37f;
+  --blue: #3d8bf2;
+  --purple: #8a5cf5;
+  --cream: #fff9ec;
+  --sky-top: #4da3ec;
+  --sky-bottom: #9fcdec;
+  --denim: #246c9d;
+  --ink: #1e2a3a;
+  --ink-soft: #445067;
+  --paper: #fffdf7;
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+  --shadow-soft: 0 18px 40px -12px rgba(30, 42, 58, 0.28);
+  --container: 980px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: "Nunito", "Segoe UI", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: "Fredoka", "Nunito", system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.16;
+  margin: 0 0 0.4em;
+  text-wrap: balance;
+}
+
+h1 { font-size: clamp(1.9rem, 4.4vw, 2.9rem); }
+h2 { font-size: clamp(1.4rem, 2.8vw, 1.95rem); margin-top: 1.6em; }
+h3 { font-size: 1.16rem; margin-top: 1.5em; }
+
+p { line-height: 1.68; margin: 0 0 1em; }
+a { color: var(--denim); }
+strong { font-weight: 800; }
+
+img { max-width: 100%; height: auto; }
+
+.wrap { max-width: var(--container); margin: 0 auto; padding: 0 22px; }
+.col { max-width: 68ch; }
+
+:focus-visible { outline: 3px solid var(--denim); outline-offset: 3px; border-radius: 4px; }
+
+/* Skip link: these pages carry a full nav before the content, and a keyboard or screen
+   reader user should not have to walk it on every one of them. */
+.skip {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--denim); color: #fff; padding: 10px 16px;
+  border-radius: 0 0 var(--radius-sm) 0; font-weight: 800; z-index: 60;
+}
+.skip:focus { left: 0; }
+
+/* ---------------- nav ---------------- */
+
+.dnav {
+  background: #fff;
+  border-bottom: 2px solid rgba(30, 42, 58, 0.1);
+  position: sticky; top: 0; z-index: 40;
+}
+.dnav .wrap {
+  display: flex; align-items: center; gap: 18px;
+  flex-wrap: wrap; padding-top: 12px; padding-bottom: 12px;
+}
+.dbrand {
+  font-family: "Gluten", "Fredoka", system-ui, sans-serif;
+  font-weight: 800; font-size: 1.12rem; color: var(--ink);
+  text-decoration: none; margin-right: auto; line-height: 1.1;
+}
+.dbrand span { color: var(--orange); }
+.dbrand small {
+  display: block; font-family: "Nunito", sans-serif; font-weight: 700;
+  font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.dnav-links { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.dnav-links a {
+  color: var(--ink-soft); text-decoration: none; font-weight: 700; font-size: 0.92rem;
+}
+.dnav-links a:hover, .dnav-links a[aria-current="page"] { color: var(--ink); }
+
+.dbtn {
+  display: inline-block; background: var(--denim); color: #fff;
+  border: none; border-radius: 999px; padding: 9px 18px;
+  font-family: "Fredoka", sans-serif; font-weight: 600; font-size: 0.94rem;
+  text-decoration: none; cursor: pointer;
+}
+.dbtn:hover { filter: brightness(1.08); }
+.dbtn.ghost { background: transparent; color: var(--denim); box-shadow: inset 0 0 0 2px currentColor; }
+.dbtn.big { padding: 13px 26px; font-size: 1.05rem; }
+
+/* ---------------- hero ---------------- */
+
+.dhero {
+  background: linear-gradient(180deg, var(--sky-top), var(--sky-bottom));
+  padding: 54px 0 46px;
+  border-bottom: 3px solid rgba(30, 42, 58, 0.12);
+}
+.dhero h1 { color: #fff; text-shadow: 0 2px 0 rgba(30, 42, 58, 0.22); }
+.dhero p.lead { font-size: 1.14rem; max-width: 62ch; color: #10283c; margin-bottom: 0; }
+.dhero .cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+
+.eyebrow {
+  display: inline-block; background: var(--orange); color: #fff;
+  font-family: "Fredoka", sans-serif; font-weight: 600;
+  font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 5px 13px; border-radius: 999px; margin-bottom: 14px;
+}
+
+/* ---------------- sections ---------------- */
+
+.dsection { padding: 46px 0; }
+.dsection.tint { background: var(--cream); border-block: 2px solid rgba(30, 42, 58, 0.07); }
+
+.dhead { max-width: 68ch; margin-bottom: 22px; }
+.dhead h2 { margin-top: 0; }
+.dhead p { color: var(--ink-soft); }
+
+/* ---------------- the four figures ---------------- */
+
+.figs {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px; margin: 24px 0;
+}
+.fig {
+  background: #fff; border: 2px solid rgba(30, 42, 58, 0.12);
+  border-top: 6px solid var(--accent, var(--denim));
+  border-radius: var(--radius-md); padding: 18px 20px;
+}
+.fig .n {
+  font-family: "Fredoka", sans-serif; font-size: 1.85rem; font-weight: 600;
+  line-height: 1; color: var(--accent, var(--denim)); font-variant-numeric: tabular-nums;
+}
+.fig .n small { font-size: 0.52em; }
+.fig h4 { margin: 10px 0 5px; font-size: 0.99rem; }
+.fig p { font-size: 0.9rem; line-height: 1.5; color: var(--ink-soft); margin: 0; }
+.fig .src {
+  display: block; margin-top: 9px; font-size: 0.76rem; line-height: 1.4;
+  color: var(--ink-soft); opacity: 0.85;
+}
+
+/* ---------------- generic cards ---------------- */
+
+.cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px; margin: 24px 0;
+}
+.card {
+  background: #fff; border: 2px solid rgba(30, 42, 58, 0.12);
+  border-radius: var(--radius-md); padding: 20px 22px;
+}
+.card h3, .card h4 { margin-top: 0; }
+.card p:last-child { margin-bottom: 0; }
+.card p { font-size: 0.95rem; color: var(--ink-soft); }
+
+a.card { text-decoration: none; color: inherit; display: block; }
+a.card:hover { border-color: var(--denim); }
+a.card .go { display: block; margin-top: 12px; font-weight: 800; color: var(--denim); font-size: 0.92rem; }
+
+/* ---------------- callout ---------------- */
+
+.callout {
+  background: #fff;
+  border: 2px solid rgba(30, 42, 58, 0.12);
+  border-left: 7px solid var(--accent, var(--orange));
+  border-radius: var(--radius-sm);
+  padding: 17px 21px; margin: 24px 0;
+}
+.callout p { margin: 0; font-size: 0.97rem; }
+.callout p + p { margin-top: 0.7em; }
+
+/* ---------------- answer list (the IT brief's spine) ---------------- */
+
+.qa { list-style: none; margin: 22px 0; padding: 0; }
+.qa li {
+  background: #fff; border: 2px solid rgba(30, 42, 58, 0.12);
+  border-radius: var(--radius-sm); padding: 15px 19px; margin-bottom: 10px;
+}
+.qa b { display: block; font-family: "Fredoka", sans-serif; font-weight: 600; margin-bottom: 3px; }
+.qa span { display: block; font-size: 0.94rem; line-height: 1.55; color: var(--ink-soft); }
+
+/* ---------------- tables ---------------- */
+
+.dscroll { overflow-x: auto; margin: 22px 0; }
+table.dtable {
+  width: 100%; min-width: 560px; border-collapse: collapse;
+  background: #fff; border: 2px solid rgba(30, 42, 58, 0.12);
+  border-radius: var(--radius-sm); overflow: hidden; font-size: 0.93rem;
+}
+.dtable th, .dtable td {
+  text-align: left; padding: 10px 14px; vertical-align: top; line-height: 1.5;
+  border-bottom: 1px solid rgba(30, 42, 58, 0.09);
+}
+.dtable th {
+  font-family: "Fredoka", sans-serif; font-size: 0.78rem; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--ink-soft); background: rgba(30, 42, 58, 0.04);
+}
+.dtable tbody tr:last-child td { border-bottom: none; }
+.dtable td:first-child { font-weight: 800; }
+
+/* Inline code voice, for a hostname or a menu path quoted mid-sentence. Not a <code>
+   element, because these are things a reader RETYPES rather than runs, and the semantic
+   element brings a browser default size drop that makes a hostname harder to read than
+   the sentence around it. */
+.mono {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.92em;
+  background: rgba(30, 42, 58, 0.06);
+  border-radius: 5px;
+  padding: 1px 5px;
+  word-break: break-word;
+}
+
+/* ---------------- prose lists ---------------- */
+
+.col ul, .col ol { line-height: 1.68; padding-left: 1.3em; }
+.col li { margin-bottom: 0.5em; }
+
+/* ---------------- cite-this-page ---------------- */
+
+.cite-box {
+  background: var(--cream); border: 2px dashed rgba(30, 42, 58, 0.2);
+  border-radius: var(--radius-sm); padding: 15px 19px; margin: 24px 0;
+}
+.cite-box h4 { margin: 0 0 8px; font-size: 0.98rem; }
+.cite-box p { margin: 0; font-size: 0.9rem; color: var(--ink-soft); }
+.cite-box code {
+  display: block; margin-top: 9px; background: #fff; border-radius: 8px;
+  padding: 10px 13px; font-size: 0.84rem; line-height: 1.55;
+  word-break: break-word; border: 1px solid rgba(30, 42, 58, 0.12);
+}
+
+/* ---------------- footer ---------------- */
+
+.dfoot {
+  background: #16202e; color: #cfd8e4; padding: 34px 0; margin-top: 12px;
+  font-size: 0.92rem;
+}
+.dfoot a { color: #9fd0f5; }
+.dfoot .links { margin: 10px 0 0; line-height: 2; }
+
+/* ---------------- print ---------------- */
+
+.printbtn { margin-top: 18px; }
+
+@media print {
+  /* Everything that is navigation, decoration or a link to somewhere else. A printed
+     brief is read on paper by somebody who cannot click. */
+  .dnav, .dfoot, .printbtn, .no-print, .skip { display: none !important; }
+
+  html, body { background: #fff !important; color: #000; font-size: 10.5pt; }
+  .dhero {
+    background: #fff !important; border-bottom: 2px solid #000;
+    padding: 0 0 12pt; margin-bottom: 12pt;
+  }
+  .dhero h1 { color: #000; text-shadow: none; font-size: 20pt; }
+  .dhero p.lead { color: #000; font-size: 11pt; }
+  .eyebrow { background: none; color: #000; padding: 0; font-size: 8pt; }
+
+  .dsection { padding: 0 0 10pt; }
+  .dsection.tint { background: #fff !important; border: none; }
+  .wrap { max-width: none; padding: 0; }
+
+  /* A brief that breaks a figure or an answer across a page boundary reads as two
+     half-thoughts, so nothing here is allowed to split. */
+  .fig, .card, .callout, .qa li, .cite-box, table.dtable { break-inside: avoid; }
+  h2, h3 { break-after: avoid; }
+
+  .fig, .card, .callout, .qa li, .cite-box, table.dtable {
+    border: 1px solid #666; box-shadow: none; background: #fff !important;
+  }
+  .figs { gap: 8pt; }
+  .fig .n { color: #000; }
+
+  /* The URL is the whole point of a printed page: the reader cannot click, so an
+     unprinted address means the document names no way to reach the thing it is about.
+     Internal anchors and same-page jumps are excluded -- printing "#top" after a word
+     is noise. */
+  .col a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 8.5pt; word-break: break-all; }
+  .print-url { display: block !important; font-weight: 800; margin-top: 6pt; }
+}
+
+.print-url { display: none; }

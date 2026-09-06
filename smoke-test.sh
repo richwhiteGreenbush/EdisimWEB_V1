@@ -42,6 +42,11 @@ APP="${APP:-http://localhost:8081}"
 # timeout reads as a failing check rather than a slow one.
 TIMEOUT="${TIMEOUT:-30}"
 
+# The repository root, for the one check below that reads the SOURCE rather than a served
+# page. Absolute, because a check run from another directory is otherwise silently a
+# no-op that passes.
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 printf 'site %s\napp  %s\n' "$SITE" "$APP"
 
 pass=0; fail=0
@@ -66,6 +71,32 @@ check "home page"            "$SITE/"                    200
 check "stylesheet"           "$SITE/styles.css"          200
 check "hands-on guide"       "$SITE/guide/"              200
 check "logo wordmark"        "$SITE/assets/edusim-wordmark.jpg" 200
+
+# The 2026 marketing pass. Every one of these is a page some document, brief or link
+# points at -- the privacy page is quoted in the IT brief and in the gallery's own
+# teacher panel, and the two briefs are what a coach forwards. A 404 on any of them is
+# worse than not having written it, because the link is already out there.
+check "student privacy"      "$SITE/privacy.html"                      200
+check "for schools"          "$SITE/schools/"                          200
+check "evidence brief"       "$SITE/schools/evidence-brief.html"       200
+check "IT brief"             "$SITE/schools/it-brief.html"             200
+check "spatial reasoning"    "$SITE/spatial-reasoning/"                200
+check "  · predicts STEM"    "$SITE/spatial-reasoning/why-it-predicts-stem.html"        200
+check "  · how to teach it"  "$SITE/spatial-reasoning/teaching-it-in-elementary.html"   200
+check "  · activities"       "$SITE/spatial-reasoning/activities.html" 200
+check "document stylesheet"  "$SITE/assets/doc.css"                    200
+check "the page counter"     "$SITE/assets/edusim-analytics.js"        200
+check "sitemap"              "$SITE/sitemap.xml"                       200
+
+# Google Analytics was on every page of a site whose whole pitch is that it collects
+# nothing. It is gone and must stay gone: this asserts the contradiction has not been
+# reintroduced by a copy-pasted <head>.
+ga_hits="$(grep -rl 'googletagmanager' "$HERE/docs" 2>/dev/null | wc -l | tr -d ' ')"
+if [ "$ga_hits" = "0" ]; then
+  printf '  \033[32mok\033[0m   %-46s none\n' "third-party analytics in docs/"; pass=$((pass+1))
+else
+  printf '  \033[31mFAIL\033[0m %-46s %s pages\n' "third-party analytics in docs/" "$ga_hits"; fail=$((fail+1))
+fi
 # Fetch to a FILE, then grep the file. Two traps have already been hit here:
 #   * `curl | grep -q` is wrong under `set -o pipefail` -- grep exits on the first match,
 #     SIGPIPEs curl, and the pipeline reports curl's 141, so the check fails precisely

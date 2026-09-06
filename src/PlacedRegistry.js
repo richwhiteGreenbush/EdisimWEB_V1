@@ -30,6 +30,12 @@ export class PlacedRegistry {
     // The Neighborhood's records at once, which is not an arrival, it is a fireworks
     // display in front of somebody trying to look at a town.
     this.bulkLoading = false;
+    // One `built` count per app session, ever. The marketing plan's second metric is
+    // "sessions that build something" -- a session, not a shape -- so a class spending
+    // an hour placing four hundred primitives is one number, exactly like a class that
+    // placed one and stopped. Counting shapes would make the busiest lesson of the year
+    // look like a traffic spike.
+    this.countedBuild = false;
   }
 
   add(id, object3D, { tick, baseTick, stickerTick, record } = {}) {
@@ -43,6 +49,24 @@ export class PlacedRegistry {
     // which are invisible bookkeeping objects rather than things anybody watches.
     if (this.motion && !this.bulkLoading && record?.kind !== 'world-theme' && record?.kind !== 'world-spawn') {
       popIn(this.motion, object3D);
+    }
+
+    // ... and the same three conditions decide whether it counts as BUILDING something,
+    // which is why this sits here rather than in the six places that place things.
+    // `bulkLoading` is the load-bearing half: opening a preset world adds up to 116
+    // records through this exact funnel, and a student who opened Ancient Egypt and
+    // walked around it has not built anything. Without that guard the activation metric
+    // would read 100% on every visit and mean nothing.
+    //
+    // `edusimCount` is optional by design -- see index.html. It is absent in `npm run
+    // dev` and absent for any visitor sending Do Not Track, and in both cases placing a
+    // shape must work exactly as it always has.
+    if (!this.countedBuild && !this.bulkLoading
+        && record?.kind !== 'world-theme' && record?.kind !== 'world-spawn') {
+      this.countedBuild = true;
+      try {
+        window.edusimCount?.('built', '/app/');
+      } catch (err) { /* counting can never be the reason a shape fails to appear */ }
     }
   }
 

@@ -193,6 +193,33 @@ a { color: #1f6b8a; }
 .lesson-head { display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap; border-bottom: 2px solid var(--line); padding-bottom: 0.6rem; margin-bottom: 0.9rem; }
 .lesson-head h2 { font-size: 1.55rem; margin: 0; }
 .subjects { color: var(--accent); font-weight: 800; font-size: 0.88rem; }
+
+/* Grade band and US standards, added beside the subject areas.
+   .lesson-head is a wrap-enabled flex row, so on a wide screen these sit inline after
+   the subjects and on a narrow one they fall to their own lines -- which is the right
+   order of importance either way: the title, then what it is about, then the codes.
+   `flex-basis: 100%` on .standards forces the codes onto their own line always, because
+   a run of eight codes trailing a lesson title reads as noise where a line of its own
+   reads as a reference. */
+.band {
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+.standards {
+  flex: 1 1 100%;
+  font-size: 0.79rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--muted);
+  /* Codes are read one at a time rather than as prose, so they get the extra tracking
+     that keeps NGSS 3-5-ETS1-2 from reading as one long word. */
+  letter-spacing: 0.01em;
+}
 .objective { background: #fff; border-left: 5px solid var(--accent); border-radius: 8px; padding: 0.6rem 0.9rem; }
 
 .lesson-grid { display: grid; gap: 0.9rem; grid-template-columns: repeat(4, 1fr); margin: 1rem 0 1.1rem; }

@@ -125,6 +125,7 @@ fi
 # never be added here).
 #
 #   data/worlds.sqlite*   the database itself
+#   data/stats.sqlite*    the page counters (a SECOND database, see lib/stats.php)
 #   data/worlds/*.json    one shared world file each
 #   uploads/screenshots/* the pictures that go with them
 #   lib/config.local.php  this deployment's admin password hash and IP salt
@@ -135,6 +136,7 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "db" ]; then
     --delete \
     --exclude '.DS_Store' \
     --exclude 'data/worlds.sqlite*' \
+    --exclude 'data/stats.sqlite*' \
     --exclude 'data/worlds/*.json' \
     --exclude 'uploads/screenshots/*' \
     --exclude 'lib/config.local.php' \

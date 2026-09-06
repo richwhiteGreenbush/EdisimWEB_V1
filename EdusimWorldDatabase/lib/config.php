@@ -119,6 +119,12 @@ ewd_define('EWD_ADMIN_PASSWORD_HASH', '');
 ewd_define('EWD_SITE_URL', '../');
 ewd_define('EWD_GUIDE_URL', '../guide/index.html');
 
+// The guide's DIRECTORY, for linking at a particular page inside it. A world page's
+// teacher layer links to a lesson plan and a printable student card by filename (see
+// lib/teaching.php), and deriving that from EWD_GUIDE_URL with a dirname() at each call
+// site is three chances to get a trailing slash wrong.
+ewd_define('EWD_GUIDE_URL_DIR', '../guide/');
+
 // The app used to be the ONE absolute link here, because it was hosted elsewhere and there
 // was no copy of it on this server to point at. Every deployment now goes to /app/ on this
 // host, so this joins the two above and is relative.
@@ -139,7 +145,14 @@ ewd_define('EWD_APP_URL', '../app/');
 // The cost is that shares from the local Apache mirror point at production, which is the
 // right answer anyway: nobody wants to share a localhost link. Override it in
 // lib/config.local.php if this is ever hosted somewhere else.
-ewd_define('EWD_CANONICAL_ORIGIN', 'http://edusim3dweb.com');
+//
+// It is HTTPS as of the certificate arriving on this domain. It was http for as long as
+// the domain had no TLS, and it kept working after the certificate landed only because
+// the server 301s http to https -- which is what hid it. What that redirect does not fix
+// is the canonical link tag, which was telling search engines the real address of every
+// world page was the one that redirects, and every share button and Open Graph url, each
+// of which cost a needless round trip. See CLAUDE.md's certificate section.
+ewd_define('EWD_CANONICAL_ORIGIN', 'https://edusim3dweb.com');
 ewd_define('EWD_CANONICAL_BASE', EWD_CANONICAL_ORIGIN . '/worlds/');
 
 // The copy of the app that "Open this world in Edusim" points at. It now holds the same

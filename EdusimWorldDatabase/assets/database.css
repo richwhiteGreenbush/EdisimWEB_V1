@@ -174,6 +174,7 @@ a { color: inherit; }
 .on-paper .btn-ghost,
 .detail-actions .btn-ghost,
 .form-actions .btn-ghost,
+.teach-links .btn-ghost,
 .admin-actions .btn-ghost {
   background: rgba(30, 42, 58, 0.06);
   color: var(--ink);
@@ -182,6 +183,7 @@ a { color: inherit; }
 .on-paper .btn-ghost:hover,
 .detail-actions .btn-ghost:hover,
 .form-actions .btn-ghost:hover,
+.teach-links .btn-ghost:hover,
 .admin-actions .btn-ghost:hover { background: rgba(30, 42, 58, 0.12); }
 
 .btn-danger {
@@ -1318,3 +1320,213 @@ input[type="file"]:focus {
 .detail-alt[open] > summary::before { content: "▾ "; }
 
 .detail-alt > summary:hover { color: var(--denim); }
+
+/* ===========================================================
+   stats.php — the traffic page.
+   Six figures across the top and two plain tables under them.
+   No chart library and no canvas: these are numbers somebody
+   reads once a week, and a bar chart of six weekly totals is
+   decoration that costs a dependency. The site's one external
+   asset is Google Fonts and this keeps that true.
+   =========================================================== */
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
+  gap: 14px;
+  margin: 22px 0 8px;
+}
+
+.stat-box {
+  background: #fff;
+  border: 2px solid rgba(30, 42, 58, 0.12);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+}
+
+.stat-box .v {
+  display: block;
+  font-family: "Fredoka", "Nunito", system-ui, sans-serif;
+  font-size: 1.9rem;
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--denim);
+  /* Tabular figures so a column of counts lines up on the decimal rather than
+     wobbling as digits change width -- the whole point of a figure column. */
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-box .v small { font-size: 0.5em; font-weight: 600; color: var(--ink-soft); }
+
+.stat-box .k {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--ink-soft);
+}
+
+.stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  background: #fff;
+  border: 2px solid rgba(30, 42, 58, 0.12);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.stat-table th,
+.stat-table td {
+  text-align: left;
+  padding: 9px 13px;
+  border-bottom: 1px solid rgba(30, 42, 58, 0.09);
+}
+
+.stat-table th {
+  font-family: "Fredoka", "Nunito", system-ui, sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: rgba(30, 42, 58, 0.04);
+}
+
+.stat-table tbody tr:last-child td { border-bottom: none; }
+.stat-table td.n,
+.stat-table th + th { text-align: right; font-variant-numeric: tabular-nums; }
+.stat-table td:first-child { word-break: break-all; }
+
+/* ===========================================================
+   The teacher layer on a world page (lib/teaching.php).
+
+   Under the description rather than in the sidebar: the sidebar
+   is what you DO with a world, this is what it is FOR, and a
+   teacher deciding whether it fits their lesson reads it right
+   after the paragraph about the world itself.
+
+   A <dl>, because that is what a label/value list is. The grid
+   puts the terms in a fixed left column on a wide screen so the
+   three values line up and can be scanned, and stacks them on a
+   narrow one, where a 130px label column would leave a standards
+   line four words wide.
+   =========================================================== */
+
+.teachbox {
+  margin-top: 26px;
+  background: var(--cream);
+  border: 3px solid var(--green);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+}
+
+.teachbox h2 { font-size: 1.2rem; margin-bottom: 14px; }
+
+.teach-list {
+  display: grid;
+  gap: 4px 18px;
+  margin: 0 0 16px;
+}
+
+.teach-list dt {
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.teach-list dd {
+  margin: 0 0 10px;
+  font-size: 0.96rem;
+  line-height: 1.55;
+}
+
+.teach-list dd:last-of-type { margin-bottom: 0; }
+
+@media (min-width: 620px) {
+  .teach-list { grid-template-columns: 130px minmax(0, 1fr); }
+  .teach-list dt { grid-column: 1; padding-top: 3px; }
+  .teach-list dd { grid-column: 2; }
+}
+
+.teach-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 12px;
+}
+
+.teach-note {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* ===========================================================
+   The world spotlight (index.php, set from admin.php).
+
+   One featured world above the filter bar. It is a LINK to
+   that world's page rather than to the app on purpose: the
+   point of a spotlight is to give whoever built it a reason
+   to send people the gallery's own address, and the page is
+   where their name is.
+
+   Suppressed whenever a filter is on -- see index.php.
+   =========================================================== */
+
+.spotlight {
+  display: grid;
+  gap: 0;
+  margin-bottom: 26px;
+  background: #fff;
+  border: 3px solid var(--orange);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--ink);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.15s ease;
+}
+
+.spotlight:hover { transform: translateY(-3px); }
+
+.spotlight img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* The screenshots are 16:10 and this panel is wider than that on a desktop, so the
+     image has to crop rather than letterbox -- a pale band down each side of a featured
+     world reads as a broken image. */
+  object-fit: cover;
+  aspect-ratio: 16 / 10;
+}
+
+.spotlight-body { padding: 22px 26px; }
+
+.spotlight-kicker {
+  display: inline-block;
+  background: var(--orange);
+  color: #fff;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.spotlight h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); margin-bottom: 6px; }
+.spotlight-by { font-size: 0.95rem; color: var(--ink-soft); margin-bottom: 10px; }
+.spotlight-desc { font-size: 0.96rem; line-height: 1.6; margin-bottom: 12px; }
+.spotlight-go { font-family: "Fredoka", sans-serif; font-weight: 600; color: var(--denim); }
+
+@media (min-width: 760px) {
+  .spotlight { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: stretch; }
+  .spotlight img { aspect-ratio: auto; }
+}

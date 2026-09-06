@@ -85,6 +85,16 @@ CREATE TABLE IF NOT EXISTS world_tags (
 
 CREATE INDEX IF NOT EXISTS idx_world_tags_tag ON world_tags (tag_id);
 
+-- Deployment settings, one row per setting: at present only which world is in
+-- the spotlight on the gallery front page. A table rather than a column on
+-- `worlds`, because "there is one spotlight" is a fact about the site and not
+-- about any world -- as a column it would need a rule, enforced in code, that no
+-- more than one row may ever have it set.
+CREATE TABLE IF NOT EXISTS settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
 -- One row per accepted submission, used only for the per-IP hourly rate limit.
 -- Rows older than the window are deleted on each check, so this never grows.
 CREATE TABLE IF NOT EXISTS submission_log (
