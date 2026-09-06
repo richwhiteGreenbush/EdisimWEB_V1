@@ -245,8 +245,16 @@ check "app index"            "$APP/"                     200
 # resolves against whatever directory the app is mounted in -- an origin root locally, a
 # subpath in production. The regex drops the leading dot and re-roots it on $APP, which is
 # what makes one check cover both layouts.
-asset=$(curl -s "$APP/" | grep -oE '/assets/[A-Za-z0-9._-]+\.js' | head -1)
-[ -n "$asset" ] && check "main bundle"  "$APP$asset"     200
+#
+# THE LEADING `./` IS PART OF THE MATCH AND HAS TO BE. The app's page also loads
+# /assets/edusim-analytics.js, which is ROOT-absolute on purpose -- it lives in the
+# marketing site's assets directory one level up, not in the bundle. Matching a bare
+# `/assets/*.js` picked that one up (it comes first in the document) and re-rooted it
+# onto $APP, so the check failed on a file that is not the bundle and is not at that
+# address. Requiring the dot is exactly the distinction between "shipped inside the
+# bundle" and "loaded from the site around it".
+asset=$(curl -s "$APP/" | grep -oE '\./assets/[A-Za-z0-9._-]+\.js' | head -1)
+[ -n "$asset" ] && check "main bundle"  "$APP${asset#.}"     200
 check "maple tree model"     "$APP/tree/MapleTree.obj"   200
 
 printf '\n\033[1m%d passed, %d failed\033[0m\n' "$pass" "$fail"
