@@ -689,13 +689,49 @@ export function tutorialBoard({
       return y - startY;
     };
 
-    // Fit the steps to whatever room the title left, the way cardTexture fits its body.
-    // How many lines a wrapped title runs to is not something a caller can predict from
-    // the outside, and a board with its last step cut off is worse than one set smaller.
-    const tipTop = tip ? h - 156 : h - 34;
+    // THE TIP HAS TO BE MEASURED TOO, and until it was this line took two decisions blind
+    // at once. `tipTop` was a fixed `h - 156` -- room for about three lines of the 28px
+    // italic below -- so the steps were fitted to whatever was left ABOVE a line that had
+    // nothing to do with how long the tip actually was, and the tip was then drawn from it
+    // at a fixed size with no fit at all. Hand the board a four-line tip and both halves
+    // fail together: the last step runs INTO the tip, and the tip runs off the bottom of
+    // the panel. The Sunflower world's first building board did exactly that, printing
+    // "move and program." on top of "The green ball decides lift-or-slide".
+    //
+    // This is the fifth time this project has found the same bug -- cardTexture's body,
+    // standingSign's title, welcomeBoard's lead, the chalk blackboard's headline, now
+    // this. Text drawn at a guessed size instead of a measured one.
+    //
+    // A three-line tip at 28px lands within three pixels of the old fixed number, so every
+    // board already shipped is untouched; it is only the long ones that move.
+    const tipLineH = (s) => Math.round(s * 1.25);
+    const tipFirst = (s) => Math.round(s * 1.64);
+    let tipSize = 28;
+    let tipLines = [];
+    if (tip) {
+      const maxTipH = Math.round(h * 0.36);
+      for (;;) {
+        ctx.font = `italic ${tipSize}px Georgia, "Times New Roman", serif`;
+        tipLines = wrapLines(ctx, tip, w - 112);
+        const needed = tipFirst(tipSize) + (tipLines.length - 1) * tipLineH(tipSize) + Math.round(tipSize * 0.45);
+        if (needed <= maxTipH || tipSize <= 18) break;
+        tipSize -= 2;
+      }
+    }
+    const tipH = tip
+      ? tipFirst(tipSize) + (tipLines.length - 1) * tipLineH(tipSize) + Math.round(tipSize * 0.45)
+      : 0;
+
+    // Fit the steps to whatever room the title and the tip left, the way cardTexture fits
+    // its body. How many lines a wrapped title runs to is not something a caller can
+    // predict from the outside, and a board with its last step cut off is worse than one
+    // set smaller. The floor is 18 rather than 22 because bottoming out used to mean
+    // drawing over the tip; now it means small text, which is a thing a reader can walk
+    // closer to. Below 18 the answer is to cut the words, not to shrink them further.
+    const tipTop = tip ? h - 30 - tipH : h - 34;
     const available = tipTop - (headY + 26);
     let size = 34;
-    while (size > 22 && body(0, size, false) > available) size -= 2;
+    while (size > 18 && body(0, size, false) > available) size -= 2;
     body(headY + 26, size, true);
 
     if (tip) {
@@ -703,8 +739,12 @@ export function tutorialBoard({
       round(30, tipTop, w - 60, h - tipTop - 30, 18);
       ctx.fill();
       ctx.fillStyle = '#4a4137';
-      ctx.font = 'italic 28px Georgia, "Times New Roman", serif';
-      wrapText(ctx, tip, 56, tipTop + 46, w - 112, 35);
+      ctx.font = `italic ${tipSize}px Georgia, "Times New Roman", serif`;
+      let ty = tipTop + tipFirst(tipSize);
+      for (const l of tipLines) {
+        ctx.fillText(l, 56, ty);
+        ty += tipLineH(tipSize);
+      }
     }
   });
 
