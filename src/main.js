@@ -527,6 +527,13 @@ if (import.meta.env.DEV) {
     worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager, speechBubbles,
     webBrowserManager, vrView, constructionManager, primitiveMenu, markerTrail, buildGizmo,
     motion, cinema, photoMode, settingsPanel, windUniforms, setWind,
+    // Every menu row, callable. `loadPreset` is the one that cannot be reached any other
+    // way now that the menu lists no worlds at all: a preset is opened by a ?world= link
+    // against the live gallery, which a checkout under development is not. Building the
+    // records from a console `import()` is NOT the same thing -- under Vite that is a
+    // separate module instance, so its applyWorldTheme writes to a SceneSetup whose scene
+    // is null and every object is then grounded against the previous world's hills.
+    menuActions,
   };
 }
 

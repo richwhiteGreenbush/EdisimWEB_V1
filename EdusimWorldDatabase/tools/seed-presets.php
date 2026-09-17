@@ -804,6 +804,31 @@ $WORLDS = [
             . "right turns, repeated twice. Every car, and the trolley itself, opens up when "
             . "you click it. Won't you be my neighbor?",
     ],
+    'sunflower' => [
+        'title'   => 'Sunflower',
+        'tags'    => 'nature, animals, plants, coding, building, official',
+        'description' =>
+            "A Kansas sunflower field in September, forty times life size \u{2014} and you are a "
+            . "deer mouse four inches long, walking through it. The stalks go up fifty feet over "
+            . "your head, a flower head is wider than you are long, and one sunflower seed is the "
+            . "size of a loaf of bread.\n\n"
+            . "A worn path runs the length of the field, from the edge where you arrive to the nest "
+            . "dug into the bank at the far end. Mice really do wear runways like that between "
+            . "their food and their door, and four other mice are working this one right now \u{2014} "
+            . "already running programs you can open and read. Watch one long enough and you will "
+            . "see it pick a seed up at the fallen head and put it down at the burrow.\n\n"
+            . "The bank beside the burrow mouth is cut open so you can see inside: the run going "
+            . "down, the ball of shredded grass with three pups asleep in it, the seed store, and "
+            . "the bolt tunnel that stops just under the surface for going out the other way in a "
+            . "hurry.\n\n"
+            . "Five boards down the path. Three coding: send a mouse to fetch a seed, make a young "
+            . "sunflower track the sun west all day and turn back east overnight, and lay a scent "
+            . "trail home with the marker blocks. Two building: build a sunflower of your own, and "
+            . "build a seed store with a door a mouse can actually get through.\n\n"
+            . "Look into a seed head before you go. Every seed sits 137.5 degrees round from the "
+            . "one before it \u{2014} the golden angle \u{2014} which is why the spirals always come "
+            . "out as Fibonacci numbers.",
+    ],
     'wonderland' => [
         'title'   => 'Alice in Wonderland',
         'creator' => 'Lewis Carroll',

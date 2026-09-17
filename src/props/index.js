@@ -39,6 +39,7 @@ import * as JsBasics from './JsBasicsProps.js';
 import * as Chalk from './ChalkProps.js';
 import * as Wonder from './WonderProps.js';
 import * as Neighborhood from './NeighborhoodProps.js';
+import * as Sunflower from './SunflowerProps.js';
 import { applyWind, WIND_PROPS } from '../Wind.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
@@ -664,6 +665,26 @@ export const PROP_BUILDERS = {
   'nb-stop-sign': Neighborhood.nbStopSign,
   'nb-mailbox': Neighborhood.nbMailbox,
   'nb-picket-fence': Neighborhood.nbPicketFence,
+
+  // Sunflower
+  sunflower: Sunflower.sunflower,
+  'sunflower-stand': Sunflower.sunflowerStand,
+  'sunflower-seed': Sunflower.sunflowerSeed,
+  'fallen-head': Sunflower.fallenHead,
+  'seed-scatter': Sunflower.seedScatter,
+  'field-mouse': Sunflower.fieldMouse,
+  'nest-bank': Sunflower.nestBank,
+  // NOT 'nest-cutaway': that key is A Bug's Life's ant nest, declared ~280 lines above, and
+  // an object literal keeps the LAST of two identical keys silently. Declared bare here it
+  // pointed every already-published copy of world 12 at a mouse burrow. Add-only, like every
+  // other key in this table.
+  'mouse-nest-cutaway': Sunflower.nestCutaway,
+  'prairie-grass': Sunflower.prairieGrass,
+  'prairie-flower': Sunflower.prairieFlower,
+  'nest-material': Sunflower.nestMaterial,
+  'mouse-runway': Sunflower.mouseRunway,
+  'soil-clods': Sunflower.soilClods,
+  'bumble-bee': Sunflower.bumbleBee,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than
