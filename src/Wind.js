@@ -217,6 +217,16 @@ export const WIND_PROPS = new Map([
   // its stillness is the loudest wrong thing in that world.
   ['grass-blade', { top: 52, amount: 1.6 }],
 
+  // Sunflower. A field of eight-foot plants is never still, and at mouse scale the sway
+  // of a head fifty feet up is the difference between a field and a stage set. The stalk
+  // is stiff and the grass between the rows is not, which is the whole argument for this
+  // being a list rather than a heuristic.
+  ['sunflower', { top: 52, amount: 0.85 }],
+  ['sunflower-stand', { top: 50, amount: 0.8 }],
+  ['prairie-grass', { top: 20, amount: 1.6 }],
+  ['prairie-flower', { top: 22, amount: 1.25 }],
+  ['nest-material', { top: 3, amount: 0.9 }],
+
   // Under the Sea. Water moves everything, and the reef standing perfectly still is the
   // one thing a world made of water could not not do.
   ['seagrass-patch', { top: 7, amount: 1.5 }],

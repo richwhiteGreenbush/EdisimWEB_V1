@@ -9492,6 +9492,534 @@ function neighborhoodLayout() {
   return { theme: 'neighborhood', spawn: { ...SP, yaw: 0 }, items };
 }
 
+// ---------------------------------------------------------------------------
+// Sunflower -- a Kansas sunflower field, seen by a mouse
+// ---------------------------------------------------------------------------
+
+// THE STUDENT IS THE MOUSE. Everything else follows from that: the world is grown forty
+// times rather than the animals shrunk, the flowers tower fifty feet overhead, a seed is
+// the size of a loaf, and the other four mice are peers rather than pets.
+//
+// It is laid out along ONE PATH -- a runway worn through the rows, which is a real thing a
+// mouse makes -- running from the spawn at the field's edge to the nest bank at the far
+// end. Everything worth seeing is on it or a few steps off it, the five challenge boards
+// are spaced down it, and the middle of it stays clear: a fresh construction piece lands
+// PRIMITIVE_SPAWN_DISTANCE (10ft) ahead of the student and spirals out, so anything parked
+// in the way is something to build round (My World and A Bug's Life both learned this).
+//
+// North is -Z and EAST IS +Z, behind the spawn, which is where the sun is. That is not
+// decoration: a sunflower head faces east for the whole second half of its life, so the
+// same decision that lights the mice from the front turns two hundred flower faces toward
+// the arrival instead of showing it their backs.
+function sunflowerLayout() {
+  const items = [];
+  const SP = { x: 0, z: 150 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+  // A board beside the path turns to meet the student COMING DOWN it, not square to the
+  // centre line -- square on, five boards present five edges and a student walks past all
+  // of them without reading a word (A Bug's Life's avenue).
+  const facePath = (x, z) => facing(x, z, x * 0.15, z + 30);
+  const BUILD = { width: 11, height: 8.6, postHeight: 11.5 };
+
+  // The runway, from behind the spawn to the burrow mouth. Every other position in this
+  // layout is measured against it.
+  const PATH = [
+    [0, 168], [1, 150], [3, 132], [7, 114], [12, 96], [16, 78], [16, 60],
+    [12, 42], [6, 24], [-1, 6], [-7, -12], [-11, -32], [-13, -52], [-10, -72], [-5, -90],
+  ];
+  const NEST = { x: -4, z: -126 };   // the bank's centre
+
+  // THE BANK IS A HILL AND A HILL IS SOLID. Its comment used to say the face and mouth
+  // were at z ~= -99, which was a guess and was 21ft out: built at width 118 / depth 66 the
+  // prop MEASURES x = -59.3..59.0 and z = -39.9..47.9 about its own origin, because the
+  // slope and the crown tufts both overhang the width and depth it is given. So the toe is
+  // at z = -78, and everything placed between there and z = -166 was inside the hill.
+  //
+  // Twelve props were. The three that mattered were the teaching ones -- the cut-through
+  // section and both info placards, the only explanation in the world of what is behind
+  // that hole, all three of them invisible inside sixty feet of soil. Found by walking to
+  // the nest and looking for them, which is the only way this kind of thing is ever found.
+  const inBank = (x, z) => x > NEST.x - 61 && x < NEST.x + 61 && z < NEST.z + 50 && z > NEST.z - 42;
+
+  // A seeded scatter, because a preset world is exported ONCE and then loaded from records
+  // -- but a field planted with Math.random would come out differently in every export and
+  // nobody could tell a deliberate change from a reshuffle.
+  let rngState = 20260917;
+  const rnd = () => {
+    rngState = (rngState * 1664525 + 1013904223) % 4294967296;
+    return rngState / 4294967296;
+  };
+  const near = (x, z, list, dist) => list.some(([px, pz]) => Math.hypot(px - x, pz - z) < dist);
+  // The closest point on a polyline to (x, z), and its distance.
+  const onPolyline = (pts, x, z) => {
+    let best = { d: 1e9, x: pts[0][0], z: pts[0][1] };
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [ax, az] = pts[i];
+      const [bx, bz] = pts[i + 1];
+      const dx = bx - ax;
+      const dz = bz - az;
+      const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / (dx * dx + dz * dz || 1)));
+      const px = ax + dx * t;
+      const pz = az + dz * t;
+      const d = Math.hypot(x - px, z - pz);
+      if (d < best.d) best = { d, x: px, z: pz };
+    }
+    return best;
+  };
+  // How far (x, z) is from the runway, so the field can be planted everywhere but ON it.
+  const offPath = (x, z) => onPolyline(PATH, x, z).d;
+
+  // --- the runway, and the arrival ------------------------------------------
+  items.push(prop('mouse-runway', 0, 0, { options: { points: PATH, width: 14, seed: 23, litter: 120 } }));
+
+  // THE ARRIVAL FRAME, and both of these were outside it. A `fov: 70` is VERTICAL, so a
+  // 16:9 screen sees only about 51 degrees either side -- and a board's own WIDTH is half
+  // the problem, because a 13ft panel subtends 30 degrees at 25ft and only 18 at 40ft. The
+  // welcome board stood 24.7ft out at 58 degrees and the title sign at 68, so on a rendered
+  // arrival the first read in the world was "MO SE." and the second was "TH". The board is
+  // now 34ft out at 35 degrees, which is where every other world in this project puts one
+  // (neighborhood 41ft/43, greenbush 47ft/43, jsbasics 22ft/36), and its far edge lands at
+  // 46 with room to spare.
+  items.push(prop('welcome-board', -20, 122, {
+    rotY: face(-20, 122),
+    options: {
+      eyebrow: '🌻  SUNFLOWER',
+      lines: ['YOU ARE A MOUSE.'],
+      lead: 'The field is forty times life size and so is everything in it. Follow the worn path north to the nest in the bank — four other mice are working it, carrying seed and grass home.',
+      footnote: 'Five boards down the path: three to program, two to build',
+      accent: '#ffc42e',
+      face: '#2d2a14',
+      width: 13,
+    },
+  }));
+  // The title sign goes BESIDE the arrival rather than into it, at the mouth of the path
+  // the student walked in along. Two boards cannot share one frame: a 17ft sign anywhere
+  // in the forward 50 degrees either lands outside the bezel or sits behind the welcome
+  // board, and the browser station already owns the right-hand side at 42. Set square-on
+  // at 105 degrees it is what a student meets on their first look round, which is what the
+  // chalk world's fence and the observatory's Polaris sight are both doing.
+  items.push(prop('standing-sign', 22, 156, {
+    rotY: face(22, 156),
+    options: {
+      lines: ['THE SUNFLOWER FIELD'],
+      subtitle: 'Kansas, September — a deer mouse, four inches long, in eight feet of Helianthus annuus',
+      width: 17, height: 4.4, face: '#3a4a18', accent: '#ffc42e',
+    },
+  }));
+  items.push(...browserStation(10, 139, {
+    faceX: SP.x, faceZ: SP.z,
+    url: 'https://en.wikipedia.org/wiki/Common_sunflower',
+  }));
+
+  // --- the mice -------------------------------------------------------------
+  //
+  // Four, all working: out to a seed head, home to the bank, and back. Each ships with a
+  // program a student can open, read and change -- the carousel's mechanism, and the
+  // reason the first thing anybody sees in this world is a program running.
+  //
+  // THE ROUTE IS A SHUTTLE, and the two stops in it are what make the carrying read: the
+  // mouse's own tick swaps what it is holding at every stop longer than a second, so it
+  // picks a seed up at the head and puts it down at the nest without one extra mechanism.
+  const aboutTurn = () => block('repeat', { count: 12 }, [block('rotate', { degrees: 15 })]);
+  const shuttle = (feet, seconds, pause = 1.6) => [
+    block('forever', {}, [
+      block('glide', { feet, seconds, ease: 'smooth' }),
+      block('wait', { seconds: pause }),
+      aboutTurn(),
+      block('glide', { feet, seconds, ease: 'smooth' }),
+      block('wait', { seconds: pause }),
+      aboutTurn(),
+    ]),
+  ];
+
+  // Scout: the nearest mouse to the spawn, and the target of the first coding board.
+  items.push(prop('field-mouse', 13, 104, {
+    rotY: Math.atan2(16 - 13, 78 - 104),
+    options: { seed: 21, carry: 'seed', carrying: false },
+    program: shuttle(26, 3.2),
+  }));
+  // Gatherer: works the fallen head mid-field, and says so.
+  items.push(prop('field-mouse', 26, 70, {
+    rotY: Math.atan2(16 - 26, 60 - 70),
+    options: { seed: 33, carry: 'grass', carrying: true },
+    program: [
+      block('forever', {}, [
+        block('glide', { feet: 22, seconds: 2.6, ease: 'smooth' }),
+        block('say', { text: 'seeds over here!' }),
+        block('wait', { seconds: 1.8 }),
+        aboutTurn(),
+        block('glide', { feet: 22, seconds: 2.6, ease: 'smooth' }),
+        block('wait', { seconds: 1.8 }),
+        aboutTurn(),
+      ]),
+    ],
+  }));
+  // Lining-carrier: thistle down for the nest, on the long straight south of the middle.
+  items.push(prop('field-mouse', -9, -18, {
+    rotY: Math.atan2(-11 + 9, -32 + 18),
+    options: { seed: 45, carry: 'fluff', carrying: true },
+    program: shuttle(30, 3.6, 1.4),
+  }));
+  // Home mouse: runs INTO the burrow mouth and comes back out, which is worth more than
+  // any amount of modelling the hole.
+  items.push(prop('field-mouse', -9, -70, {
+    rotY: Math.atan2(-5 + 9, -90 + 70),
+    options: { seed: 57, carry: 'seed', carrying: true },
+    program: shuttle(26, 2.8, 1.3),
+  }));
+
+  // --- the food -------------------------------------------------------------
+  items.push(prop('fallen-head', 27, 62, { rotY: 2.2, options: { seed: 9, size: 17, tilt: 0.42, spill: 16 } }));
+  items.push(prop('seed-scatter', 22, 57, { options: { seed: 61, count: 16, spread: 8 } }));
+  items.push(prop('fallen-head', -20, -52, { rotY: 0.6, options: { seed: 19, size: 15, tilt: 0.3, spill: 12, picked: 0.5 } }));
+  items.push(prop('seed-scatter', -15, -47, { options: { seed: 63, count: 14, spread: 7 } }));
+  items.push(prop('seed-scatter', -6, -72, { options: { seed: 65, count: 20, spread: 9, husks: 0.5 } }));
+
+  // Nest material, lying where the mice are working.
+  items.push(prop('nest-material', 20, 48, { rotY: 0.7, options: { kind: 'grass', size: 7, seed: 71 } }));
+  items.push(prop('nest-material', -4, 14, { rotY: 2.2, options: { kind: 'leaf', size: 7, seed: 73 } }));
+  items.push(prop('nest-material', -16, -24, { rotY: 1.1, options: { kind: 'feather', size: 6, seed: 75 } }));
+  items.push(prop('nest-material', -6, -62, { rotY: 0.4, options: { kind: 'down', size: 6, seed: 77 } }));
+  items.push(prop('nest-material', 9, 88, { rotY: 2.8, options: { kind: 'leaf', size: 6, seed: 79 } }));
+
+  // --- the nest -------------------------------------------------------------
+  items.push(prop('nest-bank', NEST.x, NEST.z, {
+    options: { seed: 3, width: 118, height: 46, depth: 66, mouth: 9.5, tufts: 30 },
+  }));
+  // The section, and the two placards, all three of them OUT IN FRONT OF THE TOE rather
+  // than inside the hill (see `inBank` above). They stand on the open ground east and west
+  // of the burrow, where a student who has just walked up to the hole turns and finds
+  // them -- which is what they were always meant to do and could not, buried.
+  const CUTAWAY = { x: 40, z: -66, rotY: facing(40, -66, 8, -44) };
+  items.push(prop('mouse-nest-cutaway', CUTAWAY.x, CUTAWAY.z, {
+    rotY: CUTAWAY.rotY,
+    options: { seed: 17, width: 48, height: 27, depth: 8 },
+  }));
+  // ONE ORB, BURIED BEHIND THE SECTION -- the reef cave's trick, and for the same reason.
+  // A cut face is lit entirely by the hemisphere, and every chamber in this one is a
+  // recess inside a near-black shell, so the nest, the three pups and the seed store were
+  // all modelled and all invisible: two clean black holes in a bank. Orbs cast no shadow
+  // here, so a light sunk behind ten feet of soil passes straight through it and lifts the
+  // chambers off pure black while the glowing ball itself can never be seen from anywhere
+  // a student can stand -- which is the other half of the rule, since an orb in the open
+  // reads as an artifact hanging in front of the exhibit rather than as lighting.
+  items.push(orb(
+    CUTAWAY.x - Math.sin(CUTAWAY.rotY) * 9,
+    CUTAWAY.z - Math.cos(CUTAWAY.rotY) * 9,
+    11,
+    ORB_WARM,
+  ));
+  // Beside the section, not in front of it: at (27, -60) it stood 2.4ft off the line a
+  // student reads the cut face along, which is the same rule the grass is held to.
+  items.push(prop('info-placard', 26, -73, {
+    rotY: facing(26, -73, 12, -52),
+    options: {
+      eyebrow: 'Cut through the bank', title: 'Inside the nest', accent: '#8a6f4a',
+      body: 'A deer mouse digs a burrow into a bank with the entrance low down and the nest chamber above it, so water runs out instead of in. The nest is a ball of shredded grass lined with the softest thing the mouse can find — thistle down, feathers, fur. Off the main run there is a store of seed and a bolt tunnel that stops just under the surface, for going out the other way in a hurry.',
+    },
+  }));
+  items.push(prop('info-placard', -24, -70, {
+    rotY: facing(-24, -70, -6, -46),
+    options: {
+      eyebrow: 'Four inches of animal', title: 'The deer mouse', accent: '#9c6535',
+      body: 'Peromyscus maniculatus: three and a half inches of body, a tail as long again, and big black eyes for working at night. Brown above and sharply white below, with white feet. It can carry a sunflower seed in its cheek pouches and a beakful of grass in its teeth, and it caches far more seed than it can eat — which is one of the ways a prairie plants itself.',
+    },
+  }));
+
+  // --- the placards that explain the flowers --------------------------------
+  items.push(prop('info-placard', 25, 104, {
+    rotY: facing(25, 104, 8, 130),
+    options: {
+      eyebrow: '137.5 degrees', title: 'Why the seeds spiral', accent: '#d9822b',
+      body: 'Every seed in that head sits one turn of 137.5 degrees round from the last one — the golden angle. It is the one angle that never lines the seeds up in rows, so each one lands in the biggest gap left, and a thousand of them pack the disc with no wasted space. Count the spirals running each way: 34 and 55, or 55 and 89. They are always Fibonacci numbers.',
+    },
+  }));
+  items.push(prop('info-placard', -24, 62, {
+    rotY: facing(-24, 62, -8, 90),
+    options: {
+      eyebrow: 'Heliotropism', title: 'Following the sun', accent: '#ffc42e',
+      body: 'A young sunflower turns its face from east to west through the day and swings back overnight, driven by one side of the stem growing faster than the other. When the flower opens for good it stops, facing EAST — and a head that faces east warms up first in the morning, which brings five times as many bees to it. Every open head in this field looks the same way for that reason.',
+    },
+  }));
+  items.push(prop('info-placard', 30, 22, {
+    rotY: facing(30, 22, 10, 46),
+    options: {
+      eyebrow: 'Helianthus annuus', title: 'Eight feet in one summer', accent: '#7cc23c',
+      body: 'A sunflower grows from a seed like the one in your hands to eight feet tall between May and September, and this is the Sunflower State: Kansas grows them by the section for oil, for birdseed and for the packet in your pocket. Everything here is forty times life size. That stalk is really about as thick as your thumb.',
+    },
+  }));
+
+  // ========================================================================
+  // THREE CODING CHALLENGES, spaced down the path
+  // ========================================================================
+
+  // Moved down the path to clear the welcome board, which now stands where this used to.
+  // The two would have been 3ft apart; further, they cannot share a bearing from the spawn
+  // either -- the nearer of two boards on one side simply hides the other. At 46ft and 16
+  // degrees this one sits INSIDE the welcome board's 25-to-46 window, so the student reads
+  // the welcome board first and then walks up on this one, which is the order that works.
+  items.push(activity(-13, 106, {
+    number: 1, rotY: facePath(-13, 106), accent: '#4c97ff',
+    title: 'Send a mouse for a seed',
+    target: 'Click the mouse on the path ahead → Program. Clear its blocks and build this:',
+    steps: [
+      moveStep('move forward 18 feet'),
+      ctrlStep('wait 1 seconds'),
+      lookStep('say got one!'),
+      ctrlStep('wait 1 seconds'),
+      moveStep('go back to start'),
+    ],
+    tip: 'Move forward follows the mouse\'s own nose, so turn it first and it goes somewhere else entirely. Go back to start puts it exactly where it began — position, turn and size at once.',
+  }));
+
+  items.push(activity(-16, 46, {
+    number: 2, rotY: facePath(-16, 46), accent: '#ffab19',
+    title: 'Make a sunflower follow the sun',
+    target: 'Click the young sunflower beside this board → Program.',
+    steps: [
+      ctrlStep('repeat 24 times'),
+      moveStep('rotate -5 degrees', 1),
+      ctrlStep('wait 0.5 seconds', 1),
+      moveStep('rotate 120 degrees'),
+    ],
+    tip: 'Twenty-four small turns west through the day, then one big turn back to face east overnight — which is exactly what a real young sunflower does. Minus turns it one way, plus turns it back.',
+  }));
+
+  items.push(activity(-36, -40, {
+    number: 3, rotY: facePath(-36, -40), accent: '#9966ff',
+    title: 'Leave a scent trail home',
+    target: 'Click any mouse → Program. Mice really do follow their own trails.',
+    steps: [
+      lookStep('marker color'),
+      lookStep('marker down'),
+      ctrlStep('repeat 4 times'),
+      moveStep('move forward 12 feet', 1),
+      moveStep('rotate 90 degrees', 1),
+      lookStep('marker up'),
+    ],
+    tip: 'Four moves and four right-angle turns close a square — 360 divided by the number of sides. Erase all marks clears every trail in the field, not just this one.',
+  }));
+
+  // ========================================================================
+  // TWO BUILDING CHALLENGES
+  // ========================================================================
+
+  items.push(prop('tutorial-board', 36, 88, {
+    rotY: facePath(36, 88),
+    options: {
+      kicker: '🔨  BUILD IT', number: 1, title: 'Build a sunflower', accent: '#c2521f', ...BUILD,
+      intro: 'Menu ▸ Create Model. Every piece lands in build yellow in front of you — click the hammer floating above it. Stand under a real one first and look up.',
+      steps: [
+        { lead: 'The stalk', text: 'A Cylinder. Grab a corner handle and stretch it tall and thin — taller than you by a long way.' },
+        { lead: 'The head', text: 'A Cylinder squashed flat into a disc. Drag the GREEN ball above it straight UP to the top of the stalk.' },
+        { lead: 'Petals', text: 'A Cube stretched long and thin, laid flat against the disc. Use Rotate/Move Shape to turn each one — the rings click round in 15 degree steps, so 24 of them go all the way round.' },
+        { lead: 'Leaves', text: 'Two more flattened Cubes on the stalk, angled down and out. Apply a green colour to these and to the stalk, and yellow to the petals.' },
+        { lead: 'Connect, then Render', text: 'Connect every piece to the stalk or the head, then press Render Model. Now it is one object you can size, move and program.' },
+      ],
+      tip: 'The green ball decides lift-or-slide from the first inch you drag it: straight UP to raise, sideways to slide. A raised piece keeps its height when you slide it, which is the whole reason that handle exists.',
+    },
+  }));
+
+  items.push(prop('tutorial-board', 28, 4, {
+    rotY: facePath(28, 4),
+    options: {
+      kicker: '🔨  BUILD IT', number: 2, title: 'Build a seed store', accent: '#8a6f2a', ...BUILD,
+      intro: 'A mouse caches far more seed than it can eat. Build it somewhere dry — with a door a mouse can actually get through.',
+      steps: [
+        { lead: 'Floor', text: 'A Cube squashed flat and stretched wide. Everything else stands on this.' },
+        { lead: 'Three walls', text: 'A Cube stretched tall and thin: one at the back, one each side. Leave the front open for now.' },
+        { lead: 'The door', text: 'The front wall is TWO short piers with a beam across the top — not one wall with a dark patch on it. That is how a real opening is built, and it is the only way it reads as a hole you could run through.' },
+        { lead: 'Roof', text: 'A Pyramid stretched to overhang the walls. Lift it with the green ball until it sits on top.' },
+        { lead: 'Fill it', text: 'Connect everything to the floor, press Render Model, then go and find a seed — click one, press Size, and make yourself a copy to put inside.' },
+      ],
+      tip: 'A ring seen exactly edge-on cannot be grabbed: it is a hairline down the middle of the piece. Take two steps sideways and it opens into a circle you can hold.',
+    },
+  }));
+
+  // The sunflower challenge 2 is pointed at a real plant: a young one, standing where the
+  // board can see it, turned so its face is across the path rather than along it.
+  //
+  // BESIDE THE BOARD, NOT IN FRONT OF IT. At (-6, 44) it was 1.3ft off the line from the
+  // path to that board and two thirds of the way along it, so the plant the board tells
+  // you to click was standing between you and the instruction to click it. Moved square
+  // across that sightline, it is the last thing a student passes before reaching the
+  // board -- which is better than where it was for reading AND for finding.
+  items.push(prop('sunflower', -2, 57, {
+    rotY: 0.35,
+    options: { seed: 101, height: 34, headSize: 10, stage: 'young', leaves: 6, detail: 'hero' },
+  }));
+
+  // ========================================================================
+  // THE FIELD
+  // ========================================================================
+
+  // Every board in the world, read back out of `items` now that they have all been
+  // pushed. A board added to this layout later joins this list on its own, which is the
+  // whole reason the plants are kept off boards by arithmetic instead of by memory.
+  const BOARD_PROPS = new Set(['welcome-board', 'standing-sign', 'activity-board', 'tutorial-board']);
+  const boardItems = items.filter((it) => BOARD_PROPS.has(it.prop));
+  const boardXZ = boardItems.map((it) => [it.x, it.z]);
+
+  // The plants a student walks under and looks up through, along both sides of the path.
+  const HERO = [
+    // NO HERO STANDS WITHIN 20FT OF A BOARD, and 20 is not a guess: a hero plant's leaf
+    // canopy reaches about 12.5ft from its stalk and a board is 5.5ft to its own edge, so
+    // anything closer hangs a leaf over the board. The FIRST rendered walk down this path
+    // found exactly that -- a leaf off the plant at (33, 74) lay across the whole kicker
+    // and title of the first building board, 14.3ft away, which passed every overlap check
+    // there is. Three plants moved for it: (-15, 108) -> (-34, 105) (coding board 1 now
+    // stands where it was), (33, 74) -> (44, 68), (-15, 64) -> (-12, 68).
+    [-19, 148, 54, 'bloom'], [21, 128, 58, 'bloom'], [-34, 105, 48, 'mature'],
+    [30, 108, 62, 'bloom'], [-13, 84, 56, 'bloom'], [44, 68, 50, 'mature'],
+    [-12, 68, 60, 'bloom'], [31, 40, 52, 'bloom'], [-17, 26, 57, 'mature'],
+    [24, -16, 55, 'bloom'], [-30, -8, 49, 'bloom'], [7, -40, 58, 'bloom'],
+    [-33, -60, 46, 'mature'], [14, -66, 52, 'bloom'],
+  ];
+  HERO.forEach(([x, z, h, stage], i) => {
+    items.push(prop('sunflower', x, z, {
+      rotY: (rnd() - 0.5) * 0.5,
+      options: {
+        seed: 200 + i * 7,
+        height: h,
+        headSize: 12 + rnd() * 4,
+        stage,
+        leaves: 7,
+        lean: (rnd() - 0.5) * 0.09,
+        detail: 'hero',
+      },
+    }));
+  });
+
+  // The rows behind them: merged stands, because a background prop's cost is multiplied by
+  // its placement count and this field holds a hundred and fifty plants.
+  const clear = [[0, 150], ...HERO.map(([x, z]) => [x, z])];
+  let standSeed = 300;
+  for (let ring = 0; ring < 4; ring++) {
+    const rr = 52 + ring * 34;
+    const n = 6 + ring * 3;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + ring * 0.6 + rnd() * 0.25;
+      const x = Math.cos(a) * rr * 1.15 + 2;
+      const z = Math.sin(a) * rr + 30 - ring * 12;
+      if (Math.hypot(x, z) > 178) continue;
+      if (offPath(x, z) < 30) continue;
+      if (near(x, z, clear, 30)) continue;
+      if (inBank(x, z)) continue;
+      // A STAND IS SEVEN HERO-SIZED PLANTS SPREAD OVER THIRTY FEET, so it needs the hero
+      // clearance plus its own spread: 34ft, not 20. None of them currently lands near a
+      // board -- the ring radii put them well outside -- and that is exactly why the guard
+      // belongs here rather than in a note. A ring radius nudged by a foot is the kind of
+      // edit that silently plants a stand on a challenge board.
+      if (near(x, z, boardXZ, 34)) continue;
+      // DETAIL IS DECIDED BY DISTANCE FROM THE PATH, NOT FROM THE SPAWN, because the
+      // student walks the whole length of the path -- the spawn is just the first foot of
+      // it. Measured against spawn distance the four expensive stands all sat 55-67ft off
+      // the path while the two NEAREST it (35 and 44ft, beside the nest bank at the far
+      // end, where every route through this world finishes) were built at the cheapest
+      // tier. The world was spending its detail budget exactly where nobody goes.
+      const detail = offPath(x, z) < 50 ? 'field' : 'far';
+      items.push(prop('sunflower-stand', x, z, {
+        options: {
+          seed: (standSeed += 11),
+          count: detail === 'field' ? 5 : 7,
+          spread: 26 + rnd() * 10,
+          height: 44 + rnd() * 22,
+          headSize: 11 + rnd() * 4,
+          detail,
+          // Every head in the field looks EAST, whatever yaw its stand was planted at.
+          faceYaw: 0,
+        },
+      }));
+    }
+  }
+
+  // --- the ground -----------------------------------------------------------
+  //
+  // NOTHING SCATTERED MAY STAND ON A BOARD OR IN THE WAY OF ONE, and the second half of
+  // that is the one that costs a render to find. A board that merely does not OVERLAP
+  // anything can still be unreadable: a grass clump is 25ft across and 20ft tall, so one
+  // standing 12ft from the reader hides a board 30ft behind it completely. The first
+  // rendered arrival in this world had exactly that -- a single clump at (-10, 143), four
+  // feet off the line from the spawn to the welcome board, laid two stalks across its
+  // headline. This is A Bug's Life's "a board has to be READABLE, which is a stronger
+  // condition than not overlapping", stated as arithmetic instead of as a warning.
+  //
+  // A board is read from somewhere, and where that is follows from what KIND of board it
+  // is. The two at the arrival are read from the spawn; a challenge board is read from the
+  // path, by a student walking past it. So the protected thing is the SEGMENT from a
+  // board's own reading point to the board, not a circle round the board.
+  //
+  // An `info-placard` is deliberately NOT in this list. It is small and read at arm's
+  // length, so it has no long sightline to keep clear -- and protecting one anyway cuts a
+  // 50ft corridor through the field for the sake of a sign a student is standing on top
+  // of by the time they can read a word of it.
+  //
+  // `boardItems` is the same list the field was planted against, so the two rules cannot
+  // disagree about what a board is.
+  const SPAWN_BOARDS = new Set(['welcome-board', 'standing-sign']);
+  const sightlines = boardItems.map((it) => {
+    const read = SPAWN_BOARDS.has(it.prop) ? { x: SP.x, z: SP.z } : onPolyline(PATH, it.x, it.z);
+    return [[read.x, read.z], [it.x, it.z]];
+  });
+  // The section is not a board and is read the same way one is -- from out in front of its
+  // own face, at the distance a 48ft cut needs. A prop that FACES somewhere carries where
+  // it is read from in its own rotY, so this needs no second number to keep in step. The
+  // first render had a grass clump squarely in front of it, which at 25ft across hid most
+  // of the exhibit this end of the world exists for.
+  sightlines.push([
+    [CUTAWAY.x + Math.sin(CUTAWAY.rotY) * 34, CUTAWAY.z + Math.cos(CUTAWAY.rotY) * 34],
+    [CUTAWAY.x, CUTAWAY.z],
+  ]);
+  const blocksABoard = (x, z) => sightlines.some((line) => onPolyline(line, x, z).d < 12);
+  const scatterAt = (name, count, opts) => {
+    for (let i = 0; i < count; i++) {
+      const a = rnd() * Math.PI * 2;
+      const rr = 30 + Math.sqrt(rnd()) * 145;
+      const x = Math.cos(a) * rr;
+      const z = Math.sin(a) * rr + 20;
+      if (Math.hypot(x, z) > 180) continue;
+      if (offPath(x, z) < 11) continue;
+      if (inBank(x, z)) continue;
+      if (blocksABoard(x, z)) continue;
+      items.push(prop(name, x, z, { rotY: rnd() * 6.28, options: opts(i) }));
+    }
+  };
+  scatterAt('prairie-grass', 26, (i) => ({
+    seed: 400 + i * 5, height: 13 + rnd() * 12, count: 12 + Math.floor(rnd() * 8), spread: 6 + rnd() * 4,
+  }));
+  scatterAt('soil-clods', 12, (i) => ({ seed: 500 + i * 3, count: 10, spread: 9, size: 1.5 }));
+
+  // Colour that is not gold: coneflowers, Susans and cornflowers in the gaps between the
+  // rows, where a student walking the path passes within a few feet of them.
+  //
+  // These are hand-placed rather than scattered, so they do not go through the board
+  // sightline rule above and two of them were standing squarely in one: a cornflower at
+  // (28, 86) sat dead on the line from the path to the first building board -- 0.2ft off
+  // it -- and a coneflower at (-28, -44) two thirds of the way along the line to coding
+  // board 3. A prairie flower is 10ft across and 25ft tall here, which is a wall.
+  //
+  // Three more were then moved off the 16ft a flower needs from a board (5.25ft of clump
+  // against 5.5ft of board, plus room to read past it): (-27, 96) -> (-22, 92),
+  // (26, 72) -> (29, 66) and (-34, 118) -> (-31, 134).
+  const FLOWERS = [
+    [26, 118, 'susan'], [-22, 92, 'coneflower'], [29, 66, 'cornflower'],
+    [-24, 72, 'susan'], [27, 30, 'coneflower'], [-26, 14, 'cornflower'],
+    [22, -34, 'susan'], [-24, -56, 'coneflower'], [18, -68, 'cornflower'],
+    [-31, 134, 'coneflower'], [36, 58, 'susan'], [-22, -70, 'milkweed'],
+  ];
+  FLOWERS.forEach(([x, z, kind], i) => {
+    items.push(prop('prairie-flower', x, z, {
+      rotY: rnd() * 6.28,
+      options: { kind, seed: 600 + i * 7, height: 17 + rnd() * 9, blooms: 2 + (i % 2) },
+    }));
+  });
+  // Two bees working them, which is the only thing in the world that flies.
+  items.push(prop('bumble-bee', 27.5, 119, { y: 14, rotY: 1.2, options: { seed: 31, size: 2.6 } }));
+  items.push(prop('bumble-bee', -25, 71, { y: 12, rotY: 4.1, options: { seed: 37, size: 2.4 } }));
+
+  return { theme: 'sunflower', spawn: { ...SP, yaw: 0 }, items };
+}
+
 export const PRESET_WORLDS = {
   park: { label: 'The Park', hint: 'The default world: a great meadow, a pond, a bandstand and the bear dens', build: parkLayout },
   museum: { label: 'The Museum', hint: 'A gallery of sculpture and painting, with a plaza out front', build: museumLayout },
@@ -9666,6 +10194,11 @@ export const PRESET_WORLDS = {
     label: 'Seattle Center',
     hint: 'The 1962 World\u2019s Fair campus \u2014 the Space Needle, the International Fountain and the Monorail',
     build: seattleLayout,
+  },
+  sunflower: {
+    label: 'Sunflower',
+    hint: 'A Kansas sunflower field at mouse scale -- you are the mouse',
+    build: sunflowerLayout,
   },
   empty: {
     label: 'My World',

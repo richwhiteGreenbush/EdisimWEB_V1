@@ -8,12 +8,7 @@ Edusim: Web Edition is a single-user, browser-based 3D sandbox (Second Life-insp
 rolling-terrain world with the arrow keys / on-screen D-pad, import glTF/OBJ models
 and images, freehand-draw shapes that inflate into 3D balloons, build your own models
 out of stretchable primitives, drop glowing light
-orbs, place live interactive web browser panels, and save/load the world. New visitors
-land in a prebuilt Park; The Museum, The Library, The Moon, On Mars, Dinosaur Island
-and Fantastic Voyage (human anatomy) are loadable from the menu. Two more worlds —
-1940's New York and Under the Sea — are deliberately **not** in the menu and are each
-reached only by clicking a billboard: New York from behind the library building, Under
-the Sea from behind the Park's nature centre. Pure client-side Three.js app — no backend, ships as a static `dist/` bundle.
+orbs, place live interactive web browser panels, and save/load the world.
 
 ## Commands
 
@@ -3131,6 +3126,165 @@ still loads in about a second; 513 calls is the highest count of any world -- th
 of ~19 buildings at 3-5 texture-split meshes each -- and sits comfortably under the
 <1000 wall. `tools/check-neighborhood.mjs` holds all 31 builder cases to recorded
 open-edge baselines (zero everywhere except the chain-built trees).
+
+### Sunflower, and the arithmetic of an ARRIVAL FRAME
+
+`SunflowerProps.js` + `sunflowerLayout()`. A gallery world -- in `PRESET_WORLDS`,
+deliberately not in any menu. A Kansas sunflower field in September seen by a deer mouse,
+laid out along one worn path from the field edge to a nest dug into a bank, with five
+challenge boards down it and four other mice already working it.
+
+**THE SCALE IS INVERTED, the way A Bug's Life inverts it**, and one number does most of the
+work: `MOUSE_SCALE = 40`. A deer mouse is 3.4in nose to rump, so at 40x it is 11.3ft long
+with its eye about 3.7ft up -- a head shorter than the student, which is what makes the
+other mice read as PEERS rather than as pets or as monsters. **The flowers are NOT at that
+scale and could not be**: a real sunflower is 8ft, which at 40x is 320ft -- past the world
+bound, past the fog and past the sky, at which point the field stops being a field and
+becomes a cave. They are built at about 8x, so a stalk is 45-75ft and a head 11-17ft
+across, and every placard states the real figure.
+
+**The theme is the warm-against-cool argument run the other way.** The sky is the most
+saturated in the app (`0x5fb4ea`) because the field is gold and green and a washed sky
+under a gold field reads as haze; the ground ramp is tilled prairie soil (`0x6b5330` to
+`0xa89154`) rather than grass, because what a mouse runs on is cracked earth and husks.
+`hemiGround` is `0xa39872` at 1.7: every animal here is countershaded and all of it faces
+the ground, which the sun never reaches -- at an honest soil brown the bellies came out
+olive, which is Under the Sea's shark-belly lesson arriving on a mouse. The sun is BEHIND
+the spawn (+Z, which is east here), so the same decision that lights the mice from the
+front turns two hundred flower faces toward the arrival instead of showing it their backs.
+
+#### The arrival frame, stated as arithmetic instead of as a warning
+
+This project has recorded "check the arrival frame" for five worlds and hit it again here
+in three different ways. The half-angle a 16:9 screen sees is **51.2 degrees** -- `fov: 70`
+is VERTICAL, so it is `atan(tan(35) * 16/9)` -- and on a 16:10 gallery screenshot it is
+only 48.3.
+
+- **A board's own WIDTH is half the problem.** A 13ft board subtends 30 degrees at 25ft and
+  18 at 40ft, so the fix for a clipped board is usually to push it FURTHER AWAY at the same
+  bearing, not to swing it inward. The welcome board here stood 24.7ft out at 58 degrees
+  and the title sign at 68, and the first render of the world delivered "MO SE." and "TH".
+  Measured across the app, a welcome board sits **22-47ft out at 36-45 degrees** and a
+  browser kiosk **13-31ft at 38-40**; this one is now 34ft at 35, with its far edge at 46.
+- **TWO BIG BOARDS CANNOT SHARE ONE ARRIVAL FRAME.** Any 17ft sign inside the forward 50
+  degrees either lands outside the bezel or sits behind the welcome board, and the browser
+  station already owns 42 on one side. The title sign went to **105 degrees** -- square on
+  to the first look round -- which is what the chalk world's fence and the observatory's
+  Polaris sight are both doing.
+- **A board has to be READABLE, and that is a SIGHTLINE rule, not an overlap rule.** A Bug's
+  Life says this in words; here it is code. A grass clump is 25ft across and 20ft tall, so
+  one standing 12ft from the reader hides a board 30ft behind it, and the first arrival had
+  exactly that -- a single clump four feet off the line from the spawn to the welcome board,
+  laying two stalks across its headline, having passed every overlap check there is. What is
+  protected is the **segment from a board's own reading point to the board**: the spawn for
+  the arrival pair, the nearest point on the path for a challenge board, and its own facing
+  for anything else that is meant to be looked at square on. An `info-placard` is
+  deliberately excluded -- it is read at arm's length, and protecting one cuts a 50ft
+  corridor through the field for a sign a student is standing on top of anyway.
+- **Planting takes a clearance, and the number comes from the LEAF CANOPY.** A hero
+  sunflower's leaves reach about 12.5ft and a board is 5.5ft to its own edge, so 20ft is the
+  floor for a plant and 34ft for a seven-plant stand. A leaf off the plant 14.3ft from the
+  first building board lay across its whole kicker and title, and that plant overlapped
+  nothing.
+
+The board list for all of this is **read back out of `items`**, so a board added to the
+layout later is protected by construction rather than by anybody remembering the rule.
+
+#### A HILL IS SOLID, and a comment is not a measurement
+
+`nestBank`'s own comment said its face and mouth were at `z ~= -99`. Built at width 118 and
+depth 66 the prop MEASURES x = -59.3..59.0 and z = -39.9..47.9 about its origin -- the slope
+and the crown tufts overhang both numbers it is given -- so the toe is at z = -78 and the
+comment was 21ft out. Twelve props stood inside the footprint, and three of them were the
+cut-through section and both info placards: the only explanation in the world of what is
+behind that hole, all of it invisible inside sixty feet of soil. `inBank()` is now a
+predicate the scatter and the stands both go through, and the three exhibits stand out in
+front of the toe. **Found by walking to the nest and looking for them**, which is the only
+way this kind of thing is ever found.
+
+#### A CUTAWAY CANNOT HAVE A HOLE IN IT, so everything inside one has to stand PROUD
+
+`extrudeOutline` fans the block's front face from its own centroid, so a cut face is solid
+across the whole outline, and there is no CSG here to open it. Everything at z < 0 is
+therefore behind an opaque wall whatever it is made of.
+
+The first pass got half of this right and the half it got wrong cost the exhibit. Its
+chambers were **closed ellipsoids pushed back until a shallow cap stood proud of the face**,
+which is correct and is exactly how Machu Picchu's niches and Ellis Island's windows are
+built -- a dark thing a hair proud reads as a hole because the lit soil around it is the
+frame. But the nest, the three pups and the thirty-four stored seeds were then placed at
+z = -0.9 to -2.8: inside that closed ellipsoid and behind the face twice over. All of it
+modelled, merged, shipped and invisible, rendering as two black blobs on a bank.
+
+So a chamber now hands back **the function that says where its own front surface is**, and
+everything that goes in one is seated proud of that -- `RobotProps.onShell` and the
+volcano's `surfaceAt`, for the same reason: hand-picked depths near a curved surface are
+either buried or floating, and the two failures look nothing alike. It also hands back the
+radius out to which its cap still clears the face, which is what decides how big the nest
+inside it is allowed to be; woven out to 0.98 of the ellipsoid, as it was, most of the nest
+sat where the wall is even after the depth was fixed.
+
+Two smaller ones from the same exhibit. **A run has to sit ON the face, not behind it** --
+sunk to `-r * 0.55` a tunnel is simply inside the block, where half-proud it reads as a
+channel for the same reason the chambers do. And the three pups were placed on a small arc
+of radius 1.9 at 0.5 radians apart, which puts all three at x = 1.6..1.9 and spreads them
+0.29ft -- less than a fifth of one pup's width. They rendered as a single pink mass, and
+**the count is the point**: the placard beside them says three.
+
+#### `keepColor` IS THE DOCUMENTED TRAP RUN BACKWARDS
+
+The rule this file already records is that `mergeParts` OVERWRITES a part's colour attribute
+unless `keepColor: true` is set. The reflex that follows from it -- set it everywhere -- is
+what `sunflowerStand` did, and it is wrong: **`keepColor` on a part that has no colour
+attribute of its own does not preserve anything, because there is nothing to preserve, and
+the merge fills WHITE.**
+
+`sunflowerParts` sets `keepColor` on exactly the parts it has tinted per vertex and leaves
+it off the ones carrying a single flat colour -- the receptacle and the phyllaries. Forced
+on, those came out pure white: measured, 56 vertices at 1.00,1.00,1.00 where a standalone
+plant has them at `SUN.bract`. The receptacle is the green cushion on the BACK of a head, so
+the symptom only showed walking south down the field -- every flower in every stand
+presenting a white disc instead of a green one, and a field of sunflowers seen from behind
+reading as a field of daisies.
+
+#### `tutorialBoard`'s tip was never measured
+
+The fifth instance of this project's most repeated bug -- after `cardTexture`'s body,
+`standingSign`'s title, `welcomeBoard`'s lead and the chalk blackboard's headline. `tipTop`
+was a fixed `h - 156`, room for about three lines of the 28px italic below it, which takes
+two decisions blind at once: the steps were fitted to whatever was left ABOVE a line that
+had nothing to do with how long the tip actually was, and the tip was then drawn from that
+line at a fixed size with no fit at all. Hand the board a four-line tip and both halves fail
+together -- the last step runs INTO the tip and the tip runs off the bottom of the panel.
+The tip is measured now and `tipTop` follows from it; a three-line tip at 28px lands within
+three pixels of the old fixed number, so every board already shipped is untouched. This is a
+shared prop, and the three longest tips in the app are in **this** world, My World and A
+Bug's Life.
+
+#### What the two hero models are read from
+
+- **A SUNFLOWER IS ITS HEAD**, and a head is three surfaces that are nothing like each
+  other: a spiral-packed disc, a ring of long veined ray petals, and a collar of green
+  bracts. The disc is the one everybody recognises and the one no amount of geometry can pay
+  for at field counts -- 1,200 florets at a real 137.5 degrees is 30k triangles a head and
+  there are eighty heads -- so it is a **painted canvas carried as `map` AND `bumpMap`** on a
+  domed grid. **One near-white atlas** in four u bands (leaf / petal / stem / blank) is what
+  lets stalk, leaves, petals and bracts share ONE material and therefore one mesh.
+- **A MOUSE IS ITS FACE AND ITS SILHOUETTE**: a pointed muzzle, two enormous thin round
+  ears, two black beads standing proud of the fur, a long bicoloured tail and white feet.
+  Everything is placed through `onShell`, and the limbs through `chain`, which sockets every
+  joint by construction.
+- **Three detail tiers**, the araucaria trap written down for a field of a hundred and fifty
+  plants: `hero` 22.4k triangles, `field` 4.4k, `far` 1.2k, and a STAND of seven plants
+  merges to three meshes rather than seven times two.
+
+**Performance, measured in the app at the spawn**: 117 records / **403 draw calls** /
+1.42M drawn / 773k of geometry / 256 meshes / 4 transparent / **1 point light** / 338
+textures. 45.3 KB world file. Per prop: sunflower 22.4k triangles each (x15), fallen-head
+22.2k, field-mouse 20.8k, mouse-runway 20.2k, mouse-nest-cutaway 16.6k, nest-bank 13.9k,
+prairie-flower 7.1k, sunflower-stand 4.4k each (x25), prairie-grass 1.5k. The one orb is
+buried behind the section -- the reef cave's trick, because a cut face is lit entirely by
+the hemisphere and an orb in the open reads as an artifact hanging in front of the exhibit.
 
 ### A Bug's Life, and building a world around CHALLENGES
 

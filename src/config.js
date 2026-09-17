@@ -1402,6 +1402,45 @@ export const WORLD_THEMES = {
     sunPosition: [85, 150, 130],
     stars: false,
   },
+  sunflower: {
+    groundDetail: 'ground-soil.jpg',
+    // A high-summer Kansas morning, seen by an animal four inches tall. The sky is the
+    // most saturated in the app on purpose: the brief asked for vibrant, the field is
+    // gold and green, and a washed sky under a gold field reads as haze.
+    sky: 0x5fb4ea,
+    // The field has to keep its DEPTH. Rows of stalks recede 300ft and the nest bank is
+    // 260ft from the spawn, so the fog starts late and ends past the world edge -- near
+    // enough that the last rows dissolve into summer air rather than stopping dead.
+    fogNear: 170,
+    fogFar: 620,
+    // Tilled prairie soil between the rows, warm and dry, with the green of weeds in the
+    // rises. Not grass green: this is a sunflower field, and what a mouse runs on is
+    // cracked earth, husks and leaf litter.
+    groundLow: 0x6b5330,
+    groundHigh: 0xa89154,
+    // Nearly flat where the path and the rows are, swelling at the rim so the horizon is
+    // not a ruled line. The nest bank is a PROP, not terrain -- the mice run into its
+    // mouth at ground level, and a terrain hill would put its floor somewhere else.
+    amplitude: 3.4,
+    flatRadius: 120,
+    blendRadius: 190,
+    hemiSky: 0xd8ecff,
+    // THE BOUNCE IS THE ENTIRE LIGHT ON A MOUSE'S UNDERSIDE. Every animal here is
+    // countershaded -- white belly, white feet, pale jaw -- and all of it faces the
+    // ground, which the sun never reaches. At an honest soil brown the bellies came out
+    // olive (the shark's-belly lesson from Under the Sea); this is that colour lifted and
+    // desaturated, warm enough to stay in the field's own key.
+    hemiGround: 0xa39872,
+    hemiIntensity: 1.7,
+    // Sun BEHIND the spawn (+Z), which is also where east is in this world: sunflower
+    // heads face east all their lives once they stop tracking, so the same decision that
+    // lights the mice from the front is the one that turns every flower face toward the
+    // arrival instead of showing it the backs of two hundred heads.
+    sunColor: 0xfff4d2,
+    sunIntensity: 2.45,
+    sunPosition: [70, 165, 175],
+    stars: false,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger
