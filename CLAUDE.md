@@ -3127,6 +3127,201 @@ of ~19 buildings at 3-5 texture-split meshes each -- and sits comfortably under 
 <1000 wall. `tools/check-neighborhood.mjs` holds all 31 builder cases to recorded
 open-edge baselines (zero everywhere except the chain-built trees).
 
+### The Butterfly Garden, and a model whose whole identity is a PAINTING
+
+`ButterflyProps.js` + `butterflyLayout()`. A gallery world -- in `PRESET_WORLDS`,
+deliberately not in any menu. A planted nectar garden at twelve times life size, five
+species of butterfly with thirty of them in the air, and a monarch's life cycle laid out as
+a walk down the west side.
+
+**THE SCALE IS INVERTED, the way Sunflower and A Bug's Life invert it**, and one number
+does the work: `GARDEN_SCALE = 12`. A monarch's wingspan is 98mm, which comes out at 3.9ft
+-- wide enough that a student on the path reads the black veins and the white spots in its
+border as it goes past. At TRUE scale it is four inches, and there is no amount of
+modelling that rescues a four-inch animal next to a five-foot student: nothing about it is
+ever more than a few pixels. **The flowers go up with it and that is the point of using one
+number**: a coneflower's HEAD comes out at 3ft, almost exactly a monarch's wingspan, so a
+butterfly settled on one covers it exactly as it does in life. Sizes picked to look right
+one at a time cannot produce that.
+
+**THERE IS NO MAN-MADE GARDEN FURNITURE, which is a consequence rather than an omission.**
+An arch is 8ft and would come out at 96ft; a bench 4ft and 48ft. Sunflower hit this and
+answered it the same way -- the world is plants, ground and the app's own boards, which
+stay at student scale in every world here because they are read by the student.
+
+#### A BUTTERFLY IS ITS WING PATTERN, so the pattern is a painting
+
+Take the pattern off a monarch and what is left is a generic insect. So the pattern carries
+the model, and it cannot be a per-vertex tint: a monarch's veins are ~1mm on a 50mm wing,
+which at any affordable mesh density is well under one sample. **A TINT CAN ONLY BE AS
+DETAILED AS THE MESH UNDER IT** -- this project's most repeated rule, and the answer is
+always more mesh or a texture, never a hotter tint.
+
+It is painted **per texel from the same three splines the geometry is swept from**, so a
+marginal band is "within 7% of a half-span of the real margin" and lands on the margin at
+any wing shape, including out along a swallowtail's scallops. One description, used twice.
+
+**THE UPPER AND UNDER SURFACES ARE DIFFERENT PAINTINGS**, and for two of the five that is
+most of the animal: a Blue Morpho is brilliant blue above and a cryptic brown leaf with
+eyespots below, a Peacock is four staring eyes above and near-black below. It is also why a
+morpho FLASHES as it flies. `solidSurface` lays its two sheets down consecutively, so
+remapping the second half's u into another band buys that for no extra geometry -- **but
+WHICH sheet is the upper one cannot be assumed.** The sheet it builds first is the one along
+`cross(du, dv)`, and a mirrored wing has one of those tangents reversed, so the first sheet
+is the top on one side of the animal and the bottom on the other. `solidSurface`'s own
+`flip` test fixes the WINDING and says nothing about this. Summing the first sheet's
+`normal.y` settles it by measurement, and `tools/check-butterfly.mjs` asserts it for all
+five species on both wings -- because the failure is silent: no crash, no hole, no change in
+any count, just a morpho flying upside-down-coloured.
+
+**Four bugs came out of painting the atlas and LOOKING at it**, and three of them were
+invisible in every triangle count:
+
+- **A VEIN FAN MUST NOT CONVERGE TO A POINT.** At `spread = v^0.5` every vein meets at
+  u = 0.5 at the root, which does not read as a wing base -- it paints a solid black wedge
+  across the bottom of every band, so every monarch had a black wing root. Veins also have
+  to FADE OUT there, which is true of the animal: the last half-inch of every vein is under
+  the thorax fur.
+- **THE ALONG-MARGIN COORDINATE DEGENERATES AT THE TIP.** Where the chord goes to zero,
+  `span + (1-u)*chord` stops depending on u at all, so a whole row of texels shares one
+  phase and a row of marginal spots smears into a solid cream bar across the apex. It
+  happened on four of the five species at once. The row now stops short of the tip and the
+  apex carries its own named spots, which is what the animal has anyway.
+- **THE ATLAS HAS TO BE NEAR-WHITE, AND "NEAR" IS STRICTER THAN IT LOOKS.** The map is
+  sRGB-decoded and multiplied in LINEAR space, so a texel of 150 is not 59% of the colour,
+  it is **30%** of it. The floral atlas's floret band floored at 150 and every coneflower
+  cone came out dark brown instead of orange.
+- **A `tint` MUST SUPPLY THE COLOUR, NOT MULTIPLY THE ONE BESIDE IT.** This is Sunflower's
+  `keepColor` trap arriving from the other direction. `stud` sets `keepColor` whenever a
+  tint is given, so `mergeParts` does not write the colour argument at all, and
+  `tintGeometry` seeds an absent colour attribute to **WHITE**. Multiplying that by
+  0.72-1.27 gave a luminance near 1.0, so every butterfly in the garden had two white
+  ping-pong balls for eyes -- measured at 246 near-white vertices over a region three times
+  the width of the catchlight that was first blamed for them.
+
+#### The flutter, which is the thing nobody can say is wrong but everybody can see is
+
+- **THE WINGBEAT IS SLOW ENOUGH TO SEE.** A monarch beats at about 9-10Hz against a
+  bumblebee's 200, which is why Sunflower's bee draws a BLUR and this one draws the actual
+  stroke. At 60fps that is six frames a beat. **Per species, measured**: monarch 9.5,
+  peacock 11.2, swallowtail 7.4, zebra 6.0, morpho 5.4 -- wingbeat goes UP as size comes
+  down, and a morpho bounces (a few slow flaps, then a glide) while a zebra longwing
+  drifts. Five species that fly differently is most of what makes thirty of them in one
+  garden read as five species rather than as thirty copies.
+- **THE STROKE IS NOT A SINE.** The downstroke is the power stroke and it is quick; the
+  recovery is slower. A phase-warped sine, `sin(p + 0.52 sin p)`, compresses one half of
+  the cycle for one multiply. Symmetric, it reads as a mechanical toy.
+- **THE ARC IS ENORMOUS** -- about +72 to -40 degrees, very nearly clapping over the back.
+  Anything shy of that is a bird.
+- **THE BODY BOB IS `-cos(phase)` AGAINST A FLAP OF `+sin(phase)`.** Lift is made on the
+  DOWNstroke, so the body rises through it; the sign backwards looks like it is being
+  dropped.
+- **Euler order is load-bearing.** three composes 'XYZ' as Rx·Ry·Rz, so `rotation.set(twist,
+  sweep, flap)` flaps FIRST, then sweeps, then twists -- the order a wing actually moves in.
+  Written the other way the sweep turns the flap axis and the wing scythes sideways.
+- **A TARGET HAS TO TIME OUT, not merely be arrived at.** The wander term is deliberately
+  strong -- the erratic path is the whole point, it is an anti-predator adaptation -- and it
+  is strong enough that the animal often never comes within an arrival radius of where it
+  was heading. With arrival as the only trigger, a butterfly given five-to-twenty feet of
+  air flew a measured **13.3 to 17.9** over thirty seconds, because it repicked its height
+  twice in that time. Height now runs on its own, faster clock.
+- **THE ROOT NEVER MOVES.** Everything happens on an inner rig -- RootMotion.js's contract,
+  asserted in the check tool for all four poses. (Sunflower's `bumbleBee` animates its own
+  root and is the counter-example.)
+- **A FLYING BUTTERFLY TUCKS ITS LEGS.** Splayed in mid-air it reads as a spider, which is
+  the second time this file had to stop an insect reading as the wrong order of animal --
+  the first was the monarch caterpillar's filaments, which as thin bristles read as hairs
+  rather than as the fleshy black tentacles that identify it.
+
+#### The life cycle, and why the stations are NOT to one scale
+
+The four stages span 1.2mm to 100mm -- a factor of eighty -- so no single magnification can
+show all four: at the garden's own 12x an egg is half an inch. Each station is blown up to
+roughly the same DISPLAY size so the shapes can be compared, **and every placard states the
+true size and the magnification**, with a board at the head of the walk saying plainly that
+they are not to one scale. That is Fantastic Voyage's rule, and here the mismatch IS the
+lesson. The milkweed patch on the other side of the garden is where the same four stages
+happen at the garden's own scale, which is what closes it.
+
+- **A HANGING STAGE NEEDS SOMETHING TO HANG FROM.** A prop's origin is its base centre, so
+  a chrysalis placed without a twig sits on the ground -- the one place a chrysalis is never.
+- **A FRESHLY EMERGED BUTTERFLY'S WINGS ARE TINY**, about a third of their final span and
+  crumpled, and it hangs for an hour pumping them open. Modelled with full-size wings the
+  station says nothing at all.
+- **AN EMPTY CASE IS A SHELL, NOT A SOLID.** A partial `revolve` looks like the right tool
+  and is not: it closes a part-sweep with radial caps to the axis, so what comes out is a
+  solid wedge and the split reads as a slice cut out of a bar of soap.
+- **A SPLIT HAS TO FACE THE WALK-UP.** Centred 61 degrees off it, the exhibit presented a
+  smooth closed egg to everybody looking at it -- MarsProps' relay dish and the space
+  station's antenna for the fifth time in this project.
+- **GOLD STAYS NEAR metalness 0.45.** At the 0.9 that "gold" suggests it renders BLACK:
+  there is no environment map anywhere in this app (the chrome-bumper trap from New York).
+
+#### A PROP IS GROUNDED ONCE, SO THE TERRAIN UNDER A LONG ONE HAS TO BE FLAT
+
+`garden-path` is ONE prop covering 300ft of ground and it is grounded at its own origin, so
+any relief under it buries one end and floats the other. Measured at `flatRadius: 130` the
+ground rose **1.49ft** by the far end of the path while the slabs stayed at 0.11 -- which
+put the path UNDER THE GROUND at the spawn, so a student arrived standing on a path they
+could not see. The garden is flat to `flatRadius: 186` now, outside `WORLD_BOUND_RADIUS`,
+and the horizon is broken by the planting (25-45ft of flower at r = 130-176) rather than by
+the terrain. **Sunflower's `mouse-runway` has the same shape and the same latent problem**
+at `flatRadius: 120` with a path running to z = 168; it is recorded here rather than changed,
+because moving that world's terrain would move every object in it.
+
+#### The arrival frame, audited rather than eyeballed
+
+The half-angle a 16:9 screen sees is **51.2 degrees** (`fov: 70` is VERTICAL). The first
+rendered arrival had three separate faults and each was found by listing every prop's
+bearing and angular width from the spawn, not by looking:
+
+- **A garden flower at 22ft measured 46 DEGREES WIDE and reached 52 degrees up** against a
+  35-degree half-frame, and covered the welcome board beside it. A plant beats a board on
+  ANGLE, not on size. Nothing tall now stands within 42ft of the spawn, by predicate.
+- **TWO BOARDS AT THE SAME BEARING: the nearer one simply hides the other.** Build board 1
+  at 33ft spanned -49..-31 against the welcome board's -43..-26 at 40ft; coding board 1 at
+  31ft spanned 36..49 against the kiosk's 33..43 at 24ft. Both moved down the avenue, which
+  is where a challenge board belongs anyway -- it is read walking past, not on arrival.
+- **THE SPECIMEN PLANTING IS PLACED BY SEARCH, not by hand.** It has to satisfy four things
+  at once (beside a path, 20ft from every board, outside the arrival frame, off every
+  sightline) and hand-placed coordinates cannot hold all four through one board moving six
+  feet. It walks the path, alternates sides, and takes the first offset that passes -- and
+  it was planted BEFORE the boards existed, so `clear` was reading an empty list and beds
+  could land on top of specimens.
+
+#### Two more that generalise
+
+- **A PROP MUST NOT READ ITS OWN TEXTURE BACK.** `ctx.getImageData` exists in a browser and
+  does not in the node canvas stub that `tools/check-butterfly.mjs` and
+  `tools/export-preset-world.mjs` run against, so `speciesBoard` reading its own atlas back
+  worked in the app and threw in every tool. The painter already has the array; caching it
+  beside the canvas costs one reference.
+- **THE ARAUCARIA TRAP, ANSWERED WITH COUNTS RATHER THAN TESSELLATION.** A bed of eleven
+  plants measured 128k triangles, and halving every petal's mesh only took it to 90k --
+  because the cost is in HOW MANY petals there are. `density` scales rays, rows, florets,
+  leaves **and stems**, and that last one was the big lever left out of the first pass: a
+  bed plant was inheriting the specimen's full five-to-eight-stem clump, so a border of
+  eleven came out with sixty-six flower heads on it. A milkweed floret also went from twelve
+  solids to a star plate and a bead -- 51k triangles on one plant to 11k.
+
+**Performance, measured at the spawn**: 151 records / **282 draw calls** / 758k triangles of
+geometry / ~1.52M drawn / **2 transparent** / **0 point lights** / 255 textures. 1.06s to
+build; the world file is 51.4 KB, the biggest in the app. Per prop: butterfly 7.3k triangles
+each (x40, hero 8.7k / field 4.8k / far 2.6k), nectar-bed 9.0k (x26), garden-flower 8.5k
+(x17), butterfly-egg 16.9k, emerging-adult 14.0k, monarch-caterpillar 10.2k, chrysalis 8.3k,
+lifecycle-plinth 1.3k, garden-grass 0.6k (x36). The forty butterflies are 39% of the world's
+geometry and 120 of its 282 draw calls, which is the budget doing exactly what this world
+exists for: thirty of them in the air, eight settled on flowers, one already running a
+program, and one pinned open on the last plinth of the life-cycle walk.
+
+**NOT YET MEASURED IN THE APP.** These figures come from building every record's geometry in
+node and counting it, which is the same arithmetic `renderer.info` reports but is not the
+same thing as a frame: it has no shadow pass, no overdraw and no CPU render time. The
+doubling to 1.52M assumes every mesh is drawn twice, which is what the sun's shadow map
+costs everywhere else in this project. Confirm it on the hardware before trusting a world
+this close to the top of the envelope -- "measured rather than assumed" is the rule that
+does not change.
+
 ### Sunflower, and the arithmetic of an ARRIVAL FRAME
 
 `SunflowerProps.js` + `sunflowerLayout()`. A gallery world -- in `PRESET_WORLDS`,

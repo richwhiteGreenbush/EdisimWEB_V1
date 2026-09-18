@@ -227,6 +227,15 @@ export const WIND_PROPS = new Map([
   ['prairie-flower', { top: 22, amount: 1.25 }],
   ['nest-material', { top: 3, amount: 0.9 }],
 
+  // The Butterfly Garden. A border of tall perennials is never still, and a garden that
+  // is is a plastic one. The butterflies themselves are deliberately NOT here: they carry
+  // their own per-frame tick, and the wind's weight is derived from a vertex's height
+  // above its prop's base -- which on an animal whose whole body sits within a foot of its
+  // own origin would do nothing useful and would fight the flutter for what little it did.
+  ['garden-flower', { top: 34, amount: 1.05 }],
+  ['nectar-bed', { top: 30, amount: 1.15 }],
+  ['garden-grass', { top: 5, amount: 1.6 }],
+
   // Under the Sea. Water moves everything, and the reef standing perfectly still is the
   // one thing a world made of water could not not do.
   ['seagrass-patch', { top: 7, amount: 1.5 }],

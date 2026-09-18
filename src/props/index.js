@@ -40,6 +40,7 @@ import * as Chalk from './ChalkProps.js';
 import * as Wonder from './WonderProps.js';
 import * as Neighborhood from './NeighborhoodProps.js';
 import * as Sunflower from './SunflowerProps.js';
+import * as Butterfly from './ButterflyProps.js';
 import { applyWind, WIND_PROPS } from '../Wind.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
@@ -685,6 +686,20 @@ export const PROP_BUILDERS = {
   'mouse-runway': Sunflower.mouseRunway,
   'soil-clods': Sunflower.soilClods,
   'bumble-bee': Sunflower.bumbleBee,
+
+  // The Butterfly Garden
+  butterfly: Butterfly.butterfly,
+  'butterfly-egg': Butterfly.butterflyEgg,
+  'monarch-caterpillar': Butterfly.monarchCaterpillar,
+  chrysalis: Butterfly.chrysalis,
+  'emerging-adult': Butterfly.emergingAdult,
+  'lifecycle-plinth': Butterfly.lifecyclePlinth,
+  'garden-flower': Butterfly.gardenFlower,
+  'nectar-bed': Butterfly.nectarBed,
+  'garden-path': Butterfly.gardenPath,
+  'puddling-pool': Butterfly.puddlingPool,
+  'garden-grass': Butterfly.gardenGrass,
+  'species-board': Butterfly.speciesBoard,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than
