@@ -804,6 +804,38 @@ $WORLDS = [
             . "right turns, repeated twice. Every car, and the trolley itself, opens up when "
             . "you click it. Won't you be my neighbor?",
     ],
+    'butterfly' => [
+        'title'   => 'The Butterfly Garden',
+        'tags'    => 'nature, animals, insects, plants, science, coding, building, official',
+        'description' =>
+            "A nectar garden twelve times life size, with thirty butterflies flying through "
+            . "it. At this scale a monarch is as wide as you are tall, so you can stand on "
+            . "the path and read the black veins and the white spots in its wing as it goes "
+            . "past \u{2014} and watch it flutter, because a butterfly beats its wings about "
+            . "nine times a second, slowly enough to see every stroke.\n\n"
+            . "Five species are on the wing and every one of them flies differently. A "
+            . "monarch is a strong purposeful flier; a Blue Morpho bounces, a few slow flaps "
+            . "and then a long glide, which is what makes its blue flash on and off; a zebra "
+            . "longwing drifts. Each one is a different animal above and below: a morpho is "
+            . "brilliant blue on top and a dead brown leaf underneath, and a Peacock is four "
+            . "staring eyespots opened and near-black shut. Some are settled on the flowers "
+            . "with their wings opening and closing, and three are down at the puddling pool "
+            . "drinking from wet gravel, which is a real thing butterflies do.\n\n"
+            . "The walk down the west side is a monarch's life cycle, station by station: the "
+            . "ribbed egg laid under a milkweed leaf, the banded caterpillar that eats nothing "
+            . "else and grows two thousand times heavier in a fortnight, the jade chrysalis "
+            . "with its crown of gold, the butterfly hanging out of the split case with its "
+            . "wings still crumpled, and the full-grown adult. They are NOT all at the same "
+            . "scale and the board at the head of the walk says so \u{2014} an egg is 1.2mm "
+            . "and the butterfly is 100mm, so each station is blown up to a size you can see "
+            . "and each placard says how big the real thing is. Then find the milkweed patch, "
+            . "where all of it actually happens at the garden's own size.\n\n"
+            . "Five challenge boards. Three coding: change the route of a monarch that is "
+            . "already flying one, grow a caterpillar with the size blocks, and make a "
+            . "butterfly draw its own flight path with the marker. Two building: build a "
+            . "butterfly out of primitives \u{2014} four wings, not two, and knobs on the "
+            . "feelers \u{2014} and then build a flower for it to land on.",
+    ],
     'sunflower' => [
         'title'   => 'Sunflower',
         'tags'    => 'nature, animals, plants, coding, building, official',

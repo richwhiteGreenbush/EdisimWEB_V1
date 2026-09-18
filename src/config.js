@@ -1402,6 +1402,60 @@ export const WORLD_THEMES = {
     sunPosition: [85, 150, 130],
     stars: false,
   },
+  // A high-summer nectar garden at noon, seen by something five inches tall.
+  //
+  // THE ENVIRONMENT IS COLOURED AGAINST THE EXHIBITS, which here means against the
+  // FLOWERS: the borders are magenta, violet, scarlet, tangerine and gold, so the world
+  // around them is green and blue and nothing else. A warm sky over a warm border is the
+  // red-mush failure Fantastic Voyage records, and this garden would hit it hardest of
+  // any world in the app because the saturated thing is spread over the whole ground
+  // plane rather than standing on a plinth in the middle of it.
+  butterfly: {
+    groundDetail: 'ground-soil.jpg',
+    // Less saturated than Sunflower's sky on purpose. That world's gold field could carry
+    // the most saturated blue in the app; here the blue would be competing with the
+    // borders, and the borders have to win.
+    sky: 0x74bff0,
+    // A bright clear day with the far borders still reading as colour rather than as haze.
+    // The garden is 380ft across and its own far hedge is the horizon.
+    fogNear: 190,
+    fogFar: 640,
+    // Mown lawn between the beds, not meadow: a garden's ground is a surface somebody
+    // keeps, and the paths and borders are read against it.
+    groundLow: 0x40702e,
+    groundHigh: 0x7ba249,
+    // FLAT ACROSS THE WHOLE GARDEN, and that is a correctness requirement rather than a
+    // taste one. A `garden-path` is ONE prop covering 300ft of ground, and a prop is
+    // grounded ONCE, at its own origin -- so any terrain relief under it buries one end
+    // and floats the other. Measured at flatRadius 130 the ground rose 1.49ft by the far
+    // end of the path while the slabs stayed at 0.11, which put the path UNDER THE GROUND
+    // at the spawn: a student arrived standing on a path they could not see.
+    //
+    // The horizon does not need the terrain anyway. What breaks the skyline here is the
+    // planting -- the far borders are 25 to 45ft of flower at r = 130 to 176 -- and the
+    // fog starts at 190. The swell is kept past 186, which is outside WORLD_BOUND_RADIUS
+    // and mostly inside the fog, so it survives in the corners and nowhere a student goes.
+    amplitude: 3.2,
+    flatRadius: 186,
+    blendRadius: 250,
+    hemiSky: 0xd6ecff,
+    // A SATURATED GROUND BOUNCE PAINTS EVERY DOWNWARD FACE, and this world has more
+    // downward faces that matter than any other: thirty butterflies fly with their pale
+    // undersides toward the grass, and the sun can never touch one of them. At an honest
+    // lawn green a Blue Morpho's cryptic brown underside came out olive and the monarch's
+    // buff hindwing green. What is wrong there is the SATURATION and not the brightness --
+    // Seattle's saucer, arriving on an animal.
+    hemiGround: 0x9aa287,
+    hemiIntensity: 1.62,
+    // The sun is BEHIND the spawn, as in Sunflower and for the same two reasons at once:
+    // it lights the face of every flower turned toward the arrival, and it lights the
+    // butterflies from the front rather than putting the one surface this world is about
+    // -- the upper side of a wing -- into its own shade.
+    sunColor: 0xfff6dc,
+    sunIntensity: 2.4,
+    sunPosition: [85, 190, 165],
+    stars: false,
+  },
   sunflower: {
     groundDetail: 'ground-soil.jpg',
     // A high-summer Kansas morning, seen by an animal four inches tall. The sky is the

@@ -4,6 +4,7 @@ import { youtubeEmbedUrl } from './WebUrl.js';
 import { createBlockInstance } from './BlockDefs.js';
 import { BEACON_DECK_Y } from './props/JsBasicsProps.js';
 import { PERCH } from './props/WonderProps.js';
+import { FLOWERS as GARDEN_FLOWERS, SPECIES_ORDER as BUTTERFLY_SPECIES } from './props/ButterflyProps.js';
 
 import { uuid } from './Uuid.js';
 // The ready-made worlds behind Menu > Load World.
@@ -10020,6 +10021,591 @@ function sunflowerLayout() {
   return { theme: 'sunflower', spawn: { ...SP, yaw: 0 }, items };
 }
 
+
+// ---------------------------------------------------------------------------
+// The Butterfly Garden -- five species, thirty of them in the air, and the
+// monarch's life cycle laid out along a walk
+// ---------------------------------------------------------------------------
+
+// A planted nectar garden at TWELVE TIMES life size, so a monarch comes out 3.9ft across
+// and a student on the path can read the black veins in its wing as it goes past. At true
+// scale a butterfly is four inches and there is no amount of modelling that rescues it --
+// this is the inversion A Bug's Life makes at 60x and Sunflower at 40x, and the flowers go
+// up with it so the relationship between them stays true: a coneflower's HEAD comes out at
+// 3ft, which is almost exactly a monarch's wingspan, so a butterfly settled on one covers
+// it exactly as it does in life.
+//
+// The learning content is the LIFE CYCLE and it is a walk, not a board: five stations down
+// the west side in order, egg to adult, each blown up to about the same display size with
+// its true size and its magnification on its own placard. The four stages span 1.2mm to
+// 100mm -- a factor of eighty -- so no single magnification can show all four, and the
+// board at the head of the walk says exactly that. It is the one place in this world where
+// the scale is deliberately inconsistent, and the inconsistency is the lesson.
+function butterflyLayout() {
+  const items = [];
+  const SP = { x: 0, z: 155 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  // The main path, from behind the spawn to the far hedge. Every position in this layout
+  // is measured against it or against the life-cycle walk that branches off it.
+  const PATH = [
+    [0, 174], [0, 152], [-2, 128], [-3, 106], [-2, 84], [1, 62], [3, 40],
+    [2, 18], [-1, -4], [-5, -26], [-8, -50], [-7, -74], [-3, -98], [2, -122],
+  ];
+  // The life-cycle walk: a spur west off the main path, running the length of the garden
+  // and rejoining it at the far end, so a student who follows it passes all five stations
+  // in order and comes back out onto the path.
+  const WALK = [
+    [-11, 103], [-24, 92], [-33, 71], [-38, 45], [-40, 16],
+    [-38, -13], [-32, -39], [-22, -59], [-9, -72],
+  ];
+
+  let rngState = 20260917;
+  const rnd = () => {
+    rngState = (rngState * 1664525 + 1013904223) % 4294967296;
+    return rngState / 4294967296;
+  };
+  const near = (x, z, list, dist) => list.some(([px, pz]) => Math.hypot(px - x, pz - z) < dist);
+  // Every jittered number in this layout goes through this. A seeded random gives a float
+  // with seventeen significant digits and all of them are written into IndexedDB and into
+  // the exported world file; two decimal places is a tenth of an inch at this world's
+  // scale, and this world has more scattered props in it than any other.
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const spin = () => r2(rnd() * 6.28);
+  const onPolyline = (pts, x, z) => {
+    let best = { d: 1e9, x: pts[0][0], z: pts[0][1] };
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [ax, az] = pts[i];
+      const [bx, bz] = pts[i + 1];
+      const dx = bx - ax;
+      const dz = bz - az;
+      const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / (dx * dx + dz * dz || 1)));
+      const px = ax + dx * t;
+      const pz = az + dz * t;
+      const d = Math.hypot(x - px, z - pz);
+      if (d < best.d) best = { d, x: px, z: pz };
+    }
+    return best;
+  };
+  const offPath = (x, z) => Math.min(onPolyline(PATH, x, z).d, onPolyline(WALK, x, z).d);
+  // THE ARRIVAL IS KEPT CLEAR BY ARITHMETIC, not by remembering. A garden flower is 14ft
+  // across and up to 40ft tall, which at 22ft from the eye is 46 degrees wide and reaches
+  // well past the top of a 35-degree half-frame. 42ft is where a plant of that size stops
+  // owning the view: 19 degrees wide and 44 up, which is a thing you walk toward rather
+  // than a wall you arrive facing.
+  const inArrival = (x, z) => Math.hypot(x - SP.x, z - SP.z) < 42;
+
+  items.push(prop('garden-path', 0, 0, { options: { points: PATH, width: 15, seed: 23, litter: 130 } }));
+  items.push(prop('garden-path', 0, 0, { options: { points: WALK, width: 11, seed: 29, litter: 80 } }));
+
+  // --- the arrival ----------------------------------------------------------
+  // THE ARRIVAL FRAME, as arithmetic. `fov: 70` is VERTICAL, so a 16:9 screen sees only
+  // about 51 degrees either side and a 16:10 gallery screenshot 48. A board's own WIDTH is
+  // half the problem -- a 13ft panel subtends 30 degrees at 25ft and 18 at 40 -- so the
+  // welcome board goes 40ft out at 35 degrees, which is where every other world in this
+  // project puts one, and the kiosk 24ft out at 38 on the other side.
+  items.push(prop('welcome-board', -23, 122, {
+    rotY: face(-23, 122),
+    options: {
+      eyebrow: '🦋  THE BUTTERFLY GARDEN',
+      lines: ['THIRTY OF THEM ARE FLYING.'],
+      lead: 'Everything here is twelve times life size, so a monarch is as wide as you are tall. Five species are on the wing — watch how differently each one flies. The path west follows a monarch from egg to adult.',
+      footnote: 'Five challenge boards · five life-cycle stations · one puddling pool',
+      accent: '#f5a623',
+      face: '#23331f',
+      width: 13,
+    },
+  }));
+  // TWO BIG BOARDS CANNOT SHARE ONE ARRIVAL FRAME. The species board is 22ft wide -- the
+  // widest sign in the app -- so anywhere inside the forward 50 degrees it either lands
+  // outside the bezel or stands in front of the welcome board. Square on at 82 degrees it
+  // is what a student meets on their first look round, which is what Sunflower's title
+  // sign and the observatory's Polaris sight are both doing.
+  items.push(prop('species-board', 38, 150, {
+    rotY: face(38, 150),
+    options: { width: 22, height: 9.5, postHeight: 12 },
+  }));
+  items.push(...browserStation(15, 136, {
+    faceX: SP.x, faceZ: SP.z,
+    url: 'https://en.wikipedia.org/wiki/Monarch_butterfly',
+  }));
+
+  // ========================================================================
+  // THE LIFE CYCLE WALK
+  // ========================================================================
+
+  // The board that makes the scale honest. Without it a student reasonably concludes an
+  // egg is the size of a caterpillar's head, which is the one thing these five models
+  // could accidentally teach.
+  items.push(prop('standing-sign', -14, 112, {
+    rotY: facing(-14, 112, 2, 132),
+    options: {
+      lines: ['THE LIFE CYCLE WALK'],
+      subtitle: 'Five stations, egg to butterfly — and they are NOT to the same scale, because an egg is 1.2mm and the butterfly is 100mm. Each one says how big it really is.',
+      width: 15, height: 4.2, face: '#2c4226', accent: '#f5a623',
+    },
+  }));
+
+  const STATIONS = [
+    {
+      key: 'egg', x: -41, z: 86, n: 1, title: 'EGG', accent: '#8dc63f',
+      sub: 'Really 1.2 mm tall', mag: 'shown about 1,800× life size', radius: 4.4,
+      prop: 'butterfly-egg', options: { height: 7, seed: 11 }, y: 2.4,
+      eyebrow: '3 to 5 days', head: 'One egg, under one leaf',
+      body: 'A female monarch lays 300 to 500 eggs, one at a time, always on the UNDERSIDE of a milkweed leaf — where the rain misses it and most birds never look. Each one is the size of a pinhead and ribbed like a tiny melon. She tastes the leaf with her FEET to check it is milkweed before she lays. In three to five days the top of the egg darkens, and what comes out is smaller than this full stop.',
+    },
+    {
+      key: 'caterpillar', x: -52, z: 52, n: 2, title: 'CATERPILLAR', accent: '#f5c518',
+      sub: 'Really 45 mm long', mag: 'shown about 60× life size', radius: 5.6,
+      prop: 'monarch-caterpillar', options: { length: 11, seed: 13 }, y: 2.4,
+      eyebrow: '10 to 14 days · the larva', head: 'An eating machine',
+      body: 'It eats its own eggshell first, then nothing but milkweed for a fortnight — and grows about 2,000 times heavier. Its skin will not stretch, so it MOULTS five times, crawling out of the old one and eating that too. Milkweed is poisonous, and the caterpillar keeps the poison: the black, white and yellow bands are not camouflage, they are a warning. The two pairs of black filaments are not stingers. They are feelers, and they wave when it is alarmed.',
+    },
+    {
+      key: 'chrysalis', x: -56, z: 16, n: 3, title: 'CHRYSALIS', accent: '#3fa37a',
+      sub: 'Really 25 mm tall', mag: 'shown about 90× life size', radius: 4.8,
+      prop: 'chrysalis', options: { height: 7.5, seed: 17, hang: 3.2 }, y: 2.4,
+      eyebrow: '9 to 14 days · the pupa', head: 'Jade and gold',
+      body: 'The caterpillar spins a button of silk, hooks into it, hangs in a J for a day and then splits its skin one last time — and what is underneath is this. Inside, almost the whole animal dissolves and rebuilds as something with wings. The gold is not paint and not decoration: those spots are structural colour, the same trick as a beetle’s shell. In the last day the case turns clear and you can see the orange wings through it.',
+    },
+    {
+      key: 'emerging', x: -52, z: -20, n: 4, title: 'EMERGING', accent: '#e8734a',
+      sub: 'Wings really 15 mm at first', mag: 'shown about 70× life size', radius: 5.0,
+      prop: 'emerging-adult', options: { caseHeight: 5, seed: 19, hang: 3.6 }, y: 2.4,
+      eyebrow: 'One to two hours', head: 'The wings come out tiny',
+      body: 'It splits the case and crawls out with a swollen body and wings no bigger than its own back — crumpled, soft and useless. Then it HANGS, head up, and pumps the fluid out of its abdomen into the veins of its wings until they open to full size. This takes an hour or two, and it has to hang the whole time: a butterfly that falls, or has nothing to hang from, sets crooked and never flies. Another two hours to harden, and then it goes.',
+    },
+    {
+      key: 'adult', x: -41, z: -54, n: 5, title: 'BUTTERFLY', accent: '#e8552f',
+      sub: 'Really 100 mm across', mag: 'shown about 27× life size', radius: 5.4,
+      prop: 'butterfly', options: { species: 'monarch', size: 9, pose: 'spread', seed: 23, detail: 'hero' }, y: 5.4,
+      eyebrow: '2 to 6 weeks · and then it starts again', head: 'And back to the egg',
+      body: 'It drinks nectar through a coiled tongue as long as its body, and it tastes with its feet. Most monarchs live a few weeks — long enough to mate and lay the next round of eggs on milkweed. But the generation that hatches in late summer does something else: it does not breed, it FLIES, up to 3,000 miles to the same few Mexican forests its great-grandparents left. Nobody has ever fully explained how it knows the way.',
+    },
+  ];
+
+  STATIONS.forEach((st) => {
+    const toWalk = onPolyline(WALK, st.x, st.z);
+    const rotY = facing(st.x, st.z, toWalk.x, toWalk.z);
+    items.push(prop('lifecycle-plinth', st.x, st.z, {
+      rotY,
+      options: {
+        radius: st.radius, height: 2.4, accent: st.accent,
+        number: st.n, title: st.title, subtitle: st.sub, magnify: st.mag,
+      },
+    }));
+    items.push(prop(st.prop, st.x, st.z, { rotY: rotY + 0.25, y: st.y, options: st.options }));
+    // The placard stands BESIDE its plinth on the walk side, not in front of it: in front
+    // is exactly the line a student reads the exhibit along.
+    const side = rotY + Math.PI / 2;
+    items.push(prop('info-placard', st.x + Math.sin(side) * (st.radius + 4.5), st.z + Math.cos(side) * (st.radius + 4.5), {
+      rotY: rotY - 0.35,
+      options: { eyebrow: st.eyebrow, title: st.head, body: st.body, accent: st.accent },
+    }));
+  });
+
+  // The arrow that says a cycle is a CIRCLE: the last station points back at the first.
+  items.push(prop('info-placard', -30, -70, {
+    rotY: facing(-30, -70, -18, -56),
+    options: {
+      eyebrow: 'Four stages, over and over', title: 'Complete metamorphosis',
+      accent: '#f5a623',
+      body: 'Egg, caterpillar, chrysalis, butterfly, egg again — four completely different animals in one life, and it is called COMPLETE metamorphosis because nothing in between looks like anything either side of it. Beetles, bees, ants and flies do it too. A grasshopper does not: it hatches as a small grasshopper and just gets bigger, which is incomplete metamorphosis. In a good summer a monarch runs this whole cycle in about a month, four times over.',
+    },
+  }));
+
+  // ========================================================================
+  // THE GARDEN
+  // ========================================================================
+
+  // THE MILKWEED PATCH, and it is the hinge of the whole world: the life-cycle walk shows
+  // a monarch's four stages on plinths, and this is where they actually happen, at the
+  // garden's own scale, on the only plant a monarch caterpillar will eat. A student who
+  // has walked the stations can come here and find the real thing a fiftieth of the size.
+  const MILKWEED = { x: 34, z: 20 };
+  [[0, 0], [13, 9], [-9, 14], [7, -12], [-13, -6], [18, -3], [-2, 22]].forEach(([dx, dz], i) => {
+    items.push(prop('garden-flower', MILKWEED.x + dx, MILKWEED.z + dz, {
+      rotY: spin(),
+      options: {
+        kind: 'milkweed', seed: 300 + i * 7, height: r2(38 + rnd() * 10),
+        detail: i < 3 ? 'hero' : 'field', bloom: r2(0.7 + rnd() * 0.4),
+        lean: r2((rnd() - 0.5) * 0.12), leanZ: r2((rnd() - 0.5) * 0.12),
+      },
+    }));
+  });
+  items.push(prop('info-placard', 22, 34, {
+    rotY: facing(22, 34, 6, 46),
+    options: {
+      eyebrow: 'Asclepias syriaca', title: 'The host plant', accent: '#d8709a',
+      body: 'This is milkweed, and it is the ONLY thing a monarch caterpillar can eat. No milkweed, no monarchs — which is why planting it is the single most useful thing anybody can do for them. Break a leaf and it bleeds white latex that is sticky enough to glue a small caterpillar’s jaws shut, so the caterpillar bites a little trench across the leaf first to drain it, then eats past the trench. The poison in the sap is what makes the adult taste foul to birds.',
+    },
+  }));
+
+  // A puddling pool -- real behaviour, and a thing to stand and watch.
+  items.push(prop('puddling-pool', 36, 74, { options: { radius: 10, seed: 31, stones: 44 } }));
+  items.push(prop('info-placard', 25, 84, {
+    rotY: facing(25, 84, 8, 92),
+    options: {
+      eyebrow: 'Why they sit on wet gravel', title: 'Puddling', accent: '#5a9fc4',
+      body: 'Butterflies drink from damp ground far more than from open water, and they are not after the water. Nectar is almost pure sugar, so they get no salt or minerals from it — and a male passes a package of salt to a female when they mate, which goes into her eggs. So he drinks from mud, sand, damp gravel, even sweat. A dozen of them shoulder to shoulder on a wet patch is called a puddle club, and a garden built for butterflies always leaves one.',
+    },
+  }));
+
+  // --- the borders ----------------------------------------------------------
+  // Specimen clumps within a few feet of a path, where a student walks right up to one.
+  // Specimen clumps, PLACED BY SEARCH rather than by hand.
+  //
+  // A specimen has to satisfy four things at once -- beside a path so a student walks right
+  // up to it, at least 20ft from every board (a clump's canopy reaches 12.5ft and a board
+  // is 5.5ft to its edge), outside the arrival frame, and not on anybody's sightline -- and
+  // hand-placed coordinates cannot hold all four through a single board being moved six
+  // feet. This walks down the path, alternates sides, and takes the first offset that
+  // passes, so moving a board later re-places the planting instead of silently burying it.
+  const SPECIMEN_KINDS = [
+    'coneflower', 'zinnia', 'susan', 'buddleia', 'aster', 'lantana', 'cosmos', 'marigold',
+  ];
+  const SPECIMENS = [];
+
+  // ========================================================================
+  // FIVE CHALLENGE BOARDS
+  // ========================================================================
+
+  // A board beside a path turns to meet the student COMING DOWN it, not square to the
+  // centre line -- square on, five boards present five edges and a student walks past all
+  // of them without reading a word (A Bug's Life's avenue, Sunflower's runway).
+  const facePath = (x, z) => facing(x, z, x * 0.2, z + 30);
+  const BUILD = { width: 11, height: 8.6, postHeight: 11.5 };
+
+  // THE FIRST CODING BOARD ASKS FOR AN EDIT, NOT A PROGRAM. Whimsical World's finding, and
+  // it is the one that works for the student who has never written either: the butterfly
+  // it points at is already flying its route when they arrive, so the first thing anybody
+  // sees in this world is a program running.
+  items.push(activity(20, 104, {
+    number: 1, rotY: facePath(20, 104), accent: '#4c97ff',
+    title: 'Change a butterfly’s route',
+    target: 'The monarch ahead on the right is already flying between two flowers. Click it → Program, and change the numbers.',
+    steps: [
+      ctrlStep('forever'),
+      moveStep('glide 26 feet in 3 seconds', 1),
+      ctrlStep('wait 1 seconds', 1),
+      ctrlStep('repeat 12 times', 1),
+      moveStep('rotate 15 degrees', 2),
+      ctrlStep('wait 1 seconds', 1),
+    ],
+    tip: 'Twelve turns of 15 degrees is 180 — a half turn, so it comes back the way it came. Try 6 turns of 15 and watch it wander off somewhere new. Its wings keep fluttering whatever the program says: that part is the butterfly, not the program.',
+  }));
+
+  items.push(activity(-19, 26, {
+    number: 2, rotY: facePath(-19, 26), accent: '#ffab19',
+    title: 'Grow a caterpillar',
+    target: 'Click the caterpillar on station 2 of the life-cycle walk → Program.',
+    steps: [
+      ctrlStep('repeat 10 times'),
+      lookStep('change size by 25 %', 1),
+      ctrlStep('wait 0.4 seconds', 1),
+      ctrlStep('wait 1 seconds'),
+      moveStep('go back to start'),
+    ],
+    tip: 'A real monarch caterpillar grows about 2,000 times heavier in two weeks — from smaller than this full stop to longer than your finger. Ten steps of 25% is nearly ten times bigger. Go back to start puts its size back as well as its place.',
+  }));
+
+  items.push(activity(17, -66, {
+    number: 3, rotY: facePath(17, -66), accent: '#9966ff',
+    title: 'Draw a flight path',
+    target: 'Click any flying butterfly → Program. It will leave a coloured line behind it.',
+    steps: [
+      lookStep('marker color'),
+      lookStep('marker down'),
+      ctrlStep('repeat 4 times'),
+      moveStep('move forward 16 feet', 1),
+      moveStep('rotate 90 degrees', 1),
+      lookStep('marker up'),
+    ],
+    tip: 'Four moves and four right-angle turns close a square: 360 divided by the number of sides. Try 3 sides and 120 degrees, or 6 and 60. Erase all marks clears every line in the garden, not just this one.',
+  }));
+
+  items.push(prop('tutorial-board', -26, 74, {
+    rotY: facePath(-26, 74),
+    options: {
+      kicker: '🔨  BUILD IT', number: 1, title: 'Build a butterfly', accent: '#c2521f', ...BUILD,
+      intro: 'Menu ▸ Create Model. Every piece lands in build yellow in front of you — click the hammer floating above it. Stand under a real one first and look up at the wings.',
+      steps: [
+        { lead: 'The body', text: 'A Cylinder stretched long and thin, lying down. This is the thorax and abdomen in one.' },
+        { lead: 'Four wings', text: 'A Cube squashed almost flat and stretched wide. Make FOUR — two big ones in front, two smaller behind. A butterfly has four wings, not two.' },
+        { lead: 'Angle them', text: 'Use Rotate/Move Shape on each wing. The rings click round in 15 degree steps, so it is easy to make the left and right match.' },
+        { lead: 'Head and feelers', text: 'A Sphere at the front, and two very thin Cylinders angled up and out — with a small Sphere on the end of each. Those knobs are what make it a butterfly and not a moth.' },
+        { lead: 'Colour, connect, Render', text: 'Apply a bright colour to the wings and a dark one to the body. Connect every piece to the body, then press Render Model.' },
+      ],
+      tip: 'The green ball above a piece decides lift-or-slide from the first inch you drag it: straight UP to raise, sideways to slide. That is how a wing gets up onto the side of the body.',
+    },
+  }));
+
+  items.push(prop('tutorial-board', 20, -104, {
+    rotY: facePath(20, -104),
+    options: {
+      kicker: '🔨  BUILD IT', number: 2, title: 'Build a flower for it', accent: '#8a3f7a', ...BUILD,
+      intro: 'Every butterfly in this garden is looking for one thing: a flat place to stand with sugar under it. Build one it could actually land on.',
+      steps: [
+        { lead: 'The stem', text: 'A Cylinder stretched tall and thin. Taller than you.' },
+        { lead: 'The middle', text: 'A Cylinder squashed into a flat disc. Drag the GREEN ball straight UP to set it on top of the stem. This is where the nectar is.' },
+        { lead: 'Petals', text: 'A Cube stretched long and thin, laid flat against the disc and turned with Rotate/Move Shape. At 15 degrees a click, 24 of them go all the way round — or use 8 fat ones.' },
+        { lead: 'Leaves', text: 'Two more flattened Cubes low on the stem, angled down and out. Colour these and the stem green.' },
+        { lead: 'Connect, then Render', text: 'Connect every petal to the disc and the disc to the stem, then press Render Model. Now click it and use Size to make a whole border of them.' },
+      ],
+      tip: 'A ring seen exactly edge-on cannot be grabbed — it is a hairline down the middle of the piece. Take two steps sideways and it opens into a circle you can hold.',
+    },
+  }));
+
+  // Challenge 1's target: a monarch already flying its route, so the world opens with a
+  // program running and a green play button to click.
+  const shuttle = [
+    block('forever', {}, [
+      block('glide', { feet: 26, seconds: 3, ease: 'smooth' }),
+      block('wait', { seconds: 1 }),
+      block('repeat', { count: 12 }, [block('rotate', { degrees: 15 })]),
+      block('wait', { seconds: 1 }),
+    ]),
+  ];
+  items.push(prop('butterfly', 12, 120, {
+    y: 11, rotY: 2.6,
+    options: { species: 'monarch', seed: 71, detail: 'hero', range: 5, floor: 0, ceiling: 4 },
+    program: shuttle,
+  }));
+
+  // ========================================================================
+  // THIRTY BUTTERFLIES IN THE AIR
+  // ========================================================================
+
+  // Each one is its own record, so every one of them can be clicked, sized, moved and
+  // programmed like anything else in this app -- and each flies its own patch of air on
+  // its own tick, around a record whose transform never moves (the RootMotion contract).
+  //
+  // `range` is the radius of that patch and `floor`/`ceiling` the air it uses. They are
+  // set against what is UNDER each one: a butterfly over the borders works the flower
+  // heads at 8-20ft, one over the open lawn drifts higher, and the two over the puddling
+  // pool come almost to the ground, because that is what a puddling butterfly does.
+  //
+  // DETAIL IS DECIDED BY DISTANCE FROM A PATH, not from the spawn -- a student walks the
+  // whole length of both paths, and the spawn is only the first foot of one of them.
+  const FLYING = [
+    // over the arrival borders
+    [-14, 138, 'monarch', 14, 18], [22, 126, 'swallowtail', 17, 20], [-24, 118, 'peacock', 11, 15],
+    [8, 108, 'morpho', 20, 22], [-9, 100, 'zebra', 13, 17], [26, 104, 'monarch', 15, 19],
+    // down the middle of the garden
+    [-18, 88, 'swallowtail', 16, 20], [14, 84, 'peacock', 12, 16], [-6, 70, 'monarch', 18, 21],
+    [21, 62, 'morpho', 15, 20], [-16, 52, 'zebra', 12, 16], [9, 40, 'swallowtail', 19, 22],
+    [-20, 30, 'peacock', 10, 15], [17, 24, 'monarch', 16, 20],
+    // the milkweed patch -- monarchs, because that is the only place they lay
+    [30, 34, 'monarch', 13, 16], [42, 14, 'monarch', 11, 15], [26, 6, 'monarch', 15, 18],
+    [44, 30, 'swallowtail', 17, 20],
+    // the puddling pool: low, and almost on the gravel
+    [33, 70, 'swallowtail', 5, 11], [40, 80, 'peacock', 4, 10], [30, 82, 'zebra', 6, 12],
+    // the life-cycle walk
+    [-30, 64, 'morpho', 16, 20], [-44, 34, 'peacock', 12, 16], [-46, -2, 'zebra', 14, 18],
+    [-42, -36, 'monarch', 17, 21], [-28, -56, 'swallowtail', 13, 18],
+    // the far end
+    [8, -74, 'morpho', 19, 23], [-14, -84, 'peacock', 11, 16],
+    [16, -96, 'zebra', 15, 19], [-8, -112, 'monarch', 18, 22],
+  ];
+  FLYING.forEach(([x, z, species, y, range], i) => {
+    const d = offPath(x, z);
+    items.push(prop('butterfly', x, z, {
+      y: 0,
+      rotY: spin(),
+      options: {
+        species, seed: 500 + i * 13,
+        detail: d < 15 ? 'hero' : d < 48 ? 'field' : 'far',
+        range,
+        floor: Math.max(3, y - 7),
+        ceiling: y + 7,
+        speed: r2(0.85 + rnd() * 0.35),
+      },
+    }));
+  });
+
+  // And some SETTLED, because a garden where every butterfly is permanently airborne
+  // reads as a screensaver. A perched one opens and closes its wings slowly, which is the
+  // only way a student gets a long enough look to read the pattern on one.
+  const PERCHED = [
+    [-15, 139, 'monarch', 17], [18, 116, 'peacock', 15], [-19, 95, 'swallowtail', 16],
+    [17, 73, 'zebra', 13], [-14, 35, 'morpho', 15], [15, 45, 'monarch', 16],
+    [35, 21, 'monarch', 19], [-12, -91, 'peacock', 14],
+  ];
+  PERCHED.forEach(([x, z, species, y], i) => {
+    items.push(prop('butterfly', x, z, {
+      y, rotY: spin(),
+      options: { species, seed: 600 + i * 17, detail: 'hero', pose: 'perch' },
+    }));
+  });
+
+  // ========================================================================
+  // THE BORDERS, AND THE GROUND
+  // ========================================================================
+
+  // Every board in the world, read back out of `items` now that they have all been
+  // pushed, so a board added to this layout later is protected by construction rather
+  // than by anybody remembering the rule.
+  const BOARD_PROPS = new Set(['welcome-board', 'species-board', 'standing-sign', 'activity-board', 'tutorial-board']);
+  const boardItems = items.filter((it) => BOARD_PROPS.has(it.prop));
+  const boardXZ = boardItems.map((it) => [it.x, it.z]);
+  // A BOARD HAS TO BE READABLE, WHICH IS A STRONGER CONDITION THAN NOT OVERLAPPING. A
+  // nectar bed is 40ft across and 35ft tall here, so one standing between a reader and a
+  // board hides it completely while passing every overlap check there is. What is
+  // protected is the SEGMENT from a board's own reading point to the board: the spawn for
+  // the two at the arrival, and the nearest point on a path for everything else.
+  const SPAWN_BOARDS = new Set(['welcome-board', 'species-board']);
+  const sightlines = boardItems.map((it) => {
+    const read = SPAWN_BOARDS.has(it.prop) ? { x: SP.x, z: SP.z } : onPolyline(PATH, it.x, it.z);
+    return [[read.x, read.z], [it.x, it.z]];
+  });
+  // The five life-cycle exhibits are read the same way a board is -- from out on the walk,
+  // square to the plinth's own face -- so each one carries its own sightline. A prop that
+  // FACES somewhere keeps where it is read from in its own rotY, so this needs no second
+  // number to keep in step with it.
+  STATIONS.forEach((st) => {
+    const toWalk = onPolyline(WALK, st.x, st.z);
+    sightlines.push([[toWalk.x, toWalk.z], [st.x, st.z]]);
+  });
+  const blocksABoard = (x, z) => sightlines.some((line) => onPolyline(line, x, z).d < 13);
+
+  // A HERO PLANT MUST NOT STAND WITHIN 20FT OF A BOARD. That number is not a guess: a
+  // clump's leaf canopy reaches about 12.5ft from its own stalks and a board is 5.5ft to
+  // its own edge, so anything closer hangs a leaf across it. Measured, the coneflower at
+  // (-30, 112) stood 12.2ft from the welcome board.
+  {
+    let k = 0;
+    for (let z = 128; z >= -114; z -= 11) {
+      const onPath = onPolyline(PATH, 0, z);
+      // Alternating sides, so the planting does not all end up down one edge.
+      for (const side of (Math.round(z / 11) % 2 ? [1, -1] : [-1, 1])) {
+        let placed = false;
+        for (const off of [16, 19, 13, 22]) {
+          const x = r2(onPath.x + side * off);
+          if (Math.abs(x) > 62) continue;
+          if (inArrival(x, z)) continue;
+          if (near(x, z, boardXZ, 20)) continue;
+          if (offPath(x, z) < 11) continue;
+          if (near(x, z, [[MILKWEED.x, MILKWEED.z], [36, 74]], 26)) continue;
+          if (near(x, z, STATIONS.map((st) => [st.x, st.z]), 24)) continue;
+          if (near(x, z, SPECIMENS.map(([sx, sz]) => [sx, sz]), 19)) continue;
+          if (blocksABoard(x, z)) continue;
+          const kind = SPECIMEN_KINDS[k % SPECIMEN_KINDS.length];
+          SPECIMENS.push([x, z, kind]);
+          items.push(prop('garden-flower', x, z, {
+            rotY: spin(),
+            options: {
+              kind, seed: 400 + k * 11, detail: 'hero',
+              height: r2((GARDEN_FLOWERS[kind]?.height ?? 28) * (0.88 + rnd() * 0.26)),
+              bloom: r2(0.82 + rnd() * 0.3),
+              lean: r2((rnd() - 0.5) * 0.14), leanZ: r2((rnd() - 0.5) * 0.14),
+            },
+          }));
+          k++;
+          placed = true;
+          break;
+        }
+        if (placed) break;
+      }
+    }
+  }
+
+  // Computed HERE, after the specimens are in SPECIMENS -- it was above the planting loop
+  // and therefore reading an empty list, which let a background bed land on top of a
+  // foreground clump.
+  const clear = [
+    [SP.x, SP.z], [MILKWEED.x, MILKWEED.z], [36, 74],
+    ...STATIONS.map((st) => [st.x, st.z]), ...SPECIMENS.map(([x, z]) => [x, z]),
+  ];
+
+  const BED_MIXES = [
+    ['coneflower', 'susan', 'aster'],
+    ['zinnia', 'marigold', 'lantana'],
+    ['cosmos', 'aster', 'coneflower'],
+    ['buddleia', 'lantana'],
+    ['susan', 'marigold', 'zinnia'],
+    ['coneflower', 'cosmos', 'buddleia'],
+  ];
+  let bedSeed = 700;
+  for (let ring = 0; ring < 4; ring++) {
+    const rr = 44 + ring * 36;
+    const n = 6 + ring * 3;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + ring * 0.7 + rnd() * 0.3;
+      const x = r2(Math.cos(a) * rr * 1.12 + 2);
+      const z = r2(Math.sin(a) * rr + 26 - ring * 10);
+      if (Math.hypot(x, z) > 176) continue;
+      // Off both paths, clear of everything hand-placed, and NEVER on a sightline. A bed
+      // is 40ft across; 30 is the floor for keeping it out of a walking student's way.
+      if (offPath(x, z) < 27) continue;
+      if (inArrival(x, z)) continue;
+      if (near(x, z, clear, 30)) continue;
+      if (near(x, z, boardXZ, 34)) continue;
+      if (blocksABoard(x, z)) continue;
+      const d = offPath(x, z);
+      items.push(prop('nectar-bed', x, z, {
+        rotY: spin(),
+        options: {
+          kinds: BED_MIXES[(bedSeed += 1) % BED_MIXES.length],
+          seed: bedSeed * 13,
+          count: 4 + Math.floor(rnd() * 3),
+          spread: r2(15 + rnd() * 7),
+          height: r2(24 + rnd() * 10),
+          bloom: r2(0.8 + rnd() * 0.35),
+          detail: d < 46 ? 'field' : 'far',
+        },
+      }));
+    }
+  }
+
+  // THE LAWN IS THE GROUND, and at twelve times life size a lawn blade is a three-foot
+  // tuft -- so the mown grass between the borders is a prop like everything else, and it
+  // has to actually cover the ground. The first pass scattered 34 tussocks over a
+  // 178ft-radius garden and the rendered arrival came back with the whole bottom half of
+  // the frame a flat green plane, which is what a lawn looks like from six feet up and
+  // nothing like what it looks like from five inches.
+  //
+  // They are cheap (about 800 triangles each) and they are allowed closer to a path than
+  // anything else, because grass growing right up to the edge of a mown path is what a
+  // path edge IS.
+  for (let i = 0; i < 34; i++) {
+    const a = rnd() * Math.PI * 2;
+    const rr = 12 + Math.sqrt(rnd()) * 160;
+    const x = r2(Math.cos(a) * rr);
+    const z = r2(Math.sin(a) * rr + 18);
+    if (Math.hypot(x, z) > 178) continue;
+    if (offPath(x, z) < 7) continue;
+    if (blocksABoard(x, z)) continue;
+    items.push(prop('garden-grass', x, z, {
+      rotY: spin(),
+      options: {
+        seed: 800 + i * 5, radius: r2(10 + rnd() * 9),
+        height: r2(3.2 + rnd() * 3.2), blades: 13 + Math.floor(rnd() * 10),
+      },
+    }));
+  }
+  // And a band of it across the arrival apron, which the 42ft clearance above deliberately
+  // emptied of everything tall. Grass is the one thing that can go there: at 3 to 6ft it
+  // sits below a 5.6ft eye line, so it fills the foreground without hiding a single thing
+  // the student is meant to be reading.
+  for (let i = 0; i < 14; i++) {
+    const a = (i / 14) * Math.PI * 2 + rnd() * 0.5;
+    const rr = 13 + rnd() * 27;
+    const x = r2(SP.x + Math.cos(a) * rr);
+    const z = r2(SP.z + Math.sin(a) * rr);
+    if (offPath(x, z) < 8) continue;
+    if (blocksABoard(x, z)) continue;
+    items.push(prop('garden-grass', x, z, {
+      rotY: spin(),
+      options: {
+        seed: 900 + i * 7, radius: r2(8 + rnd() * 6),
+        height: r2(2.8 + rnd() * 2.6), blades: 12 + Math.floor(rnd() * 8),
+      },
+    }));
+  }
+
+  return { theme: 'butterfly', spawn: { ...SP, yaw: 0 }, items };
+}
+
 export const PRESET_WORLDS = {
   park: { label: 'The Park', hint: 'The default world: a great meadow, a pond, a bandstand and the bear dens', build: parkLayout },
   museum: { label: 'The Museum', hint: 'A gallery of sculpture and painting, with a plaza out front', build: museumLayout },
@@ -10194,6 +10780,11 @@ export const PRESET_WORLDS = {
     label: 'Seattle Center',
     hint: 'The 1962 World\u2019s Fair campus \u2014 the Space Needle, the International Fountain and the Monorail',
     build: seattleLayout,
+  },
+  butterfly: {
+    label: 'The Butterfly Garden',
+    hint: 'A nectar garden twelve times life size -- five species on the wing, and a monarch\u2019s life cycle from egg to butterfly',
+    build: butterflyLayout,
   },
   sunflower: {
     label: 'Sunflower',
