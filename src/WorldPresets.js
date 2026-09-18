@@ -10137,8 +10137,8 @@ function butterflyLayout() {
   // The board that makes the scale honest. Without it a student reasonably concludes an
   // egg is the size of a caterpillar's head, which is the one thing these five models
   // could accidentally teach.
-  items.push(prop('standing-sign', -14, 112, {
-    rotY: facing(-14, 112, 2, 132),
+  items.push(prop('standing-sign', -21, 99, {
+    rotY: facing(-21, 99, -2, 116),
     options: {
       lines: ['THE LIFE CYCLE WALK'],
       subtitle: 'Five stations, egg to butterfly — and they are NOT to the same scale, because an egg is 1.2mm and the butterfly is 100mm. Each one says how big it really is.',
