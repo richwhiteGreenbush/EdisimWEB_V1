@@ -253,7 +253,7 @@ app's own default spot.
 whatever was already saved.
 
 **Every world card on the marketing page carries one of these links** (`.world-open` in
-`docs/index.html` — 33 of them since the 2026 redesign, which gave every published world a
+`docs/index.html` — 36 of them as of the Butterfly Garden, which gave every published world a
 card and grouped them into five categories; the page is generated content, so keep the
 card→id pairs correct when the gallery changes). Three things about that block:
 
@@ -3130,7 +3130,8 @@ open-edge baselines (zero everywhere except the chain-built trees).
 ### The Butterfly Garden, and a model whose whole identity is a PAINTING
 
 `ButterflyProps.js` + `butterflyLayout()`. A gallery world -- in `PRESET_WORLDS`,
-deliberately not in any menu. A planted nectar garden at twelve times life size, five
+deliberately not in any menu, and therefore reachable ONLY by its gallery link:
+**`/app/?world=43`**. A planted nectar garden at twelve times life size, five
 species of butterfly with thirty of them in the air, and a monarch's life cycle laid out as
 a walk down the west side.
 

@@ -111,9 +111,15 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "app" ]; then
   fi
   say "Edusim app      ->  $REMOTE_HOST:$REMOTE_APP"
   ssh $SSH_OPTS "$REMOTE_USER@$REMOTE_HOST" "mkdir -p '$REMOTE_APP'"
+  # `dev/` MUST NOT SHIP. public/dev/audit.js is a console helper for world-building, and
+  # it lives under public/ only so it survives a Vite HMR reload -- which means Vite copies
+  # it verbatim into dist/ like every other public asset. .gitignore already says it must
+  # never ship; this is what actually stops it, since the app payload is the one rsync that
+  # had no exclude but .DS_Store. Caught by reading a dry run: `cd+++++++ dev/`.
   rsync -az --human-readable --itemize-changes $DRY \
     --delete \
     --exclude '.DS_Store' \
+    --exclude 'dev/' \
     -e "ssh $SSH_OPTS" \
     "$HERE/dist/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_APP/"
 fi
