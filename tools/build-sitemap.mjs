@@ -71,6 +71,9 @@ const pages = htmlFiles(docsDir)
 
 // --- The app ----------------------------------------------------------------------
 pages.push({ url: `${SITE}/app/` });
+// Edusim HiFi and its gallery: not part of docs/, siblings of /app/ in the same docroot.
+pages.push({ url: `${SITE}/hifi/` });
+pages.push({ url: `${SITE}/hifiworlds/` });
 
 // --- The gallery ------------------------------------------------------------------
 pages.push({ url: `${SITE}/worlds/` });

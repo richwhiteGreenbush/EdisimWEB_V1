@@ -706,7 +706,9 @@ function lunarPlaque(kit, { width = 3.4 } = {}) {
   });
   const tilt = -Math.PI / 7; const cy = 3.4 + H * 0.2;
   b.add(kit.box(W + 0.12, H + 0.12, 0.08, { bevel: 0.025 }), steel, { pos: [0, cy, 0], rot: [tilt, 0, 0] });
-  const m = kit.canvasMat('lunar-plaque-face', face, { emissive: 0.04, rough: 0.35 }); m.metallic = 0.55;
+  // Brushed and nearly matte. At metallic 0.55 / rough 0.35 the raked plate caught the Moon's
+  // 7x sun as one specular sheet and rendered as a blank white rectangle: a plaque is for reading.
+  const m = kit.canvasMat('lunar-plaque-face', face, { emissive: 0.04, rough: 0.72 }); m.metallic = 0.12;
   b.add(kit.plane(W, H), m, { pos: [0, cy + 0.046 * Math.sin(-tilt), 0.046 * Math.cos(tilt)], rot: [tilt, 0, 0] });
   const root = b.finish();
   root.metadata.instanceable = false;

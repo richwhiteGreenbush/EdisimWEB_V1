@@ -434,7 +434,7 @@ if (params.get('ui') === '0') document.body.classList.add('hifi-noui');
 const timer = new THREE.Timer();
 timer.connect(document);
 const _dir = new THREE.Vector3();
-let frames = 0; let readyFrames = 0; let hudClock = 0;
+let frames = 0; let readyFrames = 0; let graceFrames = 0; let lifted = false; let hudClock = 0;
 const statsPanel = document.querySelector('.hf-hud');
 
 engine.runRenderLoop(() => {
@@ -480,8 +480,20 @@ engine.runRenderLoop(() => {
 
   frames++;
   if (frames === 10) progress('Loading textures…', 0.8);
-  if (worldReady && settle === 0 && bscene.isReady()) readyFrames++;
-  if (readyFrames === 40) Promise.all(kit.pending).then(() => { document.getElementById('loading')?.remove(); window.__ready = true; });
+  // The loading screen lifts when the scene reports ready -- OR after a grace period, whatever
+  // the scene says. isReady() is all-or-nothing: one material that never compiles holds it false
+  // for good, and a loading screen that can stay up for ever over a world that is in fact drawn
+  // and walkable behind it is the worst available failure. `__readyClean` records which it was.
+  if (worldReady && settle === 0) {
+    graceFrames++;
+    if (bscene.isReady()) readyFrames++;
+    if (!lifted && (readyFrames >= 40 || graceFrames >= 900)) {
+      lifted = true;
+      const clean = readyFrames >= 40;
+      if (!clean) console.warn('Edusim HiFi: the scene never reported ready; showing the world anyway.');
+      Promise.all(kit.pending).then(() => { document.getElementById('loading')?.remove(); window.__readyClean = clean; window.__ready = true; });
+    }
+  }
   hudClock += dt;
   if (hudClock > 0.5 && statsPanel) { hudClock = 0; statsPanel.textContent = `${engine.getFps().toFixed(0)} fps · ${qualityName} · ${registry.count} objects`; }
 });

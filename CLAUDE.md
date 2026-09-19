@@ -32,6 +32,19 @@ into Babylon every frame. So every world, prop, block and record kind here exist
 Its gallery is `EdusimHiFiWorldDatabase/` (served at `/hifiworlds/`, link parameter
 `?hifiworld=`). See `HiFi/CLAUDE.md` before working there.
 
+**The marketing page carries it as `#hifi`** (`docs/index.html`, straight after the worlds
+section; nav link `HiFi`). It is the page's one DARK band, in the logo's own deep field blue,
+with six cards -- The Moon, On Mars, Dinosaur Island, The Park, Machu Picchu, The Neighborhood
+-- whose screenshots are `docs/assets/screenshots/hifi_<key>.jpg`, captured from the HiFi app
+with `?ui=0&still=1&preset=<key>&x=&z=&yaw=&pitch=`. Three rules it keeps, all this file's own:
+links are ABSOLUTE with a trailing slash (`https://edusim3dweb.com/hifi/`), because `docs/` is
+also on GitHub Pages; each card opens `?hifiworld=<id>` using the HIFI gallery's ids, which are
+NOT the main gallery's (Park 1, Moon 4, Mars 5, Dinosaur Island 6, Machu Picchu 21, The
+Neighborhood 40 -- keyed by title, re-check after any re-seed from scratch); and link text names
+the world. The honesty line -- "best on a recent computer with a dedicated graphics card; on a
+Chromebook use the standard Edusim" -- is load-bearing for the same reason the research
+section's is.
+
 **Deploying it:** `./deploy.sh hifi` and `./deploy.sh hifidb` (both are part of a bare
 `./deploy.sh`) put `HiFi/dist/` at `/hifi/` and the gallery at `/hifiworlds/`, siblings of
 `/app/` and `/worlds/` in the one docroot. The site rsync's `--delete` exclude list now names

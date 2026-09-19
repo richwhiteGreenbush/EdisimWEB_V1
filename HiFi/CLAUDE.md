@@ -157,6 +157,17 @@ foliage depth pre-pass). Not yet run on a discrete card.
   **Verify anything with a clock in it by waiting past the clock** — `shot.mjs` takes a hold
   time for exactly this, and the check is: counts stable at 25s, zero disposed-in-use, and
   counts DROP after a world switch (which proves the sweep still does its job).
+- **NEVER GIVE A MESH ZERO THIN INSTANCES -- it shipped, and it stuck three worlds on the loading
+  screen in production.** With a colour buffer registered and a count of 0, Babylon compiles the
+  mesh WITHOUT `INSTANCES` but WITH the instance-colour define, so the vertex shader multiplies by
+  an `instanceColor` it never declared and fails to compile. `Scene.isReady()` checks DISABLED
+  meshes too, so that one failure held the Moon, Mars (no grass blades) and The Neighborhood (no
+  wildflowers) not-ready for ever. The dev server reached ready anyway on timing, so every local
+  check passed; only the production build showed it. `Grass.scatter` now writes one zero-SCALE
+  instance instead, and the loading screen lifts after a 900-frame grace period whatever
+  `isReady()` says (`window.__readyClean` records which). **`scratchpad/readyall.mjs`-style sweep
+  -- every preset, on the PRODUCTION BUILD, asserting clean-ready and zero "Unable to compile
+  effect" -- is the check to run before any deploy.**
 - **`mesh.createNormals()` INVERTS normals in this scene.** It hands ComputeNormals the scene's
   right-handed flag, but MeshBuilder geometry is wound LEFT-handed whatever the scene is (Babylon
   flips culling at draw time instead). Every normal comes out pointing into the surface: the
