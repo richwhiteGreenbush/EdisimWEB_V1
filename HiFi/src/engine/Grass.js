@@ -334,8 +334,8 @@ export class Grass {
     const x0 = Math.floor((px - R) / cell); const x1 = Math.ceil((px + R) / cell);
     const z0 = Math.floor((pz - R) / cell); const z1 = Math.ceil((pz + R) / cell);
     const max = (x1 - x0 + 1) * (z1 - z0 + 1);
-    const grass = new Float32Array(max * 16); const gcol = new Float32Array(max * 4);
-    const flowers = new Float32Array((max >> 3) * 16); const fcol = new Float32Array((max >> 3) * 4);
+    const grass = new Float32Array(Math.max(1, max) * 16); const gcol = new Float32Array(Math.max(1, max) * 4);
+    const flowers = new Float32Array(Math.max(1, max >> 3) * 16); const fcol = new Float32Array(Math.max(1, max >> 3) * 4);
     let g = 0; let f = 0;
     const m = new Matrix(); const q = new Quaternion(); const s = new Vector3(); const t = new Vector3();
     const R2 = (R + 6) * (R + 6);
@@ -383,6 +383,15 @@ export class Grass {
         }
       }
     }
+    // NEVER hand a mesh ZERO thin instances. With a colour buffer registered and a count of 0,
+    // Babylon compiles the mesh WITHOUT the INSTANCES define but WITH the instance-colour one, so
+    // the vertex shader multiplies by an `instanceColor` it never declared and fails to compile.
+    // Scene.isReady() checks disabled meshes too, so that one failure holds the whole scene
+    // not-ready for ever -- on the Moon, Mars and The Neighborhood (no blades, or no wildflowers)
+    // the loading screen never lifted. One zero-SCALE instance draws nothing and keeps the
+    // shader honest.
+    if (g === 0) { grass.fill(0, 0, 16); gcol.fill(1, 0, 4); g = 1; }
+    if (f === 0) { flowers.fill(0, 0, 16); fcol.fill(1, 0, 4); f = 1; }
     this.grassMesh.thinInstanceSetBuffer('matrix', grass.subarray(0, g * 16), 16, false);
     this.grassMesh.thinInstanceSetBuffer('color', gcol.subarray(0, g * 4), 4, false);
     this.flowerMesh.thinInstanceSetBuffer('matrix', flowers.subarray(0, f * 16), 16, false);
