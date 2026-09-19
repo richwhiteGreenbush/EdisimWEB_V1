@@ -19,6 +19,9 @@ export class Menu {
     onEyeHeightClick,
     onSunPhaseChange,
     onSettingsClick,
+    // Where Get More Worlds goes. The default is this app's own gallery; Edusim HiFi runs
+    // this same menu against its own worlds database and passes that in instead.
+    galleryUrl = WORLD_GALLERY_URL,
   }) {
     this.root = document.createElement('div');
     this.root.id = 'menu';
@@ -129,7 +132,7 @@ export class Menu {
       this.closeGroups();
       // noopener: the gallery is a different origin, and a page opened without it can
       // reach back through window.opener and navigate the app out from under the student.
-      window.open(WORLD_GALLERY_URL, '_blank', 'noopener,noreferrer');
+      window.open(galleryUrl, '_blank', 'noopener,noreferrer');
     });
 
     // The .json file pair, save above load. They wear their own COLOUR rather than a

@@ -1,0 +1,27 @@
+/* HiFi's own additions. The main app's stylesheet is imported first (see main.js) and styles
+   every panel that app builds; nothing here may reuse one of its class names. */
+html, body { background: #0b1220; }
+#scene { outline: none; }
+#loading { position: fixed; inset: 0; display: grid; place-items: center; background: linear-gradient(#173a6b, #0b1220); z-index: 60; color: #fff; font-family: 'Avenir Next', 'Segoe UI', system-ui, sans-serif; }
+.loading-card { text-align: center; width: min(420px, 80vw); }
+.loading-title { font-size: 40px; font-weight: 700; letter-spacing: 0.5px; }
+.loading-title span { color: #ffc23d; }
+#loading-text { margin: 10px 0 16px; opacity: 0.8; }
+.loading-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.15); overflow: hidden; }
+#loading-fill { height: 100%; width: 20%; background: #ffc23d; transition: width 0.3s; }
+
+#hifi-panel { position: fixed; left: 14px; bottom: 14px; z-index: 12; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; font-family: 'Avenir Next', 'Segoe UI', system-ui, sans-serif; }
+.hf-chip { background: rgba(14, 24, 44, 0.8); color: #ffd772; border: 1px solid rgba(255, 215, 114, 0.4); border-radius: 18px; padding: 7px 14px; font: 700 13px inherit; cursor: pointer; backdrop-filter: blur(10px); }
+.hf-body { width: 250px; max-height: 70vh; overflow-y: auto; background: rgba(14, 24, 44, 0.86); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 10px 12px 12px; color: #fff; backdrop-filter: blur(14px); }
+.hf-section { font: 700 11px inherit; letter-spacing: 1.4px; text-transform: uppercase; opacity: 0.6; margin: 12px 2px 6px; }
+.hf-section:first-child { margin-top: 2px; }
+.hf-seg { display: flex; gap: 4px; }
+.hf-seg button { flex: 1; padding: 7px 0; border-radius: 8px; border: 1px solid rgba(255,255,255,0.16); background: transparent; color: #fff; font: 600 13px inherit; cursor: pointer; }
+.hf-seg button.on { background: #ffc23d; color: #1a1408; border-color: transparent; }
+.hf-body input[type=range] { width: 100%; accent-color: #ffc23d; }
+.hf-worlds { display: grid; grid-template-columns: 1fr; gap: 3px; }
+.hf-worlds button { text-align: left; padding: 6px 10px; border-radius: 7px; border: 0; background: rgba(86, 160, 242, 0.16); color: #fff; font: 600 13px inherit; cursor: pointer; }
+.hf-worlds button:hover { background: rgba(86, 160, 242, 0.4); }
+.hf-hud { margin-top: 10px; font: 600 11px ui-monospace, Menlo, monospace; opacity: 0.7; }
+body.vr-active #hifi-panel { display: none; }
+body.hifi-noui #menu, body.hifi-noui #hifi-panel, body.hifi-noui #touch-nav { display: none !important; }

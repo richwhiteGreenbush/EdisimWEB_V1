@@ -10,6 +10,34 @@ and images, freehand-draw shapes that inflate into 3D balloons, build your own m
 out of stretchable primitives, drop glowing light
 orbs, place live interactive web browser panels, and save/load the world.
 
+## Edusim HiFi lives in `HiFi/`, and it RUNS THIS APP'S CODE
+
+`HiFi/` is a high-fidelity edition rendered with **Babylon.js** for machines with discrete
+GPUs (`cd HiFi && npm run dev`, port 5183; the root `npm install` must be done first). It is
+NOT a rewrite: its `main.js` imports this app's own classes from `src/` and runs them against
+a three.js scene that is never drawn, and `HiFi/src/bridge/ThreeBridge.js` mirrors that scene
+into Babylon every frame. So every world, prop, block and record kind here exists there too.
+
+**What that means when editing `src/`:**
+
+- A class must keep taking `scene` / `camera` / `canvas` by INJECTION and must not reach for a
+  three.js renderer. `VRView` and `PhotoMode` are the only two that do, and HiFi replaces the
+  first and hands the second a stub. A new module that constructs or requires a
+  `WebGLRenderer` will not work in HiFi.
+- Anything visual has to be expressible as scene-graph state the bridge can read: geometry,
+  standard/basic materials, textures with a `version`, sprites, points, lines, point lights.
+  A custom `ShaderMaterial` or an `onBeforeCompile` effect (the wind) does NOT cross.
+- `Menu` takes an optional `galleryUrl`; that is the one change made here for HiFi's sake.
+
+Its gallery is `EdusimHiFiWorldDatabase/` (served at `/hifiworlds/`, link parameter
+`?hifiworld=`). See `HiFi/CLAUDE.md` before working there.
+
+**Deploying it:** `./deploy.sh hifi` and `./deploy.sh hifidb` (both are part of a bare
+`./deploy.sh`) put `HiFi/dist/` at `/hifi/` and the gallery at `/hifiworlds/`, siblings of
+`/app/` and `/worlds/` in the one docroot. The site rsync's `--delete` exclude list now names
+all FOUR sibling directories; a fifth payload has to join that list or `./deploy.sh site`
+deletes it. `./serve-local.sh` mounts the same layout locally.
+
 ## Commands
 
 ```bash
