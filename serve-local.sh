@@ -89,7 +89,7 @@ sync_all() {
   # them on every sync (they survived only by being written afterwards, which is exactly
   # the kind of order dependency that breaks the first time these lines are reordered).
   rsync -a --delete --exclude '.DS_Store' --exclude '_preview-check.html' \
-    --exclude 'worlds/' --exclude 'app/' "$HERE/docs/" "$SITE/"
+    --exclude 'worlds/' --exclude 'app/' --exclude 'hifiworlds/' --exclude 'hifi/' "$HERE/docs/" "$SITE/"
   rsync -a --delete --exclude '.DS_Store' \
     --exclude 'data/worlds.sqlite*' --exclude 'data/stats.sqlite*' \
     --exclude 'data/worlds/*.json' \
@@ -104,6 +104,37 @@ sync_all() {
   if [ -d "$HERE/dist" ]; then
     rsync -a --delete "$HERE/dist/" "$APP/"
     rsync -a --delete "$HERE/dist/" "$SITE/app/"
+  fi
+
+  # Edusim HiFi and ITS gallery, mounted the way production mounts them: /hifi/ beside
+  # /hifiworlds/ in the same docroot. That adjacency is the feature -- the app's Get More
+  # Worlds button is the RELATIVE link ../hifiworlds/, and "Open this world in Edusim HiFi"
+  # hands the app an id it fetches back from /hifiworlds/download.php, same-origin. Neither
+  # can work from `vite preview`, which serves the app alone at a root: there, ../hifiworlds/
+  # is a path Vite does not have, so it answers with the app's own index.html.
+  if [ -d "$HERE/EdusimHiFiWorldDatabase" ]; then
+    rsync -a --delete --exclude '.DS_Store' \
+      --exclude 'data/worlds.sqlite*' --exclude 'data/stats.sqlite*' \
+      --exclude 'data/worlds/*.json' \
+      --exclude 'uploads/screenshots/*' --exclude 'lib/config.local.php' \
+      "$HERE/EdusimHiFiWorldDatabase/" "$SITE/hifiworlds/"
+    mkdir -p "$SITE/hifiworlds/data/worlds" "$SITE/hifiworlds/uploads/screenshots"
+  fi
+  if [ -d "$HERE/HiFi/dist" ]; then
+    rsync -a --delete "$HERE/HiFi/dist/" "$SITE/hifi/"
+  fi
+}
+
+# The HiFi gallery's worlds live in the MIRROR's database, which rsync deliberately leaves
+# alone. Seed it once, when it is empty; the seeder dedupes on sha256, so this is idempotent.
+seed_hifi() {
+  [ -d "$SITE/hifiworlds/tools" ] || return 0
+  local php_cli="$HOME/Library/Application Support/Herd/bin/php"
+  [ -x "$php_cli" ] || php_cli="$(command -v php || true)"
+  [ -n "$php_cli" ] || { say "No php CLI found -- the HiFi gallery will be empty"; return 0; }
+  if [ ! -s "$SITE/hifiworlds/data/worlds.sqlite" ]; then
+    say "Seeding the Edusim HiFi Worlds Database (first run)"
+    (cd "$SITE/hifiworlds" && "$php_cli" tools/seed-presets.php | tail -1)
   fi
 }
 
@@ -129,12 +160,17 @@ if [ -n "$FORCE_BUILD" ] || [ ! -f "$HERE/dist/index.html" ]; then
   say "Building the app (npm run build)"
   (cd "$HERE" && npm run build)
 fi
+if [ -d "$HERE/HiFi" ] && { [ -n "$FORCE_BUILD" ] || [ ! -f "$HERE/HiFi/dist/index.html" ]; }; then
+  say "Building Edusim HiFi (cd HiFi && npm run build)"
+  (cd "$HERE/HiFi" && npm run build)
+fi
 
 stop_all
 mkdir -p "$RUN"
 
 say "Syncing the repo into $RUN (Apache cannot read ~/Desktop)"
 sync_all
+seed_hifi
 
 # --- PHP-FPM ---------------------------------------------------------------------
 # One static pool is plenty for one person clicking around. catch_workers_output is what
@@ -249,5 +285,7 @@ sleep 1
 printf '\n  marketing site   http://localhost:%s/\n' "$SITE_PORT"
 printf '  world gallery    http://localhost:%s/worlds/\n' "$SITE_PORT"
 printf '  Edusim app       http://localhost:%s/app/\n' "$SITE_PORT"
+printf '  Edusim HiFi      http://localhost:%s/hifi/\n' "$SITE_PORT"
+printf '  HiFi gallery     http://localhost:%s/hifiworlds/\n' "$SITE_PORT"
 printf '  …at an origin root http://localhost:%s/\n' "$APP_PORT"
 printf '  logs             ./serve-local.sh logs\n\n'

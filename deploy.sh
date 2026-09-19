@@ -29,6 +29,12 @@ REMOTE_HOST="${REMOTE_HOST:-richwhite.pairserver.com}"
 REMOTE_SITE="${REMOTE_SITE:-/usr/home/richwhite/public_html/edusim3d.me}"
 REMOTE_DB="${REMOTE_DB:-/usr/home/richwhite/public_html/edusim3d.me/worlds}"
 REMOTE_APP="${REMOTE_APP:-/usr/home/richwhite/public_html/edusim3d.me/app}"
+# Edusim HiFi (the Babylon.js edition) and ITS gallery. They deploy as SIBLINGS in the same
+# docroot for the reason /app/ sits beside /worlds/: the HiFi app's Get More Worlds button is
+# the relative link ../hifiworlds/, and "Open this world in Edusim HiFi" hands the app an id
+# that it fetches back from /hifiworlds/download.php -- which has to be same-origin.
+REMOTE_HIFI="${REMOTE_HIFI:-/usr/home/richwhite/public_html/edusim3d.me/hifi}"
+REMOTE_HIFIDB="${REMOTE_HIFIDB:-/usr/home/richwhite/public_html/edusim3d.me/hifiworlds}"
 
 SSH_KEY="${SSH_KEY:-$HOME/.ssh/edusim_pairserver}"
 SSH_OPTS="-i $SSH_KEY -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15"
@@ -43,6 +49,8 @@ for arg in "$@"; do
     site) WHAT="site" ;;
     db)   WHAT="db" ;;
     app)  WHAT="app" ;;
+    hifi)   WHAT="hifi" ;;
+    hifidb) WHAT="hifidb" ;;
     *) echo "unknown argument: $arg" >&2; exit 2 ;;
   esac
 done
@@ -87,6 +95,8 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "site" ]; then
     --exclude '_preview-check.html' \
     --exclude 'worlds/' \
     --exclude 'app/' \
+    --exclude 'hifi/' \
+    --exclude 'hifiworlds/' \
     -e "ssh $SSH_OPTS" \
     "$HERE/docs/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_SITE/"
 fi
@@ -153,6 +163,46 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "db" ]; then
     say "Making data/ and uploads/ writable by the web server"
     ssh $SSH_OPTS "$REMOTE_USER@$REMOTE_HOST" \
       "cd '$REMOTE_DB' && mkdir -p data/worlds uploads/screenshots && chmod -R 775 data uploads"
+  fi
+fi
+
+# ---- Edusim HiFi -----------------------------------------------------------------------------
+# NOTE FOR WHOEVER ADDS THE NEXT PAYLOAD: the site rsync above runs with --delete into the
+# docroot these all live in, so EVERY sibling directory must be in its exclude list or
+# `./deploy.sh site` deletes it. hifi/ and hifiworlds/ were added there with these two blocks.
+if [ "$WHAT" = "all" ] || [ "$WHAT" = "hifi" ]; then
+  if [ ! -d "$HERE/HiFi/dist" ]; then
+    echo "No HiFi/dist/ to deploy. Run: (cd HiFi && npm run build)" >&2
+    exit 1
+  fi
+  say "Edusim HiFi     ->  $REMOTE_HOST:$REMOTE_HIFI"
+  ssh $SSH_OPTS "$REMOTE_USER@$REMOTE_HOST" "mkdir -p '$REMOTE_HIFI'"
+  rsync -az --human-readable --itemize-changes $DRY \
+    --delete \
+    --exclude '.DS_Store' \
+    -e "ssh $SSH_OPTS" \
+    "$HERE/HiFi/dist/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_HIFI/"
+fi
+
+if [ "$WHAT" = "all" ] || [ "$WHAT" = "hifidb" ]; then
+  say "HiFi gallery    ->  $REMOTE_HOST:$REMOTE_HIFIDB"
+  ssh $SSH_OPTS "$REMOTE_USER@$REMOTE_HOST" "mkdir -p '$REMOTE_HIFIDB'"
+  # The same never-touch list as the main gallery: a deployment's database, its world files,
+  # its screenshots and its local config belong to that deployment, not to the repo.
+  rsync -az --human-readable --itemize-changes $DRY \
+    --delete \
+    --exclude '.DS_Store' \
+    --exclude 'data/worlds.sqlite*' \
+    --exclude 'data/stats.sqlite*' \
+    --exclude 'data/worlds/*.json' \
+    --exclude 'uploads/screenshots/*' \
+    --exclude 'lib/config.local.php' \
+    -e "ssh $SSH_OPTS" \
+    "$HERE/EdusimHiFiWorldDatabase/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_HIFIDB/"
+  if [ -z "$DRY" ]; then
+    say "Making the HiFi gallery's data/ and uploads/ writable by the web server"
+    ssh $SSH_OPTS "$REMOTE_USER@$REMOTE_HOST" \
+      "cd '$REMOTE_HIFIDB' && mkdir -p data/worlds uploads/screenshots && chmod -R 775 data uploads"
   fi
 fi
 
