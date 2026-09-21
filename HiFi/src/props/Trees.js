@@ -273,6 +273,28 @@ const SPECIES = {
     wander: 0.32, bark: 0xc8744e, barkGain: 1.5 },
   bramble: { hue: 108, sat: 44, light: 27, leafScale: 0.7, leaves: 16, bloom: { hue: 330, sat: 30, light: 88, ratio: 0.08, size: 0.5 } },
   hedge: { hue: 112, sat: 46, light: 25, leafScale: 0.5, leaves: 24 },
+  // TURKLE STREET -- the trees of an eastern Kansas town in the first week of October, when
+  // the hackberries have gone olive, the elms are still green and the maples have started.
+  // A town on the plains is a grove seen from the air, and what a student sees down any
+  // street here is a tunnel of these four, so they carry the world as much as the houses do.
+  //
+  // A hackberry is the one that matters: a short trunk, a crown twice as wide as it is deep,
+  // and enough of it to shade a whole front lawn. Its bark is the pale grey-brown that gives
+  // it away, and it is warty rather than furrowed, which is why `barkGain` lifts it.
+  hackberry: { hue: 88, sat: 40, light: 33, crown: [0.52, 0.34, 0.5], centre: 0.62, base: 0.34, trunk: 0.042,
+    wander: 0.1, bark: 0x9c9084, barkGain: 1.12, leafScale: 0.8, leaves: 18, tint: 0xc8d878 },
+  // American elm: the vase. Narrow at the fork, arching hard outward, a crown like a
+  // fountain. Its whole identity is that every limb leaves the trunk at the same height.
+  americanElm: { hue: 94, sat: 44, light: 31, crown: [0.5, 0.3, 0.48], centre: 0.7, base: 0.42, trunk: 0.04,
+    wander: 0.05, bark: 0x8a8076, leafScale: 0.85, leaves: 18 },
+  // Pin oak: a straight central leader all the way up with short branches off it, wider at
+  // the bottom than the top -- the opposite of everything else on the street.
+  pinOak: { hue: 102, sat: 40, light: 27, crown: [0.34, 0.42, 0.33], centre: 0.55, base: 0.2, trunk: 0.05,
+    wander: 0.03, bark: 0x7d7468, leafScale: 0.9 },
+  silverMaple: { hue: 70, sat: 54, light: 39, shape: 'maple', crown: [0.46, 0.36, 0.44], centre: 0.6, base: 0.3,
+    trunk: 0.044, wander: 0.09, hueSpread: 24, bark: 0x8e857a, tint: 0xe8e070 },
+  kansasGold: { hue: 40, sat: 70, light: 45, shape: 'maple', crown: [0.46, 0.34, 0.44], centre: 0.6, base: 0.32,
+    trunk: 0.042, wander: 0.09, hueSpread: 30, bark: 0x8e857a, tint: 0xffc070 },
   conifer: { hue: 128, sat: 38, light: 24, tex: 'conifer' },
   araucaria: { hue: 118, sat: 40, light: 22, tex: 'araucaria' },
   fern: { hue: 104, sat: 56, light: 30, tex: 'fern' },
@@ -540,6 +562,10 @@ export function ginkgoTree(kit, { height = 26, seed = 7 } = {}) { return broadle
 export function magnoliaShrub(kit, { height = 9, seed = 17 } = {}) { return broadleaf(kit, { height, seed, kind: 'magnolia' }); }
 export function polylepisTree(kit, { height = 13, seed = 53 } = {}) { return broadleaf(kit, { height, seed, kind: 'polylepis' }); }
 export function coniferTree(kit, { height = 24, seed = 2 } = {}) { return conifer(kit, { height, seed }); }
+// Turkle Street's four species behind one entry point, because the record carries the kind.
+export function turkleTree(kit, { height = 38, seed = 51, kind = 'hackberry' } = {}) {
+  return broadleaf(kit, { height, seed, kind: SPECIES[kind] ? kind : 'hackberry' });
+}
 
 // A shrub: foliage clusters with no visible skeleton, for planters and hedging.
 export function shrub(kit, { radius = 1.6, seed = 3, kind = 'shade' } = {}) {

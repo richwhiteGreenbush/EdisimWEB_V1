@@ -11,3 +11,8 @@ public/dev/
 # Working screenshots from world-building sessions. Regenerated on demand via the
 # dev-only captureSink plugin; there is no reason to carry 16MB of JPEGs in the repo.
 scratch/
+
+# Reference photographs a world was modelled from. Turkle Street was built out of six Street
+# View captures of a real address; they are Google's imagery and this repo has a public
+# remote, so the pictures stay on the machine that made the world and only the model ships.
+turklestreet/

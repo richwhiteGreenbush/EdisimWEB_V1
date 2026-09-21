@@ -52,6 +52,22 @@ const OVERRIDES = {
   warren: { clouds: 0.4, grassHeight: 0.7, meadow: 1.7, undergrowth: 'flowers' },
   // A mown town: short lawns, no meadow, nothing growing wild between the houses.
   neighborhood: { clouds: 0.4, grassHeight: 0.26, meadow: 0, undergrowth: null },
+  // TURKLE STREET IS A REAL PLACE, so its sky is a measured one rather than a chosen one:
+  // the photographs were taken under a nearly cloudless early-October Kansas sky, which is
+  // about as clear as air gets over a continent. Three things follow that no other world
+  // wants together.
+  //
+  //  * `clouds: 0.12` -- all but bare. Every other daylight world here carries a third to a
+  //    half cover because it flatters a landscape; this one would be lying.
+  //  * A MOWN LAWN AND NOTHING ELSE. No meadow, no wildflowers, and the blades shorter even
+  //    than The Neighborhood's: somebody cuts this every Saturday, and a fringe of anything
+  //    growing wild along the kerb is the detail that would say "model town" loudest.
+  //  * `hills: 55`, which is very nearly flat. The ring of hills every other outdoor world
+  //    gets is what closes its horizon; here the horizon is closed by the TREES -- sixteen of
+  //    them standing at the rim of the layout -- because that is what the end of a block in
+  //    Kansas actually looks like, and a range of foothills behind Park City would be the one
+  //    thing in the world a Kansan would laugh at.
+  turkle: { clouds: 0.12, grassHeight: 0.22, meadow: 0, undergrowth: null, hills: 55 },
   chalk: { clouds: 0.25, zenithMix: 0.3 },
   constellations: { night: true },
   observatory: { night: true },

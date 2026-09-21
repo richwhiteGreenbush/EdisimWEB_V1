@@ -378,6 +378,12 @@ function refreshGround(force = false) {
     const theme = { ...hifiTheme(name), carves };
     terrain.applyTheme(theme);
     environment.applyTheme(theme, null);
+    // ...and then put the student's own hour back. `applyTheme` resets the sun to the world's
+    // AUTHORED time, and this function runs whenever the registry settles -- so scrubbing
+    // Time of Day to dusk and then placing a single light orb snapped the whole world back to
+    // noon, which reads as the slider having broken. It is also why `?phase=` never showed in
+    // a screenshot: the shot is taken long after the ground has settled.
+    if (lastSunPhase !== null && lastSunPhase !== undefined) environment.setPhase(lastSunPhase);
     pipeline.applyTheme(theme);
     grass.applyTheme(theme);
     water.applyTheme(theme);

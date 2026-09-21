@@ -885,6 +885,26 @@ $WORLDS = [
             . "blocks. The giant teacup is already spinning \u{2014} open its program and "
             . "change the number.",
     ],
+    'turkle' => [
+        'title'   => 'Turkle Street',
+        'creator' => 'Edusim HiFi',
+        'tags'    => 'hifi, official, neighborhood, outdoors, explore, real place',
+        'description' =>
+            "A real street corner, built from photographs of it. This is the 1400 block of "
+            . "North Turkle Avenue at West 7th Street in Park City, Kansas, on a clear "
+            . "afternoon in the first week of October \u{2014} a tan ranch house with a covered "
+            . "porch and a flag on the wall, a long concrete drive back to the detached garage, "
+            . "a weathered cedar fence along the side yard, and a hackberry big enough to shade "
+            . "the whole front lawn standing in its ring of brick edging on the corner.\n\n"
+            . "Everything is where the photographs put it: the mailbox at the end of the drive, "
+            . "the cellar door leaning against the foundation, the pumpkins by the porch step, "
+            . "the birdbath under the tree, the wheeled bin left out at the kerb, the street "
+            . "sign and the power lines crossing overhead. The kerb has a real gutter in it and "
+            . "the road crowns back up in the middle, the way a road does.\n\n"
+            . "THERE ARE NO CHALLENGE BOARDS AND NOTHING TO DO. This one is for walking down. "
+            . "Cross the road and look back, go round the garage, stand on the corner. Then run "
+            . "the Time of Day slider and watch the windows come on.",
+    ],
 ];
 
 // ---------------------------------------------------------------------------

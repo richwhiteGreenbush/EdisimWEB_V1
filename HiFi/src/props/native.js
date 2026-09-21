@@ -18,6 +18,7 @@ import * as Flora from './Flora.js';
 import * as Regolith from './Regolith.js';
 import { LUNAR_NATIVE } from './Lunar.js';
 import { MARTIAN_NATIVE } from './Martian.js';
+import * as Turkle from './Turkle.js';
 
 export const NATIVE = {
   'shade-tree': Trees.shadeTree,
@@ -60,6 +61,31 @@ export const NATIVE = {
   'nb-conifer': Flora.nbConifer,
   'nb-hedge': Flora.nbHedge,
 
+  // TURKLE STREET IS NATIVE END TO END, which no other world is. Everywhere else the table
+  // picks out the handful of props a student stands next to and leaves the rest to the
+  // bridge; here the world was laid out for this edition and every single key in it has a
+  // model below. A mirrored three.js house on this street would be the one object that gave
+  // the game away.
+  'ts-street': Turkle.street,
+  'ts-driveway': Turkle.driveway,
+  'ts-walk': Turkle.walk,
+  'ts-ranch-house': Turkle.ranchHouse,
+  'ts-garage': Turkle.garage,
+  'ts-neighbor-house': Turkle.neighborHouse,
+  'ts-privacy-fence': Turkle.privacyFence,
+  'ts-chain-fence': Turkle.chainFence,
+  'ts-utility-pole': Turkle.utilityPole,
+  'ts-street-sign': Turkle.streetSign,
+  'ts-mailbox': Turkle.mailbox,
+  'ts-ac-unit': Turkle.acUnit,
+  'ts-trash-cart': Turkle.trashCart,
+  'ts-pumpkin': Turkle.pumpkin,
+  'ts-mulch-ring': Turkle.mulchRing,
+  'ts-foundation-bed': Turkle.foundationBed,
+  'ts-leaf-drift': Turkle.leafDrift,
+  'ts-street-tree': Turkle.streetTree,
+  'ts-shrub': Turkle.turkleShrub,
+
   // The Moon and Mars: the ground furniture here, the hardware in its own two files.
   ...Regolith.REGOLITH_NATIVE,
   ...LUNAR_NATIVE,
@@ -74,6 +100,7 @@ export const NATIVE = {
 const TREE_DEFAULT_HEIGHT = {
   'shade-tree': 22, 'conifer-tree': 24, 'flowering-tree': 16, 'araucaria-tree': 40, 'tree-fern': 14, 'cycad': 6,
   'ginkgo-tree': 26, 'magnolia-shrub': 9, 'polylepis-tree': 13, 'hawthorn-tree': 22, 'nb-tree': 24, 'nb-conifer': 20,
+  'ts-street-tree': 38,
 };
 function quantiseTree(key, options) {
   const dflt = TREE_DEFAULT_HEIGHT[key];

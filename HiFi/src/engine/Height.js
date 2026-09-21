@@ -151,13 +151,32 @@ export function heightAt(theme, x, z) {
   // Carved basins (ponds). The ground is first LEVELLED toward the basin's own rim height
   // over a wide collar, so the water surface meets the bank at one height all the way
   // round, and then the bowl is dug out of that.
+  //
+  // A CUT can also be a RECTANGLE, and Turkle Street is why. A kerbed street is not a ribbon
+  // laid on a lawn -- it is a trough: the gutter flowline sits five inches BELOW the grass
+  // behind the kerb and the crown comes back up to nearly meet it. Built without a cut, the
+  // whole carriageway is under the terrain and the terrain simply draws over it: the street
+  // rendered as a strip of pale gravel with a kerb standing beside it, which looked like a
+  // texture bug and was a depth one. A pond's collar-levelling is deliberately skipped here
+  // -- a road does not make its surroundings level, it is cut through whatever they are.
   if (theme.carves) {
     for (const c of theme.carves) {
-      const d = Math.hypot(x - c.x, z - c.z) / c.r;
-      if (d > 1.7) continue;
-      const level = classicHeightAt(theme, c.x, c.z);
-      h += (level - h) * (1 - smoothstep(1.05, 1.7, d));
-      h -= c.depth * (1 - smoothstep(0.35, 1.0, d));
+      if (c.r) {
+        const d = Math.hypot(x - c.x, z - c.z) / c.r;
+        if (d > 1.7) continue;
+        const level = classicHeightAt(theme, c.x, c.z);
+        h += (level - h) * (1 - smoothstep(1.05, 1.7, d));
+        h -= c.depth * (1 - smoothstep(0.35, 1.0, d));
+        continue;
+      }
+      const ca = Math.cos(c.yaw ?? 0); const sa = Math.sin(c.yaw ?? 0);
+      const dx = x - c.x; const dz = z - c.z;
+      const lx = dx * ca - dz * sa; const lz = dx * sa + dz * ca;
+      const qx = Math.abs(lx) - c.w / 2; const qz = Math.abs(lz) - c.d / 2;
+      const out = Math.hypot(Math.max(qx, 0), Math.max(qz, 0));
+      const feather = c.feather ?? 1.6;
+      if (out > feather) continue;
+      h -= c.depth * (1 - smoothstep(0, feather, out));
     }
   }
 
