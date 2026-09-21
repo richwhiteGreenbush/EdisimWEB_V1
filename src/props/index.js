@@ -41,6 +41,7 @@ import * as Wonder from './WonderProps.js';
 import * as Neighborhood from './NeighborhoodProps.js';
 import * as Sunflower from './SunflowerProps.js';
 import * as Butterfly from './ButterflyProps.js';
+import * as Turkle from './TurkleProps.js';
 import { applyWind, WIND_PROPS } from '../Wind.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
@@ -700,6 +701,30 @@ export const PROP_BUILDERS = {
   'puddling-pool': Butterfly.puddlingPool,
   'garden-grass': Butterfly.gardenGrass,
   'species-board': Butterfly.speciesBoard,
+
+  // Turkle Street. Every one of these has a native HiFi twin -- this world is drawn by the
+  // Babylon edition -- so the key is doing double duty: it is what a saved record rebuilds
+  // through here, and it is what `HiFi/src/props/native.js` matches on to substitute the
+  // photographic model. Rename one and both halves break at once.
+  'ts-street': Turkle.tsStreet,
+  'ts-driveway': Turkle.tsDriveway,
+  'ts-walk': Turkle.tsWalk,
+  'ts-ranch-house': Turkle.tsRanchHouse,
+  'ts-garage': Turkle.tsGarage,
+  'ts-neighbor-house': Turkle.tsNeighborHouse,
+  'ts-privacy-fence': Turkle.tsPrivacyFence,
+  'ts-chain-fence': Turkle.tsChainFence,
+  'ts-utility-pole': Turkle.tsUtilityPole,
+  'ts-street-sign': Turkle.tsStreetSign,
+  'ts-mailbox': Turkle.tsMailbox,
+  'ts-ac-unit': Turkle.tsAcUnit,
+  'ts-trash-cart': Turkle.tsTrashCart,
+  'ts-pumpkin': Turkle.tsPumpkin,
+  'ts-street-tree': Turkle.tsStreetTree,
+  'ts-shrub': Turkle.tsShrub,
+  'ts-mulch-ring': Turkle.tsMulchRing,
+  'ts-foundation-bed': Turkle.tsFoundationBed,
+  'ts-leaf-drift': Turkle.tsLeafDrift,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

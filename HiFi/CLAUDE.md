@@ -221,6 +221,126 @@ foliage depth pre-pass). Not yet run on a discrete card.
 - **Instancing copies a child's WORLD matrix under the template**, not its local position:
   offsets living on an intermediate node were being lost.
 
+## Turkle Street: the first HiFi-FIRST world, and what it added to the engine
+
+`props/Turkle.js` is HiFi world 44, and it is the first world in this project that was laid
+out FOR this edition. Every `PROP_BUILDERS` key in it is in the `NATIVE` table -- not the
+usual handful of trees and benches, all nineteen of them -- because the world's whole job is
+to look like six photographs of a real corner in Park City, Kansas, and one mirrored three.js
+house on that street would give the game away. See the root `CLAUDE.md` for the world itself;
+what follows is what it forced into the engine, all of which is available to every other
+world.
+
+### `kit.mat`'s `neutral`, and the measurement behind it
+
+**THE SETS ARE MUCH DARKER THAN THEY LOOK, AND EACH HAS A COLOUR CAST.** Measured off the
+shipped JPEGs (the numbers are in `SET_MEAN` at the top of `Kit.js`), `Planks012` averages
+**0.068** linear luminance and `RoofingTiles013A` averages **0.031**. A material tinted to a
+pale khaki and left at `gain: 1` therefore renders at SEVEN PER CENT of the colour it was
+asked for -- a whole street of tan houses came out near-black, and it read as a lighting bug
+rather than an albedo one, because "too dark" looks like shadow. That is the inverse of the
+trap Ellis Island's black steamship hull records, and much harder to see.
+
+`gain` could fix the level and cannot fix the cast: Planks012 is 0.097/0.063/0.038 in RGB, a
+strong red-brown, so every colour laid over it skews warm. **`neutral` (0..1) divides the
+albedo by the set's own measured mean, PER CHANNEL** -- the main app's `neutralized()` trick
+arriving here. At 1 the photo contributes only its light and shade and the tint owns the hue;
+around 0.8 keeps some of the material's own character, which is usually what wood and brick
+want. It is opt-in and defaults to 0, so nothing already shipped moves.
+
+Two calibrations from using it: **do not neutralise a warm set all the way when the sky is
+blue.** Gravel022 photographs warm, so `neutral: 0.9` on the asphalt swung the correction blue
+and the road came out navy under a blue ambient. 0.72 leaves a quarter of the aggregate's own
+warmth in, which is what makes it read as tarmac rather than slate. And **weathered concrete
+is about 0.4 albedo, not the 0.75 that "light grey" suggests** -- at the first pass's value
+every slab in the world blew out to white under a 4.7 sun.
+
+### Generated surface patterns: lap siding and asphalt shingle
+
+**THERE IS NO LAP SIDING AND NO ASPHALT SHINGLE IN THE TEXTURE LIBRARY**, and those are two of
+the three surfaces a street is mostly made of. `Planks012` is a staggered plank FLOOR -- on a
+wall it reads as brickwork -- and `RoofingTiles013A` is barrel clay tile, which is a
+Mediterranean roof and not a Kansas one. Tinting either harder does not help, because what is
+wrong is the PATTERN.
+
+So `patternMat()` draws four: `lap`, `shingle`, `board` and `seam`. A near-white height field
+becomes an albedo and a real tangent-space NORMAL map (a wrapped Sobel), with the paint colour
+on `albedoColor` and the tile in `metadata.tile` so the Builder's feet-based projection lands
+the courses at the right spacing. That last part is the whole point: lap siding is a FOUR-INCH
+exposure, and at any tile that makes a plank photo's boards four inches, its staggered joints
+become a grid of 4in blocks, which is stucco.
+
+Three things it cost:
+
+- **A `DynamicTexture` DOES NOT WRAP BY DEFAULT.** These are sampled in FEET -- the Builder
+  box-projects a wall's UVs as position/tile -- so v runs past 1 on anything taller than the
+  tile. Clamped, every wall above 5.3ft showed the canvas's last texel row stretched to the
+  eave: a flat olive band across the top half of every house and garage on the street, with
+  the courses stopping dead at a horizontal line halfway up. It read as a lighting artifact
+  and was an address-mode one. Set `wrapU`/`wrapV` explicitly.
+- **`uvRot` on a wall clads the street in vertical barn board.** The Builder projects u across
+  an elevation and v up it, and `Planks012` is already photographed with its planks along u --
+  so the obvious-looking quarter turn is exactly backwards, and at a 6in board width the
+  result does not read as barn board either. It reads as corduroy.
+- **Cache the material per (kind, colour) at module scope.** Nineteen buildings in six colours
+  should be six materials.
+
+### A rectangular terrain CARVE
+
+`Height.js`'s carve took a circle, for pond basins. **A kerbed street is a cut too** -- the
+gutter flowline sits five inches below the lawn behind the kerb -- and built without one the
+whole carriageway is under the terrain and the terrain simply draws over it. `theme.carves`
+now also takes `{ x, z, w, d, yaw, depth, feather }`, declared per prop key in `GroundMask.js`'s
+`PROP_CARVES` (rather than read off a live native's metadata, because the carve has to be
+known BEFORE the terrain is built and a native model is only made the frame after the bridge
+first sees its object).
+
+A pond's collar-levelling is deliberately skipped for a rectangle: **a road does not make its
+surroundings level, it is cut through whatever they are.** The feather is narrow -- 1.0ft --
+because the kerb solid is 0.7ft wide and buried a foot deep, so a transition that fits inside
+it is a transition nobody can see.
+
+The PLAYER still walks on the main app's uncarved ground, so a student crossing the street
+walks five inches above the gutter. Same trade as a pond, and at five inches it is invisible.
+
+### Footprints are a LIST now, and they carry a channel and a yaw
+
+`natives.footprints` took one rect or one circle. Turkle Street's street network is a plus
+shape with four rounded corners, and one rectangle either misses two carriageways or paints a
+hundred feet of somebody's lawn as road -- so a footprint may now be an ARRAY of stamps, each
+with its own `channel` (`path`/`worn`/`bare`), `strength`, local `cx`/`cz` and `yaw`. The
+offsets are in the prop's own frame, so a list turns with it.
+
+`worn` is worth reaching for: the lawn under a big tree is THINNER, and without something
+saying so the terrain's own colour drift runs at a hundred and fifty feet, which is nearly
+uniform across one lot and reads as a single bright mat.
+
+### Time of Day survived a ground refresh -- a real bug, fixed
+
+`refreshGround()` called `environment.applyTheme(theme, null)`, which resets the sun to the
+world's AUTHORED hour, and that function runs whenever the registry settles. So **scrubbing
+Time of Day to dusk and then placing a single light orb snapped the whole world back to
+noon**, which reads as the slider having broken. It is also why `?phase=` never appeared in a
+screenshot: the shot is taken long after the ground has settled. `refreshGround` now re-applies
+`lastSunPhase`.
+
+### Verification: `tools/turkle/shot.mjs`
+
+There is no puppeteer in this checkout and there does not need to be: node's own global
+`WebSocket` speaks the Chrome DevTools Protocol, and a screenshot is four messages. It waits
+on `window.__ready` and then HOLDS, for the reason this file already records -- the bridge's
+material sweep runs on a 600-frame clock and a shot taken at three seconds cannot see a bug
+that fires at ten.
+
+**Use the GPU, not SwiftShader.** `--headless=new` with `--use-angle=metal --enable-gpu`
+renders a world like this in seconds; `--use-angle=swiftshader` is correct and takes many
+minutes on a scene with a million-triangle terrain in it, which is long enough that the first
+attempt looked like a hang. `TS_SHOT_SOFTWARE=1` forces the fallback.
+
+**Per-prop measurements: 30-54 fps at 1600x900 on an M3 Pro (integrated), 98 records, ~707
+meshes with 213-226 active, 119 materials, 106 textures, 3 point lights.** Still not run on a
+discrete card.
+
 ## The Edusim HiFi Worlds Database (`../EdusimHiFiWorldDatabase/`)
 
 A sibling of `EdusimWorldDatabase/`, same PHP + SQLite app, own data. Served from

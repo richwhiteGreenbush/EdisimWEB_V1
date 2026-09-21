@@ -1402,6 +1402,62 @@ export const WORLD_THEMES = {
     sunPosition: [85, 150, 130],
     stars: false,
   },
+  // Turkle Street -- a real residential block in Park City, Kansas, on a clear afternoon
+  // in early October, built from six Street View photographs of the 1400 block.
+  //
+  // THIS IS THE ONLY WORLD IN THE APP BUILT TO MATCH A PHOTOGRAPH OF A PLACE THAT EXISTS,
+  // so every number here is read off the pictures rather than chosen. Three of them are
+  // not what a stylised town would use:
+  //
+  //  * THE SKY IS THE MOST SATURATED BLUE IN THE APP AFTER SUNFLOWER'S, because the
+  //    photographs show one. Kansas air in October is genuinely clear -- the Neighborhood's
+  //    soft hazy studio blue is right for a model railroad and wrong for this, where the
+  //    contrast between a deep sky and a pale khaki house is most of what the street looks
+  //    like. Fog is pushed out past the world bound for the same reason: the horizon on the
+  //    plains is a treeline, not a haze.
+  //  * THE LAWN IS OLIVE, NOT GREEN. A watered lawn in October in Kansas is a dry
+  //    fescue-and-bermuda mix going tan at the tips, patchy where the shade is, and that
+  //    dullness is load-bearing -- against a bright model-railroad green the khaki siding
+  //    reads as dirty rather than as the colour it is.
+  //  * THE GROUND IS ESSENTIALLY FLAT. amplitude 2 over a flatRadius that reaches past
+  //    every slab in the world: a street, four driveways and a hundred and thirty feet of
+  //    sidewalk are all laid as flat prop geometry, and any relief under one buries one end
+  //    and floats the other. The Butterfly Garden's path learned this the expensive way.
+  //
+  // The sun is BEHIND THE SPAWN (+Z) -- the robot-world trick, and the Neighborhood's. Every
+  // house on this block fronts south onto Turkle Avenue and the arrival looks north at them,
+  // so a sun from the far side would put every facade, every porch and the one hero
+  // elevation into its own shade.
+  turkle: {
+    groundDetail: 'ground-soil.jpg',
+    sky: 0x72b6e8,
+    fogNear: 230,
+    fogFar: 720,
+    // Measured against the photographs rather than chosen: an October lawn in Kansas is a
+    // dry fescue-and-bermuda mix gone olive and tan at the tips, patchy in the shade. The
+    // first pass at 0x93a05a came out as a model-railroad grass mat -- and a bright green
+    // lawn is not merely wrong here, it drags the khaki siding beside it toward looking
+    // dirty, which is the one colour relationship this whole world hangs on.
+    groundLow: 0x41492a,
+    groundHigh: 0x6f7745,
+    amplitude: 2,
+    flatRadius: 168,
+    blendRadius: 208,
+    // Less blue than an honest zenith bounce, and deliberately. A clear Kansas sky is the
+    // most saturated thing in this world, and at full strength its bounce turns every slab
+    // of concrete on the street -- and there are four driveways and a hundred and thirty
+    // feet of sidewalk -- a pale lilac.
+    hemiSky: 0xdde5ea,
+    // Light and nearly unsaturated. Every soffit, porch ceiling, eave and car underside on
+    // this street faces the ground and takes its whole illumination from this bounce; at an
+    // honest lawn green the porch ceiling came out olive (Seattle's saucer, again).
+    hemiGround: 0x9c9884,
+    hemiIntensity: 1.55,
+    sunColor: 0xfff4de,
+    sunIntensity: 2.2,
+    sunPosition: [70, 165, 120],
+    stars: false,
+  },
   // A high-summer nectar garden at noon, seen by something five inches tall.
   //
   // THE ENVIRONMENT IS COLOURED AGAINST THE EXHIBITS, which here means against the

@@ -10606,7 +10606,254 @@ function butterflyLayout() {
   return { theme: 'butterfly', spawn: { ...SP, yaw: 0 }, items };
 }
 
+// ---------------------------------------------------------------------------
+// Turkle Street -- a real block, at the corner of Turkle Avenue and West 7th
+// ---------------------------------------------------------------------------
+
+// The 1400 block of North Turkle Avenue in Park City, Kansas, on a clear afternoon in the
+// first week of October, laid out from six Street View photographs of the corner.
+//
+// IT IS THE ONLY WORLD HERE WITH NO BOARDS IN IT. There is no welcome board, no challenge
+// board, no tutorial board, no placard and no browser kiosk -- by direction, and it is the
+// right call rather than an omission. Every other world in this app is a place you are sent
+// to DO something and the boards are how it tells you what; this one is a place, and the
+// only thing being asked of a student is that they walk down it and look. A cream sign on
+// posts in a front yard would be the one object on the whole street that is not a real thing
+// somebody in Kansas owns, and it would break the only effect this world has.
+//
+// THE COORDINATE SYSTEM IS THE STREET'S, and every number below hangs off it (see
+// `src/props/turkle/plan.js`, which both editions read):
+//
+//     Turkle Avenue runs east-west, kerb faces at z = 21 and z = 47
+//     West 7th Street crosses it north-south, kerb faces at x = -83 and x = -57
+//     the four kerb returns are R = 18
+//     the hero lot is the north-east corner, x = -50..56, running back to z = -95
+//
+// The arrival is the third photograph: the spawn stands in the roadway a little east of the
+// house, looking north-north-west. From there the house spans 22 degrees left of the
+// sightline to 27 right, the garage and the drive fill the right-hand third, and the
+// hackberry's canopy comes into the top-left corner at about 41 degrees -- all inside the
+// 51 degrees a 16:9 screen actually sees, with the one big tree deliberately clipped by the
+// frame, which is what every one of these photographs does.
+function turkleLayout() {
+  const items = [];
+  const SP = { x: 8, z: 24 };
+
+  // Street geometry the layout has to agree with the street prop about.
+  const KERB_N = 21;
+  const KERB_S = 47;
+  const LOT_E = 56;
+  const LOT_W = -50;
+  const LOT_N = -95;
+
+  // The hero house: 46 x 28, front wall at z = -24, so the front lawn is thirty-seven feet
+  // of it from the kerb to the porch -- which is what these lots have and is most of why the
+  // block reads as roomy rather than as a subdivision.
+  const HOUSE = { x: -4, z: -38, halfW: 23, halfD: 14 };
+  const GARAGE = { x: 36, z: -58 };
+  const DRIVE_X = 36;
+  const DRIVE_W = 16;
+
+  // --- the street, its kerbs and every driveway apron on it --------------------
+  // The aprons are declared HERE and handed to the street, because only the street knows
+  // where its kerb is and only the layout knows where the drives are. Each one cuts the kerb
+  // and lays the depressed concrete in its place; the driveway prop then starts at the back
+  // of it.
+  const APRONS = [
+    { x: DRIVE_X, width: DRIVE_W },              // the hero's drive
+    { x: 94, width: 14 },                        // the neighbour east of it
+    { x: -32.5, width: 14, side: 'south', back: 56 },
+    { x: 40, width: 14, side: 'south', back: 56 },
+  ];
+  items.push(prop('ts-street', 0, 0, { absoluteY: true, options: { seed: 1, aprons: APRONS } }));
+
+  // --- the hero lot ------------------------------------------------------------
+  items.push(prop('ts-ranch-house', HOUSE.x, HOUSE.z, { options: { seed: 11 } }));
+  items.push(prop('ts-garage', GARAGE.x, GARAGE.z, { options: { seed: 12 } }));
+  items.push(prop('ts-driveway', DRIVE_X, 18, { options: { seed: 2, length: 64, width: DRIVE_W } }));
+  // The front walk runs from the porch step east to the drive. `tsWalk` is authored running
+  // along its own -Z, so a yaw of -90 degrees lays it along +X.
+  items.push(prop('ts-walk', -8, -16, { rotY: -Math.PI / 2, options: { seed: 3, length: 36, width: 3.6 } }));
+
+  // Planting beds either side of the porch, hard against the front wall, and a third in
+  // front of the porch itself -- which is where the perennials are in the photographs.
+  // Width 7 and not 12, and set east of the cellar bulkhead rather than over it. A twelve-foot
+  // bed reaching to x = -26 buried the white bulkhead doors against the front wall -- the one
+  // detail this house has that nothing else in the app does, modelled and then planted over.
+  items.push(prop('ts-foundation-bed', -17, -21.4, { options: { seed: 81, width: 7, depth: 4.2 } }));
+  items.push(prop('ts-foundation-bed', 13.5, -21.4, { options: { seed: 82, width: 9, depth: 4.2 } }));
+  items.push(prop('ts-foundation-bed', 3, -14.6, { options: { seed: 83, width: 9, depth: 3.4, plants: 'mixed' } }));
+  items.push(prop('ts-shrub', -25.5, -15.5, { options: { seed: 84, radius: 1.5, kind: 'juniper' } }));
+  items.push(prop('ts-shrub', 16.5, -15.2, { options: { seed: 85, radius: 1.4, kind: 'spirea' } }));
+
+  // The porch: a bench facing the street and a pumpkin on the ground beside the steps. The
+  // deck top is 1.21ft, which is the slab plus its skim -- see tsRanchHouse.
+  items.push(prop('bench', 2, -20, { y: 1.21, options: { length: 4.6 } }));
+  items.push(prop('ts-pumpkin', -5.6, -15.9, { options: { seed: 46, radius: 0.58 } }));
+  items.push(prop('ts-pumpkin', -10.4, -16.1, { options: { seed: 47, radius: 0.42 } }));
+
+  items.push(prop('ts-ac-unit', 22, -42, { rotY: Math.PI / 2, options: { seed: 44 } }));
+  items.push(prop('ts-mailbox', 29.5, 18.4, { options: { seed: 43 } }));
+  items.push(prop('ts-trash-cart', -30, 17.6, { rotY: 0.3, options: { seed: 45, colour: 0x2e5aa0 } }));
+
+  // --- the hackberry on the corner ---------------------------------------------
+  // The tree in the photographs, and the biggest single object in the world. It stands
+  // sixteen feet back from the kerb return, which puts its canopy over most of the front
+  // lawn and clipped by the top-left of the arrival frame.
+  items.push(prop('ts-street-tree', -38, 4, { rotY: 0.5, options: { seed: 51, height: 40, kind: 'hackberry' } }));
+  items.push(prop('ts-mulch-ring', -38, 4, { options: { seed: 71, radius: 7 } }));
+  items.push(prop('ts-leaf-drift', -38, 4, { options: { seed: 91, radius: 17, count: 300 } }));
+  items.push(prop('ts-leaf-drift', -14, 10, { options: { seed: 92, radius: 12, count: 130 } }));
+
+  // --- the hero lot's fences ----------------------------------------------------
+  // The side-yard fence runs west from the house's front-left corner to the lot line, ten
+  // feet forward of the front wall. The cellar bulkhead sits east of its end, which is the
+  // only place it can be and still be the white wedge these photographs all show.
+  items.push(prop('ts-privacy-fence', -38, -14, { options: { seed: 31, length: 24 } }));
+  items.push(prop('ts-privacy-fence', LOT_W, -55, { rotY: Math.PI / 2, options: { seed: 32, length: 82 } }));
+  items.push(prop('ts-privacy-fence', 24.2, -40, { options: { seed: 33, length: 9, gate: true } }));
+  items.push(prop('ts-chain-fence', LOT_E, -40, { rotY: Math.PI / 2, options: { seed: 34, length: 112 } }));
+  items.push(prop('ts-chain-fence', 3, LOT_N, { options: { seed: 35, length: 106 } }));
+
+  // --- the poles and the wires ---------------------------------------------------
+  // Three of the six photographs are framed by these. A span is given in the pole's own
+  // frame, so every pole goes down at yaw zero and the layout just says where the wire ends
+  // up. The drop to the garage is the one that crosses the arrival view.
+  items.push(prop('ts-utility-pole', -50, 14, {
+    options: {
+      seed: 41, height: 32,
+      spans: [{ dx: 104, dz: 3.5 }, { dx: -98, dz: -2 }, { dx: -2, dz: -124, sag: 3.4 }],
+      drops: [{ dx: -46, dz: 62, dy: -11 }],
+    },
+  }));
+  items.push(prop('ts-utility-pole', LOT_E - 2, 17.5, {
+    options: {
+      seed: 42, height: 32,
+      spans: [{ dx: 94, dz: 0.5 }],
+      drops: [{ dx: -18, dz: -63.5, dy: -10 }, { dx: 40, dz: 46, dy: -11 }],
+    },
+  }));
+  items.push(prop('ts-utility-pole', 148, 18, { options: { seed: 48, height: 30, spans: [], transformer: false } }));
+  items.push(prop('ts-utility-pole', -148, 12, { options: { seed: 49, height: 30, spans: [], transformer: false } }));
+  items.push(prop('ts-utility-pole', -52, -110, { options: { seed: 50, height: 30, spans: [], transformer: false } }));
+
+  // The corner sign. Its two blades sit at different heights and at right angles, which is
+  // how a real one is built and is also what stops them reading as one plus-shaped object
+  // from straight on.
+  items.push(prop('ts-street-sign', -52, 11, { rotY: -0.1, options: { top: '7th ST', bottom: 'TURKLE AVE', height: 9 } }));
+
+  // --- the sidewalk on the far side, broken at each drive ------------------------
+  // Three segments rather than one, so the concrete of an apron is never laid over the
+  // concrete of a walk. Two coplanar slabs at nearly the same height z-fight, and a
+  // shimmering stripe across a driveway reads as a rendering fault rather than as a joint.
+  for (const [x0, x1, seed] of [[-95, -43, 4], [-22, 29.5, 5], [50.5, 95, 6]]) {
+    items.push(prop('ts-walk', x0, 52, { rotY: -Math.PI / 2, options: { seed, length: x1 - x0, width: 4 } }));
+  }
+  items.push(prop('ts-walk', -88, 60, { options: { seed: 7, length: 118, width: 4 } }));
+
+  // --- the neighbours ------------------------------------------------------------
+  // Across Turkle, facing north back at the hero lot.
+  const across = (x, z, o) => items.push(prop('ts-neighbor-house', x, z, { rotY: Math.PI, options: o }));
+  across(-20, 78, { seed: 21, width: 40, siding: 0xe9e6dc, roofColour: 0x6b6d70, garage: true, roof: 'hip' });
+  across(34, 80, { seed: 22, width: 36, siding: 0xbcc6ae, roofColour: 0x6a5a49, roof: 'hip' });
+  // x = -104, not -96: with its garage this house is forty feet wide, and centred on -96 its
+  // east wall stood seven feet inside 7th Street's west kerb. A house in the road is the one
+  // layout mistake nobody notices from the arrival frame and everybody notices on the walk.
+  across(-104, 80, { seed: 23, width: 38, siding: 0xf1efe6, roofColour: 0x6b6d70, roof: 'hip', garage: true });
+  across(88, 80, { seed: 24, width: 34, siding: 0xded4bb, roofColour: 0x8e3a2e, roofKind: 'seam', roof: 'gable' });
+  items.push(prop('ts-driveway', -32.5, 56, { rotY: Math.PI, options: { seed: 8, length: 10, width: 14 } }));
+  items.push(prop('ts-driveway', 40, 56, { rotY: Math.PI, options: { seed: 9, length: 18, width: 14 } }));
+
+  // East along Turkle: the pale green ranch that appears past the hero's garage.
+  items.push(prop('ts-neighbor-house', 82, -30, {
+    options: { seed: 27, width: 38, siding: 0xbcc6ae, roofColour: 0x6b6d70, roof: 'hip', garage: true },
+  }));
+  items.push(prop('ts-driveway', 94, 18, { options: { seed: 10, length: 35, width: 14 } }));
+  items.push(prop('ts-chain-fence', 66, -40, { rotY: Math.PI / 2, options: { seed: 36, length: 100 } }));
+
+  // West across 7th: the blue-grey ranch from the winter photograph, and one behind it.
+  items.push(prop('ts-neighbor-house', -110, -6, {
+    rotY: Math.PI / 2, options: { seed: 25, width: 36, siding: 0x7f9099, roofColour: 0x585e66, roof: 'gable' },
+  }));
+  items.push(prop('ts-neighbor-house', -114, -64, {
+    rotY: Math.PI / 2, options: { seed: 26, width: 34, siding: 0xcdbc9c, roofColour: 0x6a5a49, roof: 'hip' },
+  }));
+  // The next house along the far side, west of 7th. It faces north like its neighbours rather
+  // than east onto 7th: turned east at the corner it overlapped the house beside it by
+  // twenty-five feet, which is invisible from every angle except the one a student walks.
+  across(-150, 80, { seed: 28, width: 36, siding: 0xe9e6dc, roofColour: 0x6b6d70, roof: 'hip', garage: true });
+  items.push(prop('ts-chain-fence', -95, -10, { rotY: Math.PI / 2, options: { seed: 37, length: 56 } }));
+
+  // The backs of the next street's houses, showing their rear elevations over the fence.
+  const behind = (x, z, o) => items.push(prop('ts-neighbor-house', x, z, { rotY: Math.PI, options: o }));
+  behind(-26, -126, { seed: 29, width: 36, siding: 0xded4bb, roofColour: 0x6b6d70, roof: 'hip' });
+  behind(44, -128, { seed: 30, width: 38, siding: 0xbcc6ae, roofColour: 0x585e66, roof: 'gable', garage: true });
+  behind(-104, -124, { seed: 38, width: 34, siding: 0xe9e6dc, roofColour: 0x6a5a49, roof: 'hip' });
+  behind(116, -120, { seed: 39, width: 36, siding: 0xcdbc9c, roofColour: 0x8e3a2e, roofKind: 'seam', roof: 'gable' });
+
+  // --- the planting that makes it Kansas ------------------------------------------
+  // A town on the plains is a grove: from the air these blocks are a dark green patch on an
+  // otherwise bare grid, and what a student sees down any street is a tunnel of hackberry
+  // and elm. So the trees are the second biggest thing in this world after the street.
+  const tree = (x, z, kind, seed, height, lean = 0) => items.push(prop('ts-street-tree', x, z, {
+    rotY: (seed % 9) * 0.7, options: { seed, height, kind, lean },
+  }));
+  // the hero lot
+  tree(-30, -72, 'hackberry', 52, 36);
+  tree(44, -84, 'elm', 53, 42);
+  tree(-46, -34, 'maple', 54, 30);
+  // across the street
+  tree(-8, 64, 'elm', 55, 40);
+  tree(52, 68, 'hackberry', 56, 36);
+  tree(-44, 70, 'autumn', 57, 32);
+  tree(112, 64, 'oak', 58, 34);
+  // along 7th and the west side
+  tree(-96, -26, 'oak', 59, 34);
+  tree(-100, 6, 'hackberry', 60, 38);
+  tree(-126, -34, 'elm', 61, 40);
+  tree(-92, -88, 'maple', 62, 32);
+  // east
+  tree(70, -10, 'maple', 63, 30);
+  tree(100, -62, 'elm', 64, 40);
+  tree(128, -14, 'hackberry', 65, 36);
+  tree(64, -104, 'autumn', 66, 32);
+  // the rim: what closes the horizon on a Kansas street, and the reason this world needs no
+  // hills. A treeline at a hundred and sixty feet is what the end of the block looks like.
+  const rim = [
+    [-158, -62, 'elm', 44], [-152, 10, 'hackberry', 40], [-132, 112, 'oak', 38],
+    [-48, 142, 'elm', 42], [24, 146, 'hackberry', 40], [104, 132, 'maple', 36],
+    [156, 62, 'elm', 42], [162, -50, 'hackberry', 38], [128, -140, 'oak', 36],
+    [36, -158, 'elm', 42], [-52, -156, 'hackberry', 40], [-140, -128, 'maple', 38],
+    [-168, 8, 'oak', 36], [170, 6, 'elm', 40], [-18, -162, 'autumn', 34], [82, 158, 'hackberry', 36],
+  ];
+  rim.forEach(([x, z, kind, h], i) => tree(x, z, kind, 120 + i, h));
+
+  // Shrubs along the neighbours' foundations: the one thing every house on a block like this
+  // has, and without them each one reads as a box set down on a lawn.
+  const hedge = (x, z, rotY, seed, kind, radius) => items.push(prop('ts-shrub', x, z, { rotY, options: { seed, radius, kind } }));
+  hedge(-30, 62, 0, 86, 'juniper', 1.9);
+  hedge(-24, 62, 0, 87, 'boxwood', 1.6);
+  hedge(-14, 62, 0, 88, 'juniper', 1.7);
+  hedge(28, 64, 0, 89, 'yew', 1.8);
+  hedge(38, 64, 0, 90, 'boxwood', 1.5);
+  hedge(-102, 60, 0, 93, 'juniper', 1.8);
+  hedge(-94, 60, 0, 94, 'boxwood', 1.6);
+  hedge(72, -16, 0, 95, 'juniper', 1.9);
+  hedge(80, -16, 0, 96, 'spirea', 1.6);
+  hedge(-96, -16, Math.PI / 2, 97, 'boxwood', 1.7);
+  hedge(-96, -4, Math.PI / 2, 98, 'juniper', 1.8);
+  hedge(-11, -12.2, 0, 99, 'grass', 1.2);
+  hedge(19.5, -12.4, 0, 100, 'grass', 1.1);
+
+  return { theme: 'turkle', spawn: { ...SP, yaw: 0.245 }, items };
+}
+
 export const PRESET_WORLDS = {
+  turkle: {
+    label: 'Turkle Street',
+    hint: 'A real Kansas street corner in October — the house, the drive, the big hackberry',
+    build: turkleLayout,
+  },
   park: { label: 'The Park', hint: 'The default world: a great meadow, a pond, a bandstand and the bear dens', build: parkLayout },
   museum: { label: 'The Museum', hint: 'A gallery of sculpture and painting, with a plaza out front', build: museumLayout },
   library: { label: 'The Library', hint: 'A public reading room: stacks, Dewey signs, card catalog, globe', build: libraryLayout },

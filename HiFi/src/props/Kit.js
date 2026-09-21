@@ -35,6 +35,35 @@ const SET_TILE = {
 };
 const SETS_WITHOUT_AO = new Set(['Concrete034', 'Metal032', 'Wood049', 'RoofingTiles013A']);
 
+// MEAN LINEAR COLOUR of each set's albedo map, measured off the shipped JPEGs rather than
+// guessed. It is what `neutral` divides by, and the numbers are the reason it had to exist:
+// `Planks012` averages 0.068 linear luminance and `RoofingTiles013A` averages 0.031, so a
+// material tinted to a pale khaki and left at gain 1 renders at SEVEN PER CENT of the colour
+// it was asked for. A whole street of tan houses came out near-black that way, and it read as
+// a lighting bug rather than as an albedo one -- the inverse of the trap Ellis Island's black
+// steamship hull records, and much harder to see, because "too dark" looks like shadow.
+//
+// The cast matters as well as the level: Planks012 is 0.097/0.063/0.038 in RGB, a strong
+// red-brown, so a scalar gain leaves every colour on top of it skewed warm. Dividing per
+// CHANNEL is the main app's `neutralized()` trick arriving here -- the photo then contributes
+// grain, grime and relief, and the tint owns the hue.
+const SET_MEAN = {
+  Bark012: [0.265, 0.203, 0.091],
+  Concrete034: [0.484, 0.481, 0.481],
+  Grass004: [0.128, 0.162, 0.035],
+  Gravel022: [0.227, 0.213, 0.174],
+  Ground037: [0.332, 0.307, 0.112],
+  Ground054: [0.333, 0.258, 0.156],
+  Ground068: [0.168, 0.110, 0.027],
+  Metal032: [0.206, 0.248, 0.295],
+  PavingStones070: [0.277, 0.268, 0.244],
+  Planks012: [0.097, 0.063, 0.038],
+  Rock030: [0.085, 0.079, 0.066],
+  Rock035: [0.007, 0.013, 0.015],
+  RoofingTiles013A: [0.032, 0.030, 0.036],
+  Wood049: [0.203, 0.127, 0.078],
+};
+
 function loadImage(url) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -132,8 +161,12 @@ export class Kit {
 
   // A photographic PBR material. `tint` multiplies the albedo (sRGB hex), `tile` overrides
   // the set's default feet-per-repeat, `rough` scales the roughness map.
-  mat(set, { tint = 0xffffff, gain = 1, tile, rough = 1, metal = false, bump = 1, emissive, grey = false, vertexColors = false } = {}) {
-    const key = `${set}|${tint}|${gain}|${tile}|${rough}|${metal}|${bump}|${emissive}|${grey}|${vertexColors}`;
+  // `neutral` (0..1) divides the albedo by the set's own measured mean, per channel, so the
+  // material renders as `tint` rather than as `tint` seen through the photograph. 1 is fully
+  // neutral -- the photo contributes only its light and shade -- and something like 0.8 keeps
+  // a little of the material's own character, which is usually what wood and brick want.
+  mat(set, { tint = 0xffffff, gain = 1, tile, rough = 1, metal = false, bump = 1, emissive, grey = false, vertexColors = false, neutral = 0 } = {}) {
+    const key = `${set}|${tint}|${gain}|${tile}|${rough}|${metal}|${bump}|${emissive}|${grey}|${vertexColors}|${neutral}`;
     if (this.materials.has(key)) return this.materials.get(key);
     const m = new PBRMaterial(key, this.scene);
     m.albedoTexture = grey ? this.greyTexture(set) : this.texture(`textures/${set}/color.jpg`, true);
@@ -151,6 +184,11 @@ export class Kit {
     // `gain` lifts a set that photographs dark (roof tiles, bark) without changing its hue;
     // an albedo multiplier above 1 is fine, the texture under it is well below 1.
     m.albedoColor = linear(tint).scale(gain);
+    if (neutral > 0 && SET_MEAN[set] && !grey) {
+      const mean = SET_MEAN[set];
+      const k = (i) => 1 / (1 * (1 - neutral) + mean[i] * neutral);
+      m.albedoColor = new Color3(m.albedoColor.r * k(0), m.albedoColor.g * k(1), m.albedoColor.b * k(2));
+    }
     if (emissive) m.emissiveColor = linear(emissive);
     m.metadata = { tile: tile ?? SET_TILE[set] ?? 5, vertexColors };
     this.materials.set(key, m);

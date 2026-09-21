@@ -3364,6 +3364,160 @@ costs everywhere else in this project. Confirm it on the hardware before trustin
 this close to the top of the envelope -- "measured rather than assumed" is the rule that
 does not change.
 
+### Turkle Street, and building a world from PHOTOGRAPHS OF A REAL ADDRESS
+
+`src/props/TurkleProps.js` + `src/props/turkle/plan.js` + `turkleLayout()`, and its real half,
+`HiFi/src/props/Turkle.js`. The 1400 block of North Turkle Avenue at West 7th Street in Park
+City, Kansas, on a clear afternoon in the first week of October, built from six Street View
+photographs of the corner. A gallery world -- in `PRESET_WORLDS`, deliberately not in any
+menu -- and **HiFi world 44**, which is where it is meant to be opened.
+
+**IT IS THE FIRST HiFi-FIRST WORLD, and that inverts the usual split.** Everywhere else the
+three.js app is the thing and HiFi re-draws the handful of props a student stands next to;
+here the world was laid out for the Babylon edition and **every single `PROP_BUILDERS` key in
+it has a native model** (`HiFi/src/props/native.js`). The three.js side is still a real world
+-- it renders at 322 draw calls and 476k triangles and is perfectly legible -- but it carries
+the MASSING, the openings and the palette, and the photographic surfaces live in the edition
+that can afford them. A mirrored three.js house on this street would be the one object that
+gave the game away.
+
+**IT IS ALSO THE ONLY WORLD WITH NO BOARDS IN IT**, by direction: no welcome board, no
+challenge board, no tutorial board, no placard and no browser kiosk. Every other world here is
+somewhere you are sent to DO something and the boards are how it says what; this one is a
+place. A cream sign on posts in a front yard would be the only object on the street that is
+not a real thing somebody in Kansas owns, and it would break the single effect the world has.
+The gallery description says so in as many words, because "nothing to do" has to be offered
+rather than discovered.
+
+#### THE PLAN IS A SHARED MODULE, and that is the load-bearing decision
+
+`src/props/turkle/plan.js` is pure arithmetic -- it imports nothing and builds no geometry --
+and **both editions read it**. The street is drawn twice, and a street whose two copies
+disagree by a foot is a street with a kerb running through the middle of its own gutter. One
+description, two renderers.
+
+It also answers the question that decides whether a paved intersection reads as paved at all:
+**HOW HIGH IS THE ROAD HERE.** A real kerbed street is a shallow trough -- the gutter flowline
+five inches below the lawn, the pan rising two feet to the edge of pavement, the asphalt
+crowning back up to nearly lawn level at the centre line. Lay it as one flat slab, which is
+what every first pass does, and the kerb has nothing to do and the gutter is a painted stripe.
+
+**THE HEIGHT COMES FROM ONE GLOBAL DISTANCE FUNCTION, not from each piece's cross section,
+and that is what makes the intersection correct for free.** `curbDistance(x, z)` is the
+distance to the nearest KERB wherever it is -- a straight run, or one of the four R=18 corner
+returns. Feed it to `roadHeight()` and the gutter follows the returns round the corner, dies
+out across the mouth of the junction (there is no kerb there to run beside), and leaves the
+middle of the crossing as one flat plateau, which is what a real one is. A per-piece cross
+section cannot do any of that without a special case at every corner.
+
+The pavement is decomposed so that **nothing overlaps anything**: two bands (the through
+street owns the junction, The Neighborhood's rule) and four flares. And the station lists are
+built ONCE so that two pieces which meet **share their vertices rather than merely their
+edge** -- `tools/turkle/audit.mjs`'s seam check asserts it, and it is why there is not a
+hairline crack anywhere in three hundred feet of road.
+
+#### Six bugs, and five of them are invisible in any count
+
+- **A GRID'S WINDING DEPENDS ON THE HANDEDNESS OF ITS (ROW, COLUMN) ORDER, AND TWO PATCHES
+  OF THE SAME ROAD CAN DISAGREE.** Turkle Avenue's rows run along +x with columns across +z;
+  West 7th's run along +z with columns across +x -- the axes swapped, which reverses the face
+  normal. Emitted at a fixed index order, 7th Street's carriageway came out with its top faces
+  pointing DOWN: culled by a `FrontSide` material, so the road was simply NOT THERE and the
+  lawn ran between two kerbs for two hundred feet. It survived several verification renders
+  because every one of them was pointed at Turkle Avenue, which is wound the other way and was
+  right. The HiFi edition never had it, because `tri()` there measures each triangle's own
+  normal and flips it -- so the fix is to do the same in `gridSolid`, and the general rule is
+  that a hand-built grid should MEASURE its winding rather than assume it. (Note the test is
+  the OPPOSITE way round in the two editions: three wants a front face counter-clockwise from
+  outside, Babylon clockwise.) The driveway and the walks are indexed the same way as 7th
+  Street and were correct only because their rows run along -z rather than +z, which flips the
+  handedness back -- which is to say they were right by accident.
+- **THE TERRAIN DRAWS OVER A ROAD THAT IS BELOW IT.** The trough means the whole carriageway
+  sits under the ground plane, and the ground is a solid mesh: the street rendered as a strip
+  of pale gravel with a kerb standing beside it on the grass. HiFi can cut -- `Height.js`'s
+  carve now takes a RECTANGLE as well as a pond's circle, declared in `GroundMask.js`'s
+  `PROP_CARVES` -- and this app cannot, so `tsStreet` takes `flow`/`squash` and re-datums the
+  same section to sit a quarter-inch ABOVE the lawn at 55% depth. The kerb stands four inches
+  proud instead of seven; from a 5ft eye line nobody can tell, and the x/z plan -- the half
+  the two editions must agree about -- is untouched.
+- **A KERB RETURN'S FLARE IS NOT CENTRED ON ITS ARC'S CENTRE.** The flare is the crescent
+  between an arc of radius 18 and the square corner outside it, deepest on the 45-degree
+  bearing; its arc CENTRE is the middle of the quarter-disc of LAWN it curves around. Stamped
+  there, every return painted eighteen feet of somebody's front garden as gravel and cut a
+  wedge out of the grass beside the hackberry. The band is centred on the mid-radius, 21.7ft
+  out, and laid along the tangent.
+- **A WORLD LAYOUT'S COLOURS ARE NUMBERS AND A BOARD'S ARE STRINGS**, and they are written the
+  same way. `siding: '#e9e6dc'` looks identical to `accent: '#e0b054'` and is not: a siding
+  colour goes to `linear()`/`mix()`, which do hex arithmetic, and came out BLACK for every
+  neighbour house on the block. Worse is the fix: a regex over the file converting `'#rrggbb'`
+  to `0xrrggbb` also converts every board's `accent`, every `face` and all four orb constants,
+  which are `ctx.fillStyle` strings and must stay strings. **Convert inside the one layout,
+  never across the file** -- the diff for a new world should be purely additive, and
+  `git diff --numstat` saying `244 0` is the check.
+- **A PLANTING BED WILL HAPPILY BE PLACED OVER THE ONE DETAIL THE HOUSE HAS.** The cellar
+  bulkhead -- the white steel doors leaning on the foundation, in three of the six photographs
+  and modelled for exactly that reason -- spent three passes underneath a twelve-foot
+  foundation bed. The overlap audit did not catch it because a bed against the wall it belongs
+  to is a legitimate overlap and is whitelisted.
+- **THE CELLAR DOOR IS ON THE FRONT WALL, NOT THE SIDE.** Against the west wall it is behind
+  the side-yard fence and can never be seen from the street. Reading a photograph wrong is a
+  bug like any other and it took three passes; the thing that settled it was asking which
+  surface the object is casting its shadow on.
+
+#### What the layout is, in numbers
+
+Turkle Avenue runs east-west with its kerb faces at `z = 21` and `z = 47`; West 7th crosses it
+north-south at `x = -83` and `x = -57`; the four returns are R=18. The hero lot is the
+north-east corner, `x = -50..56`, running back to `z = -95`. The house is 46 x 28 with its
+front wall at `z = -24`, so the front lawn is thirty-seven feet from the kerb to the porch --
+which is what these lots have and is most of why the block reads as roomy rather than as a
+subdivision.
+
+The arrival is the third photograph: the spawn stands in the roadway a little east of the
+house, looking north-north-west. The house spans 22 degrees left of the sightline to 27 right,
+the garage and the drive fill the right-hand third, and the hackberry's canopy comes into the
+top-left at about 41 degrees -- all inside the 51 a 16:9 screen sees, with the one big tree
+deliberately clipped by the frame, which is what every one of these photographs does.
+
+**`tools/turkle/audit.mjs` is what keeps that true.** It builds every record's real geometry
+in node and then lists, for every prop, its BEARING and ANGULAR WIDTH from the spawn, its
+footprint clashes, and -- the check that found four trees planted in the carriageway -- whether
+anything is standing in the road. A tree is judged on its TRUNK, because a crown is supposed to
+overhang a street; that is what a street lined with hackberry looks like.
+
+#### What makes the house that house
+
+Five things carry the likeness and the budget goes on them, in order: **the roof is a HIP with
+a cross gable over the west third** (a plain hip is a bungalow, a plain gable is a farmhouse,
+and it is the pair together that makes it this kind of house); **the porch is shallow and its
+posts are dark** -- four slender verticals in the trim colour, not white columns; **the picture
+window**, three lights and eight and a half feet of it, the only large opening on the
+elevation; **the aluminium storm door**, because at any distance the door itself is invisible
+and what you see is a bright frame round a dark rectangle -- leaving it off is the easiest way
+to make an American house look European; and **the flag on its angled bracket**, the one
+saturated object on an otherwise quiet front.
+
+The porch roof is a SEPARATE SHED whose low fascia sits at exactly the main roof's fascia
+height. That is what makes the eave read as one continuous straight line across the whole
+front -- what the photographs show -- without the hip having to grow a stepped eave over the
+porch section.
+
+#### Performance, measured
+
+**Three.js edition, at the spawn**: 98 records / **322 draw calls** / 476k triangles drawn /
+219 meshes. **HiFi edition, headless Chrome on an M3 Pro at 1600x900, `high`**: 98 records /
+~707 meshes, 213-226 active / 119 materials / 106 textures / **3 point lights** / 50-54 fps.
+The world file is 24.4 KB. Per prop in the three.js build: ts-street-tree 6.3k triangles each
+(x32, and 69% of the world's geometry -- the araucaria trap, watched), ts-street 20.1k,
+ts-neighbor-house 1.2k each (x12), ts-leaf-drift 5.2k, ts-utility-pole 1.6k, ts-privacy-fence
+2.1k, ts-ranch-house 2.8k, ts-mulch-ring 2.5k, ts-garage 0.9k.
+
+`tools/check-turkle.mjs` holds all 30 builder cases to recorded open-edge baselines. Four are
+deliberately non-zero and each is a SURFACE rather than a solid: the street (the pan and the
+asphalt are cut from one grid and abut along a shared edge, so each half is open along the
+seam and closed everywhere else), the utility pole (a wire has no end caps because it has no
+ends inside this world), and the sign blades and chain-link fabric, which are planes.
+
 ### Sunflower, and the arithmetic of an ARRIVAL FRAME
 
 `SunflowerProps.js` + `sunflowerLayout()`. A gallery world -- in `PRESET_WORLDS`,

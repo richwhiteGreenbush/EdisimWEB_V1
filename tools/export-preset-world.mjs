@@ -13,9 +13,15 @@ import { webcrypto } from 'node:crypto';
 
 if (!globalThis.crypto) globalThis.crypto = webcrypto;
 
-const [name, out] = process.argv.slice(2);
+// `--hifi` stamps the payload for the Edusim HiFi gallery. A world file is the SAME record
+// format in either edition -- the records say nothing about how they are drawn, which is the
+// whole point of the architecture -- so what these two fields do is tell a gallery which
+// edition's screenshots and link parameter belong to the row, not change a byte of the world.
+const args = process.argv.slice(2);
+const hifi = args.includes('--hifi');
+const [name, out] = args.filter((a) => !a.startsWith('--'));
 if (!name || !out) {
-  console.error('usage: node tools/export-preset-world.mjs <preset> <out.json>');
+  console.error('usage: node tools/export-preset-world.mjs [--hifi] <preset> <out.json>');
   process.exit(1);
 }
 
@@ -49,6 +55,7 @@ const payload = {
   format: 'edusim-world',
   version: 1,
   exportedAt: new Date().toISOString(),
+  ...(hifi ? { edition: 'edusim-hifi', renderer: 'babylonjs' } : {}),
   records,
 };
 const text = JSON.stringify(payload);

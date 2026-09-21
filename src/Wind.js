@@ -191,6 +191,12 @@ export const WIND_PROPS = new Map([
   ['lollipop-tree', { top: 16, amount: 0.9 }],
   ['snapped-tree', { top: 18, amount: 0.3 }],
 
+  // Turkle Street. A mature hackberry over a lawn is the loosest thing on the block; the
+  // clipped foundation shrubs barely move, and the one ornamental grass by the step moves
+  // more than either.
+  ['ts-street-tree', { top: 34, amount: 0.75 }],
+  ['ts-shrub', { top: 3.2, amount: 0.9 }],
+
   // Undergrowth: short, and the most flexible things in any world.
   ['fern-patch', { top: 4.5, amount: 1.5 }],
   ['grass-clump', { top: 3.2, amount: 1.7 }],
