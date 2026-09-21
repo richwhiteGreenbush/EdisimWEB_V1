@@ -2,6 +2,9 @@
 //
 //   node tools/turkle/shot.mjs "<query string>" <out.png> [holdSeconds] [width] [height]
 //
+// TS_SHOT_BASE points it at something other than the local dev server -- the live site, for
+// instance, which is the only way to check that a deploy actually landed.
+//
 // No puppeteer and no install: node's own global WebSocket is enough to speak CDP, and a
 // screenshot is four messages. It waits on `window.__ready`, which the render loop sets once
 // the world has loaded, the ground mask has settled and every ORM texture is in -- and then
@@ -65,7 +68,7 @@ const evaluate = async (expr) => (await send('Runtime.evaluate', { expression: e
 await send('Page.enable');
 await send('Runtime.enable');
 await send('Emulation.setDeviceMetricsOverride', { width: Number(W), height: Number(H), deviceScaleFactor: 1, mobile: false });
-await send('Page.navigate', { url: `http://localhost:5183/?${query}` });
+await send('Page.navigate', { url: (process.env.TS_SHOT_BASE || 'http://localhost:5183/') + '?' + query });
 
 let ready = false;
 for (let i = 0; i < 600; i++) {
