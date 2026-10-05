@@ -1,0 +1,524 @@
+<!-- ===================== p79 · Part 4 opener ===================== -->
+<section class="page p4 opener no-folio">
+  <div class="bleed"><img src="../assets/print/opener-4.jpg" alt="" style="object-position: center 66%"></div>
+  <div class="veil"></div>
+  <div class="title-block">
+    <span class="part-label">Part 4</span>
+    <h1>Code it</h1>
+    <p class="sub">Snap coding blocks together and the models you built start to move, draw, talk and listen.</p>
+  </div>
+  <div class="chapters">
+    <div><span>12</span>Your first program</div>
+    <div><span>13</span>Make the train go</div>
+    <div><span>14</span>Bring the animal to life</div>
+    <div><span>15</span>The living town</div>
+  </div>
+</section>
+
+<!-- ===================== p80 · Ch12 · Your first program ===================== -->
+<section class="page p4">
+  <div class="chapter-band"></div>
+  <div class="safe">
+    <div class="chapter-head" id="ch12">
+      <div class="chapter-num">12</div>
+      <div><div class="chapter-kicker">Chapter 12</div><h1>Your first program</h1></div>
+    </div>
+    <p class="lede" style="margin-top: 0.3in;">A <b>program</b> is a list of instructions. A computer follows them one at a time, in order, exactly as written &ndash; even when they're wrong.</p>
+    <x-shot src="turtle-hello" ratio="16x10" pos="center 45%">Your turtle's first program: one block that says Hello!</x-shot>
+    <x-box kind="fact">In Edusim you write programs with <b>blocks</b>: you drag them into a list instead of typing. It's the same idea professional coders use; they just type the words.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p81 · Ch12 · the editor ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Open the Program editor</div>
+    <ol class="steps">
+      <li><b>Click your turtle</b> (or any model you've rendered).</li>
+      <li><b>Click</b> <span class="ui">Program</span>. The editor opens.</li>
+    </ol>
+    <x-shot src="program-empty" ratio="16x10" pos="center 38%" class="nofill">
+      <x-mark x="26" y="58">1</x-mark>
+      <x-mark x="62" y="45">2</x-mark>
+      <x-mark x="75" y="10">3</x-mark>
+      <x-mark x="73" y="93">4</x-mark>
+    </x-shot>
+    <ul class="legend small">
+      <li><span class="callout">1</span><span><b>The palette.</b> Every block you can use. Scroll down for more.</span></li>
+      <li><span class="callout">2</span><span><b>Your program.</b> Drag blocks here, one under another.</span></li>
+      <li><span class="callout">3</span><span><b>Block Code / JavaScript.</b> Leave it on Block Code for now.</span></li>
+      <li><span class="callout">4</span><span><b>Clear, Cancel and Save.</b> <span class="ui">Save</span> keeps your program and runs it straight away.</span></li>
+    </ul>
+    <x-box kind="try">Scroll down the palette and count the purple blocks. How many are there? (The answer is on page <span data-page-of="blocks2"></span>.)</x-box>
+  </div>
+</section>
+
+<!-- ===================== p82 · Ch12 · three colours ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Three colours of blocks</div>
+    <p>Blocks come in three families. The colour tells you what a block does.</p>
+    <div class="family ctrl">
+      <div class="family-head">Control <span>&ndash; when, and how many times</span></div>
+      <div class="family-blocks"><x-blk>repeat [10] times</x-blk> <x-blk>forever</x-blk> <x-blk>wait [1] seconds</x-blk> <x-blk>when an object says [hello]</x-blk> <x-blk>duplicate [4] ft away</x-blk></div>
+    </div>
+    <div class="family motion">
+      <div class="family-head">Motion <span>&ndash; moving and turning</span></div>
+      <div class="family-blocks"><x-blk>move forward [2] feet</x-blk> <x-blk>move up by [1] feet</x-blk> <x-blk>glide [10] feet over [2] seconds [smoothly]</x-blk> <x-blk>rotate [15] degrees</x-blk> <x-blk>go back to start</x-blk></div>
+    </div>
+    <div class="family look">
+      <div class="family-head">Look <span>&ndash; talking, size, colour and drawing</span></div>
+      <div class="family-blocks"><x-blk>say [Hello!]</x-blk> <x-blk>change size by [10] %</x-blk> <x-blk>set opacity to [50] %</x-blk> <x-blk>change color to [#e0455f]</x-blk> <x-blk>marker down</x-blk></div>
+    </div>
+    <div class="read-block">
+      <div class="rb-label rb-left">The words say what it does &rarr;</div>
+      <div class="rb-chip"><x-blk>move forward [2] feet</x-blk></div>
+      <div class="rb-label rb-right">&larr; The white box is yours to change</div>
+    </div>
+    <x-box kind="fact">The blocks in this book are printed in Edusim's own colours, so the orange block on the page is the orange block on your screen. All 20 are on pages <span data-page-of="blocks"></span>&ndash;<span data-page-of="blocks2"></span>.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p83 · Ch12 · program 1: say hello ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Program 1: Say hello</div>
+    <ol class="steps">
+      <li><b>Find the purple</b> <x-blk>say [Hello!]</x-blk> block in the palette. It's under <b>Look</b>, so scroll down.</li>
+      <li><b>Drag it</b> into the big white space on the right and let go.</li>
+      <li><b>Click the white box</b> inside the block and type <b>Hello!</b></li>
+      <li><b>Click</b> <span class="ui">Save</span>.</li>
+    </ol>
+    <x-code>say [Hello!]</x-code>
+    <x-shot src="program-say" ratio="16x10" pos="center 38%" class="nofill"></x-shot>
+    <p>A speech bubble pops up over your turtle for a few seconds. You've written a program!</p>
+    <x-box kind="try">Open <span class="ui">Program</span> again, change the words, and Save. What's the longest thing your turtle will say?</x-box>
+  </div>
+</section>
+
+<!-- ===================== p84 · Ch12 · program 2: a list of steps ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Program 2: A list of steps</div>
+    <p>Add four more blocks under <b>say</b>. Each block snaps in below the one before it.</p>
+    <div class="row middle">
+      <x-code>say [Hello!]
+        wait [1] seconds
+        move forward [5] feet
+        rotate [180] degrees
+        go back to start</x-code>
+      <table class="ref small">
+        <tr><td>1</td><td>Says hello</td></tr>
+        <tr><td>2</td><td>Waits one second</td></tr>
+        <tr><td>3</td><td>Walks 5 feet forward</td></tr>
+        <tr><td>4</td><td>Turns round</td></tr>
+        <tr><td>5</td><td>Jumps back to where it began</td></tr>
+      </table>
+    </div>
+    <x-shot src="program-hello" ratio="16x10" pos="center 38%" class="nofill">The same program in the editor.</x-shot>
+    <x-box kind="try">Swap the order: put <x-blk>rotate [180] degrees</x-blk> <b>before</b> <x-blk>move forward [5] feet</x-blk>. Now which way does it walk? Order matters.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p85 · Ch12 · editing and the play button ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Changing a program</div>
+    <table class="ref">
+      <tr><td><b>Change a number</b></td><td>Click the white box and type</td></tr>
+      <tr><td><b>Move a block</b></td><td>Drag it up or down the list</td></tr>
+      <tr><td><b>Delete a block</b></td><td>Click the &times; at its right-hand end</td></tr>
+      <tr><td><b>Start again</b></td><td><span class="ui">Clear</span> empties the whole list</td></tr>
+      <tr><td><b>Stop a program</b></td><td><span class="ui">Clear</span>, then <span class="ui">Save</span></td></tr>
+    </table>
+    <x-box kind="watch" title="Save runs it">Nothing happens until you click <span class="ui">Save</span>. <span class="ui">Cancel</span> closes the editor and forgets your changes.</x-box>
+    <div class="section-title"><span class="dot"></span>The green play button</div>
+    <x-shot src="turtle-play" ratio="5x2" pos="center 42%"></x-shot>
+    <p class="small">Once a model has a program, a <b>green play button</b> floats above it. Click it to run the program again from the top, as many times as you like.</p>
+    <x-box kind="fact" title="Programs are saved too">A model's program is saved with your world. Come back tomorrow and it will start running all by itself.</x-box>
+    <x-box kind="unstuck">Has your model wandered off? Put <x-blk>go back to start</x-blk> at the end of your program. It puts the model back where it was, facing the way it faced, at the size it was, when the program began.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p86 · Ch12 · repeat ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Program 3: Do it again with repeat</div>
+    <p><x-blk>repeat [10] times</x-blk> is shaped like a mouth. Whatever you put <b>inside</b> it happens again and again. This turtle jumps, then looks round in four quarter turns:</p>
+    <x-code>move up by [2] feet
+      wait [0.3] seconds
+      move up by [-2] feet
+      repeat [4] times {
+      rotate [90] degrees
+      wait [0.5] seconds
+      }</x-code>
+    <x-shot src="program-loop" ratio="16x10" pos="center 38%" class="nofill">Drop blocks inside the orange jaw of repeat.</x-shot>
+    <x-box kind="try">A minus sign turns a block round: <x-blk>move up by [-2] feet</x-blk> moves <b>down</b>. What does <x-blk>rotate [-90] degrees</x-blk> do?</x-box>
+  </div>
+</section>
+
+<!-- ===================== p87 · Ch12 · forever ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Program 4: Forever</div>
+    <p><x-blk>forever</x-blk> is a repeat that never stops. This one makes your turtle wander about the field all day:</p>
+    <x-code>forever {
+      glide [3] feet over [2] seconds [smoothly]
+      wait [1] seconds
+      rotate [30] degrees
+      }</x-code>
+    <x-shot src="program-wander" ratio="16x10" pos="center 38%" class="nofill">Glide moves a model slowly instead of jumping. You'll use it a lot in Chapter 13.</x-shot>
+    <x-box kind="watch">A forever program really does run forever, even after you close the tab and come back. To stop it, open <span class="ui">Program</span>, click <span class="ui">Clear</span>, then <span class="ui">Save</span>.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p88 · Ch12 · look blocks + your turn ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Program 5: Now you see it</div>
+    <p><x-blk>set opacity to [50] %</x-blk> makes a model see-through. At 100 you can't see through it at all; at 0 it's invisible.</p>
+    <x-code>repeat [3] times {
+      set opacity to [30] %
+      wait [1] seconds
+      set opacity to [100] %
+      wait [1] seconds
+      }</x-code>
+    <x-shot src="turtle-hide" ratio="16x10">The turtle at 30%: half-hidden in the grass.</x-shot>
+    <x-box kind="yourturn" title="Your turn: a breathing turtle">Use <x-blk>forever</x-blk>, <x-blk>change size by [10] %</x-blk>, <x-blk>set size to [100] %</x-blk> and two <x-blk>wait [1] seconds</x-blk> blocks to make your turtle swell up and shrink back, over and over. Hint: <b>set size to 100%</b> puts it back to exactly the size it started.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p89 · Ch13 · Make the train go ===================== -->
+<section class="page p4">
+  <div class="chapter-band"></div>
+  <div class="safe">
+    <div class="chapter-head" id="ch13">
+      <div class="chapter-num">13</div>
+      <div><div class="chapter-kicker">Chapter 13</div><h1>Make the train go</h1></div>
+    </div>
+    <p class="lede" style="margin-top: 0.3in;">Your engine glides along a track, turns corners, draws shapes on the grass, and runs to a timetable.</p>
+    <x-skill kind="orientation"></x-skill>
+    <x-shot src="train-glide" ratio="16x10" pos="55% 55%">The engine halfway through a smooth 20-foot glide.</x-shot>
+    <x-box kind="fact" title="You'll need">The engine you built in Chapter 9, in an open field with room to move. No engine? Every program in this chapter works on any model.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p90 · Ch13 · glide ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Program 6: Glide</div>
+    <p><x-blk>move forward [2] feet</x-blk> jumps there in an instant. A train shouldn't jump: it should roll. That's what <b>glide</b> is for.</p>
+    <x-code>glide [20] feet over [4] seconds [smoothly]</x-code>
+    <x-shot src="program-glide" ratio="16x10" pos="center 38%" class="nofill"></x-shot>
+    <table class="ref">
+      <tr><td><b>smoothly</b></td><td>Speeds up gently and slows down at the end, like a real train.</td></tr>
+      <tr><td><b>straight</b></td><td>The same speed all the way, then a sudden stop.</td></tr>
+      <tr><td><b>bouncy</b></td><td>Overshoots a little and bounces back. Funny on an animal!</td></tr>
+    </table>
+    <x-box kind="try">Keep the 20 feet and change the seconds. 2 seconds is an express train; 10 is a slow goods train.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p91 · Ch13 · turning ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Which way is a turn?</div>
+    <p>Moving always goes <b>forward</b>: the way the model's front is pointing. So to change where it goes, turn it first. Here's what <x-blk>rotate [90] degrees</x-blk> does, looking down from the sky:</p>
+    <div class="turns">
+      <div><svg viewBox="0 0 60 60"><defs><marker id="ta" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#4c97ff"/></marker></defs><circle cx="30" cy="30" r="27" fill="#efe9ff"/><path d="M30 30V11" stroke="#9aa3ad" stroke-width="3" stroke-linecap="round"/><path d="M30 18A12 12 0 0 0 18 30" fill="none" stroke="#4c97ff" stroke-width="2.4" marker-end="url(#ta)"/><path d="M30 30H11" stroke="#1e2a3a" stroke-width="3.2" stroke-linecap="round"/><circle cx="30" cy="30" r="3" fill="#1e2a3a"/></svg><x-blk>rotate [90] degrees</x-blk><span>A quarter turn to the <b>left</b></span></div>
+      <div><svg viewBox="0 0 60 60"><defs><marker id="tb" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#4c97ff"/></marker></defs><circle cx="30" cy="30" r="27" fill="#efe9ff"/><path d="M30 30V11" stroke="#9aa3ad" stroke-width="3" stroke-linecap="round"/><path d="M30 18A12 12 0 0 1 42 30" fill="none" stroke="#4c97ff" stroke-width="2.4" marker-end="url(#tb)"/><path d="M30 30H49" stroke="#1e2a3a" stroke-width="3.2" stroke-linecap="round"/><circle cx="30" cy="30" r="3" fill="#1e2a3a"/></svg><x-blk>rotate [-90] degrees</x-blk><span>A quarter turn to the <b>right</b></span></div>
+      <div><svg viewBox="0 0 60 60"><defs><marker id="tc" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#4c97ff"/></marker></defs><circle cx="30" cy="30" r="27" fill="#efe9ff"/><path d="M30 30V11" stroke="#9aa3ad" stroke-width="3" stroke-linecap="round"/><path d="M30 18A12 12 0 0 0 30 42" fill="none" stroke="#4c97ff" stroke-width="2.4" marker-end="url(#tc)"/><path d="M30 30V49" stroke="#1e2a3a" stroke-width="3.2" stroke-linecap="round"/><circle cx="30" cy="30" r="3" fill="#1e2a3a"/></svg><x-blk>rotate [180] degrees</x-blk><span>Turn right round</span></div>
+      <div><svg viewBox="0 0 60 60"><defs><marker id="td" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#4c97ff"/></marker></defs><circle cx="30" cy="30" r="27" fill="#efe9ff"/><path d="M30 18A12 12 0 1 0 31.5 18.1" fill="none" stroke="#4c97ff" stroke-width="2.4" marker-end="url(#td)"/><path d="M30 30V11" stroke="#1e2a3a" stroke-width="3.2" stroke-linecap="round"/><circle cx="30" cy="30" r="3" fill="#1e2a3a"/></svg><x-blk>rotate [360] degrees</x-blk><span>All the way round, back where it started</span></div>
+    </div>
+    <p class="small soft">Grey: the way it was facing. Black: the way it faces after the turn.</p>
+    <x-box kind="try">Stand up and do it yourself. Face the front of the room and turn 90 degrees to the left. Now 180. Which wall are you facing?</x-box>
+  </div>
+</section>
+
+<!-- ===================== p92 · Ch13 · marker ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title" id="sq"><span class="dot"></span>Program 7: Draw a square</div>
+    <p>The <b>marker</b> blocks give your model a pen. While the marker is down, it leaves a coloured line on the ground wherever it goes.</p>
+    <x-code>marker color [#e0455f]
+      marker down
+      repeat [4] times {
+      glide [20] feet over [4] seconds [smoothly]
+      rotate [90] degrees
+      }</x-code>
+    <x-shot src="program-square" ratio="16x10" pos="center 38%" class="nofill">Click the colour box in marker color to pick the pen's colour.</x-shot>
+    <x-box kind="fact">The marker draws a real 3D tube, three inches thick. You can walk round your drawing and look at it from any side.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p93 · Ch13 · the square ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <x-shot src="train-square" ratio="4x3" pos="center 60%">Four sides, four left turns: the engine ends up exactly where it started.</x-shot>
+    <div class="section-title"><span class="dot"></span>Why it closes</div>
+    <p>Every time the engine reaches a corner it turns 90 degrees. Four corners make 4 &times; 90 = <b>360 degrees</b>: one whole turn. So by the end, it's facing the way it started &ndash; and back where it started.</p>
+    <x-box kind="watch">If the square comes out lopsided, check you put the <b>rotate</b> inside the repeat. Outside it, the engine turns once at the very end instead of at every corner.</x-box>
+    <p class="small">To wipe the drawing away, use <x-blk>erase all marks</x-blk>. It wipes every mark in the world, not just this model's.</p>
+  </div>
+</section>
+
+<!-- ===================== p94 · Ch13 · the 360 rule ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>The 360 rule</div>
+    <p>Any shape with straight, equal sides works the same way. Divide 360 by the number of sides, and that's the turn at each corner.</p>
+    <table class="ref sides">
+      <tr><th>Shape</th><th>Sides</th><th>Repeat</th><th>Turn</th></tr>
+      <tr><td>Triangle</td><td>3</td><td>3 times</td><td>360 &divide; 3 = 120</td></tr>
+      <tr><td>Square</td><td>4</td><td>4 times</td><td>360 &divide; 4 = 90</td></tr>
+      <tr><td>Pentagon</td><td>5</td><td>5 times</td><td>360 &divide; 5 = 72</td></tr>
+      <tr><td>Hexagon</td><td>6</td><td>6 times</td><td>360 &divide; 6 = 60</td></tr>
+      <tr><td>Octagon</td><td>8</td><td>8 times</td><td>360 &divide; 8 = 45</td></tr>
+    </table>
+    <div class="row middle">
+      <x-code>marker color [#8a5cf5]
+        marker down
+        repeat [6] times {
+        glide [12] feet over [1] seconds [smoothly]
+        rotate [60] degrees
+        }
+        marker up</x-code>
+      <x-shot src="train-hexagon" ratio="1x1" pos="58% 55%" class="nofill"></x-shot>
+    </div>
+    <x-box kind="yourturn">How big is the turn for a shape with <b>10</b> sides? With <b>12</b>? With <b>36</b>? Try the last one: what does it look like? <span class="soft">(Answers: 36, 30 and 10 degrees &ndash; and 36 sides is nearly a circle.)</span></x-box>
+    <x-box kind="teacher">This is the exterior-angle theorem, discovered rather than taught: the turns of any closed walk around a convex polygon add up to 360&deg;.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p95 · Ch13 · timetable ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title" id="tt"><span class="dot"></span>Program 8: The timetable</div>
+    <p>Real trains run back and forth between stations all day. This program does the same, forever:</p>
+    <x-code>forever {
+      glide [30] feet over [5] seconds [smoothly]
+      say [All aboard!]
+      wait [3] seconds
+      rotate [180] degrees
+      }</x-code>
+    <x-shot src="program-timetable" ratio="16x10" pos="center 38%" class="nofill"></x-shot>
+    <x-box kind="try">Build a second station 30 feet in front of your engine. Does the train stop right beside it? If it overshoots, change the 30.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p96 · Ch13 · your turn ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <x-box kind="yourturn" title="Your turn: a star">A five-pointed star is five straight lines with a sharp turn of <b>144 degrees</b> at each point. Write the program, using the square on page <span data-page-of="sq"></span> as your guide.</x-box>
+    <div class="star-demo">
+      <svg viewBox="0 0 120 120"><path d="M60 10 89.4 100.5 12.4 44.5H107.6L30.6 100.5Z" fill="none" stroke="#e0455f" stroke-width="3.2" stroke-linejoin="round"/><circle cx="30.6" cy="100.5" r="4" fill="#1e2a3a"/></svg>
+      <p class="small"><b>Hint:</b> 144 is a big turn, more than a right angle. Five turns of 144 add up to 720 &ndash; two whole turns &ndash; which is why the lines cross over each other.</p>
+    </div>
+    <div class="section-title"><span class="dot"></span>More train challenges</div>
+    <div class="challenge-cards">
+      <div class="cc"><span class="cc-n">1</span><b>Initial</b><span>Can your train write the first letter of your name? Try an L or a Z first: they're all straight lines.</span></div>
+      <div class="cc"><span class="cc-n">2</span><b>Racing</b><span>Give two trains the same program but different seconds. Which arrives first?</span></div>
+      <div class="cc"><span class="cc-n">3</span><b>Circle</b><span>What happens if you repeat 36 times: move forward 2 feet, rotate 10 degrees?</span></div>
+      <div class="cc"><span class="cc-n">4</span><b>Spiral</b><span>Draw a square inside a square inside a square.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== p97 · Ch14 · Bring the animal to life ===================== -->
+<section class="page p4">
+  <div class="chapter-band"></div>
+  <div class="safe">
+    <div class="chapter-head" id="ch14">
+      <div class="chapter-num">14</div>
+      <div><div class="chapter-kicker">Chapter 14</div><h1>Bring the animal to life</h1></div>
+    </div>
+    <p class="lede" style="margin-top: 0.3in;">Models can <b>listen</b>. When one says something, another can hear it and answer &ndash; and that's how you make a world where things happen together.</p>
+    <x-shot src="talk-back" ratio="16x10" pos="center 52%">The engine calls "All aboard!" and the turtle answers.</x-shot>
+    <x-box kind="fact">Anything with a program can talk and listen: an engine, an animal, a house, even a light orb.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p98 · Ch14 · when an object says ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Program 9: Listen and answer</div>
+    <p><x-blk>when an object says [hello]</x-blk> waits quietly until another model says those words. Then it runs whatever is inside it.</p>
+    <ol class="steps">
+      <li><b>Program the turtle</b> with this, and Save. Nothing happens yet: it's listening.</li>
+    </ol>
+    <x-code>when an object says [All aboard!] {
+      say [Wait for me!]
+      }</x-code>
+    <ol class="steps" style="--start: 1">
+      <li><b>Program the engine</b> with just this, and Save.</li>
+    </ol>
+    <x-code>say [All aboard!]</x-code>
+    <x-shot src="program-hat" ratio="16x10" pos="center 38%" class="nofill">The turtle's program. The listening block wraps round the answer.</x-shot>
+    <x-box kind="watch" title="Same words, exactly">The words have to match. Capital letters don't matter, but spelling and the <b>!</b> do: <b>All aboard</b> won't hear <b>All aboard!</b></x-box>
+  </div>
+</section>
+
+<!-- ===================== p99 · Ch14 · more listening ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Program 10: A longer answer</div>
+    <p>A listening block can hold a whole program. When the turtle hears the engine, it answers, bounces forward, turns round and says goodbye:</p>
+    <x-code>when an object says [All aboard!] {
+      say [Wait for me!]
+      glide [10] feet over [3] seconds [bouncy]
+      rotate [180] degrees
+      say [Bye!]
+      }</x-code>
+    <x-shot src="opener-4" ratio="16x10" pos="center 70%"></x-shot>
+    <x-box kind="try">The timetable program on page <span data-page-of="tt"></span> already says <b>All aboard!</b> at every stop. Give it to the engine, and the turtle answers every time the train pulls in.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p100 · Ch14 · a chain ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Program 11: A chain reaction</div>
+    <p>A model that hears something can <b>say</b> something too, and another model can be listening for that. Three models make a chain:</p>
+    <div class="chain">
+      <div><b>Engine</b><x-code class="bare">say [All aboard!]</x-code></div>
+      <div class="chain-arrow">&rarr;</div>
+      <div><b>Turtle</b><x-code class="bare">when an object says [All aboard!] {
+        say [Wait for me!]
+        }</x-code></div>
+      <div class="chain-arrow">&rarr;</div>
+      <div><b>Giraffe</b><x-code class="bare">when an object says [Wait for me!] {
+        move up by [1] feet
+        wait [0.3] seconds
+        move up by [-1] feet
+        }</x-code></div>
+    </div>
+    <x-box kind="fact">Listening blocks never start themselves again while they're still running, so two models answering each other can't get stuck shouting forever.</x-box>
+    <x-box kind="teacher">This is <b>event-driven programming</b>, the way apps and games respond to clicks and messages. Ask students to draw the chain as boxes and arrows before they build it.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p101 · Ch14 · your turn ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <x-box kind="yourturn" title="Your turn: an animal show">Build two more animals (Chapter 10 has ideas) and give each one an act. When you say "Showtime!", every animal should start its act.</x-box>
+    <ol class="steps small">
+      <li><b>Program every animal</b> with its act, and Save. They wait, listening.</li>
+      <li><b>Make a light orb</b> and give it the program below. When you Save it, the show starts.</li>
+      <li><b>Click the orb's green play button</b> to run the show again.</li>
+    </ol>
+    <p class="small">How can <b>you</b> say something? Give a light orb a one-block program: <x-blk>say [Showtime!]</x-blk>. Clicking its green play button is your starting whistle.</p>
+    <div class="grid2 small">
+      <div class="idea"><b>The spinner</b><div><x-code class="bare">when an object says [Showtime!] {
+        repeat [8] times {
+        rotate [45] degrees
+        }
+        }</x-code></div></div>
+      <div class="idea"><b>The jumper</b><div><x-code class="bare">when an object says [Showtime!] {
+        repeat [3] times {
+        move up by [3] feet
+        wait [0.3] seconds
+        move up by [-3] feet
+        }
+        }</x-code></div></div>
+      <div class="idea"><b>The grower</b><div><x-code class="bare">when an object says [Showtime!] {
+        change size by [50] %
+        wait [1] seconds
+        set size to [100] %
+        }</x-code></div></div>
+      <div class="idea"><b>The vanisher</b><div><x-code class="bare">when an object says [Showtime!] {
+        set opacity to [0] %
+        wait [2] seconds
+        set opacity to [100] %
+        }</x-code></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== p102 · Ch15 · The living town ===================== -->
+<section class="page p4">
+  <div class="chapter-band"></div>
+  <div class="safe">
+    <div class="chapter-head" id="ch15">
+      <div class="chapter-num">15</div>
+      <div><div class="chapter-kicker">Chapter 15</div><h1>The living town</h1></div>
+    </div>
+    <p class="lede" style="margin-top: 0.3in;">Put everything together: a station, a train on a timetable, a turtle that answers, a street of houses, and lamps that switch on when the sun goes down.</p>
+    <x-shot src="town-day" ratio="16x10" pos="center 52%">The whole town: every model in it was built in this book.</x-shot>
+    <div class="parts">
+      <x-part shape="cylinder" color="#3fb37f">engine and carriage (Ch. 9)</x-part>
+      <x-part shape="sphere" color="#3fb37f">turtle (Ch. 10)</x-part>
+      <x-part shape="cube" color="#e0455f">station (Ch. 11)</x-part>
+      <x-part shape="cube" color="#f2c94c">house (Ch. 11)</x-part>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== p103 · Ch15 · duplicate ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Program 12: Build a street with code</div>
+    <p>Building one house takes a while. Building three more takes one block. <x-blk>duplicate [4] ft away</x-blk> makes a copy of the model, a set distance along.</p>
+    <x-code>repeat [3] times {
+      duplicate [15] ft away
+      }</x-code>
+    <x-shot src="street" ratio="16x10">One house, three copies, 15 feet apart.</x-shot>
+    <x-box kind="watch">Copies get their own copy of the program &ndash; except the duplicate block. If they kept it, every copy would make copies of its own, and your world would fill up in seconds.</x-box>
+    <x-box kind="try">Copies are real models. Click one and give it a different colour or a program of its own.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p104 · Ch15 · when the sun goes down ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="section-title"><span class="dot"></span>Program 13: Street lamps</div>
+    <p><x-blk>when [the sun goes down]</x-blk> listens to the <b>sky</b> instead of to another model.</p>
+    <ol class="steps">
+      <li><b>Make a light orb</b> beside the station: <span class="ui">Create Model &#9656;</span> <span class="ui">Load Object &#9656;</span> <span class="ui">Light Orb</span>.</li>
+      <li><b>Program it</b> with this, and Save.</li>
+    </ol>
+    <x-code>when [the sun goes down] {
+      change color to [#f2c94c]
+      }</x-code>
+    <ol class="steps" style="--start: 2">
+      <li><b>Open</b> <span class="ui">Look Around</span> and drag the <b>Time of day</b> slider towards evening. As the sun sets, the lamp turns warm yellow.</li>
+    </ol>
+    <x-shot src="program-sunset" ratio="16x10" pos="center 38%" class="nofill"></x-shot>
+    <x-box kind="fact">The same block can listen for <b>the sun comes up</b>, <b>it is the middle of the day</b>, <b>it gets dark</b> and <b>this world opens</b>. Click its white box to choose.</x-box>
+  </div>
+</section>
+
+<!-- ===================== p105 · Ch15 · the finished town ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <x-shot src="town-dusk" ratio="16x10" pos="center 55%">Sunset in the living town.</x-shot>
+    <div class="section-title"><span class="dot"></span>Your living town checklist</div>
+    <ul class="ticks big-ticks">
+      <li>A station, built from shapes, with a picture sign.</li>
+      <li>A train that runs to a timetable and says "All aboard!"</li>
+      <li>An animal that answers the train.</li>
+      <li>A street of houses, made with duplicate.</li>
+      <li>Lamps that come on when the sun goes down.</li>
+      <li>Saved as a world file, and sent to a friend (Chapter 7).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===================== p106 · Part 4 skills check ===================== -->
+<section class="page p4">
+  <div class="safe">
+    <div class="chapter-kicker">Part 4</div>
+    <h1>Skills check</h1>
+    <p class="lede">Can you do these without looking back?</p>
+    <ul class="ticks big-ticks">
+      <li>Open the Program editor, add a block and Save.</li>
+      <li>Change a number in a block.</li>
+      <li>Make something happen 4 times with repeat.</li>
+      <li>Stop a forever program.</li>
+      <li>Glide a model smoothly, then turn it left and right.</li>
+      <li>Draw a triangle with the marker.</li>
+      <li>Make one model answer another.</li>
+    </ul>
+    <x-box kind="yourturn" title="Bonus">Write a program that draws the first letter of your name in the air, using <x-blk>move up by [1] feet</x-blk> as well as glide.</x-box>
+    <div class="check-badge" style="margin-top: 0.3in;"><div><small>Part 4</small>Coder</div></div>
+  </div>
+</section>

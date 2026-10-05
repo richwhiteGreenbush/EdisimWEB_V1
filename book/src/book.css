@@ -1,0 +1,675 @@
+/* ===========================================================================
+   The Official Edusim Tutorial & Projects Book, Vol. 1 -- print stylesheet
+
+   KDP paperback, 6 x 9 in trim, full colour, WITH BLEED:
+     every page file is 6.125 x 9.25 in -- 0.125 in of bleed on the top, the bottom
+     and the OUTSIDE edge. The inside (spine) edge has none. So the trim box sits:
+       recto (odd page, right-hand):  x 0      .. 6.0    (bleed on the right)
+       verso (even page, left-hand):  x 0.125  .. 6.125  (bleed on the left)
+     and y 0.125 .. 9.125 on both.
+
+   Margins, measured from the trim: inside (gutter) 0.75, outside 0.5, top 0.6,
+   bottom 0.7. KDP's own minimum for 112 pages is 0.375 gutter and 0.375 outside
+   with bleed, so these carry headroom. Nothing that is TEXT may sit within 0.375 in
+   of a trim edge; colour and pictures that are meant to run off the page must run
+   all the way into the bleed.
+
+   Colours: the four part colours are Edusim's own palette (src/config.js
+   PALETTE_SWATCHES), and the block chips are BlockDefs.js CATEGORIES exactly --
+   the orange chip printed here is the orange block a reader then drags.
+   =========================================================================== */
+
+@import url('../assets/fonts/fonts.css');
+
+@page { size: 6.125in 9.25in; margin: 0; }
+
+:root {
+  --ink: #1e2a3a;
+  --ink-soft: #4a566b;
+  --paper: #ffffff;
+  --cream: #fff9ec;
+  --red: #e0455f;
+  --orange: #f2a541;
+  --yellow: #f2c94c;
+  --green: #3fb37f;
+  --blue: #3d8bf2;
+  --purple: #8a5cf5;
+  --sun: #ffc93c;
+  --denim: #246c9d;
+  /* BlockDefs.js CATEGORIES -- do not retint */
+  --ctrl: #ffab19;
+  --motion: #4c97ff;
+  --look: #9966ff;
+  --part: var(--denim);
+  --tint: #eaf3fb;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; background: #d6d9de; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  font-size: 11pt;
+  line-height: 1.45;
+  color: var(--ink);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* --- the page box ----------------------------------------------------------- */
+
+.page {
+  position: relative;
+  width: 6.125in;
+  height: 9.25in;
+  overflow: hidden;
+  background: var(--paper);
+  break-after: page;
+  page-break-after: always;
+  margin: 0 auto 0.3in;
+}
+
+@media print { .page { margin: 0; } }
+
+.page.recto { --trim-l: 0in; --trim-r: 6in; --safe-l: 0.75in; }
+.page.verso { --trim-l: 0.125in; --trim-r: 6.125in; --safe-l: 0.625in; }
+
+/* Parts colour everything that says where you are. */
+.p0 { --part: var(--denim); --tint: #eaf3fb; --deep: #17496d; }
+.p1 { --part: var(--blue); --tint: #e7f0fe; --deep: #1f5fbf; }
+.p2 { --part: var(--green); --tint: #e4f6ed; --deep: #1d7a52; }
+.p3 { --part: var(--orange); --tint: #fff1dd; --deep: #b5670f; }
+.p4 { --part: var(--purple); --tint: #efe9ff; --deep: #5a33c4; }
+.pb { --part: var(--red); --tint: #fdecef; --deep: #a8283d; }
+
+/* The safe area: everything that is read lives inside it. */
+.safe {
+  position: absolute;
+  left: var(--safe-l);
+  top: 0.725in;
+  width: 4.75in;
+  height: 7.7in;
+  display: flex;
+  flex-direction: column;
+}
+
+.safe.tight { gap: 0; }
+.safe > * + * { margin-top: 0.12in; }
+.safe > .push { margin-top: auto; }
+
+/* Folio: page number and part name, in the bottom margin, outside corner. */
+.folio {
+  position: absolute;
+  top: 8.5in;
+  height: 0.22in;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
+  font-size: 8pt;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  gap: 0.08in;
+  white-space: nowrap;
+}
+
+.recto .folio { right: calc(6.125in - 5.5in); flex-direction: row-reverse; }
+.verso .folio { left: 0.625in; }
+
+.folio .num {
+  display: inline-grid;
+  place-items: center;
+  min-width: 0.24in;
+  height: 0.22in;
+  padding: 0 0.05in;
+  border-radius: 0.11in;
+  background: var(--part);
+  color: #fff;
+  font-size: 8.5pt;
+}
+
+.no-folio .folio { display: none; }
+
+/* The part tab: a block of colour bleeding off the outside edge, so a closed book
+   shows four coloured stripes down its fore-edge. No text -- text must not sit
+   within 0.375 in of the trim. */
+.tab {
+  position: absolute;
+  width: 0.3in;
+  height: 1.15in;
+  background: var(--part);
+}
+
+.recto .tab { right: 0; border-radius: 0.08in 0 0 0.08in; }
+.verso .tab { left: 0; border-radius: 0 0.08in 0.08in 0; }
+.p1 .tab { top: 1.45in; }
+.p2 .tab { top: 2.75in; }
+.p3 .tab { top: 4.05in; }
+.p4 .tab { top: 5.35in; }
+
+/* --- type ----------------------------------------------------------------- */
+
+h1, h2, h3, h4 { font-family: 'Fredoka', sans-serif; font-weight: 600; margin: 0; line-height: 1.12; }
+h1 { font-size: 25pt; }
+h2 { font-size: 15pt; color: var(--deep); }
+h3 { font-size: 12pt; }
+p { margin: 0; }
+p + p { margin-top: 0.08in; }
+b, strong { font-weight: 800; }
+em { font-style: italic; }
+
+.lede { font-size: 13pt; line-height: 1.4; }
+.small { font-size: 9.8pt; line-height: 1.38; }
+.tiny { font-size: 7.5pt; line-height: 1.3; color: var(--ink-soft); }
+.soft { color: var(--ink-soft); }
+.center { text-align: center; }
+.ui { font-family: 'Fredoka', sans-serif; font-weight: 600; background: #eef1f6; border: 0.6pt solid #c9d0db; border-radius: 3pt; padding: 0 0.04in; white-space: nowrap; font-size: 0.95em; }
+.addr { font-family: 'Fredoka', sans-serif; font-weight: 600; color: var(--deep); white-space: nowrap; }
+.key { display: inline-block; min-width: 0.2in; padding: 0 0.04in; border: 0.8pt solid var(--ink); border-bottom-width: 2pt; border-radius: 3pt; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.9em; text-align: center; background: #fff; }
+
+/* --- chapter heads ----------------------------------------------------------- */
+
+.chapter-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2.05in;
+  background: var(--tint);
+}
+
+.chapter-band::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -0.12in;
+  height: 0.24in;
+  background:
+    radial-gradient(circle at 0.12in 0, var(--tint) 0.12in, transparent 0.125in) 0 0 / 0.24in 0.24in repeat-x;
+}
+
+.chapter-head { position: relative; display: flex; align-items: center; gap: 0.16in; }
+
+.chapter-num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 0.78in;
+  height: 0.78in;
+  border-radius: 0.2in;
+  background: var(--part);
+  color: #fff;
+  font-family: 'Gluten', sans-serif;
+  font-weight: 800;
+  font-size: 30pt;
+  border: 2pt solid var(--ink);
+  box-shadow: 3pt 3pt 0 var(--ink);
+  transform: rotate(-5deg);
+}
+
+.chapter-kicker {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
+  font-size: 9pt;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--deep);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.08in;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
+  font-size: 15pt;
+  color: var(--deep);
+}
+
+.section-title .dot {
+  width: 0.14in; height: 0.14in; border-radius: 50%;
+  background: var(--part); border: 1.2pt solid var(--ink);
+}
+
+/* --- pictures ---------------------------------------------------------------- */
+
+.shot {
+  position: relative;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05in;
+}
+
+.shot .frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 7pt;
+  border: 1.4pt solid var(--ink);
+  box-shadow: 3pt 3pt 0 var(--part);
+  background: #cfe3f3;
+}
+
+.shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.shot figcaption { font-size: 8.5pt; line-height: 1.3; color: var(--ink-soft); font-style: italic; }
+.shot.a16x10 .frame { aspect-ratio: 16 / 10; }
+.shot.a4x3 .frame { aspect-ratio: 4 / 3; }
+.shot.a1x1 .frame { aspect-ratio: 1; }
+.shot.a3x2 .frame { aspect-ratio: 3 / 2; }
+.shot.a2x1 .frame { aspect-ratio: 2 / 1; }
+.shot.a5x2 .frame { aspect-ratio: 5 / 2; }
+.shot.a3x1 .frame { aspect-ratio: 3 / 1; }
+.shot.tall .frame { aspect-ratio: 3 / 4; }
+
+.row { display: flex; gap: 0.14in; align-items: flex-start; }
+.row > * { flex: 1 1 0; min-width: 0; }
+.row.middle { align-items: center; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.16in 0.14in; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.12in; }
+
+/* A full-bleed picture: runs into the bleed on every side. */
+.bleed { position: absolute; inset: 0; }
+.bleed img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Numbered callouts laid over a screenshot. */
+.callout {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 0.26in;
+  height: 0.26in;
+  border-radius: 50%;
+  background: var(--sun);
+  border: 1.5pt solid var(--ink);
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: 10pt;
+  transform: translate(-50%, -50%);
+}
+
+.legend { list-style: none; margin: 0.08in 0 0 !important; padding: 0; display: grid; gap: 0.08in; }
+.legend li { display: grid; grid-template-columns: 0.3in 1fr; align-items: start; }
+.legend .callout { position: static; transform: none; }
+
+/* --- steps ------------------------------------------------------------------- */
+
+ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: step var(--start, 0); display: grid; gap: 0.1in; }
+ol.steps > li { counter-increment: step; position: relative; padding-left: 0.42in; min-height: 0.3in; }
+ol.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: -0.02in;
+  display: grid;
+  place-items: center;
+  width: 0.3in;
+  height: 0.3in;
+  border-radius: 50%;
+  background: var(--part);
+  color: #fff;
+  border: 1.4pt solid var(--ink);
+  font-family: 'Gluten', sans-serif;
+  font-weight: 800;
+  font-size: 12pt;
+  line-height: 1;
+  padding-top: 2pt;
+}
+
+ol.steps > li > b:first-child { font-family: 'Fredoka', sans-serif; font-weight: 600; }
+
+ul.ticks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.06in; }
+ul.ticks li { position: relative; padding-left: 0.26in; }
+ul.ticks li::before {
+  content: '';
+  position: absolute; left: 0; top: 0.03in;
+  width: 0.15in; height: 0.15in;
+  border: 1.3pt solid var(--ink);
+  border-radius: 3pt;
+  background: #fff;
+}
+
+ul.dots { margin: 0; padding-left: 0.18in; display: grid; gap: 0.04in; }
+ul.dots li::marker { color: var(--part); }
+
+/* --- the recurring boxes (see How to use this book) ------------------------- */
+
+.box {
+  position: relative;
+  border-radius: 8pt;
+  padding: 0.1in 0.14in 0.11in;
+  border: 1.4pt solid var(--ink);
+  font-size: 10pt;
+  line-height: 1.4;
+}
+
+.box > .box-title { display: flex; align-items: center; gap: 0.06in; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 11pt; margin-bottom: 0.03in; }
+.box-icon { display: inline-grid; place-items: center; width: 0.22in; height: 0.22in; border-radius: 50%; border: 1.2pt solid var(--ink); font-size: 9pt; font-weight: 800; background: #fff; }
+
+.try { background: #fff4cc; border-color: #c99a00; }
+.try .box-icon { background: var(--sun); }
+.watch { background: #fdecef; border-color: var(--red); }
+.watch .box-icon { background: var(--red); color: #fff; }
+.yourturn { background: #fff; border: 1.6pt dashed var(--ink); }
+.yourturn .box-icon { background: var(--part); color: #fff; }
+.teacher { background: #eaf3fb; border: none; border-left: 4pt solid var(--denim); border-radius: 0 6pt 6pt 0; font-size: 8.5pt; }
+.teacher .box-title { color: var(--denim); font-size: 9.5pt; }
+.unstuck { background: var(--tint); border-color: var(--part); }
+.fact { background: var(--cream); border-color: var(--orange); }
+
+/* --- spatial skill badge ----------------------------------------------------- */
+
+.skill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.06in;
+  align-self: flex-start;
+  padding: 0.03in 0.12in 0.03in 0.04in;
+  border-radius: 999px;
+  border: 1.4pt solid var(--part);
+  background: #fff;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
+  font-size: 9pt;
+  color: var(--ink);
+}
+
+.skill svg { width: 0.24in; height: 0.24in; }
+
+/* --- block chips: the program, printed in the app's own colours ------------- */
+
+.code { display: flex; flex-direction: column; align-items: flex-start; gap: 3pt; padding: 0.1in 0.12in; background: #f4f6fa; border: 1pt dashed #b9c2d0; border-radius: 8pt; }
+.code.bare { background: none; border: none; padding: 0; }
+
+.blk {
+  display: inline-flex;
+  align-items: center;
+  gap: 4pt;
+  padding: 3.2pt 8pt 3.6pt;
+  border-radius: 6pt;
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 9pt;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: inset 0 -1.6pt 0 rgba(0, 0, 0, 0.18);
+  text-shadow: 0 0.6pt 0 rgba(0, 0, 0, 0.18);
+}
+
+.blk.ctrl { background: var(--ctrl); }
+.blk.motion { background: var(--motion); }
+.blk.look { background: var(--look); }
+.blk i { font-style: normal; background: #fff; color: #2a2f36; border-radius: 999px; padding: 0 5pt; text-shadow: none; font-weight: 800; }
+.blk i.swatch { width: 14pt; height: 9pt; padding: 0; border-radius: 3pt; border: 1pt solid #fff; }
+.blk.hat { border-radius: 10pt 10pt 6pt 6pt; padding-top: 4.5pt; }
+
+/* A C-block: the bar, a spine down the left, the children indented, and a foot. */
+.cblk { display: flex; flex-direction: column; align-items: flex-start; }
+.cblk > .blk { border-bottom-left-radius: 0; }
+.cblk > .inner { display: flex; flex-direction: column; align-items: flex-start; gap: 3pt; padding: 3pt 0 3pt 10pt; border-left: 10pt solid var(--c); margin-top: -1pt; }
+.cblk > .foot { width: 42pt; height: 9pt; background: var(--c); border-radius: 0 0 6pt 6pt; border-top-left-radius: 0; margin-top: -1pt; }
+.cblk.ctrl { --c: var(--ctrl); }
+
+/* --- parts list ------------------------------------------------------------- */
+
+.parts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.05in 0.12in; font-size: 9pt; }
+.part { display: flex; align-items: center; gap: 0.07in; }
+.part svg { flex: none; width: 0.3in; height: 0.3in; }
+.part .n { font-family: 'Fredoka', sans-serif; font-weight: 700; }
+
+/* --- part openers ------------------------------------------------------------ */
+
+.opener .bleed img { object-position: center 70%; }
+.opener .veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.92) 26%, rgba(255, 255, 255, 0.55) 36%, rgba(255, 255, 255, 0) 47%); }
+.opener .title-block { position: absolute; left: var(--safe-l); top: 0.8in; width: 4.75in; }
+.opener .part-label { display: inline-block; padding: 0.05in 0.16in; border-radius: 999px; background: var(--part); color: #fff; border: 1.6pt solid var(--ink); box-shadow: 3pt 3pt 0 var(--ink); font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 12pt; letter-spacing: 0.06em; text-transform: uppercase; transform: rotate(-3deg); }
+.opener h1 { margin-top: 0.16in; font-family: 'Gluten', sans-serif; font-weight: 800; font-size: 40pt; line-height: 1.02; color: var(--ink); }
+.opener .sub { margin-top: 0.1in; font-size: 12.5pt; font-weight: 700; color: var(--ink); max-width: 4.2in; }
+.opener .chapters { position: absolute; left: var(--safe-l); bottom: 0.95in; width: 4.75in; display: grid; gap: 0.06in; }
+.opener .chapters div { display: flex; align-items: center; gap: 0.1in; padding: 0.06in 0.12in; border-radius: 8pt; background: rgba(255, 255, 255, 0.92); border: 1.4pt solid var(--ink); font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 11pt; }
+.opener .chapters span { display: inline-grid; place-items: center; width: 0.26in; height: 0.26in; border-radius: 50%; background: var(--part); color: #fff; font-family: 'Gluten', sans-serif; font-weight: 800; font-size: 10pt; border: 1.2pt solid var(--ink); }
+
+/* --- skills check ------------------------------------------------------------ */
+
+.check-badge {
+  align-self: center;
+  display: grid;
+  place-items: center;
+  width: 1.7in;
+  height: 1.7in;
+  border-radius: 50%;
+  background: var(--part);
+  border: 2.5pt solid var(--ink);
+  box-shadow: 4pt 4pt 0 var(--ink);
+  color: #fff;
+  text-align: center;
+  font-family: 'Gluten', sans-serif;
+  font-weight: 800;
+  font-size: 17pt;
+  line-height: 1.05;
+  transform: rotate(-6deg);
+}
+
+.check-badge small { display: block; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* --- number cards (research) ------------------------------------------------ */
+
+.stat { border: 1.5pt solid var(--ink); border-radius: 9pt; background: #fff; padding: 0.1in 0.12in; box-shadow: 3pt 3pt 0 var(--c, var(--part)); }
+.stat .big { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22pt; color: var(--ink); line-height: 1; }
+.stat .what { font-weight: 800; font-size: 9.5pt; margin-top: 0.04in; }
+.stat .src { font-size: 7.5pt; color: var(--ink-soft); margin-top: 0.03in; }
+
+/* --- tables ------------------------------------------------------------------ */
+
+table.ref { width: 100%; border-collapse: collapse; font-size: 8.8pt; line-height: 1.3; }
+table.ref th { text-align: left; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 9pt; color: var(--deep); padding: 0.03in 0.06in; border-bottom: 1.4pt solid var(--ink); }
+table.ref td { padding: 0.04in 0.06in; border-bottom: 0.6pt solid #d4dae3; vertical-align: top; }
+table.ref td:first-child { white-space: nowrap; }
+
+/* --- decorative shapes ---------------------------------------------------------- */
+
+.deco { position: absolute; pointer-events: none; }
+
+/* --- title page ------------------------------------------------------------------ */
+
+.wordmark {
+  position: relative;
+  font-family: 'Gluten', sans-serif;
+  font-weight: 800;
+  font-size: 66pt;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: #ef8524;
+  -webkit-text-stroke: 0;
+  text-shadow:
+    0 0 0 #fdf0d8,
+    2.2pt 0 0 #fdf0d8, -2.2pt 0 0 #fdf0d8, 0 2.2pt 0 #fdf0d8, 0 -2.2pt 0 #fdf0d8,
+    1.6pt 1.6pt 0 #fdf0d8, -1.6pt 1.6pt 0 #fdf0d8, 1.6pt -1.6pt 0 #fdf0d8, -1.6pt -1.6pt 0 #fdf0d8,
+    0 4pt 0 rgba(16, 52, 82, 0.28);
+}
+
+.title-main { margin-top: 0.22in !important; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 21pt; line-height: 1.15; color: var(--ink); }
+.title-vol { display: inline-block; align-self: center; margin-top: 0.12in !important; padding: 0.04in 0.22in; border-radius: 999px; background: var(--red); color: #fff; border: 1.6pt solid var(--ink); box-shadow: 3pt 3pt 0 var(--ink); font-family: 'Gluten', sans-serif; font-weight: 800; font-size: 16pt; transform: rotate(-3deg); }
+.title-tag { margin-top: 0.16in !important; font-family: 'Gluten', sans-serif; font-weight: 700; font-size: 13pt; color: var(--ink); }
+.title-shot { width: 4.4in; align-self: center; margin-top: 0.35in !important; }
+.title-shot .frame { border-width: 2pt; box-shadow: 5pt 5pt 0 var(--ink); border-radius: 12pt; }
+.title-foot { margin-top: auto !important; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 11pt; color: var(--ink); }
+
+.deco.sun { width: 0.85in; height: 0.85in; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #fff8d6 0%, #ffd95a 46%, #ffb627 100%); box-shadow: 0 0 0 7pt rgba(255, 214, 90, 0.3), 0 0 0 15pt rgba(255, 214, 90, 0.14); }
+.deco.cloud { width: 1.25in; height: 0.36in; border-radius: 999px; background: #fff; }
+.deco.cloud::before, .deco.cloud::after { content: ''; position: absolute; border-radius: 50%; background: #fff; }
+.deco.cloud::before { width: 0.55in; height: 0.55in; top: -0.27in; left: 0.18in; }
+.deco.cloud::after { width: 0.42in; height: 0.42in; top: -0.19in; left: 0.62in; }
+.deco.cloud.small { transform: scale(0.7); }
+
+/* --- contents ------------------------------------------------------------------- */
+
+.toc { display: grid; gap: 0.025in; font-size: 10.5pt; }
+.toc-part { display: flex; align-items: center; gap: 0.1in; margin-top: 0.1in; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 12pt; color: var(--deep); }
+.toc-tab { width: 0.32in; height: 0.16in; border-radius: 3pt; background: var(--part); border: 1.2pt solid var(--ink); }
+.toc-line { display: flex; align-items: baseline; gap: 0.1in; padding-left: 0.42in; }
+.toc-line span { width: 0.22in; font-family: 'Fredoka', sans-serif; font-weight: 700; color: var(--ink-soft); }
+.toc-line i { margin-left: auto; font-style: normal; font-family: 'Fredoka', sans-serif; font-weight: 600; }
+.toc-line::after { content: ''; order: 2; }
+
+/* --- how to use ----------------------------------------------------------------- */
+
+.parts-key { display: grid; gap: 0.07in; }
+.pk { display: grid; grid-template-columns: 0.32in 1fr; column-gap: 0.12in; align-items: start; font-size: 9.5pt; }
+.pk::before { content: ''; grid-row: span 2; width: 0.32in; height: 0.42in; border-radius: 4pt; background: var(--part); border: 1.2pt solid var(--ink); }
+.pk b { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 10.5pt; color: var(--deep); }
+.key-grid { display: grid; gap: 0.12in; }
+.key-row { display: grid; grid-template-columns: 1.55in 1fr; gap: 0.12in; align-items: center; font-size: 9.5pt; }
+.key-demo .code { font-size: 7.6pt; }
+.key-demo .code .blk { font-size: 7.6pt; }
+.key-demo { display: flex; justify-content: flex-start; }
+.key-demo ol.steps li { min-height: 0.3in; padding-left: 0.3in; }
+
+/* --- before you start ---------------------------------------------------------------- */
+
+.address-card { border-radius: 10pt; background: var(--denim); border: 1.6pt solid var(--ink); box-shadow: 3pt 3pt 0 var(--sun); padding: 0.1in 0.16in 0.12in; text-align: center; }
+.address-big { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22pt; color: #fff; }
+
+/* --- part 1 pieces ------------------------------------------------------------------- */
+
+.three-dos { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.12in; }
+.do { display: flex; flex-direction: column; gap: 0.04in; padding: 0.1in; border-radius: 9pt; border: 1.4pt solid var(--ink); box-shadow: 3pt 3pt 0 var(--c); background: #fff; font-size: 9pt; line-height: 1.35; }
+.do b { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 11.5pt; }
+.do-icon { height: 0.5in; display: flex; align-items: center; }
+
+.skill-cards { display: grid; gap: 0.14in; }
+.skill-card { display: grid; gap: 0.06in; padding: 0.12in 0.14in; border-radius: 10pt; background: var(--tint); border: 1.4pt solid var(--ink); }
+.skill-card .skill { font-size: 11pt; }
+.skill-card .skill svg { width: 0.34in; height: 0.34in; }
+
+.arrow-keys { display: flex; gap: 0.2in; align-items: center; padding: 0.1in 0.14in; border-radius: 10pt; background: var(--tint); }
+.ak-grid { display: grid; grid-template-columns: repeat(3, 0.36in); gap: 0.05in; }
+.key.big { min-width: 0.36in; height: 0.34in; display: grid; place-items: center; font-size: 13pt; }
+
+.bars { display: grid; gap: 0.1in; padding: 0.12in 0.14in; border-radius: 10pt; background: #f6f8fb; border: 1pt solid #d4dae3; }
+.bar-row { display: grid; grid-template-columns: 1.55in 1fr; align-items: center; gap: 0.1in; font-size: 9.5pt; }
+.bar-track { position: relative; height: 0.32in; }
+.bar-row .bar { position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: flex-end; height: 0.3in; padding-right: 0.06in; border-radius: 0 6pt 6pt 0; background: var(--c); border: 1.2pt solid var(--ink); color: #fff; font-family: 'Fredoka', sans-serif; font-size: 10pt; }
+.bar-scale { display: grid; grid-template-columns: 1.55in 1fr; gap: 0.1in; font-size: 7.5pt; color: var(--ink-soft); }
+.bar-scale .ticks { position: relative; height: 0.3in; border-top: 0.8pt solid var(--ink-soft); }
+.bar-scale .ticks span { position: absolute; top: 0; transform: translateX(-50%); text-align: center; line-height: 1.15; padding-top: 0.05in; }
+.bar-scale .ticks span::before { content: ''; position: absolute; top: -0.05in; left: 50%; height: 0.08in; border-left: 0.8pt solid var(--ink-soft); }
+.bars .grid-line { position: absolute; top: 0; bottom: 0; border-left: 0.8pt dashed #b7c0cc; }
+
+table.ref.rate td:not(:first-child) { width: 0.85in; border-left: 0.6pt solid #d4dae3; }
+table.ref.rate td { height: 0.36in; }
+
+ul.ticks.big-ticks { gap: 0.12in; font-size: 11pt; }
+ul.ticks.big-ticks li { padding-left: 0.36in; }
+ul.ticks.big-ticks li::before { width: 0.22in; height: 0.22in; top: 0; }
+
+/* --- part 2 pieces ------------------------------------------------------------------ */
+.hunt > div { display: flex; flex-direction: column; gap: 0.07in; }
+.idea { display: flex; flex-direction: column; gap: 0.03in; padding: 0.09in 0.11in; border-radius: 8pt; background: var(--tint); border: 1.2pt solid var(--ink); }
+.idea b { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 11pt; color: var(--deep); }
+
+/* ---- Part 3 --------------------------------------------------------------------- */
+.shape-names { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.08in; text-align: center; }
+.shape-names > div { display: flex; flex-direction: column; align-items: center; gap: 0.03in; padding: 0.08in 0.04in; border-radius: 8pt; background: var(--tint); border: 1.2pt solid var(--ink); }
+.shape-names b { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 10pt; color: var(--deep); }
+.shape-names span:last-child { font-size: 8pt; line-height: 1.25; color: var(--ink-soft); }
+.challenge-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.14in 0.14in; }
+.cc { position: relative; display: flex; flex-direction: column; gap: 0.04in; padding: 0.14in 0.12in 0.12in 0.12in; min-height: 1.75in; border-radius: 10pt; background: #fff; border: 1.5pt solid var(--ink); box-shadow: 3pt 3pt 0 var(--part); font-size: 9.4pt; line-height: 1.35; }
+.cc:nth-child(3n+2) { box-shadow: 3pt 3pt 0 var(--blue); }
+.cc:nth-child(3n) { box-shadow: 3pt 3pt 0 var(--green); }
+.cc b { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 12pt; color: var(--deep); }
+.cc-n { position: absolute; top: -0.1in; right: 0.1in; display: grid; place-items: center; width: 0.3in; height: 0.3in; border-radius: 50%; background: var(--sun); border: 1.3pt solid var(--ink); font-family: 'Gluten', sans-serif; font-weight: 800; font-size: 11pt; }
+.sketch-box { flex: 1 1 auto; min-height: 2.6in; margin: 0.12in 0; border: 1.6pt dashed var(--part); border-radius: 12pt; background:
+  radial-gradient(circle, #d4dae3 0.6pt, transparent 0.8pt) 0 0 / 0.2in 0.2in; display: flex; align-items: flex-end; justify-content: flex-end; padding: 0.08in 0.12in; }
+.sketch-box span { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 9pt; color: var(--ink-soft); }
+table.ref.plan td { height: 0.32in; }
+table.ref.plan td:not(:first-child) { border-left: 0.6pt solid #d4dae3; }
+
+/* A page's main picture grows into the page's spare room (see book.js). Capped so a
+   landscape screenshot is never cropped narrower than roughly 1.15 : 1. */
+.shot.fill { flex-grow: 1; max-height: 4.15in; }
+.shot.fill .frame { flex-grow: 1; min-height: 0; }
+/* Absolutely placed so the file's own shape never sets the frame's starting height:
+   the ratio the page asked for does, and flex-grow only ever adds to it. */
+.shot.fill .frame img { position: absolute; inset: 0; }
+.shot.fill:not(:has(figcaption)) { max-height: 4.0in; }
+
+/* ---- Part 4 --------------------------------------------------------------------- */
+.family { border: 1.4pt solid var(--ink); border-radius: 9pt; padding: 0.08in 0.1in 0.1in; background: #fff; box-shadow: 3pt 3pt 0 var(--c); }
+.family.ctrl { --c: var(--ctrl); }
+.family.motion { --c: var(--motion); }
+.family.look { --c: var(--look); }
+.family-head { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 12pt; color: var(--ink); margin-bottom: 0.05in; }
+.family-head::before { content: ''; display: inline-block; width: 0.16in; height: 0.16in; border-radius: 4pt; background: var(--c); border: 1.2pt solid var(--ink); margin-right: 0.07in; vertical-align: -2pt; }
+.family-head span { font-family: 'Nunito', sans-serif; font-weight: 600; font-size: 9pt; color: var(--ink-soft); }
+.family-blocks { display: flex; flex-wrap: wrap; gap: 4pt 5pt; }
+.play-demo { flex: 0 0 0.9in !important; display: grid; place-items: center; height: 0.9in; border-radius: 50%; background: #3fb37f; border: 2pt solid #fff; box-shadow: 0 0 0 1.4pt var(--ink), 3pt 3pt 0 1.4pt var(--part); }
+.play-demo span { color: #fff; font-size: 30pt; line-height: 1; margin-left: 5pt; }
+.turns { display: grid; grid-template-columns: 1fr 1fr; gap: 0.12in; }
+.turns > div { display: flex; flex-direction: column; align-items: center; gap: 0.05in; padding: 0.08in; border-radius: 9pt; border: 1.2pt solid var(--ink); background: #fff; text-align: center; font-size: 9pt; line-height: 1.3; }
+.turns svg { width: 1.05in; height: 1.05in; }
+.star-demo { display: flex; align-items: center; gap: 0.16in; }
+.star-demo svg { flex: none; width: 1.3in; height: 1.3in; }
+.chain { display: flex; flex-direction: column; align-items: stretch; gap: 0.04in; }
+.chain > div:not(.chain-arrow) { display: flex; flex-direction: column; gap: 0.05in; padding: 0.08in 0.1in; border-radius: 9pt; border: 1.2pt solid var(--ink); background: var(--tint); }
+.chain > div b { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 11pt; color: var(--deep); }
+.chain-arrow { align-self: center; transform: rotate(90deg); font-size: 16pt; font-weight: 900; color: var(--part); line-height: 1; }
+table.ref.sides td, table.ref.sides th { text-align: center; }
+table.ref.sides td:first-child, table.ref.sides th:first-child { text-align: left; }
+
+/* ---- back matter ------------------------------------------------------------------ */
+table.ref.next-worlds td { vertical-align: middle; }
+table.ref.next-worlds td.addr { white-space: nowrap; font-size: 8.4pt; }
+.block-fam { margin-top: 0.16in !important; }
+.block-fam.ctrl { --c: var(--ctrl); }
+.block-fam.motion { --c: var(--motion); }
+.block-fam.look { --c: var(--look); }
+table.ref.blocks td { vertical-align: middle; padding-top: 0.05in; padding-bottom: 0.05in; }
+table.ref.blocks td:first-child { width: 1%; white-space: nowrap; padding-right: 0.12in; }
+ol.mini { margin: 0.03in 0 0; padding-left: 0.2in; display: grid; gap: 0.03in; }
+.menu-map { display: grid; gap: 0.05in; }
+.menu-map > div { padding: 0.05in 0.08in; border-left: 3pt solid var(--part); background: var(--tint); border-radius: 0 6pt 6pt 0; line-height: 1.45; }
+dl.glossary { display: grid; grid-template-columns: 1.25in 1fr; gap: 0.07in 0.12in; margin: 0.06in 0 0; font-size: 9.6pt; line-height: 1.35; }
+dl.glossary dt { font-family: 'Fredoka', sans-serif; font-weight: 700; color: var(--deep); }
+dl.glossary dd { margin: 0; padding-bottom: 0.07in; border-bottom: 0.6pt solid #d4dae3; }
+table.ref.plan-time td:first-child { white-space: nowrap; }
+.address-card.small-card { padding: 0.1in 0.14in; }
+.address-card.small-card .tiny { color: #fff; letter-spacing: 0.08em; text-transform: uppercase; }
+.address-card.small-card .addr { color: #fff; font-size: 9pt; }
+
+/* ---- puzzles, goals, answers ------------------------------------------------------ */
+.puzzle { border: 1.5pt solid var(--ink); border-radius: 10pt; padding: 0.1in 0.12in 0.12in; background: #fff; box-shadow: 3pt 3pt 0 var(--sun); }
+.puzzle-head { font-size: 9.8pt; line-height: 1.38; }
+.pz-n { display: inline-block; margin-right: 0.07in; padding: 0.01in 0.09in; border-radius: 999px; background: var(--sun); border: 1.2pt solid var(--ink); font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 9pt; }
+.pz-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 0.08in; margin-top: 0.08in; }
+.pz-row svg { display: block; width: 0.66in; height: auto; }
+.pz-target { padding: 0.05in; border-radius: 8pt; background: var(--tint); border: 1.2pt dashed var(--part); }
+.pz-target svg { width: 0.72in; }
+.pz-opt { display: flex; flex-direction: column; align-items: center; gap: 0.03in; }
+.pz-opt b { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 11pt; }
+.pz-row.nets svg { width: 0.78in; }
+.goal { border: 1.4pt solid var(--ink); border-radius: 10pt; padding: 0.1in 0.14in; background: var(--tint); }
+.goal b { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 11pt; color: var(--deep); }
+.goal .lines span { display: block; height: 0.34in; border-bottom: 1pt solid #9aa3ad; }
+.answers { transform: rotate(180deg); font-size: 8.4pt; line-height: 1.35; color: var(--ink-soft); padding: 0.07in 0.1in; border-top: 1pt dashed #b9c2d0; border-bottom: 1pt dashed #b9c2d0; }
+.journey { display: flex; align-items: center; justify-content: space-between; gap: 0.06in; }
+.j-step { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 0.04in; text-align: center; padding: 0.1in 0.06in; border-radius: 10pt; border: 1.3pt solid var(--ink); background: var(--tint); font-size: 8.4pt; line-height: 1.3; }
+.j-step svg { width: 0.62in; height: 0.5in; }
+.j-step b { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 10pt; color: var(--deep); }
+.j-arrow { flex: none; font-size: 18pt; font-weight: 900; color: var(--part); }
+.morph { display: flex; align-items: center; justify-content: space-between; gap: 0.04in; padding: 0.08in 0.1in; border-radius: 10pt; background: var(--tint); border: 1.2pt solid var(--ink); }
+.morph-step { display: flex; flex-direction: column; align-items: center; gap: 0.02in; font-size: 8.4pt; font-weight: 700; }
+.morph-step svg { width: 0.95in; height: 0.7in; }
+.read-block { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.1in; padding: 0.14in 0.06in; border-radius: 10pt; border: 1.2pt dashed var(--part); }
+.rb-chip { font-size: 15pt; }
+.rb-chip .blk { font-size: 13pt; padding: 5pt 10pt; }
+.rb-label { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 9pt; line-height: 1.2; color: var(--deep); }
+.rb-left { text-align: right; }
+
+/* Decorations are flat-filled SVG, never CSS gradients: some PDF renderers draw a hard-stop
+   gradient as stripes, and print RIPs are the least forgiving of them all. Likewise no
+   text-shadow in this book has a blur radius. */
+.flat-shape svg { display: block; width: 100%; height: auto; }
+
+/* Drawn symbols (see book.js GLYPH): sized and seated like a letter. */
+svg.g { display: inline-block; width: 0.78em; height: 0.78em; vertical-align: -0.08em; }
+.box-icon svg.g { width: 0.85em; height: 0.85em; vertical-align: 0; }
