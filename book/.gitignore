@@ -1,0 +1,4 @@
+node_modules/
+dist/
+# Built from assets/shots by tools/build.mjs on every build.
+assets/print/

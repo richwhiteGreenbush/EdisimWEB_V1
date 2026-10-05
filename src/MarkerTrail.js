@@ -52,14 +52,22 @@ class Stroke {
     // The index is written once, up front, for the whole capacity. Only the DRAW RANGE
     // moves as the stroke grows -- indices for rings that do not exist yet are never
     // reached, so there is nothing to rewrite per segment.
+    //
+    // WINDING: each ring runs counter-clockwise round the direction of travel (side -> up,
+    // see _writeRing), so a triangle written (a, b, a + 1) faces INWARD -- its normal is
+    // dir x tangent = -radial. Under a FrontSide material that does not hide the tube, it
+    // culls the near wall and shows the far wall's unlit inside, so every mark came out
+    // near-black whatever colour it was given. (a, a + 1, b) faces outward, agreeing with
+    // the outward vertex normals _writeRing computes. Measured on a red mark: dark maroon
+    // before, the block's red after.
     const index = new Uint32Array((capacity - 1) * sides * 6);
     let k = 0;
     for (let i = 1; i < capacity; i++) {
       for (let j = 0; j < sides; j++) {
         const a = (i - 1) * this.ring + j;
         const b = i * this.ring + j;
-        index[k++] = a; index[k++] = b; index[k++] = a + 1;
-        index[k++] = a + 1; index[k++] = b; index[k++] = b + 1;
+        index[k++] = a; index[k++] = a + 1; index[k++] = b;
+        index[k++] = a + 1; index[k++] = b + 1; index[k++] = b;
       }
     }
     this.geometry.setIndex(new THREE.BufferAttribute(index, 1));

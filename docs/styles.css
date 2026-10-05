@@ -1,19 +1,34 @@
 /* ===========================================================
-   Edusim: Web Edition — marketing site
-   A bright, bouncy, kid-first design system built from TWO
-   sources, and the split between them is deliberate:
+   Edusim: Web Edition — marketing site (the 2026-10 redesign)
 
-   - The five accent colors are the app's own in-world palette
+   A sticker-book look: chunky ink outlines, hard offset shadows
+   in a bright colour, wavy edges between bands, and a sky full of
+   the four shapes every Edusim model is built from. Fun is the
+   brief; legibility is not negotiable, so every piece of text
+   sits on white or on a PALE tint of its colour, never on the
+   saturated colour itself.
+
+   The colours come from TWO sources, and the split between them
+   is deliberate:
+
+   - The five accent colours are the app's own in-world palette
      (src/config.js PALETTE_SWATCHES), and the block chips on
      this page are BlockDefs.js CATEGORIES. They are not free
      to restyle: the orange chip printed on an activity board
      in the world is the orange block a student then drags, and
      the page teaches that pairing. Retinting them here to suit
      the logo would quietly break it.
-   - The environment colors -- sky and grass -- are sampled
+   - The environment colours -- sky and field -- are sampled
      from the logo itself (docs/assets/edusim-logo.jpg), so the
-     hero the logo card sits in is the same sky and the same
-     field the logo was photographed on.
+     hero is the same sky and the same blue poppy meadow the logo
+     was photographed in.
+
+   `--sun` is the one colour that is neither: it is decoration
+   (the sun in the hero, the teachers door, the resources band)
+   and never stands for anything in the app.
+
+   Only index.html uses this file. The sub-sites carry their own:
+   guide/guide.css, research/research.css and assets/doc.css.
    =========================================================== */
 
 :root {
@@ -22,48 +37,33 @@
   --green: #3fb37f;
   --blue: #3d8bf2;
   --purple: #8a5cf5;
+  --sun: #ffc93c;
   --cream: #fff9ec;
 
   /* Straight off the logo: its sky reads #4da3ec at the top and hazes out toward the
-     horizon, and its field -- a blue poppy meadow, not the old green lawn -- runs from
-     #5892bb in the distance to a deep #215784 underfoot. The whole environment is one
-     hue now, which is the point: the artwork has no green in it anywhere, so a green
-     hero would put the logo card on the page like a sticker instead of in it. The
-     orange poppies scattered through that field are already almost exactly the app
-     palette's --orange, so the accents below needed no retinting to sit with it.
-     --sky-bottom is the one that is NOT sampled literally: the logo's horizon haze is
-     around #79bae5, and the hero's body paragraph is dark ink sitting on this exact
-     band, so it is held light enough to keep that text at ~8.5:1. */
+     horizon, and its field -- a blue poppy meadow, not a green lawn -- runs from #5892bb
+     in the distance to a deep #215784 underfoot. The orange poppies scattered through
+     that field are almost exactly the app palette's --orange, which is why the hero's
+     meadow is dotted with it. */
   --sky-top: #4da3ec;
   --sky-bottom: #9fcdec;
   --grass-top: #5892bb;
   --grass-bottom: #215784;
-
-  /* The logo's letters, for anything that wants to be the brand's own denim blue rather
-     than the app palette's cornflower. */
   --denim: #246c9d;
+  --night: #10283f;
 
   --ink: #1e2a3a;
   --ink-soft: #445067;
   --paper: #fffdf7;
 
-  --radius-lg: 28px;
-  --radius-md: 18px;
-  --radius-sm: 12px;
-
-  --shadow-soft: 0 18px 40px -12px rgba(30, 42, 58, 0.28);
-  --shadow-pop: 0 10px 0 0 rgba(0, 0, 0, 0.15);
-
-  --container: 1120px;
+  --line: 3px solid var(--ink);
+  --container: 1200px;
+  --nav-h: 72px;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
@@ -81,26 +81,53 @@ h1, h2, h3, h4 {
   margin: 0 0 0.5em;
 }
 
-p {
-  margin: 0 0 1em;
-  line-height: 1.6;
-}
+p { margin: 0 0 1em; line-height: 1.6; }
 
 /* `height: auto` is load-bearing, not boilerplate. Every screenshot on this page
    carries width/height attributes (they reserve layout space so nothing jumps as the
    images load), and HTML maps those attributes to CSS *presentation hints* -- so
-   without this the hero shot rendered 960px wide by a literal 1000px tall, stretching
-   a 16:10 screenshot to 0.96:1. Only .world-shot and .vr-shot looked right, because
-   those two rules happened to set height: auto themselves. */
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
+   without this a 16:10 screenshot renders at its attribute height, stretched. */
+img { max-width: 100%; height: auto; display: block; }
+
+a { color: inherit; }
+
+code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background: rgba(30, 42, 58, 0.08);
+  padding: 0.05em 0.35em;
+  border-radius: 6px;
 }
 
-a {
-  color: inherit;
+/* Author `display` rules beat the UA's [hidden], and the world finder hides cards and
+   whole categories with the attribute -- so it has to win outright. */
+[hidden] { display: none !important; }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
+
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -80px;
+  z-index: 100;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+}
+.skip-link:focus { top: 12px; }
 
 .wrap {
   max-width: var(--container);
@@ -108,21 +135,13 @@ a {
   padding: 0 24px;
 }
 
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: "Fredoka", sans-serif;
-  font-weight: 600;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 6px 16px;
-  border-radius: 999px;
-  margin-bottom: 14px;
-}
+/* Jump targets land under the sticky nav, not behind it. */
+section[id], .res-group, .anchor-alias { scroll-margin-top: calc(var(--nav-h) + 12px); }
 
-/* ---------- buttons ---------- */
+/* ---------- buttons ----------
+   Chunky and tactile: an ink outline, and a hard ink "edge" underneath that the button
+   sinks into when pressed. Text is ink on every fill -- ink on orange runs at 8:1, where
+   white on the same orange is about 2:1. */
 
 .btn {
   display: inline-flex;
@@ -132,97 +151,97 @@ a {
   font-family: "Fredoka", sans-serif;
   font-weight: 600;
   font-size: 1.05rem;
+  line-height: 1.2;
   text-decoration: none;
-  padding: 16px 30px;
-  border-radius: 999px;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
   white-space: nowrap;
-}
-
-/* A button label is `nowrap` so a phrase never breaks mid-sentence -- but the longest
-   ones here ("Open the Hands-On Guide →") are wider than the content column of a
-   320px handset, and neither a grid nor a flex item can shrink below its own
-   min-content width. The whole panel was therefore pushed past the screen edge and
-   silently clipped by `body { overflow-x: hidden }`. On the narrowest phones, a
-   wrapped label beats a cut-off one. */
-@media (max-width: 380px) {
-  .btn {
-    white-space: normal;
-    text-align: center;
-  }
-}
-
-.btn:hover {
-  transform: translateY(-3px);
-}
-
-.btn:active {
-  transform: translateY(0);
+  padding: 13px 26px;
+  border-radius: 999px;
+  border: var(--line);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
 }
 
 .btn-primary {
   background: var(--orange);
-  color: #402200;
-  box-shadow: 0 6px 0 0 #c67f22;
+  color: var(--ink);
+  box-shadow: 0 5px 0 var(--ink);
 }
 
-.btn-primary:hover {
-  box-shadow: 0 9px 0 0 #c67f22;
-}
-
-.btn-primary:active {
-  box-shadow: 0 3px 0 0 #c67f22;
-}
+.btn-violet { background: #c4b0ff; }
 
 .btn-ghost {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.7);
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 5px 0 rgba(30, 42, 58, 0.28);
 }
 
-.btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.28);
+.btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ink); }
+.btn-ghost:hover { box-shadow: 0 7px 0 rgba(30, 42, 58, 0.36); background: #fffaf0; }
+.btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
+
+.btn-big { font-size: 1.22rem; padding: 17px 34px; }
+
+/* A label is `nowrap` so a phrase never breaks mid-sentence -- but the longest one
+   ("▶ Launch Edusim — it's free" at the big size) is wider than a 360px handset, so on
+   the narrowest screens it is allowed to wrap rather than run off the edge. */
+@media (max-width: 400px) {
+  .btn { white-space: normal; text-align: center; }
+  .btn-big { font-size: 1.1rem; padding: 15px 24px; }
+}
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 46px;
 }
 
 /* ---------- nav ----------
-   One set of markup, three layouts: a full bar on a desktop, the same bar tightened
-   on a landscape tablet, and a drop-down panel on anything narrower. The old version
-   tried to fit every link on one line at every width and hid the third one on a
-   phone -- which still overflowed, and `body { overflow-x: hidden }` then CLIPPED the
-   rest rather than letting them be scrolled to, so half the menu was unreachable on a
-   handset. A panel is the only layout that holds an arbitrary number of links.
+   One set of markup, three layouts: a full bar on a desktop, the same bar tightened on a
+   landscape tablet, and a drop-down panel on anything narrower. A panel is the only
+   layout that holds an arbitrary number of links on a phone -- trying to fit them on one
+   line at every width overflowed, and `body { overflow-x: hidden }` then CLIPPED the rest.
 
-   The toggle is a checkbox because this page ships no JavaScript of its own: a hidden
-   checkbox is the one way to keep open/closed state in CSS alone, and unlike a bare
-   label it stays keyboard-reachable (Tab to it, Space to open). */
+   The toggle is a checkbox because the menu must work with no JavaScript: a hidden
+   checkbox is the one way to keep open/closed state in CSS alone, and unlike a bare label
+   it stays keyboard-reachable (Tab to it, Space to open). */
 
 .site-nav {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(255, 253, 247, 0.94);
+  background: rgba(255, 253, 247, 0.95);
   backdrop-filter: blur(8px);
-  border-bottom: 3px solid #ffe1a8;
+  border-bottom: var(--line);
+}
+
+/* A rainbow seam under the bar: the five palette colours, in BlockDefs order-ish. */
+.site-nav::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -7px;
+  height: 4px;
+  background: linear-gradient(90deg,
+    var(--red) 0 20%, var(--orange) 20% 40%, var(--sun) 40% 60%, var(--green) 60% 80%, var(--blue) 80% 100%);
+  pointer-events: none;
 }
 
 .site-nav .wrap {
   display: flex;
   align-items: center;
-  padding-top: 12px;
-  padding-bottom: 12px;
   gap: 12px;
+  min-height: var(--nav-h);
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
   margin-right: auto;
-  font-family: "Fredoka", sans-serif;
-  font-weight: 600;
-  font-size: 1.3rem;
   text-decoration: none;
   color: var(--ink);
 }
@@ -230,24 +249,20 @@ a {
 .brand-word {
   font-family: "Gluten", "Fredoka", sans-serif;
   font-weight: 800;
-  font-size: 1.42rem;
+  font-size: 1.5rem;
   line-height: 1.05;
   color: #c25c14;
   letter-spacing: 0.01em;
 }
 
-/* --denim, not --green. This sits half an inch from the mark, and the mark is now a crop
-   of the logo's own blue E -- so the app palette's mint was the one green left anywhere
-   near the lockup, reading as a stray rather than as an accent. The brand's own letter
-   colour is the obvious thing for the brand's own subtitle to be, and at 0.62rem bold it
-   still clears 5.5:1 on the nav's cream. The mint accents elsewhere are untouched: they
-   are the app's palette doing the job it is on this page to do. */
-.brand small {
+/* --denim: the brand's own letter colour, for the brand's own subtitle. At 0.62rem bold
+   it still clears 5.5:1 on the nav's cream. */
+.brand-word small {
   display: block;
   font-family: "Nunito", sans-serif;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.62rem;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--denim);
 }
@@ -259,15 +274,15 @@ a {
   left: 0;
   right: 0;
   list-style: none;
-  margin: 0;
-  padding: 8px 24px 18px;
+  margin: 7px 0 0;
+  padding: 10px 24px 20px;
   display: grid;
   gap: 4px;
   font-family: "Fredoka", sans-serif;
   font-weight: 500;
-  font-size: 1.02rem;
+  font-size: 1.05rem;
   background: var(--paper);
-  border-bottom: 3px solid #ffe1a8;
+  border-bottom: var(--line);
   box-shadow: 0 20px 34px -16px rgba(30, 42, 58, 0.42);
 
   /* visibility, not just max-height: a clipped-but-present link is still in the tab
@@ -285,20 +300,33 @@ a {
 }
 
 .nav-toggle:checked ~ .nav-links {
-  max-height: min(70vh, 460px);
+  max-height: min(75vh, 520px);
   overflow-y: auto;
   visibility: visible;
   transition: max-height 0.26s ease, visibility 0s linear 0s;
 }
 
 .nav-links a {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   text-decoration: none;
   color: var(--ink-soft);
   padding: 11px 12px;
-  border-radius: 12px;
-  border-bottom: 3px solid transparent;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  border-radius: 14px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+/* Every link carries its own colour (--dot, set inline), shown as a dot in the phone
+   panel and as the underline on a desktop. */
+.nav-links a::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--dot, var(--orange));
+  border: 2px solid var(--ink);
 }
 
 .nav-links a:hover,
@@ -325,7 +353,7 @@ a {
   flex: none;
   padding: 9px 15px;
   border-radius: 999px;
-  border: 2px solid rgba(30, 42, 58, 0.2);
+  border: 2.5px solid var(--ink);
   background: #fff;
   font-family: "Fredoka", sans-serif;
   font-weight: 600;
@@ -335,24 +363,18 @@ a {
   user-select: none;
 }
 
-.nav-toggle:focus-visible ~ .nav-burger {
-  outline: 3px solid var(--blue);
-  outline-offset: 2px;
-}
+.nav-toggle:focus-visible ~ .nav-burger { outline: 3px solid var(--blue); outline-offset: 2px; }
 
 .burger-box,
 .burger-box::before,
 .burger-box::after {
   width: 18px;
-  height: 2px;
+  height: 2.5px;
   border-radius: 2px;
   background: var(--ink);
 }
 
-.burger-box {
-  position: relative;
-  transition: background 0.18s ease;
-}
+.burger-box { position: relative; transition: background 0.18s ease; }
 
 .burger-box::before,
 .burger-box::after {
@@ -370,55 +392,40 @@ a {
 .nav-toggle:checked ~ .nav-burger .burger-box::after { transform: translateY(-6px) rotate(-45deg); }
 
 .nav-cta.btn {
-  padding: 10px 18px;
-  font-size: 0.9rem;
+  padding: 9px 18px;
+  font-size: 0.92rem;
   flex: none;
-}
-
-/* A 360px handset cannot hold brand + the launch button + burger, and the launch button
-   is the one thing on this bar that must never be dropped -- so the wordmark goes first.
-   Measured with the current "▶ Launch Edusim" label: no overflow at 360, 390 or 430. */
-@media (max-width: 430px) {
-  /* Was `.brand span:not(.brand-mark)`, which hid the wordmark's own span once the
-     mark image was removed and left an EMPTY link in the corner. The name now stays
-     and only the "Web Edition" line goes: the brand is the one thing in this bar that
-     should never be a blank space. Re-measured: no overflow at 360, 390 or 430. */
-  .brand small { display: none; }
-  /* 1.12rem, not 1.25: the name is ~78px at 1.25 where the old image chip was 40px,
-     and at 360 that put the bar 5px over. Measured at 360, 390 and 430. */
-  .brand-word { font-size: 1.12rem; }
-  .nav-cta.btn { padding: 10px 14px; }
+  box-shadow: 0 4px 0 var(--ink);
 }
 
 /* The whole label is ONE flex item, and it has to be. `.btn` is `display: inline-flex`
    with `gap: 8px`, so a bare `<span>Edusim</span>` beside the text becomes a second flex
-   item: the gap then applies between "Launch" and "Edusim" while "▶ Launch" is separated
-   by an ordinary word space, and the label renders visibly lopsided. Wrapping both in
-   .nav-cta-label leaves the button with a single item, so `gap` never applies inside it
-   and the space in " Edusim" is just a space. (Putting the space outside the span is not
-   an alternative -- leading and trailing whitespace in a flex item is stripped.) */
+   item and the gap opens up inside the label. Wrapping both keeps the space a space. */
 .nav-cta-label { white-space: nowrap; }
 
-/* 900px is where the burger gives way to six horizontal links, and it is the tightest
-   the full bar ever gets. "▶ Launch Edusim" is nearly twice the width of the old
-   "Play Now", and between 900 and 939 that difference is exactly enough to break
-   "1 · Build it" onto a second line -- measured: the link row goes 32px -> 49px at 930
-   and is fine again at 940. Dropping one word here is cheaper than shrinking the type or
-   the gaps, and costs no meaning: the wordmark is at the other end of the same bar.
-   The ceiling is 979 rather than 939 so a wider font fallback has somewhere to go. */
-@media (min-width: 900px) and (max-width: 979px) {
+/* A 360px handset cannot hold brand + the launch button + burger, and the launch button
+   is the one thing on this bar that must never be dropped -- so the subtitle goes first. */
+@media (max-width: 430px) {
+  .brand-word small { display: none; }
+  .brand-word { font-size: 1.2rem; }
+  .nav-cta.btn { padding: 9px 13px; }
+  .nav-burger { padding: 9px 12px; }
+}
+
+@media (max-width: 359px) {
   .nav-cta-word { display: none; }
 }
 
 /* Landscape tablet and up: back to one horizontal row. */
-@media (min-width: 900px) {
+@media (min-width: 960px) {
   .nav-burger { display: none; }
 
   .nav-links {
     position: static;
     display: flex;
     align-items: center;
-    gap: 26px;
+    gap: 22px;
+    margin: 0;
     padding: 0;
     max-height: none;
     overflow: visible;
@@ -426,101 +433,220 @@ a {
     background: none;
     border: none;
     box-shadow: none;
-    font-size: 0.98rem;
+    font-size: 1rem;
   }
 
   .nav-links a {
-    padding: 6px 2px;
+    padding: 6px 0 4px;
     border-radius: 0;
+    color: var(--ink);
+    border-bottom: 4px solid transparent;
   }
+
+  .nav-links a::before { display: none; }
 
   .nav-links a:hover,
   .nav-links a:focus-visible {
     background: none;
-    border-color: var(--orange);
+    border-bottom-color: var(--dot, var(--orange));
   }
 }
 
-/* The row fits at 900px only if it is tightened -- six links at desktop spacing plus
-   the brand and the button come to about 1000px. */
-@media (min-width: 900px) and (max-width: 1099px) {
-  .nav-links { gap: 17px; font-size: 0.88rem; }
-  .brand { font-size: 1.12rem; }
-  .nav-cta.btn { padding: 9px 15px; font-size: 0.85rem; }
+/* The row only fits between 960 and 1119 if it is tightened. */
+@media (min-width: 960px) and (max-width: 1119px) {
+  .nav-links { gap: 15px; font-size: 0.92rem; }
+  .brand-word { font-size: 1.3rem; }
+  .nav-cta-word { display: none; }
 }
 
 /* ---------- hero ---------- */
 
-/* The bottom padding used to be 110px, tuned so a slice of the screenshot below the
-   buttons cleared the fold on a 720px laptop -- a visible sliver of picture being the
-   thing that says "scroll". The screenshot, the three chips and the fine print are gone
-   now, so that 110px is 110px of empty green with nothing behind it to reveal. What
-   carries the same job instead is the pillars section immediately below, whose own white
-   card now crosses the fold. */
 .hero {
   position: relative;
-  padding: 30px 0 56px;
-  background:
-    radial-gradient(ellipse 90% 60% at 20% -10%, rgba(255,255,255,0.5), transparent),
-    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 76%, var(--grass-top) 76%, var(--grass-bottom) 100%);
   overflow: hidden;
+  text-align: center;
+  padding: 50px 0 clamp(70px, 8vw, 120px);
+  background:
+    radial-gradient(900px 480px at 50% 26%, rgba(255, 255, 255, 0.38), transparent 70%),
+    linear-gradient(180deg, var(--sky-top) 0%, #7cbbee 52%, var(--sky-bottom) 100%);
 }
 
-/* The horizon moved from 55% to 76% when the screenshot came out, and that is a
-   LEGIBILITY fix rather than a taste one. It is a hard stop at a percentage of the hero's
-   own height, so shortening the hero drags it up the page -- at 55% of the new height it
-   cut straight through .hero-sub, leaving four lines of dark ink on the dark grass band
-   at roughly 2:1. .hero-sub takes the page's ink colour precisely because it was sitting
-   on pale sky (see its own note below), so the two numbers are coupled: move one and
-   check the other. 76% puts the whole paragraph back on sky and leaves the horizon just
-   under it, with the buttons on the grass where their own fills carry them. Checked at
-   1280x720 and 390x844. */
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-.hero::before,
-.hero::after {
+/* --- the sky's decorations ------------------------------------------------- */
+
+.sky { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+
+.sun {
+  position: absolute;
+  top: 30px;
+  right: 6%;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 38%, #fff8d6 0%, #ffd95a 46%, #ffb627 100%);
+  box-shadow:
+    0 0 0 12px rgba(255, 214, 90, 0.28),
+    0 0 0 26px rgba(255, 214, 90, 0.13),
+    0 0 80px 24px rgba(255, 200, 80, 0.45);
+  animation: glow 5s ease-in-out infinite;
+}
+
+.cloud {
+  position: absolute;
+  width: 150px;
+  height: 44px;
+  border-radius: 999px;
+  background: #fff;
+  opacity: 0.94;
+  box-shadow: 0 12px 22px -14px rgba(30, 70, 120, 0.45);
+  animation: drift 24s ease-in-out infinite alternate;
+}
+
+.cloud::before,
+.cloud::after {
   content: "";
   position: absolute;
   border-radius: 50%;
   background: #fff;
-  opacity: 0.75;
 }
 
-.hero::before {
-  width: 90px;
-  height: 90px;
-  top: 18%;
-  left: 8%;
-  box-shadow: 60px 30px 0 -10px #fff, 130px 10px 0 -20px #fff;
+.cloud::before { width: 68px; height: 68px; top: -32px; left: 22px; }
+.cloud::after { width: 50px; height: 50px; top: -22px; left: 76px; }
+
+.cloud-1 { top: 210px; left: 2%; }
+.cloud-2 { top: 86px; left: 71%; scale: 0.7; animation-duration: 30s; animation-delay: -8s; }
+.cloud-3 { top: 360px; right: 3%; scale: 0.85; animation-duration: 27s; animation-delay: -14s; }
+
+/* The light orbs: the app's own in-world lamp, as a pair of fireflies. */
+.orb {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 30%, #ffe89a 62%, rgba(255, 214, 90, 0) 72%);
+  box-shadow: 0 0 18px 8px rgba(255, 226, 130, 0.65);
+  animation: pulse 3.4s ease-in-out infinite;
 }
 
-.hero::after {
-  width: 60px;
-  height: 60px;
-  top: 10%;
-  right: 12%;
-  box-shadow: -80px 40px 0 -15px #fff;
+.orb-1 { left: 27%; top: 118px; }
+.orb-2 { right: 29%; top: 64px; animation-delay: -1.6s; }
+
+/* The four primitives. Each sits in a .float wrapper that bobs (`translate`) so the
+   shape inside is free to spin or rock with `transform`/`rotate` -- two animations on
+   one property would cancel each other. */
+.float { position: absolute; display: block; animation: bob 6s ease-in-out infinite; }
+
+.float-ball { left: 13%; top: 104px; animation-delay: -1s; }
+.float-cube { left: 7%; top: 330px; animation-delay: -3s; perspective: 520px; }
+.float-pyr  { right: 14%; top: 190px; animation-delay: -2s; }
+.float-can  { right: 8%; top: 372px; animation-delay: -4s; }
+
+.ball {
+  display: block;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #fff 0 5%, #b3d1ff 15%, var(--blue) 52%, #1b52a8 100%);
+  border: 2.5px solid rgba(30, 42, 58, 0.55);
+  box-shadow: 0 22px 26px -18px rgba(16, 40, 80, 0.6);
 }
 
-.hero .wrap {
+.cube {
+  display: block;
   position: relative;
-  z-index: 2;
-  display: grid;
-  gap: 30px;
-  text-align: center;
-  justify-items: center;
+  width: 68px;
+  height: 68px;
+  transform-style: preserve-3d;
+  animation: spin 18s linear infinite;
 }
 
-.hero-eyebrow {
-  background: rgba(255, 255, 255, 0.85);
-  color: var(--red);
+.cube i {
+  position: absolute;
+  inset: 0;
+  border: 2.5px solid rgba(30, 42, 58, 0.6);
+  border-radius: 6px;
 }
 
-.hero h1 {
-  font-size: clamp(2.2rem, 5.6vw, 3.6rem);
-  color: #fff;
-  text-shadow: 0 3px 0 rgba(16, 52, 82, 0.35);
-  max-width: 16ch;
+.cube i:nth-child(1) { transform: translateZ(34px); background: #f2a541; }
+.cube i:nth-child(2) { transform: rotateY(90deg) translateZ(34px); background: #df8a24; }
+.cube i:nth-child(3) { transform: rotateY(180deg) translateZ(34px); background: #f2a541; }
+.cube i:nth-child(4) { transform: rotateY(-90deg) translateZ(34px); background: #c8741a; }
+.cube i:nth-child(5) { transform: rotateX(90deg) translateZ(34px); background: #ffcb7d; }
+.cube i:nth-child(6) { transform: rotateX(-90deg) translateZ(34px); background: #b5640f; }
+
+.can {
+  display: block;
+  position: relative;
+  width: 62px;
+  height: 84px;
+  border-radius: 50% / 13px;
+  background: linear-gradient(90deg, #1d7650 0%, var(--green) 30%, #93e6bf 47%, var(--green) 64%, #1d7650 100%);
+  border: 2.5px solid rgba(30, 42, 58, 0.55);
+  animation: rock 7s ease-in-out infinite;
 }
+
+.can::before {
+  content: "";
+  position: absolute;
+  top: -2.5px;
+  left: -2.5px;
+  right: -2.5px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 45% 45%, #c6f4dd, #62cb9b 80%);
+  border: 2.5px solid rgba(30, 42, 58, 0.55);
+}
+
+.pyr {
+  display: block;
+  position: relative;
+  width: 90px;
+  height: 80px;
+  animation: rock 8s ease-in-out infinite reverse;
+}
+
+.pyr::before,
+.pyr::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.pyr::before { background: #b9a1ff; clip-path: polygon(50% 0, 62% 100%, 0 82%); }
+.pyr::after { background: #6a3fd6; clip-path: polygon(50% 0, 100% 86%, 62% 100%); }
+
+/* Below ~1100px the side margins are not wide enough for the shapes without them
+   sliding under the text; on a phone only the sun and the clouds stay. */
+@media (max-width: 1099px) {
+  .float-cube, .float-can, .orb { display: none; }
+  .float-ball { left: 4%; top: 40px; scale: 0.7; }
+  .float-pyr { right: 4%; top: 160px; scale: 0.7; }
+}
+
+@media (max-width: 760px) {
+  .float { display: none; }
+  .sun { width: 64px; height: 64px; top: 18px; right: 5%; }
+  .cloud-1 { top: 150px; left: -40px; scale: 0.7; }
+  .cloud-2 { top: 40px; left: -30px; scale: 0.55; }
+  .cloud-3 { display: none; }
+}
+
+@keyframes bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -18px; } }
+@keyframes spin { from { transform: rotateX(-24deg) rotateY(0deg); } to { transform: rotateX(-24deg) rotateY(360deg); } }
+@keyframes rock { 0%, 100% { rotate: -7deg; } 50% { rotate: 7deg; } }
+@keyframes drift { from { translate: 0 0; } to { translate: 60px 0; } }
+@keyframes pulse { 0%, 100% { opacity: 0.55; scale: 0.85; } 50% { opacity: 1; scale: 1.1; } }
+@keyframes glow { 0%, 100% { scale: 1; } 50% { scale: 1.05; } }
+@keyframes twinkle { from { opacity: 0.35; } to { opacity: 0.8; } }
+@keyframes wiggle { 0%, 100% { rotate: -6deg; } 50% { rotate: 6deg; } }
+@keyframes pop { 0% { scale: 1; } 40% { scale: 1.03; } 100% { scale: 1; } }
 
 /* ---------------------------------------------------------------------------
    THE WORDMARK — the brand name as TEXT, in Gluten 800.
@@ -545,9 +671,6 @@ a {
   --wm-glow: rgba(240, 150, 60, 0.55);
 }
 
-/* `.hero h1.hero-logo`, not `.hero-logo`: `.hero h1` above sets max-width:16ch,
-   color:#fff and a text-shadow, and a single class loses to it. Same specificity
-   trap the image version had to work around. */
 .hero h1.hero-logo {
   margin: 0;
   max-width: none;
@@ -577,13 +700,12 @@ a {
   white-space: nowrap;
   font-family: "Gluten", "Fredoka", "Nunito", system-ui, sans-serif;
   font-weight: 800;
-  font-size: clamp(3rem, 11vw, 6.4rem);
+  font-size: clamp(3.2rem, 11vw, 6.6rem);
   /* LOAD-BEARING: the gradient below is band-limited against a 1em box. Raise this
      and the amber highlight slides off the tops of the letters. */
   line-height: 1;
   /* The cream outline fattens every glyph by half its width per side, eating a full
-     stroke-width out of each letter gap. This buys it back, and delivers the wide,
-     generous spacing the artwork has. */
+     stroke-width out of each letter gap. This buys it back. */
   letter-spacing: 0.045em;
   padding: 0 0.1em;          /* room so the outline on E and m is not clipped */
   /* The fallback fill, and it is never transparent — see the @supports note below. */
@@ -611,8 +733,7 @@ a {
    this job, which is worth knowing before anyone "simplifies" it. With
    background-clip:text the gradient IS the element background, and backgrounds paint
    before every part of the text, so a -webkit-text-stroke on the same element always
-   lands on top of the gradient and swamps the letters in cream. Measured: paint-order
-   computed to "stroke" and was supported, and the letters still came out cream. */
+   lands on top of the gradient and swamps the letters in cream. */
 .hero-logo .wordmark::before {
   content: attr(data-text);
   position: absolute;
@@ -629,13 +750,13 @@ a {
 .hero-logo .wordmark::selection { background: var(--wm-5); color: var(--wm-cream); -webkit-text-fill-color: var(--wm-cream); }
 .hero-logo .wordmark::-moz-selection { background: var(--wm-5); color: var(--wm-cream); }
 
-/* The brand line the artwork used to carry under the letters. Deliberately NOT given
-   the display treatment: at this size a cream ring fills the counters, and unlike the
-   wordmark (a logotype, WCAG-exempt) this is ordinary prose held to full contrast. */
+/* The brand line under the letters. Deliberately NOT given the display treatment: at
+   this size a cream ring fills the counters, and unlike the wordmark (a logotype,
+   WCAG-exempt) this is ordinary prose held to full contrast. */
 .hero-logo .hero-tagline {
   font-family: "Gluten", "Fredoka", "Nunito", system-ui, sans-serif;
   font-weight: 700;
-  font-size: clamp(1rem, 2.4vw, 1.45rem);
+  font-size: clamp(1.05rem, 2.5vw, 1.5rem);
   letter-spacing: 0.01em;
   color: var(--ink);
   -webkit-text-fill-color: currentColor;   /* this property INHERITS — see above */
@@ -660,2260 +781,682 @@ a {
   .hero-logo .lockup { filter: none; }
 }
 
-/* Printing defaults to print-color-adjust: economy, which drops background images AND
-   background colours — on gradient-clipped text that is a blank headline on paper. And
-   a cream outline on white paper is invisible anyway, so print gets its own honest
-   version: solid deep amber, no ring, no glow. */
-@media print {
-  .hero-logo .wordmark {
-    background: none;
-    color: #9a4512;
-    -webkit-text-fill-color: #9a4512;
-  }
-  .hero-logo .wordmark::before { content: none; }
-  .hero-logo .lockup { filter: none; }
-  .hero-logo .hero-tagline { color: #000; -webkit-text-fill-color: #000; text-shadow: none; }
+/* --- hero copy ------------------------------------------------------------- */
+
+/* Dark ink, not white: this paragraph sits over the pale lower half of the sky, where
+   white text runs at about 1.5:1. */
+.hero-sub {
+  max-width: 58ch;
+  margin: 22px auto 16px;
+  font-size: 1.18rem;
+  color: var(--ink);
 }
 
-/* Dark ink, not white. This paragraph sits low in the sky gradient, over --sky-bottom
-   (#bfe8ff), where white text runs at about 1.2:1 against the background and is barely
-   there. The h1 above it can stay white because it carries a heavy shadow and is three
-   times the size; a body paragraph has neither, so it takes the page's own ink colour --
-   11:1 over the pale end of the sky and still 7:1 over the deepest blue at the top. */
-.hero-sub {
-  max-width: 56ch;
-  font-size: 1.15rem;
-  color: var(--ink);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+/* The three verbs, each in its pillar's colour -- on a white chip, because the
+   saturated colours themselves are too light to carry text on a blue sky. */
+.hero-sub strong {
+  padding: 0.02em 0.32em;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.82);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.t-build { color: #9a4a06; }
+.t-code { color: #5b2fc0; }
+.t-explore { color: #17714a; }
+
+.hero-facts {
+  list-style: none;
+  margin: 0 0 26px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.hero-facts li {
+  padding: 5px 13px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 2px solid rgba(30, 42, 58, 0.16);
+  font-weight: 800;
+  font-size: 0.88rem;
 }
 
 .hero-cta-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
   justify-content: center;
+  gap: 16px;
 }
 
-/* .btn-ghost is authored white-on-transparent for dark sections, and the hero's sky is
-   not one -- white on it runs at 1.5:1, which is a button you can only find by knowing
-   it is there. Same override the tutorial callout already needed. */
-.hero-cta-row .btn-ghost {
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--ink);
-  border-color: rgba(30, 42, 58, 0.35);
+/* The two world databases: big, side by side, straight under the launch button. Green
+   for the main gallery (the app's own Get More Worlds colour), night-blue and gold for
+   HiFi (its own band's colours further down). */
+.hero-dbs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  width: min(820px, 100%);
+  margin-top: 26px;
 }
 
-.hero-cta-row .btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.92);
-}
-
-.browser-frame {
-  width: 100%;
-  max-width: 980px;
-  border-radius: var(--radius-lg);
-  background: #14202b;
-  padding: 10px;
-  box-shadow: var(--shadow-soft);
-  transform: translateY(10px);
-}
-
-.browser-frame .chrome {
+.hero-db {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px 12px;
+  gap: 14px;
+  padding: 14px 18px 14px 14px;
+  border-radius: 24px;
+  border: var(--line);
+  background: #e3f7ec;
+  box-shadow: 6px 6px 0 var(--green);
+  color: var(--ink);
+  text-align: left;
+  text-decoration: none;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
 }
 
-.browser-dot {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-}
-.browser-dot.r { background: var(--red); }
-.browser-dot.y { background: var(--orange); }
-.browser-dot.g { background: var(--green); }
+.hero-db:hover,
+.hero-db:focus-visible { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--green); }
 
-.browser-frame .addr {
-  margin-left: 10px;
-  background: rgba(255,255,255,0.08);
-  color: #cfe0f0;
-  font-family: "Fredoka", sans-serif;
-  font-size: 0.78rem;
-  padding: 5px 14px;
-  border-radius: 999px;
-  flex: 1;
-  max-width: 320px;
-}
-
-.browser-frame img {
-  border-radius: var(--radius-md);
-  width: 100%;
-}
-
-/* ---------- section scaffolding ---------- */
-
-.section {
-  padding: 100px 0;
-  position: relative;
-}
-
-.section-head {
-  text-align: center;
-  max-width: 640px;
-  margin: 0 auto 56px;
-}
-
-.section-head h2 {
-  font-size: clamp(1.7rem, 3.4vw, 2.4rem);
-}
-
-.section-head p {
-  color: var(--ink-soft);
-  font-size: 1.08rem;
-}
-
-.divider-wave {
-  display: block;
-  width: 100%;
-  height: 70px;
-  margin-top: -1px;
-}
-
-/* ---------- feature rows ---------- */
-
-.feature {
+.hero-db-icon {
   display: grid;
-  gap: 48px;
-  align-items: center;
-  padding: 56px 0;
+  place-items: center;
+  flex: none;
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  border: var(--line);
+  background: var(--green);
+  box-shadow: 3px 3px 0 var(--ink);
+  font-size: 1.9rem;
+  line-height: 1;
+  transform: rotate(-6deg);
+  transition: transform 0.2s ease;
 }
 
-@media (min-width: 900px) {
-  .feature {
-    grid-template-columns: 1fr 1fr;
-  }
-  .feature.reverse .feature-media {
-    order: 2;
-  }
+.hero-db:hover .hero-db-icon { transform: rotate(6deg) scale(1.06); }
+
+.hero-db-text { flex: 1; min-width: 0; }
+
+.hero-db-text b {
+  display: block;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  line-height: 1.15;
 }
 
-.feature-eyebrow {
+.hero-db-text small { display: block; margin-top: 3px; font-size: 0.88rem; font-weight: 700; line-height: 1.35; color: var(--ink-soft); }
+
+.hero-db-go { font-family: "Fredoka", sans-serif; font-weight: 700; font-size: 1.4rem; }
+
+.hero-db-hifi {
+  background: linear-gradient(135deg, #17426a 0%, #0d2238 100%);
+  box-shadow: 6px 6px 0 var(--wm-2);
   color: #fff;
 }
 
-.feature-media {
-  position: relative;
+.hero-db-hifi:hover,
+.hero-db-hifi:focus-visible { box-shadow: 9px 9px 0 var(--wm-2); }
+
+.hero-db-hifi .hero-db-icon {
+  background: linear-gradient(180deg, var(--wm-1), var(--wm-2));
+  color: #3a2406;
 }
 
-.feature-media .browser-frame {
-  transform: none;
-  max-width: 560px;
-  margin: 0 auto;
+.hero-db-hifi .hero-db-text small { color: #cfe0ef; }
+.hero-db-hifi .hero-db-go { color: #ffd98a; }
+
+@media (max-width: 680px) {
+  .hero-dbs { grid-template-columns: 1fr; width: min(440px, 100%); }
 }
 
-.feature-media.duo {
-  display: flex;
-  gap: 18px;
+.hero-research {
+  display: inline-flex;
   flex-wrap: wrap;
   justify-content: center;
-}
-
-.feature-media.duo .browser-frame {
-  max-width: 270px;
-}
-
-.feature-media.duo .browser-frame .chrome {
-  padding-bottom: 8px;
-}
-
-.feature-tag {
-  position: absolute;
-  bottom: -18px;
-  right: 8px;
-  background: var(--paper);
-  border: 3px solid var(--ink);
+  align-items: center;
+  gap: 4px 6px;
+  margin-top: 34px;
+  padding: 11px 22px;
+  background: #fff;
+  border: 2.5px solid var(--ink);
   border-radius: 999px;
-  padding: 8px 18px;
+  box-shadow: 4px 4px 0 var(--purple);
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.98rem;
+  line-height: 1.45;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hero-research strong { color: #5b2fc0; }
+.hero-research .hr-more { font-weight: 800; color: var(--denim); text-decoration: underline; text-underline-offset: 3px; }
+.hero-research:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--purple); }
+
+/* The four measured effect sizes, above the fold. Tabular figures: four numbers side by
+   side should agree on digit width. */
+.hero-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.he-fig {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 150px;
+  padding: 9px 14px 10px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 2px solid rgba(30, 42, 58, 0.18);
+  border-top: 6px solid var(--c);
+  border-radius: 16px;
+  transition: transform 0.15s ease;
+}
+
+.he-fig b {
   font-family: "Fredoka", sans-serif;
-  font-weight: 600;
-  font-size: 0.85rem;
-  box-shadow: var(--shadow-pop);
+  font-weight: 700;
+  font-size: 1.28rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.he-fig small { font-size: 0.75rem; font-weight: 700; color: var(--ink-soft); line-height: 1.3; }
+
+.hero-evidence:hover .he-fig { transform: translateY(-3px); }
+.hero-evidence:hover .he-fig:nth-child(even) { transform: translateY(3px); }
+
+@media (max-width: 430px) {
+  .he-fig { min-width: 0; flex: 1 1 calc(50% - 10px); }
+}
+
+/* --- postcards in the meadow ------------------------------------------------ */
+
+.postcards {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 48px;
+  max-width: 1100px;
+}
+
+.postcard {
+  position: relative;
+  margin: 0;
+  padding: 8px 8px 0;
+  background: #fff;
+  border-radius: 10px;
+  border: 2px solid rgba(30, 42, 58, 0.18);
+  box-shadow: 0 18px 30px -14px rgba(10, 34, 64, 0.6);
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 0.2s ease;
+}
+
+/* A strip of coloured tape holding each one up. */
+.postcard::before {
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 74px;
+  height: 22px;
+  margin-left: -37px;
+  background: var(--c);
+  opacity: 0.8;
+  border-radius: 3px;
   transform: rotate(-4deg);
 }
 
-.feature-text h3 {
-  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
-}
+.postcard img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 5px; }
 
-.feature-text p {
-  color: var(--ink-soft);
-  font-size: 1.05rem;
-}
-
-.feature-list {
-  list-style: none;
-  padding: 0;
-  margin: 20px 0 0;
-  display: grid;
-  gap: 10px;
-}
-
-.feature-list li {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  font-weight: 600;
+.postcard figcaption {
+  padding: 6px 4px 8px;
+  font-family: "Gluten", "Fredoka", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
   color: var(--ink);
 }
 
-.feature-list li .check {
-  flex: none;
-  width: 24px;
-  height: 24px;
+.postcard:hover { transform: rotate(0deg) translateY(-6px); }
+
+@media (max-width: 760px) {
+  .postcards { grid-template-columns: repeat(2, 1fr); gap: 18px; max-width: 520px; }
+  .postcard:nth-child(n + 3) { display: none; }
+}
+
+/* The meadow. `slice` keeps the poppies round; the height clamp keeps the hills from
+   becoming a sliver on a phone or a wall on a 4K screen. */
+.hills {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: clamp(130px, 17vw, 250px);
+  display: block;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ---------- bands ----------
+   Every section is a band with its own pale colour (--band), and every band but the
+   first rolls in over the one before it on a wavy edge: the ::before is the band's own
+   colour, masked to a wave, hanging off its top. */
+
+.band {
+  position: relative;
+  padding: 92px 0 100px;
+  background-color: var(--band, var(--paper));
+}
+
+.band::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 44px;
+  background: var(--band, var(--paper));
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 44' preserveAspectRatio='none'%3E%3Cpath d='M0 44V24C120 6 240 2 360 12s240 28 360 24 240-24 360-28 240 6 360 20V44z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 44' preserveAspectRatio='none'%3E%3Cpath d='M0 44V24C120 6 240 2 360 12s240 28 360 24 240-24 360-28 240 6 360 20V44z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+/* The first band follows the hero, whose own meadow already ends in paper. */
+.band.start::before { display: none; }
+
+.band-head {
+  max-width: 780px;
+  margin: 0 auto 46px;
+  text-align: center;
+}
+
+.band-head h2 {
+  font-weight: 700;
+  font-size: clamp(2.05rem, 4.6vw, 3.15rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0 0 16px;
+}
+
+.band-head p { font-size: 1.1rem; color: var(--ink-soft); }
+.band-head p:last-child { margin-bottom: 0; }
+
+/* A sticker: a pale tint of its colour with an ink outline and a hard shadow in the
+   full colour. Ink text on a 30% tint clears 9:1 for every palette colour, where white
+   on the saturated colour fails for four of the six. */
+.sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 7px 17px;
+  border-radius: 999px;
+  border: 2.5px solid var(--ink);
+  background: color-mix(in srgb, var(--c, var(--orange)) 32%, #fff);
+  box-shadow: 4px 4px 0 var(--c, var(--orange));
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 0.86rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink);
+  transform: rotate(-2deg);
+}
+
+/* A highlighter swipe behind a heading's key words. */
+.hl {
+  padding: 0 0.12em;
+  background: linear-gradient(180deg,
+    transparent 56%, color-mix(in srgb, var(--c, var(--sun)) 60%, transparent) 56%,
+    color-mix(in srgb, var(--c, var(--sun)) 60%, transparent) 92%, transparent 92%);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* ---------- 0 · the six doors ---------- */
+
+.start {
+  --band: var(--paper);
+  /* Confetti: five dots in the palette colours on one large tile. */
+  background-image:
+    radial-gradient(circle at 8% 18%, rgba(224, 69, 95, 0.2) 0 5px, transparent 6px),
+    radial-gradient(circle at 68% 30%, rgba(61, 139, 242, 0.2) 0 4px, transparent 5px),
+    radial-gradient(circle at 38% 78%, rgba(63, 179, 127, 0.22) 0 5px, transparent 6px),
+    radial-gradient(circle at 88% 74%, rgba(242, 165, 65, 0.26) 0 4px, transparent 5px),
+    radial-gradient(circle at 24% 52%, rgba(138, 92, 245, 0.18) 0 3px, transparent 4px);
+  background-size: 240px 240px;
+  padding-top: 64px;
+}
+
+.door-grid {
+  display: grid;
+  gap: 26px;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+}
+
+.door {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 26px 26px 22px;
+  border-radius: 28px;
+  border: var(--line);
+  background: color-mix(in srgb, var(--c) 20%, #fff);
+  box-shadow: 7px 7px 0 var(--c);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+/* A big soft disc of the door's colour in the corner. */
+.door::after {
+  content: "";
+  position: absolute;
+  top: -54px;
+  right: -54px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
+  background: var(--c);
+  opacity: 0.32;
+}
+
+.door-icon {
+  position: relative;
+  z-index: 1;
   display: grid;
   place-items: center;
-  color: #fff;
-  font-size: 0.8rem;
+  width: 66px;
+  height: 66px;
+  margin-bottom: 10px;
+  border-radius: 20px;
+  border: var(--line);
+  background: var(--c);
+  box-shadow: 3px 3px 0 var(--ink);
+  font-size: 2rem;
+  transform: rotate(-6deg);
+  transition: transform 0.2s ease;
 }
 
-/* section background tints, alternating */
-/* -----------------------------------------------------------
-   The prebuilt worlds
-   Each card carries its own --accent so its pin, kicker and chips
-   all pick up one colour per world without a near-identical rule
-   block per world. Nothing here is ordinal: the grid and the copy
-   never state how many worlds there are, so adding or retiring one
-   is a pure content edit.
-   ----------------------------------------------------------- */
+.door-title { font-family: "Fredoka", sans-serif; font-weight: 700; font-size: 1.5rem; line-height: 1.15; }
+.door-text { color: var(--ink-soft); line-height: 1.5; }
+
+.door-go {
+  margin-top: auto;
+  padding-top: 12px;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--c);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 5px;
+}
+
+.door:hover,
+.door:focus-visible { transform: translate(-3px, -3px) rotate(-0.6deg); box-shadow: 10px 10px 0 var(--c); }
+.door:hover .door-icon,
+.door:focus-visible .door-icon { transform: rotate(6deg) scale(1.08); }
+
+.start-more {
+  margin: 40px 0 0;
+  text-align: center;
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+.start-more a {
+  color: var(--denim);
+  font-weight: 800;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+/* ---------- 1 · worlds ---------- */
 
 .worlds {
-  background:
-    radial-gradient(1200px 400px at 50% -8%, #eafaf1 0%, transparent 70%),
-    var(--paper);
+  --band: #e8f7ef;
+  background-image: radial-gradient(rgba(63, 179, 127, 0.16) 1.6px, transparent 1.8px);
+  background-size: 24px 24px;
 }
 
-.world-grid-note {
-  max-width: 62ch;
-  margin: 0 auto 30px;
-  padding: 14px 20px;
-  border: 2px dashed color-mix(in srgb, var(--green) 42%, #fff);
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--green) 7%, #fff);
-  color: var(--ink-soft);
-  text-align: center;
-  font-size: 0.95rem;
+.hunt {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 2.5px dashed var(--green);
+  background: #fff;
+  color: var(--ink) !important;
+  font-size: 1rem !important;
 }
+
+.db-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+  padding: 22px 28px;
+  border-radius: 28px;
+  border: var(--line);
+  background: linear-gradient(120deg, #1d5d8e 0%, #2b6cc0 100%);
+  box-shadow: 7px 7px 0 var(--green);
+  color: #fff;
+}
+
+.db-globe { font-size: 2.9rem; line-height: 1; animation: wiggle 5s ease-in-out infinite; }
+.db-text { flex: 1 1 340px; }
+.db-text h3 { margin: 0 0 4px; font-size: 1.45rem; color: #fff; }
+.db-text p { margin: 0; color: #e4f0ff; }
+
+/* Six topic shortcuts into the gallery's own ?tag= views. */
+.topics {
+  margin-top: 54px;
+  text-align: center;
+}
+
+.topics-title { font-size: 1.45rem; font-weight: 700; margin-bottom: 18px; }
+
+.topic-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.topic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 100%;
+  padding: 14px 16px;
+  border-radius: 20px;
+  border: 2.5px solid var(--ink);
+  background: color-mix(in srgb, var(--c) 26%, #fff);
+  box-shadow: 4px 4px 0 var(--c);
+  color: var(--ink);
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-decoration: none;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.topic span { font-size: 1.5rem; line-height: 1; }
+.topic:hover { transform: translate(-2px, -2px) rotate(-1deg); box-shadow: 6px 6px 0 var(--c); }
+
+.worlds .db-cta { margin-top: 46px; }
 
 .world-grid {
   display: grid;
-  gap: 34px;
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 860px) {
-  .world-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-  }
-
-  /* An ODD number of worlds leaves the last card stranded in the left column with a
-     hole beside it. Spanning it across both columns and laying it out side-on keeps
-     the grid balanced whatever the count is -- which matters, because worlds keep
-     getting added and nobody should have to remember to come back and re-tune this. */
-  .world-card:last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: 1.1fr 1fr;
-  }
-
-  .world-card:last-child:nth-child(odd) .world-shot img {
-    height: 100%;
-    aspect-ratio: auto;
-  }
+  gap: 26px 24px;
+  grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
 }
 
 .world-card {
-  background: var(--paper);
-  border: 3px solid var(--ink);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  overflow: hidden;
+  border-radius: 24px;
+  border: var(--line);
+  background: #fff;
+  box-shadow: 6px 6px 0 var(--accent, var(--green));
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
 }
 
-.world-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 26px 50px -14px rgba(30, 42, 58, 0.38);
-}
+.world-card:hover,
+.world-card:focus-within { transform: translate(-3px, -3px) rotate(-0.4deg); box-shadow: 9px 9px 0 var(--accent, var(--green)); }
 
 .world-shot {
   position: relative;
-  background: #14202b;
-  line-height: 0;
+  aspect-ratio: 16 / 10;
+  border-bottom: var(--line);
+  background: #cfe3f3;
+  overflow: hidden;
 }
 
 .world-shot img {
   width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 10;
+  height: 100%;
   object-fit: cover;
+  transition: transform 0.4s ease;
 }
+
+.world-card:hover .world-shot img { transform: scale(1.06); }
 
 .world-pin {
   position: absolute;
-  top: 14px;
-  left: 14px;
-  width: 46px;
-  height: 46px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--accent, var(--green));
-  border: 3px solid var(--ink);
-  font-size: 1.25rem;
-  line-height: 1;
-  box-shadow: var(--shadow-pop);
-}
-
-.world-body {
-  padding: 24px 26px 28px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.world-kicker {
-  display: inline-flex;
-  align-self: flex-start;
-  align-items: center;
-  gap: 6px;
-  background: color-mix(in srgb, var(--accent, var(--green)) 16%, #fff);
-  color: color-mix(in srgb, var(--accent, var(--green)) 70%, var(--ink));
-  border-radius: 999px;
-  padding: 5px 13px;
-  font-family: "Fredoka", sans-serif;
-  font-weight: 600;
-  font-size: 0.8rem;
-  margin-bottom: 12px;
-}
-
-.world-body h3 {
-  font-size: 1.55rem;
-  margin-bottom: 0.35em;
-}
-
-.world-body p {
-  color: var(--ink-soft);
-  margin-bottom: 18px;
-}
-
-.world-chips {
-  list-style: none;
-  margin: auto 0 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.world-chips li {
-  background: color-mix(in srgb, var(--accent, var(--green)) 12%, #fff);
-  border: 2px solid color-mix(in srgb, var(--accent, var(--green)) 34%, #fff);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: var(--ink);
-}
-
-/* The card's one action: through to that world's own page in the gallery.
-   FILLED, where the chips beside it are tinted outlines. The chips are labels and this is
-   the only thing in the card you can DO, so it has to win the card outright -- a third
-   pale accent-coloured pill in the same stack would read as one more label.
-   It carries the world's NAME rather than "open this world", because 22 identical link
-   texts on one page is what a screen reader reads out 22 times.
-
-   It goes to the world's own PAGE in the gallery, not straight into the app. The app is
-   a JavaScript bundle at one URL: sending every card link there routed both readers and
-   search engines past the only indexable content this project has, and threw away the
-   grade band, learning objective, standards and lesson-plan link that now sit on each
-   world page. The launch button lives there, one click further on, which is also where
-   a teacher deciding whether a world fits their lesson actually wants to be.
-
-   No auto margin here, deliberately: .world-chips already carries `margin: auto 0 0`, so
-   the free space in the card collects above the chips and pushes the chips AND this link
-   down together as one block. Giving this one an auto top margin as well would split the
-   gap between the two and leave the chips stranded up under the paragraph. */
-.world-open {
-  display: block;
-  margin-top: 18px;
-  padding: 11px 16px;
-  border: 3px solid var(--ink);
-  border-radius: 999px;
-  background: var(--accent, var(--green));
-  color: #fff;
-  font-family: "Fredoka", sans-serif;
-  font-weight: 600;
-  font-size: 0.98rem;
-  text-align: center;
-  text-decoration: none;
-  box-shadow: var(--shadow-pop);
-  transition: transform 0.15s ease, filter 0.15s ease;
-}
-
-.world-open:hover,
-.world-open:focus-visible {
-  transform: translateY(-2px);
-  filter: brightness(1.07);
-}
-
-/* How to switch worlds: a CSS replica of the in-app menu, so it stays crisp at any
-   size and never goes stale against a screenshot when the menu gains an item. */
-
-.world-switch {
-  margin-top: 56px;
-  background: var(--paper);
-  border: 3px solid var(--ink);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
-  padding: 30px;
-  display: grid;
-  gap: 28px;
-  align-items: center;
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 780px) {
-  .world-switch {
-    grid-template-columns: 236px 1fr;
-    gap: 40px;
-    padding: 36px 40px;
-  }
-}
-
-.menu-mock {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  font-family: "Nunito", system-ui, sans-serif;
-}
-
-.menu-mock-toggle,
-.menu-mock .mm-item,
-.menu-mock .mm-sub {
-  border-radius: 8px;
-  padding: 9px 12px;
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: #f2f5f7;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.07);
-}
-
-.menu-mock-toggle {
-  background: #26313c;
-  border-color: rgba(255, 255, 255, 0.2);
-  font-weight: 700;
-  align-self: flex-start;
-}
-
-.menu-mock-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(20, 32, 43, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
-}
-
-.menu-mock .mm-open {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.32);
-}
-
-.menu-mock .mm-sub {
-  margin-left: 14px;
-  background: rgba(125, 211, 252, 0.16);
-  border-color: rgba(125, 211, 252, 0.4);
-  color: #dff1ff;
-  font-size: 0.82rem;
-}
-
-.world-switch-text h3 {
-  font-size: 1.5rem;
-}
-
-.world-switch-text p {
-  color: var(--ink-soft);
-}
-
-.world-switch-note {
-  background: #eafaf1;
-  border-left: 5px solid var(--green);
-  border-radius: 0 12px 12px 0;
-  padding: 12px 16px;
-  margin-bottom: 0;
-  font-size: 0.95rem;
-}
-
-.section.tint-cream { background: #fff5e0; }
-.section.tint-blue { background: #eaf5ff; }
-/* Back to pale mint, tinted from --green (#3fb37f). This was briefly a pale OLIVE, to
-   echo the grass in the old logo -- and that reason has gone with it: the artwork is a
-   blue meadow now and has no green anywhere for a wash to agree with. An olive paper
-   would be the only green left on the page and would agree with nothing. So all four
-   washes are once again tinted from the app palette's own swatches, and the artwork's
-   colours live where the artwork does -- the hero and the closing CTA. */
-.section.tint-green { background: #eafaf1; }
-.section.tint-purple { background: #f4f0ff; }
-
-/* ---------- parents strip ---------- */
-
-.parents {
-  background: linear-gradient(160deg, #1c2b3d, #22384a);
-  color: #fff;
-  padding: 88px 0;
-}
-
-.parents .section-head h2,
-.parents .section-head p {
-  color: #fff;
-}
-
-.parents .section-head p {
-  color: #cfe3ee;
-}
-
-.parent-grid {
-  display: grid;
-  gap: 22px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-.parent-card {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: var(--radius-md);
-  padding: 26px;
-}
-
-.parent-card .icon {
-  font-size: 1.8rem;
-  margin-bottom: 12px;
-  display: block;
-}
-
-.parent-card h4 {
-  font-size: 1.08rem;
-  margin-bottom: 8px;
-}
-
-.parent-card p {
-  color: #c6d8e4;
-  font-size: 0.95rem;
-  margin: 0;
-}
-
-/* ---------- final CTA ---------- */
-
-.final-cta {
-  text-align: center;
-  padding: 110px 0 90px;
-  background: linear-gradient(180deg, var(--grass-bottom), #123650);
-  color: #fff;
-  position: relative;
-  overflow: hidden;
-}
-
-.final-cta h2 {
-  font-size: clamp(1.9rem, 4vw, 2.8rem);
-  color: #fff;
-}
-
-.final-cta p {
-  max-width: 48ch;
-  margin: 0 auto 30px;
-  font-size: 1.1rem;
-  color: #e8f4fd;
-}
-
-.final-cta .hero-cta-row {
-  margin-bottom: 8px;
-}
-
-.final-note {
-  font-size: 0.85rem;
-  color: #cfe4f2;
-}
-
-/* ---------- for developers ---------- */
-
-/* Sits between the blue play CTA and the near-black footer, so it is deliberately
-   dark: it reads as the start of the footer rather than as one more thing being
-   pitched at a child. */
-.devs {
-  background: linear-gradient(170deg, #182636, #101b26);
-  color: #fff;
-  padding: 90px 0 80px;
-}
-
-.devs .section-head h2 {
-  color: #fff;
-}
-
-.devs .section-head p {
-  color: #bcd0de;
-}
-
-.dev-eyebrow {
-  background: rgba(63, 179, 127, 0.16);
-  color: #7fe3b4;
-  font-family: "Fredoka", monospace;
-  letter-spacing: 0.06em;
-}
-
-.dev-panel {
-  display: grid;
-  gap: 30px;
-  align-items: start;
-}
-
-.dev-copy h3 {
-  font-size: 1.35rem;
-  color: #fff;
-}
-
-.dev-copy p {
-  color: #bcd0de;
-}
-
-.dev-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 26px;
-  display: grid;
-  gap: 12px;
-}
-
-.dev-list li {
-  position: relative;
-  padding-left: 26px;
-  color: #bcd0de;
-  line-height: 1.55;
-}
-
-/* A branch glyph rather than a bullet -- the section is about cutting your own. */
-.dev-list li::before {
-  content: "⑂";
-  position: absolute;
-  left: 0;
-  top: -1px;
-  color: var(--green);
-  font-size: 1.05rem;
-}
-
-.dev-list strong {
-  color: #fff;
-}
-
-.devs code {
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 0.9em;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 5px;
-  padding: 1px 6px;
-}
-
-.dev-cta-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-}
-
-.gh-mark {
-  flex: none;
-}
-
-.dev-terminal {
-  /* A grid item defaults to min-width: auto, which means "never shrink below your
-     content" -- so without this the un-wrappable clone URL inside would widen the
-     column itself and the pre's own overflow-x would never get a chance to scroll. */
-  min-width: 0;
-  background: #0b1017;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-}
-
-.dev-terminal-bar {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 11px 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.dev-terminal-title {
-  margin-left: 8px;
-  font-size: 0.78rem;
-  color: #7f95a6;
-}
-
-.dev-terminal pre {
-  margin: 0;
-  padding: 20px 22px 24px;
-  /* Commands are one long line each and must never be wrapped mid-URL -- scroll the
-     block itself instead, which is also what stops a narrow phone from being pushed
-     into a horizontal page scroll by this section. */
-  overflow-x: auto;
-}
-
-.dev-terminal code {
-  background: none;
-  padding: 0;
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  /* Sized so the clone line -- the longest, and the one a reader most needs to see
-     whole -- fits the panel on a desktop without being scrolled to. */
-  font-size: 0.8rem;
-  line-height: 1.85;
-  color: #d8e6f0;
-  white-space: pre;
-}
-
-.dev-terminal .c {
-  color: #6f8a9c;
-}
-
-@media (min-width: 900px) {
-  .dev-panel {
-    grid-template-columns: 1fr 1fr;
-    gap: 44px;
-    align-items: center;
-  }
-}
-
-/* ---------- footer ---------- */
-
-.site-footer {
-  background: #14202b;
-  color: #9db2c2;
-  padding: 44px 0 30px;
-  font-size: 0.9rem;
-}
-
-.footer-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 24px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  margin-bottom: 20px;
-}
-
-.footer-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #fff;
-  font-family: "Fredoka", sans-serif;
-  font-weight: 600;
-}
-
-.footer-links {
-  display: flex;
-  /* Wraps because this list grew past what a phone can hold on one line -- without it
-     the row runs off the right edge and drags the whole page into a sideways scroll. */
-  flex-wrap: wrap;
-  gap: 12px 22px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.footer-links a {
-  text-decoration: none;
-  color: #9db2c2;
-}
-
-.footer-links a:hover {
-  color: #fff;
-}
-
-.footer-fine {
-  color: #6d8494;
-}
-
-/* ---------- decorative floating dots (light orb nod) ---------- */
-
-.floaty {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(0.5px);
-  opacity: 0.65;
-  animation: bob 6s ease-in-out infinite;
-}
-
-@keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-16px); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .floaty {
-    animation: none;
-  }
-}
-
-/* --- The menu mock's newer rows ------------------------------------------ */
-
-/* Save World / Load World File sit inside Load World but are a different KIND of
-   action from the ready-made worlds above them, so they are toned down rather than
-   sharing the worlds' blue. Mirrors .menu-subitem-alt in the app itself. */
-/* Save World / Load World File. Amber, matching what the app's own menu does with
-   `.menu-subitem-alt` -- this mock is a picture of that menu, so when the file pair
-   stopped being a dimmer blue in the app it had to stop being a dimmer grey here. */
-.menu-mock .mm-alt {
-  background: rgba(242, 165, 65, 0.18);
-  border-color: rgba(242, 165, 65, 0.5);
-  color: #ffd9a3;
-}
-
-/* Get More Worlds. Green, matching `.menu-subitem-more` in the app -- the one button in
-   that menu that leaves the app, as distinct from the worlds above it (which change what
-   is on screen) and the file pair below it (which move a world between people). */
-.menu-mock .mm-more {
-  background: rgba(63, 179, 127, 0.18);
-  border-color: rgba(63, 179, 127, 0.5);
-  color: #a6ecc9;
-}
-
-.menu-mock .mm-vr {
-  background: rgba(167, 139, 250, 0.18);
-  border-color: rgba(167, 139, 250, 0.42);
-  color: #ede9fe;
-}
-
-/* --- View in VR ---------------------------------------------------------- */
-
-.vr-section {
-  background: linear-gradient(170deg, #10192a, #1c1533);
-  color: #eef2f8;
-}
-
-.vr-section .section-head h2 {
-  color: #fff;
-}
-
-.vr-section .section-head p {
-  color: rgba(238, 242, 248, 0.82);
-}
-
-.vr-shot {
-  margin: 0 0 40px;
-  border-radius: 18px;
-  overflow: hidden;
-  border: 1px solid rgba(167, 139, 250, 0.34);
-  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.42);
-  background: #0b1120;
-}
-
-.vr-shot img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.vr-shot figcaption {
-  padding: 14px 18px;
-  font-size: 0.92rem;
-  color: rgba(238, 242, 248, 0.72);
-  text-align: center;
-}
-
-.vr-ways {
-  display: grid;
-  gap: 22px;
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 760px) {
-  .vr-ways {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.vr-way {
-  padding: 24px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.vr-way .icon {
-  font-size: 1.8rem;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.vr-way h4 {
-  margin: 0 0 8px;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 1.12rem;
-  color: #fff;
-}
-
-.vr-way p {
-  margin: 0;
-  font-size: 0.96rem;
-  line-height: 1.6;
-  color: rgba(238, 242, 248, 0.78);
-}
-
-.vr-note {
-  margin: 28px auto 0;
-  max-width: 760px;
-  padding: 16px 20px;
-  border-radius: 14px;
-  background: rgba(167, 139, 250, 0.12);
-  border: 1px solid rgba(167, 139, 250, 0.3);
-  font-size: 0.96rem;
-  line-height: 1.6;
-  color: rgba(238, 242, 248, 0.86);
-  text-align: center;
-}
-
-/* --------------------------------------------------------------------------
-   Hands-On Guide callout, in the worlds section. The guide is the one part of
-   the site a visitor is meant to LEAVE with, so it gets a real block rather
-   than only a nav link.
-   -------------------------------------------------------------------------- */
-
-.guide-callout {
-  display: grid;
-  grid-template-columns: 1.05fr 1fr;
-  gap: 1.8rem;
-  align-items: center;
-  margin-top: 2.2rem;
-  padding: 1.6rem 1.8rem;
-  background: var(--cream, #fdf7ea);
-  border: 2px solid rgba(0, 0, 0, 0.08);
-  border-radius: 22px;
-}
-
-.guide-callout h3 {
-  font-size: clamp(1.4rem, 3vw, 1.9rem);
-  margin: 0.6rem 0 0.5rem;
-}
-
-.guide-callout p {
-  margin-bottom: 1.1rem;
-}
-
-.guide-callout img {
-  width: 100%;
-  border-radius: 14px;
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  display: block;
-}
-
-@media (max-width: 820px) {
-  .guide-callout {
-    grid-template-columns: 1fr;
-  }
-  .guide-callout img {
-    order: -1;
-  }
-}
-
-/* ==========================================================================
-   MODEL BUILDER + CODING BLOCKS
-   Pillars one and two. Everything below is new for the Model Builder
-   release; the app-mock family is the same trick .menu-mock already uses —
-   a CSS replica of a panel in the app, so it stays crisp at any size and
-   never goes stale against a screenshot when a button gets renamed.
-   ========================================================================== */
-
-/* ---------- the three pillars ----------
-   Build it, code it, explore it -- the whole page is now organised around these, so
-   the set appears twice: as three cards here, and as a numbered badge at the head of
-   each of the three deep sections further down. Each pillar owns ONE colour
-   (orange / purple / green) and keeps it in both places, which is what makes the
-   badge halfway down the page read as "this is still pillar two". */
-
-.pillars {
-  background: linear-gradient(180deg, #fff 0%, #fdf3e2 100%);
-}
-
-.pillar-grid {
-  display: grid;
-  gap: 26px;
-  grid-template-columns: 1fr;
-  margin-top: 44px;
-}
-
-/* Tablet portrait: three stacked full-width cards is a lot of scrolling for what is
-   meant to be one glance, so each card turns side-on instead. */
-@media (min-width: 620px) and (max-width: 959px) {
-  .pillar-card {
-    display: grid;
-    grid-template-columns: 0.95fr 1.15fr;
-    align-items: stretch;
-  }
-
-  .pillar-shot img {
-    height: 100%;
-    aspect-ratio: auto;
-    border-bottom: none;
-    border-right: 3px solid var(--ink);
-  }
-
-  .pillar-num { bottom: auto; top: 14px; }
-}
-
-@media (min-width: 960px) {
-  .pillar-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-.pillar-card {
-  position: relative;
-  text-decoration: none;
-  color: inherit;
-  background: var(--paper);
-  border: 3px solid var(--ink);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-soft);
-  transition: transform 0.16s ease, box-shadow 0.16s ease;
-}
-
-.pillar-card::after {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 9px;
-  background: var(--accent, var(--orange));
-  z-index: 2;
-}
-
-.pillar-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 26px 50px -14px rgba(30, 42, 58, 0.36);
-}
-
-.pillar-shot {
-  position: relative;
-  background: #dceaf6;
-  line-height: 0;
-}
-
-.pillar-shot img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-  border-bottom: 3px solid var(--ink);
-}
-
-.pillar-num {
-  position: absolute;
-  left: 14px;
-  bottom: -24px;
-  width: 52px;
-  height: 52px;
-  display: grid;
-  place-items: center;
-  font-family: "Fredoka", sans-serif;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #fff;
-  border-radius: 50%;
-  background: var(--accent, var(--orange));
-  border: 3px solid var(--ink);
-  box-shadow: var(--shadow-pop);
-  z-index: 3;
-}
-
-.pillar-body {
-  padding: 34px 24px 24px;
-}
-
-.pillar-kicker {
-  display: inline-block;
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--accent, var(--orange)) 42%, var(--ink));
-  margin-bottom: 6px;
-}
-
-.pillar-body h3 {
-  font-size: clamp(1.4rem, 2.6vw, 1.85rem);
-  margin: 0 0 0.5rem;
-}
-
-.pillar-body p {
-  color: var(--ink-soft);
-  margin-bottom: 0.9rem;
-}
-
-.pillar-more {
-  font-weight: 800;
-  color: color-mix(in srgb, var(--accent, var(--orange)) 42%, var(--ink));
-}
-
-/* The badge that re-introduces a pillar at the head of its own deep section. */
-.pillar-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-  padding: 5px 18px 5px 5px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--accent, var(--orange)) 15%, #fff);
-  border: 2px solid color-mix(in srgb, var(--accent, var(--orange)) 40%, #fff);
-  font-family: "Fredoka", sans-serif;
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: color-mix(in srgb, var(--accent, var(--orange)) 40%, var(--ink));
-}
-
-.pillar-badge b {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--accent, var(--orange));
-  color: #fff;
-  font-size: 0.98rem;
-}
-
-/* ---------- model builder ---------- */
-
-.builder { background: #fff5e0; }
-
-.build-hero {
-  margin: 40px 0 0;
-  border: 3px solid var(--ink);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--paper);
-  box-shadow: var(--shadow-soft);
-}
-
-.build-hero img {
-  display: block;
-  width: 100%;
-  border-bottom: 3px solid var(--ink);
-}
-
-.build-hero figcaption {
-  padding: 14px 20px;
-  font-weight: 700;
-  color: var(--ink-soft);
-  text-align: center;
-}
-
-.build-steps {
-  list-style: none;
-  margin: 46px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 34px;
-}
-
-.build-step {
-  display: grid;
-  gap: 26px;
-  align-items: center;
-  grid-template-columns: 1fr;
-  background: var(--paper);
-  border: 3px solid var(--ink);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  box-shadow: var(--shadow-soft);
-}
-
-@media (min-width: 880px) {
-  .build-step { grid-template-columns: 1fr 1.05fr; padding: 30px 34px; }
-  .build-step.reverse .bs-text { order: 2; }
-  .build-step.reverse .bs-media { order: 1; }
-}
-
-.bs-num {
+  top: 10px;
+  left: 10px;
   display: grid;
   place-items: center;
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--orange);
-  border: 3px solid var(--ink);
-  font-family: "Fredoka", sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #402200;
-  margin-bottom: 12px;
-  box-shadow: var(--shadow-pop);
-}
-
-.bs-text h3 {
-  font-size: clamp(1.3rem, 2.6vw, 1.75rem);
-  margin: 0 0 0.6rem;
-}
-
-.bs-text p { color: var(--ink-soft); }
-
-.bs-aside {
+  border: 2.5px solid var(--ink);
   background: #fff;
-  border-left: 5px solid var(--orange);
-  border-radius: 0 12px 12px 0;
-  padding: 10px 14px;
-  margin-bottom: 0;
-  font-size: 0.95rem;
+  box-shadow: 3px 3px 0 var(--accent, var(--green));
+  font-size: 1.3rem;
 }
 
-.bs-media .browser-frame { max-width: none; }
-
-.build-why {
-  display: grid;
-  gap: 20px;
-  grid-template-columns: 1fr;
-  margin-top: 40px;
-}
-
-@media (min-width: 760px) {
-  .build-why { grid-template-columns: repeat(3, 1fr); }
-}
-
-.bw-item {
-  background: var(--paper);
-  border: 3px solid var(--ink);
-  border-radius: var(--radius-md);
-  padding: 20px 22px;
-}
-
-.bw-item .icon { font-size: 1.8rem; }
-.bw-item h4 { font-size: 1.1rem; margin: 8px 0 6px; }
-.bw-item p { margin: 0; color: var(--ink-soft); font-size: 0.95rem; }
-
-/* ---------- app-panel replicas ---------- */
-
-.app-mock {
+.world-body {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  font-family: "Nunito", system-ui, sans-serif;
-  max-width: 300px;
-  margin-inline: auto;
+  flex: 1;
+  padding: 16px 18px 18px;
 }
 
-.app-mock.am-narrow { max-width: 268px; }
-
-.am-toggle,
-.app-mock .am-item,
-.app-mock .am-sub,
-.app-mock .am-field {
-  border-radius: 8px;
-  padding: 9px 12px;
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: #f2f5f7;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.07);
-}
-
-.am-toggle {
-  background: #26313c;
-  border-color: rgba(255, 255, 255, 0.2);
-  font-weight: 700;
+.world-kicker {
   align-self: flex-start;
-}
-
-.am-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(20, 32, 43, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
-}
-
-.am-panel.am-float { border-radius: 12px; }
-
-.app-mock .am-open {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.32);
-}
-
-.app-mock .am-sub {
-  margin-left: 14px;
-  background: rgba(242, 165, 65, 0.2);
-  border-color: rgba(242, 165, 65, 0.45);
-  color: #ffe8c9;
-  font-size: 0.82rem;
-}
-
-.app-mock .am-vr {
-  border-color: rgba(167, 139, 250, 0.4);
-  background: rgba(167, 139, 250, 0.14);
-}
-
-.am-title {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.68rem;
-  text-transform: uppercase;
+  padding: 3px 11px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent, var(--green)) 22%, #fff);
+  border: 1.5px solid color-mix(in srgb, var(--accent, var(--green)) 60%, var(--ink));
+  font-size: 0.72rem;
+  font-weight: 800;
   letter-spacing: 0.05em;
-  padding: 2px 4px;
-  font-weight: 700;
-}
-
-.am-swatches {
-  display: flex;
-  gap: 7px;
-  padding: 2px 4px;
-  flex-wrap: wrap;
-}
-
-.am-swatches i {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.am-swatches i:first-child {
-  border-color: #f2f5f7;
-  box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.6);
-}
-
-.app-mock .am-field {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: none;
-  border: none;
-  padding: 0 6px;
-  font-size: 0.82rem;
-}
-
-.am-field b {
-  width: 34px;
-  height: 20px;
-  border-radius: 5px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
-
-.am-note {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.74rem;
-  line-height: 1.35;
-  padding: 0 6px;
-}
-
-.app-mock .am-back { opacity: 0.72; }
-
-/* ---------- coding blocks ---------- */
-
-.coding { background: #f4f0ff; }
-
-.code-showcase {
-  display: grid;
-  gap: 28px;
-  grid-template-columns: 1fr;
-  align-items: center;
-  margin-top: 40px;
-  background: var(--paper);
-  border: 3px solid var(--ink);
-  border-radius: var(--radius-lg);
-  padding: 26px;
-  box-shadow: var(--shadow-soft);
-}
-
-@media (min-width: 880px) {
-  .code-showcase { grid-template-columns: 300px 1fr; padding: 32px 36px; gap: 38px; }
-}
-
-.code-blocks {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 7px;
-}
-
-.cb {
-  display: inline-block;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.92rem;
-  border-radius: 10px;
-  padding: 0.34rem 0.8rem;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 2px 3px rgba(0, 0, 0, 0.16);
-}
-
-.cb b {
-  background: rgba(255, 255, 255, 0.9);
-  color: #2a2f36;
-  border-radius: 999px;
-  padding: 0 0.4em;
-  margin: 0 0.1em;
-}
-
-.cb.ctrl { background: #ffab19; }
-.cb.motion { background: #4c97ff; }
-.cb.look { background: #9966ff; }
-.cb.d1 { margin-left: 1.4rem; }
-.cb.spacer { box-shadow: none; height: 10px; padding: 0; }
-
-.code-shot .browser-frame { max-width: none; }
-
-.code-caption {
-  margin: 14px 0 0;
-  color: var(--ink-soft);
-  font-size: 0.95rem;
-}
-
-.code-grid {
-  display: grid;
-  gap: 20px;
-  grid-template-columns: 1fr;
-  margin-top: 34px;
-}
-
-@media (min-width: 760px) {
-  .code-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-.code-card {
-  background: var(--paper);
-  border: 3px solid var(--ink);
-  border-top: 10px solid var(--accent, var(--purple));
-  border-radius: var(--radius-md);
-  padding: 20px 22px;
-}
-
-.cc-tag {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--accent, var(--purple)) 70%, var(--ink));
 }
 
-.code-card h4 { font-size: 1.02rem; margin: 6px 0 8px; }
-.code-card p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+.world-body h3 { margin: 10px 0 6px; font-size: 1.24rem; font-weight: 700; }
 
-.code-notes {
-  margin-top: 28px;
-  background: #fff;
-  border: 3px solid var(--ink);
-  border-radius: var(--radius-md);
-  padding: 18px 22px;
-}
-
-.code-notes p { margin: 0; color: var(--ink-soft); }
-
-/* ---------- tutorials callout ---------- */
-
-.tutorial-callout-section { background: #eafaf1; }
-
-.tutorial-callout {
-  display: grid;
-  gap: 30px;
-  grid-template-columns: 1fr;
-  align-items: center;
-  background: var(--paper);
-  border: 3px solid var(--ink);
-  border-radius: var(--radius-lg);
-  padding: 28px;
-  box-shadow: var(--shadow-soft);
-}
-
-@media (min-width: 840px) {
-  .tutorial-callout { grid-template-columns: 1.25fr 1fr; padding: 34px 38px; }
-}
-
-.tc-text h3 { font-size: clamp(1.4rem, 3vw, 2rem); margin: 0.6rem 0 0.6rem; }
-.tc-text p { color: var(--ink-soft); }
-.tc-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
-
-.tc-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 9px;
-}
-
-.tc-list li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #eafaf1;
-  border: 2px solid rgba(63, 179, 127, 0.4);
-  border-radius: 12px;
-  padding: 10px 14px;
-  font-weight: 700;
-}
-
-.tc-list li span {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  flex: none;
-  border-radius: 50%;
-  background: var(--green);
-  color: #fff;
-  font-size: 0.82rem;
-}
-
-/* ---------- odds and ends ---------- */
-
-.mono-inline {
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.9em;
-  background: rgba(0, 0, 0, 0.06);
-  border-radius: 5px;
-  padding: 0.05em 0.35em;
-}
-
-.parents-cta {
-  margin: 34px 0 0;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 1.02rem;
-}
-
-.parents-cta a { color: #ffe082; font-weight: 700; }
-
-/* .btn-ghost is authored for the dark hero — white text on a white veil. On the light
-   panels added with the Model Builder release it would be invisible, so those places
-   get an ink-on-paper version rather than a second button class in the markup. */
-.tc-cta .btn-ghost {
-  background: rgba(30, 42, 58, 0.06);
-  color: var(--ink);
-  border-color: rgba(30, 42, 58, 0.35);
-}
-
-.tc-cta .btn-ghost:hover {
-  background: rgba(30, 42, 58, 0.12);
-}
-
-/* ==========================================================================
-   Pillar-three support: the worlds arrive with things already wired to program
-   ========================================================================== */
-
-.activity-strip {
-  display: grid;
-  gap: 30px;
-  grid-template-columns: 1fr;
-  align-items: center;
-  margin: 0 0 52px;
-  padding: 28px;
-  background: var(--paper);
-  border: 3px solid var(--ink);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
-}
-
-@media (min-width: 880px) {
-  .activity-strip {
-    grid-template-columns: 1.05fr 1fr;
-    padding: 34px 38px;
-    gap: 40px;
-  }
-}
-
-.activity-strip .browser-frame {
-  transform: none;
-  max-width: none;
-}
-
-.as-text h3 {
-  font-size: clamp(1.35rem, 2.8vw, 1.9rem);
-  margin: 0.5rem 0 0.6rem;
-}
-
-.as-text p { color: var(--ink-soft); }
-
-.as-points {
-  list-style: none;
-  margin: 18px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 10px;
-}
-
-.as-points li {
-  display: flex;
-  gap: 11px;
-  align-items: flex-start;
-  font-weight: 600;
-  color: var(--ink);
-  font-size: 0.98rem;
-}
-
-.as-points li span {
-  flex: none;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: var(--green);
-  color: #fff;
-  font-size: 0.8rem;
-}
-
-/* The blocks a board actually prints, in the app's own category colours. Same trick
-   as .code-blocks, but inline so it can sit in a sentence. */
-.as-chip {
-  display: inline-block;
-  border-radius: 8px;
-  padding: 0.08em 0.5em;
-  font-weight: 700;
-  font-size: 0.9em;
-  color: #fff;
-  white-space: nowrap;
-}
-
-.as-chip.ctrl { background: #ffab19; color: #3d2600; }
-.as-chip.motion { background: #4c97ff; }
-.as-chip.look { background: #9966ff; }
-
-/* ===========================================================================
-   2026 REDESIGN LAYER
-   Components introduced by the re-imagined landing page. Everything above this
-   rule is the original design system (tokens, nav, hero, buttons, pillars,
-   build steps, world cards, footer) and is still load-bearing — the gallery's
-   database.css mirrors it. Everything below is new furniture for the new page.
-   =========================================================================== */
-
-/* --- hero extras ---------------------------------------------------------- */
-
-.hero-fine {
-  display: inline-block;
-  margin-top: 10px;
-  font-size: 0.95rem;
-  font-weight: 700;
+/* Three lines, then an ellipsis. The full text is still in the page -- a screen reader
+   and a search engine get every word, and the world's own gallery page carries it in
+   full one click away. */
+.world-body > p {
+  margin: 0 0 12px;
+  font-size: 0.93rem;
+  line-height: 1.5;
   color: var(--ink-soft);
-}
-
-.btn-big {
-  font-size: 1.18rem;
-  padding: 16px 30px;
-}
-
-/* Four screenshots fanned under the hero copy — proof before prose. Hidden from
-   assistive tech (aria-hidden): the same worlds appear below with real names. */
-.shot-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-top: 34px;
-}
-
-.shot-strip img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  border-radius: var(--radius-md);
-  border: 3px solid #fff;
-  box-shadow: var(--shadow-soft);
-  transform: rotate(-1.2deg);
-}
-
-.shot-strip img:nth-child(2n) { transform: rotate(1.1deg); }
-
-@media (max-width: 720px) {
-  .shot-strip { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .shot-strip img { height: 110px; }
-}
-
-/* --- generic in-section CTA row ------------------------------------------- */
-
-.cta-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 34px;
-}
-
-/* --- the two coding lanes -------------------------------------------------- */
-
-.lane-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 26px;
-  margin-top: 34px;
-}
-
-@media (max-width: 880px) {
-  .lane-grid { grid-template-columns: 1fr; }
-}
-
-.code-lane {
-  background: #fff;
-  border-radius: var(--radius-lg);
-  border-top: 6px solid var(--accent, var(--purple));
-  box-shadow: var(--shadow-soft);
-  padding: 22px 22px 26px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.lane-head { display: flex; align-items: center; gap: 12px; }
-
-.lane-tag {
-  color: #fff;
-  font-weight: 800;
-  font-size: 0.82rem;
-  padding: 5px 12px;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
-.lane-head h3 { font-family: Fredoka, sans-serif; font-size: 1.3rem; }
-
-.code-lane p { color: var(--ink-soft); font-size: 0.98rem; }
-
-/* The JavaScript editor, drawn in HTML so it stays sharp at every size. The token
-   colours are the in-app editor's own (src/JsProgram.js) — the page teaches the
-   palette the student will actually see. */
-.js-mock {
-  background: #171c24;
-  border-radius: var(--radius-md);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
-.jsm-bar {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 10px 14px;
-  background: #232b38;
-}
-
-.jsm-dot { width: 11px; height: 11px; border-radius: 50%; }
-
-.jsm-toggle {
-  margin-left: auto;
-  display: inline-flex;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 7px;
-  overflow: hidden;
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: #9aa7b2;
-}
-
-.jsm-toggle span { padding: 3px 10px; }
-
-.jsm-toggle .on { background: #f2d21e; color: #20242a; }
-
-.jsm-code {
-  margin: 0;
-  padding: 16px 18px 20px;
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 0.88rem;
-  line-height: 1.65;
-  color: #e8eef4;
-  overflow-x: auto;
-}
-
-.tok-k { color: #c792ea; }
-.tok-f { color: #82aaff; }
-.tok-n { color: #f78c6c; }
-.tok-s { color: #c3e88d; }
-.tok-c { color: #6b7d8c; font-style: italic; }
-
-/* --- the World Database band ----------------------------------------------- */
-
-.db-cta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 22px;
-  flex-wrap: wrap;
-  background: linear-gradient(120deg, var(--grass-top), var(--grass-bottom));
-  color: #fff;
-  border-radius: var(--radius-lg);
-  padding: 24px 28px;
-  margin: 30px 0 26px;
-  box-shadow: var(--shadow-soft);
-}
-
-.db-cta h3 { font-family: Fredoka, sans-serif; font-size: 1.35rem; margin-bottom: 4px; }
-
-.db-cta p { opacity: 0.92; max-width: 560px; font-size: 0.98rem; }
-
-/* --- world categories ------------------------------------------------------ */
-
-.cat-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 8px;
-}
-
-.cat-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: #fff;
-  border: 2px solid rgba(30, 42, 58, 0.12);
-  border-radius: 999px;
-  padding: 8px 16px;
-  font-weight: 800;
-  font-size: 0.92rem;
-  color: var(--ink);
-  text-decoration: none;
-  transition: transform 0.15s ease, border-color 0.15s ease;
-}
-
-.cat-chip:hover { transform: translateY(-2px); border-color: var(--green); }
-
-.cat-chip b {
-  background: var(--green);
-  color: #fff;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  padding: 1px 8px;
-}
-
-.cat-block { margin-top: 34px; }
-
-/* Jump targets land under the sticky nav, not behind it. */
-.cat-block, .section { scroll-margin-top: 84px; }
-
-.cat-head { max-width: 720px; margin: 0 0 16px; }
-
-.cat-head h3 {
-  font-family: Fredoka, sans-serif;
-  font-size: 1.5rem;
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-}
-
-.cat-head h3 small {
-  font-family: Nunito, sans-serif;
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: var(--ink-soft);
-  background: rgba(30, 42, 58, 0.08);
-  border-radius: 999px;
-  padding: 2px 10px;
-  white-space: nowrap;
-}
-
-.cat-head p { color: var(--ink-soft); margin-top: 2px; }
-
-/* --- tutorial tracks ------------------------------------------------------- */
-
-.tut-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-  gap: 22px;
-  margin-top: 30px;
-}
-
-.tut-card {
-  background: #fff;
-  border-radius: var(--radius-lg);
-  border-top: 6px solid var(--accent, var(--blue));
-  box-shadow: var(--shadow-soft);
-  padding: 24px 24px 26px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.tut-emoji { font-size: 2rem; line-height: 1; }
-
-.tut-card h3 { font-family: Fredoka, sans-serif; font-size: 1.35rem; }
-
-.tut-card > p { color: var(--ink-soft); }
-
-.tut-card ul {
-  margin: 4px 0 8px;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.tut-card li {
-  position: relative;
-  padding-left: 24px;
-  font-size: 0.95rem;
-  color: var(--ink-soft);
-}
-
-.tut-card li::before {
-  content: "✓";
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-weight: 900;
-  color: var(--accent, var(--blue));
-}
-
-.tut-cta {
+/* margin-top: auto pins the button to the bottom of the card whatever the blurb's
+   length, so the buttons line up along each row. (The full world cards this page used
+   to carry put the auto margin on a row of chips instead; the featured cards have none.) */
+.world-open {
   margin-top: auto;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.tut-cta .btn { font-size: 0.92rem; padding: 10px 16px; }
-
-.tut-note {
-  text-align: center;
-  margin-top: 26px;
-  color: var(--ink-soft);
-  font-weight: 700;
-}
-
-.tut-note a { color: var(--denim); }
-
-/* --- "also in the box" / teachers tiles ------------------------------------ */
-
-.more-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 18px;
-  margin-top: 28px;
-}
-
-.more-card {
-  background: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-soft);
-  padding: 20px 20px 22px;
-}
-
-.more-card .icon { font-size: 1.7rem; display: block; margin-bottom: 8px; }
-
-.more-card h4 { font-family: Fredoka, sans-serif; font-size: 1.06rem; margin-bottom: 4px; }
-
-.more-card p { color: var(--ink-soft); font-size: 0.93rem; }
-
-/* --- ghost buttons on light sections --------------------------------------- */
-
-.cta-row .btn-ghost,
-.tut-cta .btn-ghost,
-.db-cta .btn-ghost {
-  background: rgba(255, 255, 255, 0.85);
-  color: var(--ink);
-  border: 2px solid rgba(30, 42, 58, 0.2);
-}
-
-.cta-row .btn-ghost:hover,
-.tut-cta .btn-ghost:hover {
-  border-color: var(--denim);
-  color: var(--denim);
-}
-
-/* --- footer link row -------------------------------------------------------- */
-
-.foot-links { margin-top: 10px; }
-
-.foot-links a { color: #cfe2f2; font-weight: 700; }
-
-.foot-links a:hover { color: #fff; }
-
-/* --- reveal-on-scroll -------------------------------------------------------
-   The hidden state is applied BY SCRIPT (.reveal-armed), never by this sheet
-   alone: with no JavaScript, or with reduced motion, everything is simply
-   visible. */
-
-.reveal-armed {
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.reveal-armed.is-in {
-  opacity: 1;
-  transform: none;
-}
-
-/* --- research emphasis (2026) ----------------------------------------------
-   Two pieces: the hero's one-line research claim, and the flagship card at the
-   top of "Made for Learning". Both are doors to docs/research/ — the claim
-   itself is substantiated there, not here, which is why each is a link. */
-
-.hero-research {
-  display: inline-block;
-  margin: 18px auto 0;
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--ink);
-  text-decoration: none;
-  font-size: 0.95rem;
-  padding: 10px 20px;
-  border-radius: 999px;
-  border: 2px solid #fff;
-  box-shadow: 0 8px 22px -12px rgba(30, 42, 58, 0.5);
-}
-
-.hero-research strong { color: var(--denim); }
-
-.hero-research .hr-more {
-  font-weight: 800;
-  color: var(--denim);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  white-space: nowrap;
-}
-
-.hero-research:hover { background: #fff; transform: translateY(-1px); }
-
-/* The four measured effect sizes, above the fold.
-
-   They were only in the "Made for Learning" section three screens down, which put the
-   single strongest thing this project can say behind a scroll most visitors never make.
-   The line above still carries the sentence; this carries the numbers, because a
-   figure with a source under it is the claim and the sentence is only a promise of one.
-
-   ONE LINK WRAPPING FOUR FIGURES, not four links. All four go to the same page, and
-   four adjacent links to one destination is four tab stops and four announcements for
-   one idea. The aria-label carries what the visual grouping says.
-
-   Deliberately NOT a `.reveal` element: it sits in the hero, and the reveal script
-   starts elements invisible, so anything above the fold that opts in flashes in on
-   first paint. */
-.hero-evidence {
-  display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  align-items: stretch;
-  gap: 10px;
-  max-width: 760px;
-  margin: 14px auto 0;
-  padding: 0;
-  text-decoration: none;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 2.5px solid var(--ink);
+  background: color-mix(in srgb, var(--accent, var(--green)) 26%, #fff);
+  box-shadow: 0 4px 0 var(--ink);
   color: var(--ink);
-}
-
-.hero-evidence .he-fig {
-  flex: 1 1 158px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 2px solid #fff;
-  border-radius: var(--radius-sm);
-  padding: 11px 12px;
-  box-shadow: 0 8px 22px -14px rgba(30, 42, 58, 0.5);
-  transition: transform 0.15s ease, background 0.15s ease;
-}
-
-.hero-evidence .he-fig b {
-  display: block;
   font-family: "Fredoka", sans-serif;
   font-weight: 600;
-  font-size: 1.28rem;
-  line-height: 1.05;
-  color: var(--denim);
-  /* Tabular figures: four numbers side by side should agree on digit width, or the row
-     reads as four unrelated measurements rather than one comparison. */
-  font-variant-numeric: tabular-nums;
-}
-
-.hero-evidence .he-fig small {
-  display: block;
-  margin-top: 5px;
-  font-size: 0.71rem;
-  font-weight: 700;
-  line-height: 1.3;
-  color: var(--ink-soft);
-}
-
-.hero-evidence .he-more {
-  flex: 1 1 100%;
+  font-size: 0.98rem;
   text-align: center;
-  font-weight: 800;
-  font-size: 0.88rem;
-  color: #10283c;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  padding-top: 2px;
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
 }
 
-.hero-evidence:hover .he-fig { background: #fff; transform: translateY(-2px); }
+.world-open:hover { background: color-mix(in srgb, var(--accent, var(--green)) 45%, #fff); transform: translateY(-1px); box-shadow: 0 5px 0 var(--ink); }
+.world-open:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
 
-/* Below about 430px four cards at 158px wrap to four rows and push the launch button
-   off the first screen, which is the one thing the hero must never do. Two up. */
-@media (max-width: 430px) {
-  .hero-evidence .he-fig { flex-basis: calc(50% - 5px); }
-  .hero-evidence .he-fig small { font-size: 0.67rem; }
-}
-
-.research-card {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 26px;
-  background: linear-gradient(135deg, var(--denim), #1b5a86);
-  color: #eaf4fd;
-  border-radius: var(--radius-lg);
-  padding: 30px 32px;
-  margin-bottom: 26px;
-  box-shadow: var(--shadow-soft);
-}
-
-.research-card h3 {
-  color: #fff;
-  font-size: clamp(1.3rem, 2.6vw, 1.7rem);
-  margin: 8px 0 10px;
-}
-
-.research-card p { font-size: 0.97rem; line-height: 1.6; }
-.research-card p strong { color: #ffd98a; }
-
-.rc-kicker {
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #fff;
-  font-weight: 800;
-  font-size: 0.74rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  padding: 5px 12px;
-  border-radius: 999px;
-}
-
-.rc-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
-
-.rc-stats { display: grid; gap: 12px; align-content: center; }
-
-.rc-stat {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-}
-
-.rc-num {
-  display: block;
-  font-family: "Fredoka", sans-serif;
-  font-weight: 700;
-  font-size: 1.35rem;
-  color: #ffd98a;
-  line-height: 1.1;
-}
-
-.rc-what { display: block; font-weight: 700; font-size: 0.85rem; margin-top: 2px; }
-.rc-src { display: block; font-size: 0.74rem; color: #b9d4ea; font-style: italic; margin-top: 2px; }
-
-@media (max-width: 780px) {
-  .research-card { grid-template-columns: 1fr; padding: 24px 22px; }
-}
-
-/* --- the wedge, the trade-off, and the sign-up (2026 marketing pass) ---------
-   All three live in the "Made for Learning" section, which is the one part of this
-   page written for the adult reading it rather than for the child using it. */
-
-/* One sentence, set larger than body copy and ruled top and bottom, because it is the
-   positioning line and it is repeated verbatim on the schools page and in both briefs.
-   Not a blockquote: nobody said it. */
-.wedge {
-  max-width: 62ch;
-  margin: 0 auto 30px;
-  padding: 18px 0;
-  border-top: 3px solid var(--denim);
-  border-bottom: 2px solid rgba(30, 42, 58, 0.14);
-  font-size: 1.14rem;
-  line-height: 1.5;
-  text-align: center;
-}
-
-.wedge strong { color: var(--denim); }
-
-/* The trade-off. Red-ruled rather than red-filled: this is candour, not a warning, and a
-   full alarm-coloured panel on a page for teachers reads as something having gone wrong. */
-.tradeoff {
-  background: #fff;
-  border: 3px solid rgba(30, 42, 58, 0.12);
-  border-left: 8px solid var(--red);
-  border-radius: var(--radius-md);
-  padding: 22px 26px;
-  margin: 26px 0;
-}
-
-.tradeoff h3 { margin-bottom: 0.4em; }
-.tradeoff p { color: var(--ink-soft); }
-.tradeoff p:last-of-type { margin-bottom: 0; }
-
-.tradeoff-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  margin-top: 16px !important;
-}
-
-.tradeoff-links a { font-weight: 800; color: var(--denim); }
-
-/* The sign-up. Copy and button side by side on a wide screen, stacked below it -- and
-   the button keeps a real target size in both, since on a phone it is the only thing in
-   the row anyone is trying to hit. */
-.signup {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 20px;
-  background: var(--cream);
-  border: 3px solid var(--orange);
-  border-radius: var(--radius-md);
-  padding: 22px 26px;
-  margin: 26px 0;
-}
-
-.signup-copy { flex: 1 1 320px; }
-.signup-copy h3 { margin-bottom: 0.35em; }
-.signup-copy p { margin: 0; color: var(--ink-soft); font-size: 0.96rem; }
-.signup-btn { flex: 0 0 auto; }
-
-.foot-sub { margin-top: 10px; font-size: 0.92rem; opacity: 0.9; }
-
-/* ============================ EDUSIM HIFI ============================
+/* ---------- 2 · Edusim HiFi ----------
    The one DARK band on the page, and deliberately: it is the premium edition, its
    screenshots are the richest images on the site, and a dark surround is what a picture
    wants. The colours are still the logo's own -- the deep field blue underfoot, run down
    toward night -- so it reads as the same brand after dark rather than as another product. */
+
 .hifi-section {
+  --band: var(--grass-bottom);
   background:
-    radial-gradient(1200px 520px at 50% -8%, rgba(77, 163, 236, 0.28), transparent 70%),
+    radial-gradient(1200px 520px at 50% -8%, rgba(77, 163, 236, 0.3), transparent 70%),
     linear-gradient(180deg, var(--grass-bottom) 0%, #143a5c 38%, #0d2238 100%);
   color: #eaf3fb;
 }
 
-.hifi-section .section-head { max-width: 760px; }
-.hifi-section .section-head h2 { color: #fff; }
-.hifi-section .section-head p { color: #cfe0ef; }
-.hifi-section .section-head p strong { color: #ffd98a; }
+.stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1.6px 1.6px at 30px 40px, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 120px 90px, #ffe7a8, transparent),
+    radial-gradient(1.8px 1.8px at 200px 30px, #fff, transparent),
+    radial-gradient(1.1px 1.1px at 260px 150px, #cfe6ff, transparent),
+    radial-gradient(1.5px 1.5px at 80px 180px, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 170px 220px, #ffe7a8, transparent);
+  background-size: 300px 260px;
+  animation: twinkle 3.5s ease-in-out infinite alternate;
+}
+
+.hifi-section .wrap { position: relative; z-index: 1; }
+.hifi-section .band-head h2 { color: #fff; }
+.hifi-section .band-head p { color: #cfe0ef; }
+.hifi-section .band-head p strong { color: #ffd98a; }
 
 .hifi-eyebrow {
   background: linear-gradient(180deg, var(--wm-1), var(--wm-2));
   color: #3a2406;
-  box-shadow: 0 0 0 3px rgba(255, 217, 138, 0.22);
+  border-color: #3a2406;
+  box-shadow: 0 0 0 4px rgba(255, 217, 138, 0.22), 4px 4px 0 rgba(0, 0, 0, 0.35);
+}
+
+.hl-gold {
+  background: linear-gradient(180deg, transparent 58%, rgba(247, 172, 71, 0.55) 58%, rgba(247, 172, 71, 0.55) 92%, transparent 92%);
 }
 
 .hifi-points {
@@ -2934,8 +1477,8 @@ a {
   padding: 8px 16px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  font-weight: 600;
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  font-weight: 700;
   font-size: 0.95rem;
 }
 
@@ -2952,9 +1495,9 @@ a {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: var(--radius-lg);
+  border-radius: 24px;
   background: #0f2a44;
-  border: 2px solid rgba(159, 205, 236, 0.35);
+  border: 2.5px solid rgba(159, 205, 236, 0.4);
   box-shadow: 0 24px 50px -18px rgba(0, 0, 0, 0.6);
   transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
@@ -2962,30 +1505,18 @@ a {
 .hifi-card:hover {
   transform: translateY(-6px);
   border-color: var(--wm-2);
-  box-shadow: 0 30px 60px -18px rgba(0, 0, 0, 0.7), 0 0 0 4px rgba(247, 172, 71, 0.18);
+  box-shadow: 0 30px 60px -18px rgba(0, 0, 0, 0.7), 0 0 0 4px rgba(247, 172, 71, 0.2);
 }
 
 .hifi-shot { background: #081624; line-height: 0; }
+.hifi-shot img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; }
 
-.hifi-shot img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-}
-
-.hifi-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding: 20px 22px 22px;
-}
-
+.hifi-body { display: flex; flex-direction: column; flex: 1; padding: 20px 22px 22px; }
 .hifi-body h3 { color: #fff; font-size: 1.25rem; margin: 0 0 6px; }
 .hifi-body p { color: #c5d8ea; font-size: 0.98rem; margin: 0 0 18px; }
 
-/* margin-top: auto pins the button to the bottom of the card whatever the blurb's length, so
-   the six buttons line up along each row. */
+/* margin-top: auto pins the button to the bottom of the card whatever the blurb's
+   length, so the six buttons line up along each row. */
 .hifi-open {
   margin-top: auto;
   align-self: flex-start;
@@ -3006,18 +1537,20 @@ a {
 .hifi-open:focus-visible, .hifi-note a:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 
 .hifi-section .cta-row { margin-top: 48px; }
+.hifi-section .btn-primary { box-shadow: 0 5px 0 #000; border-color: #000; }
 
 .hifi-section .hifi-ghost {
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  border-color: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.45);
 }
 
 .hifi-section .hifi-ghost:hover { background: rgba(255, 255, 255, 0.16); }
 
 .hifi-note {
   max-width: 720px;
-  margin: 26px auto 0;
+  margin: 28px auto 0;
   text-align: center;
   color: #b9cee2;
   font-size: 0.98rem;
@@ -3025,4 +1558,803 @@ a {
 
 .hifi-note a { color: #ffd98a; font-weight: 700; }
 
-@media print { .hifi-section { background: none; color: inherit; } }
+/* ---------- 3 · build ---------- */
+
+.build {
+  --band: #fff0dc;
+  background-image: radial-gradient(rgba(242, 165, 65, 0.2) 1.6px, transparent 1.8px);
+  background-size: 26px 26px;
+}
+
+.build-steps {
+  list-style: none;
+  margin: 0;
+  padding: 18px 0 0;
+  display: grid;
+  gap: 30px 24px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.build-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 14px 18px;
+  border-radius: 26px;
+  border: var(--line);
+  background: #fff;
+  box-shadow: 6px 6px 0 var(--c);
+}
+
+/* A little app window round each screenshot: three traffic-light dots and a label. */
+.window {
+  overflow: hidden;
+  border-radius: 14px;
+  border: 2.5px solid var(--ink);
+  background: var(--ink);
+}
+
+.chrome {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 10px;
+  background: #26364a;
+  color: #d6e4f1;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.chrome i { width: 9px; height: 9px; flex: none; border-radius: 50%; background: #e0453c; }
+.chrome i:nth-child(2) { background: #f2c14e; }
+.chrome i:nth-child(3) { background: #74c043; }
+
+.chrome span {
+  margin-left: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.window img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+
+.step-num {
+  position: absolute;
+  z-index: 2;
+  top: -18px;
+  left: -14px;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: var(--line);
+  background: var(--c);
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: "Gluten", "Fredoka", sans-serif;
+  font-weight: 800;
+  font-size: 1.45rem;
+  color: var(--ink);
+  transform: rotate(-8deg);
+}
+
+.build-step h3 { margin: 16px 4px 6px; font-size: 1.28rem; font-weight: 700; }
+.build-step p { margin: 0 4px 12px; font-size: 0.95rem; color: var(--ink-soft); line-height: 1.55; }
+
+.build-step .step-aside {
+  margin: auto 0 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--c) 18%, #fff);
+  color: var(--ink);
+  font-size: 0.86rem;
+}
+
+/* ---------- 4 · code ---------- */
+
+.coding {
+  --band: #f1ebff;
+  background-image: radial-gradient(rgba(138, 92, 245, 0.16) 1.6px, transparent 1.8px);
+  background-size: 26px 26px;
+}
+
+.lane-grid { display: grid; gap: 30px; }
+@media (min-width: 900px) { .lane-grid { grid-template-columns: 1fr 1fr; } }
+
+.code-lane {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 28px;
+  border: var(--line);
+  background: #fff;
+  box-shadow: 7px 7px 0 var(--c);
+}
+
+.lane-head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.lane-head h3 { margin: 0; font-size: 1.4rem; font-weight: 700; }
+
+.lane-tag {
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 2.5px solid var(--ink);
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.code-lane p { margin: 0; color: var(--ink-soft); font-size: 0.98rem; }
+
+.code-blocks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 2px dashed #d6dbe6;
+  background: #f7f8fb;
+}
+
+/* The block colours are BlockDefs.js CATEGORIES, exactly. Do not retint. */
+.cb {
+  display: inline-block;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  border-radius: 10px;
+  padding: 0.36rem 0.85rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 2px 3px rgba(0, 0, 0, 0.16);
+}
+
+.cb b {
+  background: rgba(255, 255, 255, 0.92);
+  color: #2a2f36;
+  border-radius: 999px;
+  padding: 0 0.4em;
+  margin: 0 0.1em;
+}
+
+.cb.ctrl { background: #ffab19; }
+.cb.motion { background: #4c97ff; }
+.cb.look { background: #9966ff; }
+.cb.d1 { margin-left: 1.4rem; }
+
+/* The JavaScript editor, drawn in HTML so it stays sharp at every size. The token
+   colours are the in-app editor's own (src/JsProgram.js) — the page teaches the
+   palette the student will actually see. */
+.js-mock {
+  overflow: hidden;
+  border-radius: 16px;
+  border: 2.5px solid var(--ink);
+  background: #171c24;
+}
+
+.jsm-bar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; background: #232b38; }
+.jsm-dot { width: 11px; height: 11px; border-radius: 50%; }
+
+.jsm-toggle {
+  margin-left: auto;
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 7px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #9aa7b2;
+}
+
+.jsm-toggle span { padding: 3px 10px; }
+.jsm-toggle .on { background: #f2d21e; color: #20242a; }
+
+.jsm-code {
+  margin: 0;
+  padding: 16px 18px 20px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: #e8eef4;
+  overflow-x: auto;
+}
+
+.tok-k { color: #c792ea; }
+.tok-f { color: #82aaff; }
+.tok-n { color: #f78c6c; }
+.tok-s { color: #c3e88d; }
+.tok-c { color: #6b7d8c; font-style: italic; }
+
+.code-lane .code-notes {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 2px solid #b8e6cf;
+  background: #ecfaf3;
+  color: var(--ink);
+  font-size: 0.93rem;
+}
+
+/* ---------- 5 · learn ---------- */
+
+.learn {
+  --band: #e5f0ff;
+  background-image: radial-gradient(rgba(61, 139, 242, 0.15) 1.6px, transparent 1.8px);
+  background-size: 26px 26px;
+}
+
+.anchor-alias { position: absolute; top: 0; }
+
+.tut-grid {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+}
+
+.tut-card {
+  display: flex;
+  flex-direction: column;
+  padding: 28px 26px 24px;
+  border-radius: 28px;
+  border: var(--line);
+  background: #fff;
+  box-shadow: 7px 7px 0 var(--c);
+}
+
+.tut-emoji {
+  display: grid;
+  place-items: center;
+  width: 70px;
+  height: 70px;
+  margin-bottom: 14px;
+  border-radius: 22px;
+  border: var(--line);
+  background: color-mix(in srgb, var(--c) 34%, #fff);
+  box-shadow: 3px 3px 0 var(--ink);
+  font-size: 2.1rem;
+  transform: rotate(-5deg);
+}
+
+.tut-card:hover .tut-emoji { animation: wiggle 0.6s ease-in-out 2; }
+
+.tut-card h3 { margin: 0 0 4px; font-size: 1.5rem; font-weight: 700; }
+.tut-card > p { color: var(--ink-soft); margin-bottom: 12px; }
+
+.tut-card ul { list-style: none; margin: 0 0 22px; padding: 0; display: grid; gap: 8px; }
+
+.tut-card li {
+  position: relative;
+  padding-left: 30px;
+  line-height: 1.45;
+}
+
+.tut-card li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: color-mix(in srgb, var(--c) 45%, #fff);
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.tut-cta { margin-top: auto; display: flex; flex-wrap: wrap; gap: 12px; }
+.tut-cta .btn { padding: 10px 18px; font-size: 0.96rem; }
+
+.guide-strip {
+  margin-top: 60px;
+  padding: 28px;
+  border-radius: 30px;
+  border: var(--line);
+  background: #fff;
+  box-shadow: 7px 7px 0 var(--blue);
+}
+
+.guide-strip-head h3 { margin: 0 0 4px; font-size: 1.5rem; font-weight: 700; }
+.guide-strip-head p { margin: 0; color: var(--ink-soft); }
+
+.guide-cards {
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 900px) { .guide-cards { grid-template-columns: repeat(4, 1fr); } }
+
+.guide-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 2.5px solid var(--ink);
+  background: #fff;
+  box-shadow: 4px 4px 0 var(--c);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.guide-card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-bottom: 2.5px solid var(--ink); }
+.guide-card span { padding: 9px 12px; font-family: "Fredoka", sans-serif; font-weight: 600; }
+.guide-card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--c); }
+
+.guide-card-all {
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 120px;
+  background: color-mix(in srgb, var(--c) 32%, #fff);
+  text-align: center;
+}
+
+.guide-card-all .gc-all-icon { padding: 0; font-size: 2.4rem; line-height: 1; }
+
+.tut-note { margin: 34px 0 0; text-align: center; color: var(--ink-soft); font-weight: 600; }
+.tut-note a { color: var(--denim); font-weight: 800; }
+
+/* ---------- 6 · also in the box (and the teachers' tiles) ---------- */
+
+.more { --band: var(--paper); }
+
+.toy-grid {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+/* Six tiles: three by two on a wide screen, never four-and-two-orphans. */
+@media (min-width: 900px) { .more .toy-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.toy-grid-4 { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin-top: 8px; }
+
+.toy {
+  padding: 22px 22px 20px;
+  border-radius: 24px;
+  border: var(--line);
+  background: #fff;
+  box-shadow: 5px 5px 0 var(--c);
+}
+
+.toy-icon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  border: 2.5px solid var(--ink);
+  background: color-mix(in srgb, var(--c) 38%, #fff);
+  font-size: 1.7rem;
+}
+
+.toy:hover .toy-icon { animation: wiggle 0.6s ease-in-out 2; }
+.toy h3 { margin: 0 0 6px; font-size: 1.18rem; font-weight: 700; }
+.toy p { margin: 0; color: var(--ink-soft); font-size: 0.96rem; line-height: 1.55; }
+
+/* ---------- 7 · teachers ---------- */
+
+.teachers { --band: #fff6d8; }
+
+/* One sentence, set larger than body copy, because it is the positioning line. */
+.wedge {
+  position: relative;
+  max-width: 880px;
+  margin: 0 auto 44px;
+  padding: 30px 34px 28px;
+  border-radius: 28px;
+  border: var(--line);
+  background: #fff;
+  box-shadow: 7px 7px 0 var(--green);
+  text-align: center;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 500;
+  font-size: clamp(1.2rem, 2.4vw, 1.5rem);
+  line-height: 1.5;
+}
+
+.wedge::before {
+  content: "“";
+  position: absolute;
+  top: -26px;
+  left: 26px;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: var(--line);
+  background: var(--sun);
+  font-family: "Gluten", serif;
+  font-size: 2.4rem;
+  line-height: 1;
+  padding-top: 14px;
+}
+
+.wedge strong { background: color-mix(in srgb, var(--sun) 55%, transparent); padding: 0 0.15em; border-radius: 4px; }
+
+.research-card {
+  display: grid;
+  gap: 28px;
+  margin-bottom: 36px;
+  padding: 32px;
+  border-radius: 32px;
+  border: var(--line);
+  background: #fff;
+  box-shadow: 8px 8px 0 var(--purple);
+}
+
+@media (min-width: 920px) { .research-card { grid-template-columns: 1.1fr 1fr; align-items: center; } }
+
+.rc-kicker {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+  background: #ece4ff;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.rc-copy h3 { font-size: 1.75rem; font-weight: 700; }
+.rc-copy p { color: var(--ink-soft); }
+.rc-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.rc-cta .btn { padding: 11px 20px; font-size: 0.98rem; }
+
+.rc-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+@media (max-width: 420px) { .rc-stats { grid-template-columns: 1fr; } }
+
+.rc-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 2.5px solid var(--ink);
+  background: color-mix(in srgb, var(--c) 18%, #fff);
+  box-shadow: 4px 4px 0 var(--c);
+}
+
+.rc-num { font-family: "Fredoka", sans-serif; font-weight: 700; font-size: 1.75rem; font-variant-numeric: tabular-nums; }
+.rc-what { font-weight: 800; font-size: 0.92rem; line-height: 1.35; }
+.rc-src { font-size: 0.78rem; color: var(--ink-soft); }
+
+/* The trade-off. Red-ruled rather than red-filled: this is candour, not a warning. */
+.tradeoff {
+  max-width: 880px;
+  margin: 44px auto 0;
+  padding: 26px 32px 22px;
+  border-radius: 26px;
+  border: 3px dashed var(--red);
+  background: #fff;
+}
+
+.tradeoff h3 { color: #a8283d; font-size: 1.35rem; font-weight: 700; }
+.tradeoff p { color: var(--ink-soft); }
+
+.tradeoff-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0; }
+.tradeoff-links a { color: var(--denim); font-weight: 800; }
+
+/* The sign-up. Copy and button side by side on a wide screen, stacked below it. */
+.signup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 26px;
+  max-width: 980px;
+  margin: 36px auto 0;
+  padding: 24px 30px;
+  border-radius: 28px;
+  border: var(--line);
+  background: linear-gradient(120deg, #ffe7b0 0%, #ffd6e4 100%);
+  box-shadow: 7px 7px 0 var(--orange);
+}
+
+.signup-icon { font-size: 2.8rem; line-height: 1; transform: rotate(-10deg); }
+.signup-copy { flex: 1 1 360px; }
+.signup-copy h3 { margin: 0 0 6px; font-size: 1.35rem; font-weight: 700; }
+.signup-copy p { margin: 0; color: var(--ink-soft); }
+
+/* ---------- 8 · resources ---------- */
+
+.resources {
+  --band: var(--paper);
+  background-image:
+    radial-gradient(circle at 12% 22%, rgba(255, 201, 60, 0.28) 0 5px, transparent 6px),
+    radial-gradient(circle at 72% 64%, rgba(138, 92, 245, 0.16) 0 4px, transparent 5px),
+    radial-gradient(circle at 42% 88%, rgba(224, 69, 95, 0.16) 0 4px, transparent 5px);
+  background-size: 260px 260px;
+}
+
+.who-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: -10px 0 40px;
+}
+
+.who-nav a {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 2.5px solid var(--ink);
+  background: color-mix(in srgb, var(--c) 22%, #fff);
+  box-shadow: 3px 3px 0 var(--c);
+  color: var(--ink);
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.who-nav a:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--c); }
+
+.res-grid {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  align-items: start;
+}
+
+@media (max-width: 400px) { .res-grid { grid-template-columns: 1fr; } }
+
+.res-group {
+  overflow: hidden;
+  border-radius: 28px;
+  border: var(--line);
+  background: #fff;
+  box-shadow: 7px 7px 0 var(--c);
+}
+
+/* Jumping here from "I'm a teacher" gives the group a little bounce, so the eye finds it. */
+.res-group:target { animation: pop 0.7s ease 0.35s; outline: 4px solid var(--c); outline-offset: 4px; }
+
+.res-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-bottom: var(--line);
+  background: color-mix(in srgb, var(--c) 30%, #fff);
+}
+
+.res-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  border: 2.5px solid var(--ink);
+  background: #fff;
+  font-size: 1.6rem;
+  transform: rotate(-6deg);
+}
+
+.res-head h3 { margin: 0; font-size: 1.32rem; font-weight: 700; }
+.res-head p { margin: 0; font-size: 0.88rem; line-height: 1.35; color: var(--ink); opacity: 0.8; }
+
+.res-list { list-style: none; margin: 0; padding: 10px; }
+
+.res-list a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 16px;
+  color: var(--ink);
+  text-decoration: none;
+  transition: background 0.12s ease;
+}
+
+.res-list a:hover,
+.res-list a:focus-visible { background: color-mix(in srgb, var(--c) 16%, #fff); }
+
+.res-list b {
+  display: block;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 1.04rem;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--c) 70%, transparent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.res-list span { display: block; margin-top: 2px; font-size: 0.88rem; line-height: 1.45; color: var(--ink-soft); }
+
+.res-list-tight { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.res-list-tight a { padding: 9px 10px; }
+.res-list-tight b { font-size: 0.98rem; }
+
+/* ---------- 9 · the last launch button ---------- */
+
+.final-cta {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 110px 0 clamp(140px, 15vw, 220px);
+  background:
+    radial-gradient(800px 420px at 50% 40%, rgba(255, 255, 255, 0.35), transparent 70%),
+    linear-gradient(180deg, var(--sky-top), var(--sky-bottom));
+}
+
+/* The resources band's paper, hanging down into the sky as a wave -- the reverse of
+   the other bands, because this one has to clip its own hills. */
+.final-cta::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 44px;
+  background: var(--paper);
+  transform: scaleY(-1);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 44' preserveAspectRatio='none'%3E%3Cpath d='M0 44V24C120 6 240 2 360 12s240 28 360 24 240-24 360-28 240 6 360 20V44z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 44' preserveAspectRatio='none'%3E%3Cpath d='M0 44V24C120 6 240 2 360 12s240 28 360 24 240-24 360-28 240 6 360 20V44z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  z-index: 2;
+}
+
+.final-cta .wrap { position: relative; z-index: 2; }
+.final-cta .cloud-1 { top: 120px; left: 4%; }
+.final-cta .cloud-2 { top: 70px; left: 74%; }
+.final-cta .float-ball { left: 12%; top: 230px; }
+.final-cta .float-pyr { right: 11%; top: 200px; }
+
+.final-cta h2 { font-weight: 700; font-size: clamp(2.3rem, 5.4vw, 3.6rem); margin-bottom: 10px; }
+.final-cta p { font-size: 1.15rem; font-weight: 700; margin-bottom: 30px; }
+
+@media (max-width: 1099px) {
+  .final-cta .float { display: none; }
+}
+
+/* ---------- footer ---------- */
+
+.site-footer {
+  background: var(--night);
+  color: #d4e3f1;
+  padding: 50px 0 34px;
+}
+
+.foot-top { display: grid; gap: 36px; }
+@media (min-width: 900px) { .foot-top { grid-template-columns: 1fr 2.1fr; } }
+
+.foot-brand .brand-word { color: #ffb45e; font-size: 2rem; }
+.foot-brand .brand-word small { color: #9fcdec; }
+.foot-brand p { margin: 12px 0 18px; color: #b9cde0; max-width: 34ch; }
+
+.foot-cols { display: grid; gap: 28px 20px; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 640px) { .foot-cols { grid-template-columns: repeat(4, 1fr); } }
+
+.foot-col h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+  color: #fff;
+}
+
+.foot-col h2::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.foot-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.foot-col a { color: #cfe0ef; text-decoration: none; font-size: 0.95rem; }
+
+.foot-col a:hover,
+.foot-col a:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-color: var(--c);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.site-footer :focus-visible { outline-color: #ffd98a; }
+
+.foot-sub {
+  margin: 38px 0 0;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 0.92rem;
+  color: #a9c0d6;
+  line-height: 1.8;
+}
+
+.foot-sub a { color: #ffd98a; font-weight: 700; }
+
+/* ---------- reveal-on-scroll ----------
+   The hidden state is applied by the script, never by this stylesheet alone: a page
+   that hides its content until JavaScript arrives is broken for everyone the moment
+   the script fails. Only containers reveal -- never the cards inside them, which have
+   hover transforms of their own that a reveal transition would fight. */
+
+.reveal-armed {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.reveal-armed.is-in { opacity: 1; transform: none; }
+
+/* ---------- motion, contrast, print ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .sky, .hills, .stars, .postcards { display: none; }
+  .door, .world-card, .res-group, .toy, .tut-card, .build-step, .code-lane { border: 2px solid CanvasText; }
+}
+
+/* Printing defaults to print-color-adjust: economy, which drops background images AND
+   background colours — on gradient-clipped text that is a blank headline on paper. And a
+   cream outline on white paper is invisible anyway, so print gets its own honest version
+   of the wordmark, and the scenery stays on screen. */
+@media print {
+  .site-nav, .sky, .hills, .stars, .postcards, .world-tools, .final-cta, .skip-link { display: none !important; }
+  .band, .hifi-section { background: none !important; color: #000; padding: 24px 0; }
+  .band::before { display: none; }
+  .hifi-section .band-head h2, .hifi-body h3 { color: #000; }
+  .hifi-body p, .hifi-section .band-head p { color: #333; }
+  .door, .world-card, .res-group, .toy, .tut-card, .build-step, .code-lane, .research-card { box-shadow: none !important; break-inside: avoid; }
+  .reveal-armed { opacity: 1 !important; transform: none !important; }
+  .hero-logo .wordmark {
+    background: none;
+    color: #9a4512;
+    -webkit-text-fill-color: #9a4512;
+  }
+  .hero-logo .wordmark::before { content: none; }
+  .hero-logo .lockup { filter: none; }
+  .hero-logo .hero-tagline { color: #000; -webkit-text-fill-color: #000; text-shadow: none; }
+}
+
+/* ---------- phones: two-up tiles ----------
+   Stacked one per row, the doors and the featured worlds alone were four phone-screens
+   of scrolling. On a phone they become two-up tiles -- the picture (or the icon) and the
+   name -- and every one is still the same single tap to where it goes. */
+@media (max-width: 600px) {
+  .band { padding: 72px 0 80px; }
+  .band-head { margin-bottom: 32px; }
+
+  .door-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .door { padding: 16px 14px 14px; border-radius: 22px; box-shadow: 5px 5px 0 var(--c); }
+  .door::after { width: 90px; height: 90px; top: -36px; right: -36px; }
+  .door-icon { width: 50px; height: 50px; font-size: 1.5rem; border-radius: 15px; margin-bottom: 6px; }
+  .door-title { font-size: 1.12rem; }
+  .door-text, .door-go { display: none; }
+
+  .world-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .world-card { border-radius: 18px; box-shadow: 4px 4px 0 var(--accent, var(--green)); }
+  .world-pin { width: 34px; height: 34px; font-size: 1rem; top: 6px; left: 6px; }
+  .world-body { padding: 10px; }
+  .world-kicker, .world-body h3, .world-body > p { display: none; }
+  .world-open { padding: 8px 6px; font-size: 0.86rem; line-height: 1.2; box-shadow: 0 3px 0 var(--ink); }
+  .world-open span { display: none; }
+
+  .topic-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .topic { padding: 12px 10px; font-size: 0.98rem; }
+
+  .hifi-body p { display: none; }
+  .hifi-body h3 { margin-bottom: 12px; }
+}

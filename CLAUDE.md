@@ -293,29 +293,59 @@ app's own default spot.
 *before* `loadFromRecords` wipes anything. A dead link toasts the reason and rehydrates
 whatever was already saved.
 
-**Every world card on the marketing page carries one of these links** (`.world-open` in
-`docs/index.html` — 36 of them as of the Butterfly Garden, which gave every published world a
-card and grouped them into five categories; the page is generated content, so keep the
-card→id pairs correct when the gallery changes). Three things about that block:
+**The marketing page FEATURES a few worlds; it does not list them** (the 2026-10 redesign,
+per Rich). It used to carry a `.world-open` card for every published world — 38 by the
+end — and the worlds section alone was longer than the rest of the page put together. Now
+`#worlds` holds **eight featured cards** chosen for range (The Park 1, Alice in Wonderland
+40, Robot Challenge World 35, Volcanoes & Rocks 37, The Butterfly Garden 43, Solar System
+Walk 12, Ancient Egypt 11, Fantastic Voyage 7), then six **topic tiles** that link to the
+gallery's own `?tag=` views (`starter`, `coding`, `science`, `nature`, `space`, `history` —
+each verified to return worlds on the live site), then the World Database button. The
+gallery is the catalogue; the page is a taste of it. Rules the cards still keep:
 
-- **The card → id map is keyed by TITLE, not by position.** The grid gets reordered and
-  worlds get inserted; a positional map would silently point a card at the wrong world
-  instead of failing. The two gallery worlds with no card are **My World** (an empty
-  sandbox — nothing to show) and **1940's New York**, which is deliberate: its only door is
-  a billboard behind the Library, and the worlds section's intro promises the reader that
-  one world is not on the list. Worlds UNPUBLISHED on production (13 Water Cycle, 28
-  A Rabbit's Den, 30 Whimsical World, as of 2026-08-22) get no card either — a card for an
-  unpublished id is a dead link that toasts an error in the app.
-- **Link text is the world's own name**, not "open this world". Twenty-two identical link
-  texts on one page is what a screen reader reads out twenty-two times.
-- **The `.world-open` button takes no auto margin.** `.world-chips` already carries
-  `margin: auto 0 0`, so the card's free space collects above the chips and pushes the
-  chips *and* the button down together. Give the button an auto top margin as well and the
-  free space is split between them, stranding the chips up under the paragraph.
+- **The card → id map is keyed by TITLE, not by position.** A positional map would
+  silently point a card at the wrong world instead of failing. Never feature a world that
+  is unpublished on production (13 Water Cycle, 28 A Rabbit's Den, 30 Whimsical World, as
+  of 2026-10-04) — a card for an unpublished id is a dead link.
+- **Link text is the world's own name**, not "open this world" — eight identical link
+  texts is what a screen reader reads out eight times.
+- **The `.world-open` button carries `margin-top: auto`** now that the featured cards have
+  no chip row, which is what lines the buttons up along each row. (The full cards put the
+  auto margin on `.world-chips` instead; giving both an auto margin splits the free space
+  and strands the chips under the paragraph.)
+- **The hunt line says "some worlds have secret doors"**, not "one world is not on this
+  list": with only eight cards on the page, every world but eight is "not on this list".
+  It is true of both portal worlds (1940's New York behind the Library, Under the Sea
+  behind the Park's nature centre), so neither is featured.
 
-The `.menu-mock` further down is `aria-hidden="true"` — a decorative replica of the in-app
-menu — so the world names in it stay plain text. Focusable links inside `aria-hidden`
-content are an accessibility bug, not a missed opportunity.
+**The sitemap no longer reads these cards.** `tools/build-sitemap.mjs` used to take the
+published gallery ids off the `.world-open` links; it now crawls the live gallery's paged
+index, excluding My World and 1940's New York **by title**. It needs the network and stops
+rather than writing a sitemap with the gallery missing. Switching it over picked up
+Simon in the Land of Chalk Drawings (39) and Sunflower (42), which had been published but
+never given a card, so they had been out of the sitemap all along.
+
+**The hero carries the two world galleries as big cards** (`.hero-dbs`), straight under the
+launch button, per Rich: the main World Database (`/worlds/`) and the HiFi World Database
+(`/hifiworlds/`). Both absolute with a trailing slash; the HiFi card says it is for
+computers with a graphics card, which is the `#hifi` honesty line in eight words.
+
+**`#resources` is the one list of everything**, sorted by who is reading: Open & play, Learn
+the tools, World guide cards, For teachers, The research, For schools & IT. Before it the
+spatial-reasoning guides were reachable only from the footer, and the two school briefs and
+the seven world guide cards were not linked from the landing page at all. **Anything new
+published under `docs/` belongs in one of those six lists** (and, if it is a top-level
+destination, in the footer's shorter copy). Every sub-site nav — guide, research, schools,
+spatial-reasoning, privacy — carries an **All resources** link to `index.html#resources`.
+
+The rest of the page, in order: the hero, `#start` (six "what do you want to do today?"
+doors — the page's own table of contents), `#worlds`, `#hifi`, `#build`, `#code`, `#learn`
+(tutorial tracks plus the seven world guide cards; `#tutorials` is kept as an alias so old
+shared links land), `#more`, `#teachers`, `#resources`, `#play`. `docs/styles.css` is used
+by `index.html` alone, so it can change without touching a sub-site. Card and postcard
+pictures come from `docs/assets/screenshots/thumbs/` — 800px copies made with
+`sips -s format jpeg -s formatOptions 78 -Z 800` (1.6 MB for all 21, against 6.7 MB of originals);
+regenerate a thumb whenever its source screenshot is recaptured.
 
 **The seven per-world guide cards carry the same link in three places** (`docs/guide/`:
 park 1, museum 2, library 3, moon 4, mars 5, dinosaur 6, voyage 7). The other five guide

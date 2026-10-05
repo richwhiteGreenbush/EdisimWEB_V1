@@ -1,0 +1,161 @@
+<!doctype html>
+<!--
+  The full-wrap KDP cover: back, spine and front on one sheet, 0.125in bleed all round.
+  The spine width arrives as ?spine= (pages x 0.002347in, worked out by build.mjs), so a
+  change in page count re-flows the whole sheet. Sets window.__coverReady when done.
+
+  Layout, left to right, in inches:
+    0 .. 6.125                      back cover (0.125 bleed + 6.0 trim)
+    6.125 .. 6.125 + spine          spine
+    6.125 + spine .. 12.25 + spine  front cover (6.0 trim + 0.125 bleed)
+  KDP adds the barcode in the bottom right of the back cover, so that 2 x 1.2in corner
+  is left empty: no text, no pictures.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Official Edusim Tutorial &amp; Projects Book, Vol. 1 &ndash; cover</title>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<style>
+  :root {
+    --ink: #1e2a3a; --ink-soft: #4a566b; --red: #e0455f; --orange: #f2a541; --yellow: #f2c94c;
+    --green: #3fb37f; --blue: #3d8bf2; --purple: #8a5cf5; --sun: #ffc93c; --denim: #246c9d;
+    --spine: 0.2629in;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body { font-family: 'Nunito', sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  .sheet { position: relative; width: calc(12.25in + var(--spine)); height: 9.25in; overflow: hidden; display: flex; }
+  .back, .front { position: relative; width: 6.125in; height: 9.25in; overflow: hidden; flex: none; }
+  .spine { position: relative; width: var(--spine); height: 9.25in; flex: none; background: var(--denim); }
+
+  /* --- front ------------------------------------------------------------------- */
+  .front .photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 100%; }
+  .front .fade { position: absolute; left: 0; right: 0; top: 0; height: 4.6in; background: linear-gradient(180deg, rgba(77, 163, 236, 0.85) 0%, rgba(124, 187, 238, 0.45) 60%, rgba(124, 187, 238, 0) 100%); }
+  .front .safe { position: absolute; left: 0.5in; right: 0.625in; top: 0.55in; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .wordmark {
+    font-family: 'Gluten', sans-serif; font-weight: 800; font-size: 92pt; line-height: 1; letter-spacing: 0.04em; color: #ef8524;
+    text-shadow:
+      2.8pt 0 0 #fdf0d8, -2.8pt 0 0 #fdf0d8, 0 2.8pt 0 #fdf0d8, 0 -2.8pt 0 #fdf0d8,
+      2pt 2pt 0 #fdf0d8, -2pt 2pt 0 #fdf0d8, 2pt -2pt 0 #fdf0d8, -2pt -2pt 0 #fdf0d8,
+      0 5pt 0 rgba(16, 52, 82, 0.28);
+  }
+  .kicker { margin-top: 0.12in; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 14pt; letter-spacing: 0.16em; text-transform: uppercase; color: #fff; text-shadow: 0 1.5pt 0 rgba(16, 52, 82, 0.5); }
+  .title { margin-top: 0.05in; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 29pt; line-height: 1.08; color: var(--ink); }
+  .vol { margin-top: 0.18in; padding: 0.05in 0.3in; border-radius: 999px; background: var(--red); color: #fff; border: 2pt solid var(--ink); box-shadow: 4pt 4pt 0 var(--ink); font-family: 'Gluten', sans-serif; font-weight: 800; font-size: 22pt; transform: rotate(-3deg); }
+  .tag { margin-top: 0.22in; font-family: 'Gluten', sans-serif; font-weight: 700; font-size: 16pt; color: var(--ink); }
+  .ribbon { position: absolute; left: 0.5in; right: 0.625in; bottom: 0.6in; display: flex; flex-direction: column; align-items: center; gap: 0.06in; padding: 0.14in 0.2in 0.16in; border-radius: 14pt; background: rgba(255, 255, 255, 0.94); border: 2pt solid var(--ink); box-shadow: 5pt 5pt 0 var(--ink); text-align: center; }
+  .ribbon b { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 13.5pt; line-height: 1.2; }
+  .ribbon span { font-size: 10pt; color: var(--ink-soft); }
+  .ribbon .chips { display: flex; gap: 0.08in; }
+  .chip { display: inline-block; padding: 2pt 8pt; border-radius: 999px; color: #fff; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 9.5pt; border: 1.2pt solid var(--ink); }
+  .deco { position: absolute; pointer-events: none; }
+  .sun { width: 1.05in; height: 1.05in; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #fff8d6 0%, #ffd95a 46%, #ffb627 100%); box-shadow: 0 0 0 8pt rgba(255, 214, 90, 0.3), 0 0 0 17pt rgba(255, 214, 90, 0.14); }
+  .flat-shape svg { display: block; width: 100%; height: auto; }
+  .cloud { width: 1.35in; height: 0.38in; border-radius: 999px; background: #fff; }
+  .cloud::before, .cloud::after { content: ''; position: absolute; border-radius: 50%; background: #fff; }
+  .cloud::before { width: 0.58in; height: 0.58in; top: -0.29in; left: 0.2in; }
+  .cloud::after { width: 0.44in; height: 0.44in; top: -0.2in; left: 0.66in; }
+
+  /* --- spine ------------------------------------------------------------------- */
+  .spine-text { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(90deg); white-space: nowrap; display: flex; align-items: center; gap: 0.14in; color: #fff; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 7.6pt; letter-spacing: 0.02em; }
+  .spine-text .sw { font-family: 'Gluten', sans-serif; font-weight: 800; color: #ffc96b; font-size: 8.4pt; }
+
+  /* --- back -------------------------------------------------------------------- */
+  .back { background: linear-gradient(180deg, #4da3ec 0%, #8cc6f0 46%, #cfe9f8 70%, #e8f5e0 86%, #bfe0a4 100%); }
+  .back .safe { position: absolute; left: 0.5in; right: 0.5in; top: 0.55in; bottom: 0.5in; display: flex; flex-direction: column; }
+  .back h2 { margin: 0; font-family: 'Gluten', sans-serif; font-weight: 800; font-size: 25pt; line-height: 1.05; color: #fff; text-shadow: 0 2pt 0 rgba(16, 52, 82, 0.35); }
+  .card { margin-top: 0.2in; padding: 0.18in 0.22in 0.2in; border-radius: 14pt; background: #fff; border: 2pt solid var(--ink); box-shadow: 5pt 5pt 0 rgba(30, 42, 58, 0.85); }
+  .card p { margin: 0; font-size: 10.6pt; line-height: 1.45; }
+  .card p + p { margin-top: 0.08in; }
+  .shots { display: flex; gap: 0.1in; margin-top: 0.16in; }
+  .shots figure { margin: 0; flex: 1 1 0; display: flex; flex-direction: column; gap: 0.04in; }
+  .shots img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; border-radius: 8pt; border: 1.6pt solid var(--ink); }
+  .shots figcaption { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 8.6pt; text-align: center; }
+  ul.feats { list-style: none; margin: 0.16in 0 0; padding: 0; display: grid; gap: 0.05in; }
+  ul.feats li { display: flex; gap: 0.08in; align-items: center; font-size: 10pt; line-height: 1.35; }
+  ul.feats li svg { flex: none; width: 0.19in; height: 0.19in; padding: 0.025in; border-radius: 50%; background: var(--green); border: 1pt solid var(--ink); align-self: center; }
+  .free { margin-top: auto; width: 3.2in; padding: 0.1in 0.14in; border-radius: 10pt; background: var(--denim); color: #fff; border: 1.6pt solid var(--ink); }
+  .free small { display: block; font-size: 7.6pt; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.9; }
+  .free b { display: block; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 15pt; }
+  .free span { font-size: 8.8pt; }
+  /* The barcode corner: kept clear for KDP. Visible only with ?guides. */
+  .barcode-zone { position: absolute; right: 0.375in; bottom: 0.375in; width: 2in; height: 1.2in; }
+  .guides .barcode-zone { outline: 1px dashed #c00; }
+  .guides .trim { position: absolute; inset: 0.125in; outline: 1px dashed #c00; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <!-- ===== back ===== -->
+  <section class="back">
+    <div class="safe">
+      <h2>Build it. Code it.<br>Explore it.</h2>
+      <div class="card">
+        <p><b>Edusim</b> is a free 3D world that runs in a web browser &ndash; school Chromebooks included. This book takes you from your very first steps inside it to a whole town you've built and programmed yourself.</p>
+        <p>Walk through a park, meet a T.&nbsp;rex and paint balloons that puff up into 3D. Then build a steam train, a turtle and a train station from four simple shapes, and bring them to life with drag-and-drop coding blocks: a train that runs to a timetable, an animal that answers back, and street lamps that come on at sunset.</p>
+        <div class="shots">
+          <figure><img src="../assets/print/train-finished.jpg" style="object-position: 45% 55%" alt=""><figcaption>Build it</figcaption></figure>
+          <figure><img src="../assets/print/train-square.jpg" style="object-position: 45% 55%" alt=""><figcaption>Code it</figcaption></figure>
+          <figure><img src="../assets/print/dino-trex.jpg" style="object-position: 55% 40%" alt=""><figcaption>Explore it</figcaption></figure>
+        </div>
+        <ul class="feats">
+          <li><svg viewBox="0 0 10 10"><path d="M2 5.3 4.1 7.4 8.2 2.8" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>15 chapters of step-by-step projects, from first walk to living town</li>
+          <li><svg viewBox="0 0 10 10"><path d="M2 5.3 4.1 7.4 8.2 2.8" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Every picture is a real screenshot, so you can match it on screen</li>
+          <li><svg viewBox="0 0 10 10"><path d="M2 5.3 4.1 7.4 8.2 2.8" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Grounded in research on spatial reasoning and 3D learning</li>
+          <li><svg viewBox="0 0 10 10"><path d="M2 5.3 4.1 7.4 8.2 2.8" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Challenges, skills checks and notes for teachers</li>
+        </ul>
+      </div>
+      <div class="free"><small>Free web app &middot; no download, no account</small><b>edusim3dweb.com/app/</b><span>Works on Chromebooks, laptops and tablets</span></div>
+    </div>
+    <div class="barcode-zone"></div>
+    <div class="trim"></div>
+  </section>
+
+  <!-- ===== spine ===== -->
+  <section class="spine">
+    <div class="spine-text"><span class="sw">Edusim</span><span>The Official Edusim Tutorial &amp; Projects Book &middot; Vol. 1</span></div>
+  </section>
+
+  <!-- ===== front ===== -->
+  <section class="front">
+    <img class="photo" src="../assets/print/cover.jpg" alt="">
+    <div class="fade"></div>
+    <div class="deco sun" style="right: 0.22in; top: 0.24in;"></div>
+    <div class="deco cloud" style="left: 0.45in; top: 3.0in;"></div>
+    <div class="deco cloud" style="right: 0.75in; top: 3.75in; transform: scale(0.72);"></div>
+    <div class="deco flat-shape" style="left: 0.38in; top: 2.25in; width: 0.6in; color: #3d8bf2; transform: rotate(-8deg);"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="currentColor" stroke="#1e2a3a" stroke-width="1.6"/><ellipse cx="14" cy="13" rx="5.5" ry="4" fill="#fff" fill-opacity=".55"/><path d="M8 26a16 16 0 0 0 24 0" fill="none" stroke="#000" stroke-opacity=".12" stroke-width="5"/></svg></div>
+    <div class="deco flat-shape" style="right: 0.62in; top: 2.45in; width: 0.58in; color: #f2a541; transform: rotate(14deg);"><svg viewBox="0 0 40 40"><path d="M20 4 35 12 20 20 5 12Z" fill="currentColor"/><path d="M20 4 35 12 20 20 5 12Z" fill="#fff" fill-opacity=".35"/><path d="M5 12 20 20 20 37 5 29Z" fill="currentColor"/><path d="M35 12 20 20 20 37 35 29Z" fill="currentColor"/><path d="M35 12 20 20 20 37 35 29Z" fill="#000" fill-opacity=".18"/><path d="M20 4 35 12 35 29 20 37 5 29 5 12Z" fill="none" stroke="#1e2a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M5 12 20 20 35 12M20 20V37" fill="none" stroke="#1e2a3a" stroke-width="1.2"/></svg></div>
+    <div class="safe">
+      <div class="wordmark">Edusim</div>
+      <div class="kicker">The Official</div>
+      <div class="title">Edusim Tutorial<br>&amp; Projects Book</div>
+      <div class="vol">Vol. 1</div>
+      <div class="tag">Build it &middot; Code it &middot; Explore it</div>
+    </div>
+    <div class="ribbon">
+      <b>Build a steam train, an animal and a town &ndash; then program them to move, talk and light up!</b>
+      <div class="chips"><span class="chip" style="background: var(--orange)">Build</span><span class="chip" style="background: var(--purple)">Code</span><span class="chip" style="background: var(--green)">Explore</span></div>
+    </div>
+    <div class="trim"></div>
+  </section>
+</div>
+
+<script>
+  (async () => {
+    const q = new URLSearchParams(location.search);
+    const spine = Number(q.get('spine') || 0.2629);
+    document.documentElement.style.setProperty('--spine', `${spine}in`);
+    if (q.has('guides')) document.body.classList.add('guides');
+    const page = document.createElement('style');
+    page.textContent = `@page { size: ${12.25 + spine}in 9.25in; margin: 0; }`;
+    document.head.appendChild(page);
+    await document.fonts.ready;
+    await Promise.all([...document.images].map((img) => (img.complete ? null : new Promise((r) => { img.onload = img.onerror = r; }))));
+    window.__coverReady = true;
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+/* Static TrueType instances of the book's three typefaces (SIL Open Font License),
+   fetched from Google Fonts. Static rather than variable, because Chrome can only
+   embed a variable font in a PDF as Type 3 outlines, which print preflight flags;
+   a static TrueType font embeds as an ordinary TrueType font. */
+@font-face { font-family: 'Fredoka'; font-style: normal; font-weight: 500; font-display: block; src: url(ttf/fredoka-normal-500.ttf) format('truetype'); }
+@font-face { font-family: 'Fredoka'; font-style: normal; font-weight: 600; font-display: block; src: url(ttf/fredoka-normal-600.ttf) format('truetype'); }
+@font-face { font-family: 'Fredoka'; font-style: normal; font-weight: 700; font-display: block; src: url(ttf/fredoka-normal-700.ttf) format('truetype'); }
+@font-face { font-family: 'Gluten'; font-style: normal; font-weight: 700; font-display: block; src: url(ttf/gluten-normal-700.ttf) format('truetype'); }
+@font-face { font-family: 'Gluten'; font-style: normal; font-weight: 800; font-display: block; src: url(ttf/gluten-normal-800.ttf) format('truetype'); }
+@font-face { font-family: 'Nunito'; font-style: italic; font-weight: 400; font-display: block; src: url(ttf/nunito-italic-400.ttf) format('truetype'); }
+@font-face { font-family: 'Nunito'; font-style: italic; font-weight: 700; font-display: block; src: url(ttf/nunito-italic-700.ttf) format('truetype'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-weight: 400; font-display: block; src: url(ttf/nunito-normal-400.ttf) format('truetype'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-weight: 600; font-display: block; src: url(ttf/nunito-normal-600.ttf) format('truetype'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-weight: 700; font-display: block; src: url(ttf/nunito-normal-700.ttf) format('truetype'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-weight: 800; font-display: block; src: url(ttf/nunito-normal-800.ttf) format('truetype'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-weight: 900; font-display: block; src: url(ttf/nunito-normal-900.ttf) format('truetype'); }

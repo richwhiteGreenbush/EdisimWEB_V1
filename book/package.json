@@ -1,0 +1,13 @@
+{
+  "name": "edusim-book-vol1",
+  "private": true,
+  "type": "module",
+  "description": "The Official Edusim Tutorial & Projects Book, Vol. 1 -- source, screenshot capture and KDP print build",
+  "scripts": {
+    "capture": "node tools/capture.mjs",
+    "build": "node tools/build.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.48.0"
+  }
+}
