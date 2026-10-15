@@ -30,6 +30,26 @@
 <meta name="twitter:description" content="Build it. Code it. Explore it. A free 3D sandbox in your browser — no download, no account, no ads." />
 <meta name="twitter:image" content="https://edusim3dweb.com/assets/edusim-social.jpg" />
 
+<!-- The book, described for search engines, so a search for it can find this page and
+     its ISBN. Every value here is a fact of the printed edition; no price, for the same
+     reason the #book section carries none. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Book",
+  "name": "The Official Edusim Tutorial & Projects Book, Vol. 1",
+  "alternativeHeadline": "Build it · Code it · Explore it",
+  "author": { "@type": "Organization", "name": "The InventOrium Team" },
+  "isbn": "9798160064970",
+  "bookFormat": "https://schema.org/Paperback",
+  "numberOfPages": 112,
+  "inLanguage": "en",
+  "image": "https://edusim3dweb.com/assets/book/cover.jpg",
+  "url": "https://www.amazon.com/dp/B0HM6LRHSX",
+  "about": "Step-by-step building and coding projects in Edusim, a free 3D virtual world for kids"
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Gluten:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
@@ -48,10 +68,12 @@
 <!-- ======================================================================
      THE PAGE, IN ORDER (the 2026-10 reorganisation)
 
-       hero        the wordmark, one launch button, the research claim
+       hero        the book announcement, the wordmark, one launch button, the
+                   research claim
        #start      "What do you want to do today?" -- six doors, one per reason a
                    person arrives here. This is the page's own table of contents,
                    and the answer to "where is the thing I came for".
+       #book       The Official Edusim Tutorial & Projects Book, on sale on Amazon
        #worlds     eight featured worlds, topic shortcuts into the World Database
        #hifi       the high-fidelity edition (the one dark band, straight after the
                    worlds -- see CLAUDE.md)
@@ -86,6 +108,7 @@
       <li><a href="#build" style="--dot: var(--orange);">Build &amp; Code</a></li>
       <li><a href="#hifi" style="--dot: var(--wm-2);">HiFi</a></li>
       <li><a href="#learn" style="--dot: var(--blue);">Learn</a></li>
+      <li><a href="#book" style="--dot: var(--orange);">Book</a></li>
       <li><a href="#teachers" style="--dot: var(--red);">Teachers</a></li>
       <li><a href="research/index.html" style="--dot: var(--purple);">Research</a></li>
       <li><a href="#resources" style="--dot: var(--sun);">Resources</a></li>
@@ -117,6 +140,17 @@
   </div>
 
   <div class="wrap hero-inner">
+    <!-- The book, announced above the wordmark: the one thing on this page that is new
+         AND for sale, so it gets the announcement slot rather than a place in the row of
+         free things below. It jumps to #book on this page, not straight to Amazon -- a
+         visitor should see what the book is before being sent to a shop. -->
+    <a class="hero-book" href="#book">
+      <img src="assets/book/cover.jpg" width="720" height="1080" alt="" />
+      <span class="hb-new">New</span>
+      <span class="hb-text"><b>The Official Edusim Tutorial &amp; Projects Book</b> is out — in paperback on Amazon</span>
+      <span class="hb-go" aria-hidden="true">→</span>
+    </a>
+
     <!-- The wordmark is TEXT, not a picture. It is one real text node: selectable,
          translatable, found by Ctrl-F, and it scales with the user's own font size.
          The amber-on-cream treatment lives in styles.css; the tagline stays INSIDE the
@@ -284,6 +318,89 @@
         🔎 Looking for something specific?
         <a href="#resources">Every Edusim resource, in one place →</a>
       </p>
+    </div>
+  </section>
+
+  <!-- ============================ THE BOOK ============================
+       The Official Edusim Tutorial & Projects Book, Vol. 1 -- the print book built in
+       book/ and sold through Amazon KDP. It sits straight after the six doors so it is
+       the first thing below the page's own table of contents.
+
+       Rules this block keeps:
+         * Every picture is rendered from the book's OWN sources (book/src/cover.html and
+           three real spreads), not mocked up, so nothing here can promise a page the
+           book does not have. Re-render them if the book is revised.
+         * The Amazon link is the plain /dp/ address the a.co share link resolves to:
+           the same listing, readable in the status bar, with no share-tracking tail.
+         * No PRICE. A price written into static HTML is wrong the first time Amazon
+           changes it, and nothing will fail when it drifts. The ISBN cannot drift, and
+           it is what a school's purchasing office asks for.
+         * The app stays free, and the copy says so. A page whose hero says "Free" and
+           "No ads" must not make the book read as the price of admission. -->
+  <section class="band book" id="book">
+    <div class="wrap">
+      <div class="book-feature reveal">
+        <div class="book-art">
+          <a class="book-cover" href="https://www.amazon.com/dp/B0HM6LRHSX" target="_blank" rel="noopener noreferrer">
+            <img src="assets/book/cover.jpg" width="720" height="1080"
+                 alt="The book's front cover: the Edusim wordmark in chunky orange letters over a blue sky, the title The Official Edusim Tutorial &amp; Projects Book, a red Vol. 1 badge, and below it a green steam engine and carriage, a train station and a green turtle built from simple shapes on a grassy field." />
+          </a>
+          <span class="book-burst" aria-hidden="true">New!<small>Vol. 1</small></span>
+        </div>
+
+        <div class="book-copy">
+          <span class="sticker" style="--c: var(--red);">📗 New · Now in print</span>
+          <h2>The Official Edusim <span class="hl" style="--c: var(--orange);">Tutorial &amp; Projects Book</span></h2>
+          <p class="book-lede">
+            From your very first steps in the Park to a whole town you have built and
+            programmed yourself — <strong>112 full-colour pages</strong> of step-by-step
+            projects, with a real screenshot beside every step so you can match it on
+            screen.
+          </p>
+          <ul class="book-points">
+            <li style="--c: var(--orange);"><span aria-hidden="true">🚂</span> <span><strong>Build</strong> a steam train, a turtle and a whole train station out of four simple shapes.</span></li>
+            <li style="--c: var(--purple);"><span aria-hidden="true">🧩</span> <span><strong>Code</strong> them with blocks: a train that runs to a timetable, an animal that answers back, street lamps that come on at sunset.</span></li>
+            <li style="--c: var(--green);"><span aria-hidden="true">🦖</span> <span><strong>Explore</strong> Dinosaur Island, find the secret doors, and paint balloons that puff up into 3D.</span></li>
+            <li style="--c: var(--blue);"><span aria-hidden="true">🍎</span> <span>Skills checks, challenges and <strong>notes for teachers</strong> in every part.</span></li>
+          </ul>
+          <ol class="book-parts" aria-label="The four parts of the book">
+            <li style="--c: var(--blue);"><small>Part 1</small>Meet Edusim</li>
+            <li style="--c: var(--green);"><small>Part 2</small>First projects</li>
+            <li style="--c: var(--orange);"><small>Part 3</small>Build it</li>
+            <li style="--c: var(--purple);"><small>Part 4</small>Code it</li>
+          </ol>
+          <div class="book-cta">
+            <a class="btn btn-primary btn-big" href="https://www.amazon.com/dp/B0HM6LRHSX" target="_blank" rel="noopener noreferrer">🛒 Get the book on Amazon ↗</a>
+            <a class="btn btn-ghost" href="#learn">Free tutorials online ↓</a>
+          </div>
+          <p class="book-fine">
+            Paperback · 112 pages · full colour · 15 chapters · ISBN&nbsp;9798160064970<br />
+            Edusim itself stays <strong>free</strong> — the book is a companion for
+            classrooms and kitchen tables, never the price of getting in.
+          </p>
+        </div>
+      </div>
+
+      <div class="book-inside reveal">
+        <h3>Take a look inside</h3>
+        <div class="spread-grid">
+          <figure class="spread" style="--c: var(--orange);">
+            <img src="assets/book/spread-build.jpg" width="1152" height="864" loading="lazy"
+                 alt="Pages 50 and 51, Chapter 9, Build a train: a picture of the finished green steam engine and blue carriage, and a parts list of twelve pieces for the engine and six for the carriage, with tips and a note for teachers." />
+            <figcaption><b>Build it</b> Chapter 9: a steam engine from twelve pieces</figcaption>
+          </figure>
+          <figure class="spread" style="--c: var(--purple);">
+            <img src="assets/book/spread-code.jpg" width="1152" height="864" loading="lazy"
+                 alt="Pages 92 and 93, Chapter 13, Make the train go: a block program that puts the marker pen down and repeats four times glide and rotate 90 degrees, and the red square the engine draws on the grass." />
+            <figcaption><b>Code it</b> Chapter 13: the train draws a square</figcaption>
+          </figure>
+          <figure class="spread" style="--c: var(--green);">
+            <img src="assets/book/spread-explore.jpg" width="1152" height="864" loading="lazy"
+                 alt="Pages 28 and 29: a Dinosaur Island scavenger hunt with four pictures to tick off — a Tyrannosaurus rex, a Triceratops, a nest and a fossil dig — and Secret doors, showing the Under the Sea sign behind the Park's nature centre and the coral reef it leads to." />
+            <figcaption><b>Explore it</b> Chapter 4: a dinosaur hunt and a secret door</figcaption>
+          </figure>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -780,6 +897,8 @@
       <p class="tut-note reveal">
         🖨️ Teachers: every card in the <a href="guide/index.html">Hands-On Guide</a> prints
         clean on one or two pages — run off a class set.
+        📗 Want it all bound together? <a href="#book">The Official Edusim Tutorial &amp; Projects Book</a>
+        is fifteen chapters of projects in full colour.
       </p>
     </div>
   </section>
@@ -1015,6 +1134,7 @@
             <div><h3>Learn the tools</h3><p>For students — and anyone new</p></div>
           </div>
           <ul class="res-list">
+            <li><a href="https://www.amazon.com/dp/B0HM6LRHSX" target="_blank" rel="noopener noreferrer"><b>📗 The Edusim book ↗</b><span>The Official Tutorial &amp; Projects Book: 112 full-colour pages, in paperback on Amazon.</span></a></li>
             <li><a href="guide/tutorials.html"><b>Six build-along tutorials</b><span>Build a snowman, a rocket, a robot and a house, then teach them to move.</span></a></li>
             <li><a href="guide/builder.html"><b>The Model Builder card</b><span>The four shapes, the hammer menu, and turning parts into one model.</span></a></li>
             <li><a href="guide/coding.html"><b>The Coding Blocks card</b><span>All fifteen blocks in three colours, and what each one does.</span></a></li>
@@ -1136,6 +1256,7 @@
           <h2>Learn</h2>
           <ul>
             <li><a href="guide/index.html">Hands-On Guide</a></li>
+            <li><a href="https://www.amazon.com/dp/B0HM6LRHSX" target="_blank" rel="noopener noreferrer">The Edusim book ↗</a></li>
             <li><a href="guide/tutorials.html">Build-along tutorials</a></li>
             <li><a href="guide/coding.html">Coding blocks card</a></li>
             <li><a href="guide/javascript.html">JavaScript card</a></li>

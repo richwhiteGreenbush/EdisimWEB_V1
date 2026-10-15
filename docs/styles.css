@@ -933,6 +933,66 @@ section[id], .res-group, .anchor-alias { scroll-margin-top: calc(var(--nav-h) + 
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+/* The book announcement, above the wordmark. A sticker like the research pill, but red:
+   it is the one item in the hero that is new, and the only one that is for sale. The
+   little cover is the real one, tilted the way the big one is in #book. */
+.hero-book {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+  margin-bottom: 24px;
+  padding: 6px 18px 6px 8px;
+  background: #fff;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 4px 4px 0 var(--red);
+  color: var(--ink);
+  text-align: left;
+  text-decoration: none;
+  font-size: 0.98rem;
+  line-height: 1.35;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hero-book:hover,
+.hero-book:focus-visible { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--red); }
+
+.hero-book img {
+  flex: none;
+  width: 28px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 2px 5px 5px 2px;
+  border: 1.5px solid var(--ink);
+  transform: rotate(-7deg);
+  transition: transform 0.2s ease;
+}
+
+.hero-book:hover img { transform: rotate(4deg) scale(1.08); }
+
+/* Ink on a pale tint of the red, never white on the red itself -- this file's rule. */
+.hb-new {
+  flex: none;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+  background: color-mix(in srgb, var(--red) 30%, #fff);
+  font-family: "Fredoka", sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hb-text b { color: #a8233b; }
+.hb-go { flex: none; font-family: "Fredoka", sans-serif; font-weight: 700; font-size: 1.2rem; }
+
+@media (max-width: 520px) {
+  .hero-book { border-radius: 22px; font-size: 0.9rem; gap: 10px; }
+  .hb-new { display: none; }
+}
+
 .hero-research strong { color: #5b2fc0; }
 .hero-research .hr-more { font-weight: 800; color: var(--denim); text-decoration: underline; text-underline-offset: 3px; }
 .hero-research:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--purple); }
@@ -1221,6 +1281,252 @@ section[id], .res-group, .anchor-alias { scroll-margin-top: calc(var(--nav-h) + 
   font-weight: 800;
   text-decoration-thickness: 2px;
   text-underline-offset: 4px;
+}
+
+/* ---------- 0½ · the book ----------
+   The print book, straight after the doors. A sky-tinted band, because the cover is a
+   sky; the cover itself is a physical object on the page -- tilted, with a spine shading
+   down its left edge and the page's hard ink shadow -- so it reads as a book you could
+   pick up rather than as one more screenshot. */
+
+.book {
+  --band: #e4f1fc;
+  background-image: radial-gradient(rgba(224, 69, 95, 0.13) 1.6px, transparent 1.8px);
+  background-size: 26px 26px;
+}
+
+.book-feature {
+  display: grid;
+  gap: 44px;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .book-feature { grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); gap: 64px; }
+}
+
+.book-art {
+  position: relative;
+  justify-self: center;
+  width: min(340px, 78%);
+  padding: 18px 0 8px;
+}
+
+.book-cover {
+  position: relative;
+  display: block;
+  border-radius: 4px 14px 14px 4px;
+  border: var(--line);
+  overflow: hidden;
+  box-shadow: 12px 12px 0 var(--ink);
+  transform: rotate(-4deg);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* The spine: a soft dark band and a crease down the bound edge. */
+.book-cover::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 9%;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.26) 0%, rgba(0, 0, 0, 0.06) 55%, rgba(255, 255, 255, 0.22) 70%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+}
+
+.book-cover img { display: block; width: 100%; height: auto; }
+
+.book-cover:hover,
+.book-cover:focus-visible { transform: rotate(0deg) translateY(-6px); box-shadow: 16px 18px 0 var(--ink); }
+
+.book-burst {
+  /* Off the right-hand edge at the horizon, where the cover has only a cropped house:
+     anywhere higher and it sits on the cover's own wordmark. */
+  position: absolute;
+  top: 44%;
+  right: -44px;
+  z-index: 2;
+  display: grid;
+  place-content: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: var(--line);
+  background: var(--sun);
+  box-shadow: 4px 4px 0 var(--red);
+  font-family: "Gluten", "Fredoka", sans-serif;
+  font-weight: 800;
+  font-size: 1.45rem;
+  line-height: 1;
+  text-align: center;
+  transform: rotate(12deg);
+}
+
+.book-burst small { display: block; margin-top: 3px; font-family: "Fredoka", sans-serif; font-weight: 600; font-size: 0.8rem; }
+
+.book-copy h2 {
+  font-weight: 700;
+  font-size: clamp(2.05rem, 4.2vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0 0 16px;
+}
+
+.book-lede { font-size: 1.12rem; color: var(--ink-soft); }
+
+.book-points {
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.book-points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  line-height: 1.5;
+}
+
+.book-points li > span:first-child {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  margin-top: -4px;
+  border-radius: 12px;
+  border: 2.5px solid var(--ink);
+  background: color-mix(in srgb, var(--c) 32%, #fff);
+  box-shadow: 2px 2px 0 var(--c);
+  font-size: 1.15rem;
+}
+
+.book-parts {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.book-parts li {
+  padding: 9px 10px 10px;
+  border-radius: 14px;
+  border: 2px solid rgba(30, 42, 58, 0.18);
+  border-top: 6px solid var(--c);
+  background: #fff;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.book-parts small {
+  display: block;
+  font-family: "Nunito", sans-serif;
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 520px) {
+  .book-parts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.book-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 18px;
+  margin-top: 30px;
+}
+
+.book-fine {
+  margin: 20px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.book-fine strong { color: var(--ink); }
+
+/* Look inside: three real spreads. On a narrow screen they become a row to swipe, rather
+   than three screens of scrolling past pages too small to read anyway. */
+.book-inside { margin-top: 72px; }
+
+.book-inside h3 {
+  margin: 0 0 22px;
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.spread-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.spread {
+  margin: 0;
+  padding: 10px 10px 0;
+  border-radius: 18px;
+  border: var(--line);
+  background: #fff;
+  box-shadow: 6px 6px 0 var(--c);
+}
+
+.spread img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1.5px solid rgba(30, 42, 58, 0.16);
+}
+
+.spread figcaption {
+  padding: 10px 4px 12px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+.spread figcaption b {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 9px;
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+  background: color-mix(in srgb, var(--c) 32%, #fff);
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+@media (max-width: 899px) {
+  .spread-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: min(78%, 460px);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 4px 4px 14px;
+    margin: 0 -4px;
+  }
+  .spread { scroll-snap-align: start; }
+}
+
+@media (max-width: 600px) {
+  .book-feature { gap: 30px; }
+  .book-burst { width: 74px; height: 74px; font-size: 1.1rem; right: -22px; }
+  .book-cta .btn-big { width: 100%; }
+  .book-inside { margin-top: 52px; }
+  .spread-grid { grid-auto-columns: 88%; }
 }
 
 /* ---------- 1 · worlds ---------- */
@@ -2304,7 +2610,7 @@ section[id], .res-group, .anchor-alias { scroll-margin-top: calc(var(--nav-h) + 
 
 @media (forced-colors: active) {
   .sky, .hills, .stars, .postcards { display: none; }
-  .door, .world-card, .res-group, .toy, .tut-card, .build-step, .code-lane { border: 2px solid CanvasText; }
+  .door, .world-card, .res-group, .toy, .tut-card, .build-step, .code-lane, .spread, .book-parts li { border: 2px solid CanvasText; }
 }
 
 /* Printing defaults to print-color-adjust: economy, which drops background images AND
@@ -2317,7 +2623,10 @@ section[id], .res-group, .anchor-alias { scroll-margin-top: calc(var(--nav-h) + 
   .band::before { display: none; }
   .hifi-section .band-head h2, .hifi-body h3 { color: #000; }
   .hifi-body p, .hifi-section .band-head p { color: #333; }
-  .door, .world-card, .res-group, .toy, .tut-card, .build-step, .code-lane, .research-card { box-shadow: none !important; break-inside: avoid; }
+  .door, .world-card, .res-group, .toy, .tut-card, .build-step, .code-lane, .research-card,
+  .hero-book, .book-cover, .spread, .book-burst { box-shadow: none !important; break-inside: avoid; }
+  .book-cover { transform: none; }
+  .spread-grid { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); overflow: visible; }
   .reveal-armed { opacity: 1 !important; transform: none !important; }
   .hero-logo .wordmark {
     background: none;

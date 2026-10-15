@@ -339,13 +339,27 @@ destination, in the footer's shorter copy). Every sub-site nav — guide, resear
 spatial-reasoning, privacy — carries an **All resources** link to `index.html#resources`.
 
 The rest of the page, in order: the hero, `#start` (six "what do you want to do today?"
-doors — the page's own table of contents), `#worlds`, `#hifi`, `#build`, `#code`, `#learn`
+doors — the page's own table of contents), `#book`, `#worlds`, `#hifi`, `#build`, `#code`, `#learn`
 (tutorial tracks plus the seven world guide cards; `#tutorials` is kept as an alias so old
 shared links land), `#more`, `#teachers`, `#resources`, `#play`. `docs/styles.css` is used
 by `index.html` alone, so it can change without touching a sub-site. Card and postcard
 pictures come from `docs/assets/screenshots/thumbs/` — 800px copies made with
 `sips -s format jpeg -s formatOptions 78 -Z 800` (1.6 MB for all 21, against 6.7 MB of originals);
 regenerate a thumb whenever its source screenshot is recaptured.
+
+**The print book is sold from the page** (2026-10, per Rich): The Official Edusim Tutorial &
+Projects Book, Vol. 1 (`book/`), on Amazon at `https://www.amazon.com/dp/B0HM6LRHSX` — the
+plain address the `a.co/d/06dUEcGP` share link resolves to — ISBN 9798160064970. It appears
+in five places: a red announcement pill above the hero wordmark (it jumps to `#book`, not to
+the shop), the `Book` nav link, the `#book` band straight after `#start`, the first entry in
+`#resources`' "Learn the tools", and the footer's Learn column; plus a JSON-LD `Book` block in
+the head. Three rules: **no price anywhere** (static HTML drifts silently, the ISBN cannot);
+**the copy says the app stays free**, because a hero that says "Free" and "No ads" must not
+make the book read as the price of admission; and **every picture is rendered from the book's
+own sources** — `docs/assets/book/cover.jpg` is `book/src/cover.html`'s front at trim, and the
+three spreads are pages 50–51, 92–93 and 28–29 of the real interior — so re-render them if
+the book is revised. The Amazon listing's own title reads "Project Book", singular; the cover
+and this page say "Projects".
 
 **The seven per-world guide cards carry the same link in three places** (`docs/guide/`:
 park 1, museum 2, library 3, moon 4, mars 5, dinosaur 6, voyage 7). The other five guide
