@@ -33,6 +33,12 @@ import { SettingsPanel } from './SettingsPanel.js';
 import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD } from './config.js';
 import { takeLinkedWorldId, fetchLinkedWorld } from './WorldLink.js';
 
+// `?studio` opens the Social Media Studio (src/studio/) instead of the app's own boot: the
+// same scene and worlds, with a director on the camera and an MP4 exporter. Read first,
+// because it changes what boots and whether anything is saved.
+const studioMode = new URLSearchParams(window.location.search).has('studio');
+let studio = null;
+
 const canvas = document.getElementById('scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -341,6 +347,9 @@ const playIconManager = new PlayIconManager({ scene, camera, domElement: canvas,
 const speechBubbles = new SpeechBubbleManager({ scene, registry });
 
 const worldStore = new WorldStore({ scene, registry, menu, programManager, playIconManager, webBrowserManager, speechBubbles, markerTrail });
+// The studio films preset worlds one after another; none of that may overwrite the world
+// this browser has saved. See WorldStore.persistent.
+if (studioMode) worldStore.persistent = false;
 
 const photoMode = new PhotoMode({
   scene, camera, renderer, registry, worldStore, menu, player, groundHeightAt, cinema,
@@ -424,7 +433,7 @@ programManager.onScriptError = (id, err) =>
 // `?world=24` on the address opens that world out of the gallery. Read -- and stripped
 // from the url -- BEFORE anything is built, so the boot world is never built just to be
 // thrown away a moment later, and so a refresh cannot replay the link. See WorldLink.js.
-const linkedWorldId = takeLinkedWorldId();
+const linkedWorldId = studioMode ? null : takeLinkedWorldId();
 
 // The activation event the whole funnel is measured against: a session that got as far
 // as the app itself. Fired here rather than left to the page counter in
@@ -436,10 +445,28 @@ const linkedWorldId = takeLinkedWorldId();
 // `?.` because the script is genuinely absent in `npm run dev` and for any visitor
 // sending Do Not Track. Nothing below depends on it.
 try {
-  window.edusimCount?.('app', '/app/');
+  if (!studioMode) window.edusimCount?.('app', '/app/');
 } catch (err) { /* counting must never delay the boot */ }
 
-worldStore
+if (studioMode) {
+  // Loaded only when asked for, so the studio costs a student's boot nothing at all. It
+  // builds its own first world; nothing is rehydrated from IndexedDB.
+  import('./studio/Studio.js')
+    .then(({ Studio }) => {
+      studio = new Studio({
+        renderer, scene, camera, player, ground, registry, programManager, worldStore, cinema,
+        markerTrail, speechBubbles, playIconManager, constructionManager, motion, menu, groundHeightAt,
+        frame, animate,
+        setAnimationLoop: (fn) => renderer.setAnimationLoop(fn),
+      });
+    })
+    .catch((err) => {
+      console.error('Could not open the Social Media Studio:', err);
+      menu.toast('Could not open the studio.', { tone: 'error' });
+    });
+}
+
+if (!studioMode) worldStore
   .rehydrateAll()
   .then(async () => {
     if (linkedWorldId) {
@@ -512,6 +539,11 @@ const vrView = new VRView({
 cinema.attach({ vrView });
 
 window.addEventListener('resize', () => {
+  // The studio renders at the video's own size, not the window's.
+  if (studioMode) {
+    studio?.onResize();
+    return;
+  }
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -543,7 +575,14 @@ if (import.meta.env.DEV) {
 // a session it is plain requestAnimationFrame, so nothing else changes.
 function animate(timestamp) {
   timer.update(timestamp);
-  const dt = Math.min(timer.getDelta(), 0.1);
+  frame(Math.min(timer.getDelta(), 0.1));
+}
+
+// One frame of the app, split out of animate() so the studio's exporter can step it on a
+// virtual clock -- it stops the animation loop and calls this directly, 1/60s at a time.
+// `render: false` advances everything without drawing, for the in-between frames a 30fps
+// video does not keep.
+function frame(dt, { render = true } = {}) {
   // A camera rig owns the eyes while it is running -- the same true/false arbitration
   // vrView.render() uses at the bottom of this function.
   if (!cinema.active) player.update(dt);
@@ -553,6 +592,9 @@ function animate(timestamp) {
   registry.tick(dt, camera);
   motion.tick(dt);
   programManager.tick();
+  // The studio's director: after programs have moved things this frame (a shot that
+  // follows a rocket reads where the rocket now is), before the rig below.
+  studio?.tick(dt);
   // AFTER the programs have moved things, and BEFORE webBrowserManager.tick(), which
   // renders the CSS3D layer itself and therefore wants the final camera. A ride that read
   // its subject before programManager.tick() would be exactly one frame stale -- invisible
@@ -564,12 +606,15 @@ function animate(timestamp) {
   webBrowserManager.tick();
   constructionManager.tick();
   buildGizmo.tick();
+  if (!render) return;
+  studio?.beforeRender();
   // vrView draws the frame itself when a headset or stereo view is running.
   if (!vrView.render()) renderer.render(scene, camera);
   // IMMEDIATELY after the draw, in the same task. The renderer is built without
   // preserveDrawingBuffer, so a WebGL drawing buffer read from a click handler on a later
   // tick comes back as a black rectangle with no error at all. This is the only place a
-  // photograph can legally be taken.
+  // photograph can legally be taken -- and the only place the studio can copy a frame.
   photoMode.afterRender();
+  studio?.afterRender();
 }
 renderer.setAnimationLoop(animate);

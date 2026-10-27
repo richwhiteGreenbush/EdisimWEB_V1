@@ -71,6 +71,10 @@ export class WorldStore {
     this.speechBubbles = speechBubbles;
     this.webBrowserManager = webBrowserManager;
     this.dbPromise = openDB();
+    // False only in the Social Media Studio (?studio). Loading a world wipes IndexedDB and
+    // re-persists every record, so a studio that filmed six worlds would leave the
+    // student's own saved world replaced by whichever one it filmed last.
+    this.persistent = true;
 
     // Best-effort: reduces the odds the browser evicts this data under storage pressure.
     navigator.storage?.persist?.().catch(() => {});
@@ -96,6 +100,7 @@ export class WorldStore {
   }
 
   async saveObject(record) {
+    if (!this.persistent) return;
     try {
       const db = await this.dbPromise;
       await runTx(db, 'readwrite', (store) => store.put(record));
@@ -109,6 +114,7 @@ export class WorldStore {
   }
 
   async clearAll() {
+    if (!this.persistent) return;
     const db = await this.dbPromise;
     await runTx(db, 'readwrite', (store) => store.clear());
   }
@@ -117,6 +123,7 @@ export class WorldStore {
   // thing that needs it: the construction pieces it consumed have to stop coming back on
   // the next refresh, or the student gets their model AND a ghost copy of its parts.
   async deleteObject(id) {
+    if (!this.persistent) return;
     try {
       const db = await this.dbPromise;
       await runTx(db, 'readwrite', (store) => store.delete(id));

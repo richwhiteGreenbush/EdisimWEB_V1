@@ -16,3 +16,7 @@ scratch/
 # View captures of a real address; they are Google's imagery and this repo has a public
 # remote, so the pictures stay on the machine that made the world and only the model ships.
 turklestreet/
+
+# Videos rendered by tools/studio-render.mjs (the Social Media Studio's command line). They
+# are 20-50MB apiece and are made to be posted, not versioned.
+studio-output/
