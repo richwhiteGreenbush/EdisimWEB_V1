@@ -77,7 +77,14 @@ it build the Park (`loadPresetWorld(BOOT_WORLD)`) — so a first visit gets a wo
 refresh keeps the student's own edits, and a loaded preset is never overwritten.
 The animate loop ticks `registry`,
 `programManager`, `playIconManager`, `webBrowserManager`, `constructionManager` and
-`buildGizmo`, in that order, before `renderer.render()`.
+`buildGizmo`, in that order, before `renderer.render()`. The body of that loop is
+`frame(dt, { render })`, split out of `animate()` so the Social Media Studio's exporter can
+step the whole app on a virtual clock (see that section); `animate()` itself is now just
+the timer and one call.
+
+`?studio` on the address boots the **Social Media Studio** instead of a student's world:
+nothing is rehydrated, nothing is saved, and `src/studio/` is a lazy chunk a normal boot
+never fetches.
 
 ### Units: everything is feet
 
@@ -5186,6 +5193,115 @@ the user never sees why their action failed. `ObjectMenu.positionAt()` also clam
 on-screen position synchronously (not via a deferred `requestAnimationFrame`) for the
 same class of reason: the panel is already laid out by the time it runs, so measuring
 a frame later just adds a visible jump when opening near a screen edge.
+
+### The Social Media Studio (`?studio`), and a video that is RENDERED, not recorded
+
+`src/studio/` (Studio, StudioScripts, StudioOverlay, StudioAudio, Mp4Muxer, studio.css) +
+`tools/studio-render.mjs`. Open the app with `?studio` (`npm run dev`, then
+`localhost:5173/?studio`) and it boots a film set instead of a student's world: pick a
+template (Showcase / World Tour / Build It / Code It / Spotlight), a length (15/30/45/60s),
+a shape (9:16 Reel, 4:5 feed, 1:1, 16:9), the worlds, the words and the sound; Preview plays
+it live and Export writes an MP4 -- or **All platforms** writes the Reel, the 4:5 and the
+square in one go, each with Instagram / Facebook / LinkedIn captions to paste.
+
+**It is the whole app with a director on the camera**, which is the point: the worlds, the
+build pieces, the block runner, the JavaScript runtime and the marker are the real ones, so
+a video cannot show anything the app cannot do. It drives the camera through `Cinema.take()`
+with an empty rig (blend forced to 1), like every other camera feature.
+
+**THREE DECISIONS CARRY IT.**
+
+1. **EXPORT RENDERS FRAME BY FRAME ON A VIRTUAL CLOCK.** It stops the animation loop, pins
+   `performance.now()` to its own clock (every glide, wait, program tick and speech bubble
+   reads it), and calls `frame(1/60)` itself, encoding every second frame at 30fps with
+   WebCodecs (H.264 High@4.0, AAC 160k) into `Mp4Muxer`. So a world that takes a second to
+   build costs no frames, a slow machine makes a slower export rather than a juddery one, and
+   the result is identical every time. Measured on the development Mac: a 30s 1080x1920
+   Showcase renders in 7-11s. `delete performance.now` in a `finally` restores the native
+   method -- an export that throws must not leave the app on a frozen clock.
+2. **EVERYTHING IN THE VIDEO IS ON ONE 2D CANVAS.** The renderer draws at the video's own
+   size into the (hidden, off-screen) `#scene` canvas; `afterRender()` copies it onto a 2D
+   canvas in the same task (PhotoMode's drawing-buffer rule) and draws the captions, program
+   card and end card over it. That canvas is both the stage preview and the encoder's input,
+   so the preview IS the video. DOM can never be in a frame -- which is why the studio
+   **filters `web-browser` records and their `browser-kiosk` out of every world it loads**: a
+   CSS3D panel would be a blank dark rectangle in the video.
+3. **NOTHING IS SAVED.** `WorldStore.persistent = false` (set by main.js before anything
+   loads) turns saveObject/clearAll/deleteObject into no-ops. `loadFromRecords` wipes and
+   re-persists IndexedDB, so without it a studio session filming six worlds would replace
+   the browser's own saved world with the last one filmed.
+
+**WHY NOT MediaRecorder, measured rather than assumed** (Chrome 156): it records MP4 now,
+but **fragmented**, with an `mvhd` duration of 0 -- a phone's picker shows 0:00 -- and after a
+`pause()`/`resume()` its AAC sample durations come out compressed (81 frames of 1024
+samples written as 442 units each), so the audio plays squeezed. Worse, a live
+`AudioContext` that was `suspend()`ed stopped feeding the MediaStreamDestination 0.4s after
+`resume()`. `Mp4Muxer` writes a plain progressive file instead -- faststart, one sample per
+chunk, AAC durations fixed at 1024 by definition -- and `avconvert` (AVFoundation, what
+iPhone Photos uses) decodes every frame and sample of its output.
+
+**THE SOUNDTRACK IS SYNTHESISED AND RENDERED OFFLINE**, before the first frame
+(`StudioAudio.renderSoundtrack`, an `OfflineAudioContext`): four generative music styles,
+ten ambience beds (auto-matched to each world's theme -- crickets in a night world, a
+heartbeat in Fantastic Voyage, the Apollo Quindar beep on the Moon), and sound effects on
+the action. Nothing is a recording, so there is nothing to license; a user's own track can
+be dropped in and is looped and faded to fit. Every random choice is seeded, so one plan
+gives one mix and the three formats of a pack share it. Because the mix exists before the
+frames, **sound-effect cues are fixed at plan time** from the same timeline functions the
+beats animate with (`buildTimeline`, `codeTimeline`) -- a pop is scheduled before the shape
+it belongs to exists. Beat boundaries are snapped to the music's beat grid, so cuts land on
+the beat and the button chord lands on the end card. Peak-normalised to -1 dBFS; a 30s mix
+measures a steady -17 dB RMS.
+
+**Preview's clock IS the audio player's position**, so picture and sound cannot drift; when
+a beat needs a different world the source is STOPPED and later restarted at the same offset
+(never `suspend()` -- see above) while the last frame holds on screen.
+
+**A beat is data plus setup/update/pose/draw/teardown** (`StudioScripts.js` explains the
+order). Heroes are found by `PROP_BUILDERS` key (`STUDIO_WORLDS`), never by coordinates, and
+every caption fact is one this file supports -- captions that go out to strangers are the last
+place to invent a number. Things the camera code learned, each by looking at frames:
+
+- **FIT TO WHAT IS SEEN FROM THE BEARING, NOT TO A BOUNDING SPHERE**, and on a tall frame let
+  a wide hero run off both sides. Fitted edge to edge, a T. rex in a Reel put the camera 130ft
+  back, through a forest, where it was a speck behind trees.
+- **A SHOT MUST BE ABLE TO SEE ITS HERO**: five samples along the move, at least three of
+  five sight lines clear at each, the camera not standing inside anything, and the OPENING
+  frame clear outright (it is the thumbnail). "Inside" is measured against boxes of OPAQUE
+  meshes only, skipping anything over 60ft wide (streets, paths) or under 4ft tall (chairs,
+  flower beds): `wonder-sparkles`' box covers the whole tea party and rejected every camera
+  near the Mad Hatter. Foreground near the lens is usually GOOD (a teapot in the corner is
+  the tea party), so the lens check only objects to anything within 4ft and to a board,
+  placard or sign within 12 -- the back of a board is a black slab. Failing all that, the
+  world's own arrival frame, which every layout is composed around.
+- **CHECK A FOLLOW CAMERA AT THE WIDEST IT WILL PULL BACK TO.** The rocket's spiral camera
+  was checked only where it started; as the spiral climbed it backed into My World's tutorial
+  board and rendered over a second of solid black. `clearBearing` tests every radius and
+  height the move will use, then takes the clear bearing with the emptiest background.
+- **DON'T BUILD DOWN THE SPAWN'S SIGHTLINE.** It ends at whatever the world put there -- in My
+  World, the welcome board, so the first rocket was built in front of a wall of text.
+  `siteFor` scores four spots round the spawn from eight sides by a fan of rays across the
+  frame (`clutterBehind`) and builds facing the emptiest view.
+- **A card takes part of the frame, so the subject is framed into what is left**:
+  `setViewOffset` holds it at `L.subject` and the fit uses `L.span`. Each format's SAFE box
+  is what the platform's own UI leaves alone (a Reel loses ~12% at the top to "Reels", ~22%
+  at the bottom to the caption and the right edge to the buttons), and the corner wordmark
+  sits INSIDE it with everything else stepped below (`L.top`).
+- **THE BUILD GIZMO IN A VIDEO IS DRAWN, NOT DRIVEN**: the same colours as BuildGizmo, fitted
+  round the piece being worked on, over real `createShapeMesh` pieces; "Render it into one
+  model" registers them as an ordinary `built-model`, which the code beat then programs with
+  the real runner.
+
+**`tools/studio-render.mjs`** is the same studio with nobody at the keyboard: it writes the
+options into the studio's localStorage, opens `?studio` in headless Chrome (GPU via
+ANGLE/Metal, as book/tools does), calls `window.__studio.exportFormats()`, and saves each MP4
+plus a `.captions.txt` into `studio-output/` (gitignored). It borrows the book's
+`playwright-core` rather than making the app depend on it.
+
+Fonts (Fredoka, Gluten, Nunito, JetBrains Mono) are fetched from Google Fonts at studio
+start only -- the brand's own faces, since the video is brand material -- with a 5s timeout
+to system fonts. Settings live in localStorage `edusim-studio`, per machine, never in a
+world.
 
 ### Build/tooling notes
 
