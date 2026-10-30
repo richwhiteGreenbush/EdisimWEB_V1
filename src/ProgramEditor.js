@@ -1,4 +1,7 @@
-import { CATEGORIES, BLOCK_DEFS, PALETTE_ORDER, createBlockInstance, cloneBlockTree } from './BlockDefs.js';
+import {
+  CATEGORIES, BLOCK_DEFS, PALETTE_ORDER, createBlockInstance, cloneBlockTree,
+  cleanVariableName, isVariableRef, variablesIn, sharedVariablesIn,
+} from './BlockDefs.js';
 import { blocksToJs, highlightJs, compileJs, JS_STARTER, JS_API_HINT } from './JsProgram.js';
 import { recordHasProgram } from './ProgramManager.js';
 import { countProgram } from './BuildStats.js';
@@ -158,7 +161,7 @@ export class ProgramEditor {
   }
 
   buildPalette() {
-    for (const categoryKey of ['control', 'motion', 'look']) {
+    for (const categoryKey of ['control', 'motion', 'look', 'math']) {
       const category = CATEGORIES[categoryKey];
       const section = document.createElement('div');
       section.className = 'pe-palette-section';
@@ -277,6 +280,14 @@ export class ProgramEditor {
       }
     }
 
+    // A warning, not a refusal: the program still runs, and the name reads as 0.
+    if (this.mode === 'blocks') {
+      const missing = this.unknownVariables();
+      if (missing.length) {
+        this.menu?.toast(`Nothing sets ${missing.map((n) => `"${n}"`).join(', ')} in this program yet.`, { tone: 'error' });
+      }
+    }
+
     const record = item.record;
     // BOTH representations are saved, which is what makes the toggle non-destructive
     // across sessions too: reopening the editor tomorrow finds the same blocks and the
@@ -309,6 +320,43 @@ export class ProgramEditor {
 
   // --- rendering ---------------------------------------------------------------
 
+  // Every name a variable slot can offer: what this program sets, plus what any object in the
+  // world shares. Read from the live tree each time, so it cannot go stale.
+  variableNames() {
+    const names = variablesIn(this.tree);
+    for (const item of this.registry?.items?.values?.() || []) {
+      sharedVariablesIn(item.record?.program, names);
+    }
+    return [...names].sort((a, b) => a.localeCompare(b));
+  }
+
+  // Brings every variable picker in the workspace up to date. Done in place rather than by
+  // re-rendering, because a re-render on every keystroke in a name field would take the
+  // student's caret away from them.
+  refreshVariablePickers() {
+    const names = this.variableNames();
+    for (const picker of this.workspaceEl.querySelectorAll('.pe-var-picker')) picker.refreshNames(names);
+  }
+
+  // Names this program reads that nothing sets: a name changed in one place and not another.
+  unknownVariables() {
+    const known = new Set(this.variableNames());
+    const missing = new Set();
+    const walk = (blocks) => {
+      for (const block of blocks || []) {
+        const def = BLOCK_DEFS[block.type];
+        for (const [key, schema] of Object.entries(def?.params || {})) {
+          if (schema.variable && isVariableRef(block.params[key]) && !known.has(block.params[key])) {
+            missing.add(block.params[key]);
+          }
+        }
+        walk(block.children);
+      }
+    };
+    walk(this.tree);
+    return [...missing];
+  }
+
   renderWorkspace() {
     this.workspaceEl.innerHTML = '';
     if (!this.tree.length) {
@@ -318,6 +366,7 @@ export class ProgramEditor {
       this.workspaceEl.appendChild(empty);
     }
     this.renderBlockList(this.tree, this.workspaceEl);
+    this.refreshVariablePickers();
   }
 
   renderBlockList(blocks, container) {
@@ -393,7 +442,7 @@ export class ProgramEditor {
       // with keyboard support and a touch-friendly native picker for free.
       if (schema.type === 'select') {
         const select = document.createElement('select');
-        select.className = 'pe-field pe-field-select';
+        select.className = `pe-field pe-field-select${schema.compact ? ' pe-field-compact' : ''}`;
         for (const option of schema.options || []) {
           const opt = document.createElement('option');
           opt.value = option.value;
@@ -409,8 +458,34 @@ export class ProgramEditor {
         continue;
       }
 
+      // A variable's own name. Cleaned as it is typed, and every picker in the program hears
+      // about it straight away.
+      if (schema.type === 'name') {
+        const nameInput = document.createElement('input');
+        nameInput.className = 'pe-field pe-field-name';
+        nameInput.type = 'text';
+        nameInput.maxLength = 16;
+        nameInput.spellcheck = false;
+        nameInput.autocapitalize = 'off';
+        nameInput.value = params[token.field] ?? schema.default;
+        nameInput.disabled = paletteOnly;
+        nameInput.addEventListener('pointerdown', (e) => e.stopPropagation());
+        nameInput.addEventListener('click', (e) => e.stopPropagation());
+        nameInput.addEventListener('input', () => {
+          const clean = cleanVariableName(nameInput.value);
+          if (clean !== nameInput.value) nameInput.value = clean;
+          onFieldChange?.(token.field, clean);
+          this.refreshVariablePickers();
+        });
+        el.appendChild(nameInput);
+        continue;
+      }
+
+      const named = schema.variable && isVariableRef(params[token.field]);
       const input = document.createElement('input');
-      input.className = schema.type === 'text' ? 'pe-field pe-field-text' : 'pe-field';
+      input.className = schema.type === 'text'
+        ? `pe-field pe-field-text${schema.short ? ' pe-field-short' : ''}`
+        : 'pe-field';
       input.type = schema.type === 'color' ? 'color' : schema.type === 'text' ? 'text' : 'number';
       if (schema.type === 'number') {
         if (schema.min !== undefined) input.min = String(schema.min);
@@ -418,7 +493,7 @@ export class ProgramEditor {
         if (schema.step !== undefined) input.step = String(schema.step);
       }
       if (schema.type === 'text') input.maxLength = 60;
-      input.value = params[token.field];
+      input.value = named ? '' : params[token.field];
       input.disabled = paletteOnly;
       input.addEventListener('pointerdown', (e) => e.stopPropagation());
       input.addEventListener('click', (e) => e.stopPropagation());
@@ -432,6 +507,17 @@ export class ProgramEditor {
       input.addEventListener('change', commit);
       if (schema.type === 'text') input.addEventListener('input', commit);
       el.appendChild(input);
+      if (schema.variable) {
+        if (paletteOnly) {
+          // The drag ghost shows a dragged block's variable as text; it has nothing to pick.
+          if (named) {
+            input.type = 'text';
+            input.value = params[token.field];
+          }
+        } else {
+          el.appendChild(this.renderVariablePicker(input, schema, params[token.field], (value) => onFieldChange?.(token.field, value)));
+        }
+      }
     }
 
     if (!paletteOnly) {
@@ -449,6 +535,52 @@ export class ProgramEditor {
     }
 
     return el;
+  }
+
+  // The small arrow beside a number field. Only there once the program has a variable to offer,
+  // so a program with no Math blocks in it looks exactly as it always has. A picker rather than
+  // typing a name into the field: a touch screen's number pad has no letters, and a list cannot
+  // produce a typo. Picking a name hides the number field and the picker becomes the pill.
+  renderVariablePicker(input, schema, initial, commit) {
+    const picker = document.createElement('select');
+    picker.className = 'pe-field pe-var-picker';
+    picker.title = 'Use a variable here';
+    let current = isVariableRef(initial) ? initial : '';
+
+    const paint = (names) => {
+      picker.textContent = '';
+      const number = document.createElement('option');
+      number.value = '';
+      number.textContent = 'a number';
+      picker.appendChild(number);
+      const all = current && !names.includes(current) ? [current, ...names] : names;
+      for (const name of all) {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        picker.appendChild(opt);
+      }
+      picker.value = current;
+      picker.hidden = !all.length;
+      input.hidden = !!current;
+      picker.classList.toggle('pe-var-active', !!current);
+      picker.classList.toggle('pe-var-unknown', !!current && !names.includes(current));
+    };
+
+    picker.refreshNames = paint;
+    picker.addEventListener('pointerdown', (e) => e.stopPropagation());
+    picker.addEventListener('click', (e) => e.stopPropagation());
+    picker.addEventListener('change', () => {
+      current = picker.value;
+      if (current) {
+        commit(current);
+      } else {
+        input.value = schema.default;
+        commit(schema.default);
+      }
+      this.refreshVariablePickers();
+    });
+    return picker;
   }
 
   // --- tree helpers --------------------------------------------------------------

@@ -37,6 +37,8 @@ export class ProgramManager {
     // JavaScript program steps at exactly the cadence a block program does.
     this.jsRuns = new Map();
     this.nextKey = 1;
+    // What `share` publishes. Not saved, and cleared whenever the world is replaced.
+    this.worldVars = new Map();
     this.activeHats = new Set(); // hats currently mid-run, so a message cannot re-enter one
 
     // Where a JavaScript program's runtime errors go. Assigned by main.js (a toast);
@@ -88,6 +90,12 @@ export class ProgramManager {
     let copies = 0;
     return {
       home,
+      vars: this.programs.get(id)?.vars ?? new Map(),
+      worldVars: this.worldVars,
+      onUnknownVariable: (name) => this.warnOnce(id, `unknown:${name}`,
+        `This program reads "${name}", but nothing has set it yet. Using 0.`),
+      onMathProblem: (name) => this.warnOnce(id, `math:${name}`,
+        `"${name}" has no answer (divided by zero?). Using 0.`),
       duplicate: (offset) => this.onDuplicate?.(id, offset * ++copies),
       say: (text) => {
         this.onSay?.(id, object3D, text);
@@ -104,9 +112,35 @@ export class ProgramManager {
     };
   }
 
+  // One message per problem per run. These are read inside loops, and the same toast sixty
+  // times a second is worse than none.
+  warnOnce(id, key, message) {
+    const entry = this.programs.get(id);
+    if (!entry || entry.warned.has(key)) return;
+    entry.warned.add(key);
+    console.warn(`Program for object ${id}: ${message}`);
+    this.onProgramWarning?.(id, message);
+  }
+
+  clearWorldVars() {
+    this.worldVars.clear();
+  }
+
   // The dispatch every caller goes through: run whichever representation the record says
   // is live. Blocks remain the default for every record that has never seen the toggle.
   startFromRecord(id, record, object3D) {
+    // `go back to start` means wherever the object is when its program starts, so pressing
+    // Save while a ball is in mid-air would make mid-air its home for good. A record carrying
+    // this flag is an exhibit whose start is where it was PLACED, so it goes back there first.
+    // Moving it with the object menu rewrites record.transform, so that still works.
+    if (record?.homeFromRecord && record.transform) {
+      // A pen left down would draw a line from where the object was to where it now is.
+      this.marker?.up(id);
+      const { position, rotation, scale } = record.transform;
+      object3D.position.fromArray(position);
+      object3D.rotation.set(rotation[0], rotation[1], rotation[2]);
+      object3D.scale.fromArray(scale);
+    }
     if (record?.programMode === 'js' && record.programJs?.trim()) {
       this.startJs(id, record.programJs, object3D, { noDuplicate: !!record.programNoDuplicate });
     } else {
@@ -155,7 +189,7 @@ export class ProgramManager {
     if (!program || !program.length) return;
 
     const home = this.captureHome(object3D);
-    this.programs.set(id, { program, object3D, home });
+    this.programs.set(id, { program, object3D, home, vars: new Map(), warned: new Set() });
 
     // Top-level hats are registered, not run. If the program is nothing BUT hats there is
     // no main runner at all -- which is correct: an object whose only script is "when an

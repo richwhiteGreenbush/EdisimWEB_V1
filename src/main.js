@@ -288,6 +288,7 @@ const menuActions = {
     registry.clear();
     playIconManager.clear();
     markerTrail.clear();
+    programManager.clearWorldVars();
     speechBubbles.clear();
     webBrowserManager.clear();
     buildGizmo.deactivate();
@@ -433,6 +434,7 @@ programManager.onSay = (id, object3D, text) => speechBubbles.show(id, object3D, 
 // console is not somewhere a student looks.
 programManager.onScriptError = (id, err) =>
   menu.toast(`JavaScript error: ${err?.message || err}`, { tone: 'error' });
+programManager.onProgramWarning = (id, message) => menu.toast(message, { tone: 'error' });
 
 // `?world=24` on the address opens that world out of the gallery. Read -- and stripped
 // from the url -- BEFORE anything is built, so the boot world is never built just to be

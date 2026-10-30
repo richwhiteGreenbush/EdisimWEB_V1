@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { applyColorTint } from './ColorTint.js';
 import { applyOpacity } from './Opacity.js';
-import { forwardOf } from './ProgramRunner.js';
+import { forwardOf, formatValue } from './ProgramRunner.js';
+import { isVariableRef, variablesIn } from './BlockDefs.js';
 
 // JavaScript programs for placed objects -- the SECOND FRONTEND onto the block runner's
 // semantics. Three jobs live here: transpile a block tree into readable JavaScript,
@@ -42,20 +43,127 @@ function num(value, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
-function emitBlocks(blocks, depth, topLevel) {
+// A block's variable name as a JavaScript name. A student can call a variable `top` or `wait`,
+// and neither may be declared in a program whose runtime already binds that name.
+const RESERVED_NAMES = new Set([
+  'await', 'async', 'const', 'let', 'var', 'if', 'else', 'for', 'while', 'do', 'function',
+  'return', 'true', 'false', 'null', 'undefined', 'new', 'of', 'in', 'break', 'continue', 'try',
+  'catch', 'finally', 'throw', 'switch', 'case', 'default', 'typeof', 'class', 'this', 'delete',
+  'void', 'with', 'yield', 'enum', 'export', 'extends', 'import', 'super', 'instanceof', 'static',
+  'eval', 'arguments', 'Math', 'Number', 'NaN', 'Infinity',
+]);
+
+function jsName(name) {
+  const clash = RESERVED_NAMES.has(name) || JS_RUNTIME_NAMES.includes(name) || SHADOWED.includes(name);
+  return clash ? `${name}_` : name;
+}
+
+// A numeric param as an expression: a literal, one of this program's own variables, or a value
+// some other object shares.
+function arg(raw, fallback, own) {
+  if (!isVariableRef(raw)) return String(num(raw, fallback));
+  const name = raw.trim();
+  return own.has(name) ? jsName(name) : `sharedValue('${esc(name)}')`;
+}
+
+const JS_OPS = {
+  '+': (a, b) => `${a} + ${b}`,
+  '-': (a, b) => `${a} - ${b}`,
+  '*': (a, b) => `${a} * ${b}`,
+  '/': (a, b) => `${a} / ${b}`,
+  '^': (a, b) => `Math.pow(${a}, ${b})`,
+  min: (a, b) => `Math.min(${a}, ${b})`,
+  max: (a, b) => `Math.max(${a}, ${b})`,
+  mod: (a, b) => `${a} % ${b}`,
+};
+
+const JS_FNS = {
+  sqrt: (a) => `Math.sqrt(${a})`,
+  square: (a) => `${a} * ${a}`,
+  abs: (a) => `Math.abs(${a})`,
+  round: (a) => `Math.round(${a})`,
+  sin: (a) => `Math.sin(${a} * Math.PI / 180)`,
+  cos: (a) => `Math.cos(${a} * Math.PI / 180)`,
+  tan: (a) => `Math.tan(${a} * Math.PI / 180)`,
+  asin: (a) => `Math.asin(${a}) * 180 / Math.PI`,
+  acos: (a) => `Math.acos(${a}) * 180 / Math.PI`,
+  atan: (a) => `Math.atan(${a}) * 180 / Math.PI`,
+};
+
+function jsCompare(p, own) {
+  const a = arg(p.a, 0, own);
+  const b = arg(p.b, 0, own);
+  if (p.op === '=') return `Math.abs(${a} - ${b}) < 1e-9`;
+  return `${a} ${p.op} ${b}`;
+}
+
+// A `say` text with {name} values in it, as a string expression. A {word} that is not a variable
+// stays literal, which is what the block does with it.
+function sayText(text, own) {
+  const parts = String(text ?? '').split(/(\{[A-Za-z][A-Za-z0-9_]*\})/);
+  const out = [];
+  for (const part of parts) {
+    const name = /^\{(.+)\}$/.exec(part)?.[1];
+    if (name && own.has(name)) out.push(`formatValue(${jsName(name)})`);
+    else if (part) out.push(`'${esc(part)}'`);
+  }
+  return out.length ? out.join(' + ') : "''";
+}
+
+function emitBlocks(blocks, depth, topLevel, own) {
   const out = [];
   const pad = IND.repeat(depth);
   for (const block of blocks || []) {
     const p = block.params || {};
     switch (block.type) {
       case 'repeat':
-        out.push(`${pad}await repeat(${num(p.count, 10)}, async () => {`);
-        out.push(...emitBlocks(block.children, depth + 1, false));
+        out.push(`${pad}await repeat(${arg(p.count, 10, own)}, async () => {`);
+        out.push(...emitBlocks(block.children, depth + 1, false, own));
         out.push(`${pad}});`);
         break;
+      case 'repeatUntil':
+        out.push(`${pad}while (!(${jsCompare(p, own)})) {`);
+        out.push(...emitBlocks(block.children, depth + 1, false, own));
+        out.push(`${pad}${IND}await wait(0);`);
+        out.push(`${pad}}`);
+        break;
+      case 'ifCompare':
+        out.push(`${pad}if (${jsCompare(p, own)}) {`);
+        out.push(...emitBlocks(block.children, depth + 1, false, own));
+        out.push(`${pad}}`);
+        break;
+      case 'setVar': if (p.name) out.push(`${pad}${jsName(p.name)} = ${arg(p.value, 0, own)};`); break;
+      case 'changeVar': if (p.name) out.push(`${pad}${jsName(p.name)} += ${arg(p.value, 1, own)};`); break;
+      case 'calc':
+        if (p.name) out.push(`${pad}${jsName(p.name)} = ${(JS_OPS[p.op] || JS_OPS['+'])(arg(p.a, 1, own), arg(p.b, 1, own))};`);
+        break;
+      case 'mathFn':
+        if (p.name) out.push(`${pad}${jsName(p.name)} = ${(JS_FNS[p.fn] || JS_FNS.sqrt)(arg(p.a, 1, own))};`);
+        break;
+      case 'randomVar': {
+        const a = arg(p.a, 0, own);
+        const b = arg(p.b, 1, own);
+        if (p.name) out.push(`${pad}${jsName(p.name)} = ${a} + Math.random() * (${b} - ${a});`);
+        break;
+      }
+      case 'shareVar':
+        if (p.name && own.has(p.name)) out.push(`${pad}shareValue('${esc(p.name)}', ${jsName(p.name)});`);
+        break;
+      case 'sayValue': {
+        const label = String(p.label ?? '').trim();
+        const unit = String(p.unit ?? '').trim();
+        const head = label ? (label.endsWith('$') ? label : `${label} `) : '';
+        const tail = unit ? (/^[%.,;:!?)]/.test(unit) ? unit : ` ${unit}`) : '';
+        // In brackets, because `5.toFixed(2)` is a syntax error when the value is a plain number.
+        const value = `(${arg(p.value, 0, own)}).toFixed(2)`;
+        out.push(`${pad}await say(${[head && `'${esc(head)}'`, value, tail && `'${esc(tail)}'`].filter(Boolean).join(' + ')});`);
+        break;
+      }
+      case 'moveBoth': out.push(`${pad}await moveBoth(${arg(p.forward, 1, own)}, ${arg(p.up, 1, own)});`); break;
+      case 'setTilt': out.push(`${pad}await setTilt(${arg(p.degrees, 0, own)});`); break;
       case 'forever':
         out.push(`${pad}await forever(async () => {`);
-        out.push(...emitBlocks(block.children, depth + 1, false));
+        out.push(...emitBlocks(block.children, depth + 1, false, own));
         out.push(`${pad}});`);
         break;
       case 'whenSaid':
@@ -64,22 +172,22 @@ function emitBlocks(blocks, depth, topLevel) {
         // the same nothing it does as a block.
         if (topLevel) {
           out.push(`${pad}whenSaid('${esc(p.text)}', async () => {`);
-          out.push(...emitBlocks(block.children, depth + 1, false));
+          out.push(...emitBlocks(block.children, depth + 1, false, own));
           out.push(`${pad}});`);
         } else {
           out.push(`${pad}// ("when an object says" only listens from the top level)`);
         }
         break;
-      case 'wait': out.push(`${pad}await wait(${num(p.seconds, 1)});`); break;
-      case 'moveForward': out.push(`${pad}await moveForward(${num(p.feet, 2)});`); break;
-      case 'moveUp': out.push(`${pad}await moveUp(${num(p.feet, 1)});`); break;
-      case 'glide': out.push(`${pad}await glide(${num(p.feet, 10)}, ${num(p.seconds, 2)});`); break;
+      case 'wait': out.push(`${pad}await wait(${arg(p.seconds, 1, own)});`); break;
+      case 'moveForward': out.push(`${pad}await moveForward(${arg(p.feet, 2, own)});`); break;
+      case 'moveUp': out.push(`${pad}await moveUp(${arg(p.feet, 1, own)});`); break;
+      case 'glide': out.push(`${pad}await glide(${arg(p.feet, 10, own)}, ${arg(p.seconds, 2, own)});`); break;
       case 'goHome': out.push(`${pad}await goBackToStart();`); break;
-      case 'rotate': out.push(`${pad}await rotate(${num(p.degrees, 15)});`); break;
-      case 'say': out.push(`${pad}await say('${esc(p.text)}');`); break;
-      case 'changeSize': out.push(`${pad}await changeSize(${num(p.percent, 10)});`); break;
-      case 'setSize': out.push(`${pad}await setSize(${num(p.percent, 100)});`); break;
-      case 'setOpacity': out.push(`${pad}await setOpacity(${num(p.percent, 100)});`); break;
+      case 'rotate': out.push(`${pad}await rotate(${arg(p.degrees, 15, own)});`); break;
+      case 'say': out.push(`${pad}await say(${sayText(p.text, own)});`); break;
+      case 'changeSize': out.push(`${pad}await changeSize(${arg(p.percent, 10, own)});`); break;
+      case 'setSize': out.push(`${pad}await setSize(${arg(p.percent, 100, own)});`); break;
+      case 'setOpacity': out.push(`${pad}await setOpacity(${arg(p.percent, 100, own)});`); break;
       case 'changeColor': out.push(`${pad}await changeColor('${esc(p.color || '#ffffff')}');`); break;
       case 'markerColor': out.push(`${pad}await markerColor('${esc(p.color || '#3d8bf2')}');`); break;
       case 'markerDown': out.push(`${pad}await markerDown();`); break;
@@ -96,7 +204,11 @@ function emitBlocks(blocks, depth, topLevel) {
 }
 
 export function blocksToJs(blocks) {
-  const lines = emitBlocks(blocks || [], 0, true);
+  const own = variablesIn(blocks || []);
+  const lines = emitBlocks(blocks || [], 0, true, own);
+  // Block variables start at 0 and are visible to the whole program, hats included, so they are
+  // declared once at the top rather than wherever the first `set` happens to be.
+  if (own.size) lines.unshift(`let ${[...own].map((name) => `${jsName(name)} = 0`).join(', ')};`, '');
   return lines.length ? `${lines.join('\n')}\n` : '';
 }
 
@@ -125,12 +237,13 @@ export const JS_RUNTIME_NAMES = [
   'say', 'changeSize', 'setSize', 'setOpacity', 'changeColor',
   'markerColor', 'markerDown', 'markerUp', 'eraseAllMarks',
   'moveX', 'moveY', 'moveZ',
+  'moveBoth', 'setTilt', 'shareValue', 'sharedValue', 'formatValue',
 ];
 
 // The one-line reference under the editor. Retired world-axis moves still run (old
 // programs transpile to them) but are not advertised, same as the block palette.
 export const JS_API_HINT = [
-  'moveForward(ft)', 'moveUp(ft)', 'glide(ft, sec)', 'rotate(deg)', 'goBackToStart()',
+  'moveForward(ft)', 'moveUp(ft)', 'moveBoth(ft, ft)', 'glide(ft, sec)', 'rotate(deg)', 'setTilt(deg)', 'goBackToStart()',
   'wait(sec)', 'repeat(n, fn)', 'forever(fn)', "whenSaid('text', fn)", 'duplicate(ft)',
   "say('hi')", 'changeSize(%)', 'setSize(%)', 'setOpacity(%)', "changeColor('#ff5a12')",
   "markerColor('#00c2ff')", 'markerDown()', 'markerUp()', 'eraseAllMarks()',
@@ -255,6 +368,17 @@ export function buildJsRuntime({ object3D, effects, run }) {
     markerDown: () => act(() => effects.markerDown?.()),
     markerUp: () => act(() => effects.markerUp?.()),
     eraseAllMarks: () => act(() => effects.eraseMarks?.()),
+    moveBoth: (forward, up) => act(() => {
+      object3D.position.addScaledVector(forwardOf(object3D), num(forward));
+      object3D.position.y += num(up);
+    }),
+    setTilt: (degrees) => act(() => {
+      object3D.rotation.z = THREE.MathUtils.degToRad(num(degrees));
+    }),
+    // What `share` publishes, read and written without taking a frame, as the blocks do.
+    shareValue: (name, value) => { effects.worldVars?.set(String(name), num(value)); },
+    sharedValue: (name) => effects.worldVars?.get(String(name)) ?? 0,
+    formatValue,
     moveX: (feet) => act(() => { object3D.position.x += num(feet); }),
     moveY: (feet) => act(() => { object3D.position.y += num(feet); }),
     moveZ: (feet) => act(() => { object3D.position.z += num(feet); }),

@@ -1,0 +1,234 @@
+<!-- The Newton's Midway lesson cards, rendered inside world.php by readfile().
+
+     This fragment is the cards' ONE copy, as Small Change's is. Every figure in it is checked
+     against src/props/MidwayModel.js by tools/check-midway.mjs, since nothing else would notice
+     static HTML drifting. Styles are .lc-* in assets/database.css. -->
+<section class="lesson-card" id="lesson-card" aria-labelledby="lc-h">
+  <header class="lc-head">
+    <span class="lc-kicker">Lesson Cards · High school physics</span>
+    <h2 id="lc-h">🎡 Newton's Midway</h2>
+    <p>A student lesson guide and a teacher lesson card. Each one prints on its own, so a student's copy has no answer key.</p>
+    <div class="lc-actions no-print">
+      <a class="btn btn-ghost btn-sm" href="#lc-student">🎒 Student lesson guide</a>
+      <a class="btn btn-ghost btn-sm" href="#lc-teacher">🍎 Teacher lesson card</a>
+      <button type="button" class="btn btn-green btn-sm" data-lc-print="lc-student">🖨️ Print student guide</button>
+      <button type="button" class="btn btn-green btn-sm" data-lc-print="lc-teacher">🖨️ Print teacher card</button>
+    </div>
+  </header>
+
+  <div class="lc-shots no-print">
+    <figure class="lc-shot">
+      <img src="../guide/shots/midway_1.jpg" alt="The arrival view down the midway: a red drop tower on the left, a striped cannon on the right, and a big wheel at the far end." loading="lazy" />
+      <figcaption>You arrive at the top of the midway. Every ride is already running its program.</figcaption>
+    </figure>
+    <figure class="lc-shot">
+      <img src="../guide/shots/midway_2.jpg" alt="A red line drawn through the air from a cannon, curving up and down to land on a deck ruled in metres." loading="lazy" />
+      <figcaption>Station 2. The marker draws the shot, so two angles can be compared in the air.</figcaption>
+    </figure>
+    <figure class="lc-shot">
+      <img src="../guide/shots/midway_3.jpg" alt="A round pod on a V-shaped coaster track with three energy bars behind it: height energy, motion energy and heat." loading="lazy" />
+      <figcaption>Station 4. The bars behind the track show energy changing form as the pod rolls.</figcaption>
+    </figure>
+  </div>
+
+  <!-- ================================================================= -->
+  <div class="student-part" id="lc-student">
+    <h2 class="part-title">🎒 Student lesson guide</h2>
+    <p class="howto"><strong>Getting there:</strong> press <strong>Open this world in Edusim</strong> on this page. No account or download.
+      <span class="print-only">Type it in: <span class="mono">edusim3dweb.com/worlds/world.php?slug=newton-s-midway</span></span>
+      <span class="howto-warn">Opening a world replaces what is in your copy. Use <span class="key">☰ Menu</span> → <span class="key">Save World</span> first if you have something to keep.</span></p>
+    <p class="part-lead"><strong>How it works:</strong> walk with the arrow keys and drag to look around. Click a ride and press <span class="key">Program</span> to see its blocks. The green blocks at the top are its numbers. Change one, press <span class="key">Save</span>, and it restarts with your number. Press a green ▶ to run a ride again.</p>
+    <p class="part-lead"><strong>Three rules of this lab:</strong> one foot of this world is one metre. There is no air resistance. Time is the program's own clock, <code class="m">t</code>, so read the number the ride says, not your watch.</p>
+    <p class="part-lead">Name <span class="blank wide"></span> Date <span class="blank"></span></p>
+
+    <section class="st" style="--st: #d6453a;">
+      <h3>1 · Drop Tower: free fall</h3>
+      <p class="find">Find the red tower. Click the car on its front → Program. Watch one full ride first.</p>
+      <ol>
+        <li><strong>Predict:</strong> from <code class="m">height</code> = 20, how long is the fall? Show the formula. <span class="blank wide"></span></li>
+        <li>What does the car say? Fell for <span class="blank"></span> s, at <span class="blank"></span> m/s.</li>
+        <li>Set <code class="m">height</code> to 10 and run it, so that 20 is double. From 10 m it fell for <span class="blank"></span> s. Did doubling the height double the time? Why not? <span class="blank wide"></span></li>
+      </ol>
+      <table class="lc-table">
+        <tr><th>From 20 m</th><th>Earth (g = 9.8)</th><th>Mars (g = 3.71)</th><th>Moon (g = 1.62)</th></tr>
+        <tr><th>Time (s)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Speed (m/s)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol start="4">
+        <li><strong>Build it:</strong> program the blue ball from an empty page (the ACTIVITY 1 board). Pick each name from the block's little arrow.</li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #e08a1e;">
+      <h3>2 · The Big Cannon: projectile motion</h3>
+      <p class="find">Find the striped cannon. Click the yellow-and-black ball → Program. Save fires it, and the green ▶ fires it again. Each shot draws its arc.</p>
+      <table class="lc-table">
+        <tr><th>Angle at 20 m/s</th><th>15°</th><th>30°</th><th>45°</th><th>60°</th><th>75°</th></tr>
+        <tr><th>Predict the range (m)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Measured range (m)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>Which two pairs of angles land together? <span class="blank wide"></span> Why would that be?<span class="line"></span></li>
+        <li>Why does <code class="m">vx</code> never change in the loop, while <code class="m">vy</code> changes every step? <span class="blank wide"></span></li>
+        <li><strong>Hit the ring (ACTIVITY 2):</strong> at 45°, what speed lands on the ring at 30 m? Work it out first. My speed: <span class="blank"></span> Landed at: <span class="blank"></span></li>
+        <li>Set <code class="m">dt</code> to 0.5 and fire. What happened to the range and to the shape of the arc? <span class="blank wide"></span> Why is a smaller <code class="m">dt</code> better, and what does it cost?<span class="line"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #2f9e5b;">
+      <h3>3 · Test Track: force, mass and acceleration</h3>
+      <p class="find">Find the three carts with their stacks of plates. Click one → Program. Each cart runs 40 m.</p>
+      <table class="lc-table">
+        <tr><th>400 N of thrust</th><th>100 kg</th><th>200 kg</th><th>400 kg</th></tr>
+        <tr><th>Acceleration from F = ma</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Time for 40 m (s)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>With mu = 0.05: time (s)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>Mass went up 4 times. What happened to the acceleration? <span class="blank"></span> To the time? <span class="blank"></span> Explain why the time did not go up 4 times.<span class="line"></span></li>
+        <li>Why does the same friction number (<code class="m">mu</code> = 0.05) slow the heavy cart far more than the light one? <span class="blank wide"></span></li>
+        <li>Set <code class="m">mu</code> to 0.5 on the 100 kg cart. What does it say, and which block made that decision? <span class="blank wide"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #2f6fd6;">
+      <h3>4 · Coaster Hill: energy</h3>
+      <p class="find">Find the V of track and the three bars behind it. Click the round pod → Program. Keep <code class="m">height</code> at 18 or less, which is as high as the track goes.</p>
+      <table class="lc-table">
+        <tr><th></th><th>height 15, mu 0</th><th>height 15, mu 0.05</th><th>height 15, mu 0.1</th><th>height 10, mu 0</th></tr>
+        <tr><th>Top speed (m/s)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Climbs back to (m)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>Sketch or describe the three bars at the top, at the bottom, and where the pod stops.<span class="line"></span></li>
+        <li>Change <code class="m">mass</code> from 500 to 1000. <strong>Predict first.</strong> What changes? <span class="blank wide"></span> Why?<span class="line"></span></li>
+        <li>With friction on, the pod does not get back to where it started. Where did that energy go, and is it gone? <span class="blank wide"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #a24ccf;">
+      <h3>5 · Bumper Cars: momentum</h3>
+      <p class="find">Find the arena and the scoreboard at its far end. Click the scoreboard → Program. Both cars read what it works out, so this is the only place to change the crash.</p>
+      <table class="lc-table">
+        <tr><th>Crash</th><th>Momentum before</th><th>Momentum after</th><th>Car A leaves at</th><th>Car B leaves at</th></tr>
+        <tr><th>As it comes (e = 1)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>e = 0 (they stick)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Your own crash</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>What does a negative speed mean for car A? <span class="blank wide"></span></li>
+        <li>Work out the motion energy (½mv²) before and after for e = 1 and for e = 0. Which is conserved, momentum, motion energy, or both? <span class="blank wide"></span></li>
+        <li><strong>Build it:</strong> program the green car (the ACTIVITY 3 board). It reads the numbers the scoreboard shares, so change <code class="m">u1</code> on the scoreboard and watch it change too.</li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #d0397f;">
+      <h3>6 · Swing Rides: periodic and circular motion</h3>
+      <p class="find">Click the boat on the green frame → Program. It says how long each full swing took. Then find the swing ride, and click its striped cap.</p>
+      <table class="lc-table">
+        <tr><th>Boat</th><th>12 m, 30°</th><th>12 m, 5°</th><th>12 m, 60°</th><th>6 m, 30°</th></tr>
+        <tr><th>Period (s)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>The formula says 2π√(L/g). For 12 m that is <span class="blank"></span> s. At which angle does the model agree best, and why? <span class="blank wide"></span></li>
+        <li>On the swing ride, what lean do you get at a <code class="m">period</code> of 6? <span class="blank"></span> At 5? <span class="blank"></span> At 8? <span class="blank"></span> Explain the last one.<span class="line"></span></li>
+        <li>What force pulls each chair toward the middle? <span class="blank wide"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #444;">
+      <h3>Exit ticket</h3>
+      <ol>
+        <li>Pick one prediction you got wrong today. What did you assume that turned out not to be true?<span class="line"></span><span class="line"></span></li>
+        <li>Every ride here steps time forward in tiny pieces instead of using the formula. Name one thing that lets it do that a formula cannot, and one thing it costs.<span class="line"></span></li>
+      </ol>
+    </section>
+  </div>
+
+  <!-- ================================================================= -->
+  <div class="teacher-part" id="lc-teacher">
+    <h2 class="part-title">🍎 Teacher lesson card</h2>
+
+    <table class="lc-table">
+      <tr><th>For</th><td>Grades 9–12 physics, physical science or computer science. No coding experience needed: students start by changing one number in a green block, and three activities have them build a program from empty.</td></tr>
+      <tr><th>Time</th><td>One 45-minute period for three stations, a 90-minute block for all six, or one station a day as a lab opener through a mechanics unit.</td></tr>
+      <tr><th>You need</th><td>A browser on each computer (Chromebooks are fine). No account, install or student data. A calculator, and printed copies of the student guide or a way to type answers.</td></tr>
+      <tr><th>Students will</th><td>Predict and measure free fall and projectile range. Use F = ma with friction. Track energy between height, motion and heat. Show momentum is conserved in a collision when motion energy is not. Find what sets a pendulum's period and a swing ride's lean. Explain why a stepped model differs from a formula.</td></tr>
+    </table>
+
+    <div class="honest"><strong>Say this out loud.</strong> This lab uses 1 foot of the world for 1 metre, so students are five-metre giants and distances look smaller than they feel. There is no air resistance. Time is the model's own clock: the same numbers come out on every computer, but a ride can run faster or slower than a stopwatch, so <em>read the number the ride says</em>. Results are step-by-step approximations, a little different from the formula on purpose. This is mechanics only, with no waves or electricity. Research supports 3D learning environments in general, but nobody has tested this particular world.</div>
+
+    <h3 class="lc-sec">45-minute plan</h3>
+    <table class="lc-table">
+      <tr><th>Min</th><th>You</th><th>Students</th></tr>
+      <tr><td>0–5</td><td>Project the Drop Tower. Ask: "Twice the height. Twice the time?" Take a vote, then run it.</td><td>Vote, then watch the number.</td></tr>
+      <tr><td>5–10</td><td>Demo the loop: click, Program, change a green number, Save. Read one loop aloud, block by block.</td><td>Open the world and walk to Station 1.</td></tr>
+      <tr><td>10–35</td><td>Circulate. Assign Stations 1, 2 and 4, or the three that fit your unit. Insist on a written prediction before each Save.</td><td>Work through the guide in pairs.</td></tr>
+      <tr><td>35–45</td><td>Debrief with one prompt below. Collect the exit ticket.</td><td>Share one prediction that turned out wrong.</td></tr>
+    </table>
+
+    <h3 class="lc-sec">90-minute plan</h3>
+    <table class="lc-table">
+      <tr><th>Min</th><th>You</th><th>Students</th></tr>
+      <tr><td>0–10</td><td>The same opening vote and demo.</td><td>Predict, then open the world.</td></tr>
+      <tr><td>10–40</td><td>Motion: Stations 1 and 2, including Activity 1.</td><td>Fill the tables; hit the ring.</td></tr>
+      <tr><td>40–70</td><td>Forces and conservation: Stations 3, 4 and 5.</td><td>Fill the tables; predict the mass change.</td></tr>
+      <tr><td>70–85</td><td>Station 6, or Activity 3 for students who are ahead.</td><td>Measure periods; explain the lean.</td></tr>
+      <tr><td>85–90</td><td>Exit ticket.</td><td>Write it.</td></tr>
+    </table>
+
+    <h3 class="lc-sec">Discussion prompts</h3>
+    <ul>
+      <li>The range is the same at 30° and 60°. What does each shot trade away to get there?</li>
+      <li>Friction takes the same fraction of a cart's weight whatever it weighs, so why is the heavy cart hurt more when the thrust is fixed?</li>
+      <li>The stuck-together crash loses most of its motion energy and none of its momentum. Where did the energy go, and why can't momentum go there too?</li>
+      <li>A coarse <code class="m">dt</code> gave a wrong arc with no error message. How would you know to distrust a model like that?</li>
+    </ul>
+
+    <h3 class="lc-sec">Answer key</h3>
+    <details class="answers">
+      <summary>Show the answers</summary>
+      <p>Each "model" value is what the ride says. The formula value is in brackets where the two differ.</p>
+      <table class="lc-table">
+        <tr><th>1 Drop Tower</th><td>From 20 m on Earth: 2.02 s at 19.80 m/s. Formula t = √(2h/g). Mars: 3.28 s at 12.17 m/s. Moon: 4.96 s at 8.04 m/s (4.97 s, 8.05 m/s). From 10 m: 1.42 s (1.43 s). Time goes as the square root of height, so doubling the height multiplies the time by about 1.41. Mass is not in the formula at all.</td></tr>
+        <tr><th>2 Cannon</th><td>At 20 m/s, the range for 15°, 30°, 45°, 60°, 75° is 20.09, 35.33, 40.73, 35.20, 20.39 m (20.41, 35.35, 40.82, 35.35, 20.41). Pairs that add to 90° land together, because sin 2θ is the same for both. vx has no force on it. To land at 30 m at 45°, speed = √(Rg) = 17.15 m/s, which the model lands at 29.83 m, on the ring. With dt = 0.5 the range falls to 35.36 m and the top from 10.06 m to 6.79 m, and the arc is visibly a few straight lines. A smaller dt is more accurate and takes more steps.</td></tr>
+        <tr><th>3 Test Track</th><td>100 kg: a = 4 m/s², 4.48 s (4.47 s), 17.92 m/s. 200 kg: a = 2 m/s², 6.32 s. 400 kg: a = 1 m/s², 8.94 s. Time goes as 1/√a, so 4 times the mass doubles the time. With mu = 0.05: a = 3.51, 1.51, 0.51 m/s² and 4.78, 7.28, 12.52 s. Friction is mu × m × g, so it grows with mass while the thrust does not. At mu = 0.5 on 100 kg, friction is 490 N against 400 N of thrust, so the "if a ≤ 0" block reports that the cart cannot move.</td></tr>
+        <tr><th>4 Coaster</th><td>Height 15, mu 0: 17.15 m/s, back to 15.00 m. mu 0.05: 16.38 m/s, back to 12.61 m. mu 0.1: 15.59 m/s, back to 10.57 m. Height 10, mu 0: 14.00 m/s, back to 10.00 m. v = √(2gh). Doubling the mass changes nothing the pod does, because mass cancels; the total energy doubles from 73,500 J to 147,000 J but the bars show shares of it. Lost energy is heat, shown in the third bar, and the three bars always add to 100%.</td></tr>
+        <tr><th>5 Bumper Cars</th><td>m1 = 150, m2 = 300, u1 = 4, u2 = 1. Momentum 300 kg m/s before and after in every case. e = 1: car A −2.67 m/s (it bounces back), car B 2.33 m/s, motion energy 1,350 J before and after. e = 0: both 0.67 m/s, motion energy 1,350 J down to 100 J. Momentum is conserved in both; motion energy only when e = 1. The rest becomes heat and sound.</td></tr>
+        <tr><th>6 Swing Rides</th><td>Formula for 12 m: 6.95 s. Model: 12 m at 30° 7.08 s, at 5° 6.96 s, at 60° 7.47 s; 6 m at 30° 5.01 s (formula 4.92 s). The formula assumes small swings, so 5° agrees best. The swing ride leans 50.3° at a period of 6, 63.7° at 5, and 0° at 8: below a certain speed (a period of about 7.5 s for 14 m chains) the chain has no need to lean, so it hangs straight. The tension in the chain has a part pointing to the centre, and that is the centripetal force.</td></tr>
+      </table>
+    </details>
+
+    <h3 class="lc-sec">Adjusting it</h3>
+    <ul>
+      <li><strong>Conceptual physics:</strong> skip the formulas. Use the predict-and-vote questions and the energy bars, and stop at "what changed and why".</li>
+      <li><strong>Algebra-based physics:</strong> have students derive each formula first, and treat the ride as the check on their algebra.</li>
+      <li><strong>AP-leaning:</strong> add air drag to the cannon with one more block, or graph the model's error against dt and find its order.</li>
+      <li><strong>Computer science:</strong> compare the velocity-first update with position-first, and find out which one gains energy on the pendulum.</li>
+      <li><strong>Handing work in:</strong> <span class="key">☰ Menu</span> → <span class="key">Save World</span> downloads a file you can open and inspect, programs included.</li>
+    </ul>
+
+    <h3 class="lc-sec">Quick troubleshooting</h3>
+    <ul>
+      <li><strong>A red name appears in a block, or a message says nothing has set a value:</strong> a variable was renamed in one place and not another. Pick the right name from the block's little arrow and press Save.</li>
+      <li><strong>The cannon does nothing:</strong> it fires once per run. Press its green ▶, or Save again.</li>
+      <li><strong>The sky is full of arcs:</strong> reopen the world, since marks are not saved. Each shot adds one on purpose so angles can be compared.</li>
+      <li><strong>The pod leaves its track:</strong> <code class="m">height</code> is above 18, or <code class="m">slope</code> was changed. The track is built at 30°.</li>
+      <li><strong>The ride looks slower than the guide says:</strong> a slower computer runs the same model in slow motion. The numbers do not change.</li>
+      <li><strong>The world has been changed:</strong> reopen it from the gallery for a fresh copy.</li>
+    </ul>
+
+    <h3 class="lc-sec">Standards alignment</h3>
+    <p>A suggested match to the Next Generation Science Standards and the CSTA K–12 Computer Science Standards. Please check it against your own course requirements.</p>
+    <table class="lc-table">
+      <tr><th>Station</th><th>Topic</th><th>Standards</th><th>Focus</th></tr>
+      <tr><td>1, 2</td><td>Motion</td><td>HS-PS2-1 (supporting)</td><td>Motion under a constant force, from data and a model</td></tr>
+      <tr><td>3</td><td>Newton's second law</td><td>HS-PS2-1</td><td>Net force, mass and acceleration from measured data</td></tr>
+      <tr><td>4</td><td>Energy</td><td>HS-PS3-1, HS-PS3-2</td><td>A computational model of energy changing between components of a system</td></tr>
+      <tr><td>5</td><td>Momentum</td><td>HS-PS2-2</td><td>Total momentum of a system with no net outside force</td></tr>
+      <tr><td>6</td><td>Periodic and circular motion</td><td>HS-PS2-1 (supporting)</td><td>Force and acceleration in non-straight motion</td></tr>
+      <tr><td>All</td><td>Modelling in code</td><td>CSTA 3A-AP-13, 3A-AP-15, 3A-AP-17</td><td>Algorithms, choosing control structures, and breaking a problem into steps</td></tr>
+    </table>
+  </div>
+
+</section>

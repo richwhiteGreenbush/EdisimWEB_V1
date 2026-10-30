@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <title>The Coding Blocks — Edusim student card</title>
-<meta name="description" content="A printable reference card for Edusim's drag-and-drop coding blocks: all fifteen blocks in three colours, what each one does, and the difference between change size by and set size to." />
+<meta name="description" content="A printable reference card for Edusim's drag-and-drop coding blocks: every block in four colours, what each one does, and the difference between change size by and set size to." />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -65,8 +65,8 @@
       </figure>
     </div>
 
-    <h2 class="sec">All fifteen blocks</h2>
-    <p class="sec-note">Three families, five blocks each. The colour on this card is the colour in the app.</p>
+    <h2 class="sec">All the blocks</h2>
+    <p class="sec-note">Four families. The colour on this card is the colour in the app.</p>
 
     <section class="qs">
       <div class="qs-head"><span class="qs-num" style="background:#ffab19">C</span>
@@ -78,6 +78,8 @@
         <li class="blk ctrl d0">wait 1 seconds</li>
         <li class="blk ctrl d0">when an object says hello</li>
         <li class="blk ctrl d0">duplicate 4 ft away</li>
+        <li class="blk ctrl d0">if 0 &gt; 0</li>
+        <li class="blk ctrl d0">repeat until 0 ≤ 0</li>
       </ol>
       <p class="qs-tip">💡 <b>repeat</b>, <b>forever</b> and <b>when an object says</b> all have a mouth —
         whatever you drop inside is what runs. <b>when an object says</b> does not run when you press play:
@@ -93,8 +95,10 @@
       <ol class="blocks">
         <li class="blk motion d0">move forward 2 feet</li>
         <li class="blk motion d0">move up by 1 feet</li>
+        <li class="blk motion d0">move forward 1 and up 1 feet</li>
         <li class="blk motion d0">glide 10 feet over 2 seconds</li>
         <li class="blk motion d0">rotate 15 degrees</li>
+        <li class="blk motion d0">set tilt to 0 degrees</li>
         <li class="blk motion d0">go back to start</li>
       </ol>
       <p class="qs-tip">💡 <b>move forward</b> and <b>glide</b> follow the way the object is
@@ -122,6 +126,28 @@
         program <em>started</em>, so <b>set size to 100%</b> is always "back to normal". Put <b>set size to
         50%</b> inside a <b>forever</b> and nothing runs away; put <b>change size by −50%</b> there and the
         object is gone in a second. <b>set opacity to 0%</b> makes something invisible without deleting it.</p>
+    </section>
+
+    <section class="qs">
+      <div class="qs-head"><span class="qs-num" style="background:#3fae5a">M</span>
+        <div><h3>Math <span class="swatch math"></span></h3><p class="qs-target">Working things out, and remembering the answer</p></div>
+      </div>
+      <ol class="blocks">
+        <li class="blk math d0">set x to 0</li>
+        <li class="blk math d0">change x by 1</li>
+        <li class="blk math d0">set x to 1 + 1</li>
+        <li class="blk math d0">set x to square root of 1</li>
+        <li class="blk math d0">set x to random 0 to 1</li>
+        <li class="blk math d0">say x is 0 feet</li>
+        <li class="blk math d0">share x with every object</li>
+      </ol>
+      <p class="qs-tip">💡 A <b>variable</b> is a named number. Once a program sets one, every number box in that
+        program grows a little arrow: pick a name from it and the block uses that value instead of a fixed
+        number. <b>if</b> and <b>repeat until</b>, in Control, ask about a variable, and <b>move forward and up</b>
+        and <b>set tilt to</b>, in Motion, are the two that make a model visible. Math blocks take no time at
+        all, so a long calculation happens between one frame and the next. A variable belongs to the object
+        whose program sets it, and <b>share</b> is how another object gets to read it. To put values in a
+        sentence, write them in braces in a <b>say</b> block: <b>Month {month}: you owe ${debt}</b>.</p>
     </section>
 
     <h2 class="sec">Try these four</h2>
@@ -182,9 +208,10 @@
     <section class="legend">
       <h4>Block colours</h4>
       <ul>
-        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, when an object says, duplicate</li>
-        <li><span class="swatch motion"></span> <strong>Motion</strong> — move forward, move up, glide, rotate, go back to start</li>
+        <li><span class="swatch ctrl"></span> <strong>Control</strong> — repeat, forever, wait, when an object says, duplicate, if, repeat until</li>
+        <li><span class="swatch motion"></span> <strong>Motion</strong> — move forward, move up, move forward and up, glide, rotate, set tilt, go back to start</li>
         <li><span class="swatch look"></span> <strong>Looks</strong> — say, change size, set size, set opacity, change colour</li>
+        <li><span class="swatch math"></span> <strong>Math</strong> — set, change, calculate, functions, random, say a value, share</li>
       </ul>
       <p class="legend-note"><strong>One rule that catches everybody:</strong> the difference between
         <em>by</em> and <em>to</em>. <span class="key">change size by</span> is a nudge from wherever the

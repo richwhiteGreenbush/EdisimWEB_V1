@@ -3585,20 +3585,23 @@ databases, and that is the url in the world's own browser panel, which works bec
 sends `X-Frame-Options: SAMEORIGIN` and `/app/` is the same origin. A future world's card is one
 more fragment and one more table key.
 
-**The one finding the world is built on: blocks have no variables, but `change size by 7`
-multiplies by 1.07, so it IS compound interest.** Anything carrying a balance needs JavaScript,
-and `setSize` is enough to make any number visible. So each exhibit is a small model that ships
-running, with its assumptions as the constants at the top of its own code, and the interaction
-is what a spreadsheet offers: change an assumption, watch the result. Scripts share no data and
-`say` carries no value, so every model is self-contained. Two activity boards keep a way in for
-a student who has never coded.
+**IT IS A BLOCK CODE LESSON, per Rich, and no record in it carries JavaScript.** It first shipped
+with every model in JavaScript, because blocks had no variables. The Math blocks removed that
+reason, so the programs were rewritten in `src/props/MoneyPrograms.js` and the world's `code-board`s
+became `block-board`s. Copies of the old world already saved or downloaded keep their JavaScript,
+which still runs. Each exhibit is a small model that ships running, with its assumptions as the
+green `set` blocks at the top of its own stack, and the interaction is what a spreadsheet offers:
+change an assumption, watch the result. Two activity boards keep a way in for a student who has
+never coded. Booleans became `insured` = 0 or 1, and a list became one `change monthly by` block per
+subscription, so adding your own is adding a block.
 
 **`MoneyModel.js` is the one table, the `CONSTELLATIONS` rule.** Boards, shipped programs and
-the check tool all read it. `tools/check-smallchange.mjs` RUNS every program against a stub
-runtime (the debt model at every payment on its board, the emergency model insured and not),
+the check tool all read it. `tools/check-smallchange.mjs` RUNS every program through the real block
+runner (the debt model at every payment on its board, the emergency model insured and not),
 compares what it says with the model, and then holds the static lesson card to the same figures.
 A wrong number in a finance lesson is the failure this world cannot afford, so that check matters
-more than the geometry one beside it.
+more than the geometry one beside it. The JavaScript view of a program is checked against its
+blocks too, since the toggle is still there in the editor.
 
 **Every rate is labelled as an example, and that is load-bearing, like the research library's
 honesty line.** Real rates move and a world file cannot be updated once it is in somebody's
@@ -3628,9 +3631,113 @@ Things this world learned, most of which generalise:
 - **Stacked coins were the triangle budget**: 860 lathes, drawn twice. Dropping the raised rim on
   the ones nobody can see took the world from 1.14M drawn to 486k.
 
-**Performance, measured at the spawn**: 90 records / **439 draw calls** / 486k drawn / 198
-meshes / **4 transparent** / **0 point lights** / 129 textures / 1.6ms warm CPU render, on the
-development Mac. 38.6 KB world file. **Not yet measured on an i5/i7 Chromebook.**
+**Performance, measured at the spawn before the move to blocks**: 90 records / **439 draw calls** /
+486k drawn / 198 meshes / **4 transparent** / **0 point lights** / 129 textures / 1.6ms warm CPU
+render, on the development Mac. The geometry did not change, but the world file grew from 38.6 KB
+to 55.1 KB, since a block program is longer than the text it replaced. **Not yet measured on an
+i5/i7 Chromebook.**
+
+### The Math blocks, and how a program holds a number
+
+`BlockDefs.js`' `math` category (`setVar`, `changeVar`, `calc`, `mathFn`, `randomVar`, `sayValue`,
+`shareVar`), plus `ifCompare` and `repeatUntil` in Control and `moveBoth` and `setTilt` in Motion.
+Block types and their `op`/`fn` values are persisted, so they are only ever added to.
+
+- **MATH BLOCKS TAKE NO FRAME.** A calculation is not something the world can watch, and at one
+  frame a block a six-line physics step would take a tenth of a second to happen. The cost is that
+  a loop of nothing but math never yields, so `runPass()` counts passes that yielded nothing and
+  hands the frame back every `SPIN_LIMIT` (2000) of them. A short loop finishes inside one frame and
+  `repeat until` on a condition that never comes true cannot lock up the page. `repeat` goes through
+  it too, which is why an empty `repeat 1000000` no longer hangs either.
+- **A NUMERIC PARAM CAN NOW HOLD A NAME.** `variable: true` on a schema means the value is a number or
+  a string naming a variable, and `read()`/`val()` in the runner resolve it. A plain number goes
+  through exactly as `Number(x) || 0` did. `tools/check-blocks.mjs` holds every seeded world to that:
+  no saved param reads as a name, every saved move lands where it did, and every saved JavaScript
+  program still compiles against the longer list of runtime names.
+- **THE EDITOR'S PICKER APPEARS ONLY ONCE THE PROGRAM HAS A VARIABLE**, so a program with no Math
+  blocks looks exactly as it always did. It is a list rather than typing a name into the field,
+  because a touch number pad has no letters and a list cannot produce a typo. A name nothing sets
+  turns red and toasts at Save, and reads as 0 with one message per run.
+- **VARIABLES BELONG TO THE OBJECT**, in its `programs` entry, so hats on that object share them, and
+  they start afresh on every run. `share` copies one into `programManager.worldVars`, which any
+  object can read by name after its own variables. Those are cleared wherever `markerTrail.clear()`
+  is, and they are not saved. **PROGRAMS START IN RECORD ORDER, so whatever shares a value has to come
+  before whatever reads it in the layout**; `tools/check-midway.mjs` asserts that for the world.
+- **`say` CAN CARRY VALUES**: `Month {month}: you owe ${debt}`. A {word} that is not a variable stays
+  exactly as written, so every `say` saved before this is unchanged. Whole numbers print whole.
+- **`move forward and up` EXISTS BECAUSE THE MARKER SAMPLES ONCE A FRAME.** Separate forward and up
+  blocks land on different frames, so a parabola is drawn as a staircase.
+- **`set tilt` TURNS ABOUT THE WAY THE OBJECT FACES.** That is `rotation.z`, which three applies
+  first, so it never changes the facing and `rotate` still works on a tilted object (the swing
+  chairs do both). It also means something travelling along its own forward cannot pitch to follow a
+  slope, which is why the coaster's car and the big wheel's cars are spheres. To tilt a thing in the
+  plane you view it from, author it along +X, as the cannon barrel is.
+- **`homeFromRecord` IS A PERSISTED FLAG ON A RECORD, and it exists because `go back to start` means
+  wherever the object was when its program started.** Press Save while a ball is in mid-air and
+  mid-air is its new start, for good. An exhibit with this flag goes back to `record.transform`
+  first, and lifts its pen, or that teleport draws a line. Moving it with the object menu rewrites
+  the record, so that still works. Both lesson worlds use it and nothing else does.
+- **`blocksToJs` translates all of it**, and every program in both worlds is checked in both views.
+  Two gaps remain, both JavaScript-view only: a `say` reading `{x}` where x is another object's shared
+  value stays literal, and `whenWorld` still transpiles to a comment, as it did before this.
+
+`src/BlockKit.js` is how a table of programs is written (`calc('v', 'v', '-', 'dv')`), and
+`programSteps()` turns blocks into the rows a board paints, so a `block-board` quotes the real
+program. `tools/lib/run-blocks.mjs` runs a program through the real runner with the clock taken out.
+
+### Newton's Midway, and a world whose rides are physics models in blocks
+
+`MidwayProps.js` + `MidwayModel.js` + `MidwayPrograms.js` + `midwayLayout()`. A gallery world, in
+`PRESET_WORLDS` (key `midway`), seeded with creator "Isaac Newton". High school mechanics on a
+fairground, blocks only: **no record carries JavaScript, and neither lesson card mentions it**, per
+Rich. Six stations: Drop Tower, Big Cannon, Test Track, Coaster Hill, Bumper Cars, Swing Rides.
+
+**Its student lesson guide and teacher lesson card are on the world's own gallery page**, through the
+same mechanism as Small Change: `lib/lessons/newtons-midway.html`, named by `lesson_card` in
+`lib/teaching.php` under the slug `newton-s-midway`, each half printing alone.
+
+**1 WORLD FOOT = 1 METRE, stated on the welcome board, the rulers and the card.** A student types
+g = 9.8 and reads metres with no conversion in any program. The cost is that the student is a
+five-metre giant.
+
+**TIME IS THE MODEL'S OWN CLOCK.** Each pass adds a fixed `dt`, so every computer gets the same answer
+and the answer key holds, while a slow machine shows slower motion. That is why the card tells
+students to read the number the ride says rather than a stopwatch. A pass with one move in it takes
+one frame, so at `dt` 0.02 the rides run about 1.2x real time at 60fps. The programs step
+velocity first and position second (semi-implicit Euler), the simplest rule that does not gain energy.
+
+**`MidwayModel.js` carries TWO answers for everything**, the textbook's formula and a run stepped
+exactly as the program steps it. The gap between them is part of the lesson: `dt` = 0.5 turns a
+40.7 m shot into 35.4 m with no error message.
+
+Things this world learned:
+
+- **`tintGeometry`'s callback returns an ARRAY, not the Color it was handed.** Returning `c` writes
+  undefined into the colour attribute, with no error.
+- **The check tool found what looking could not.** The drop tower's lift overshot by up to a step, so
+  a 10 m run really fell from 10.1 and said 1.44 s against the model's 1.42. The fall now starts
+  from the number, not from wherever the lift stopped.
+- **The first reversal of a pendulum is half a swing**, because it starts from rest at one side. Timed
+  from there, the first report is half the period.
+- **A cannon has to fire once per run, not in a loop.** The arc is left in the air so a second shot at
+  another angle can be compared with it, and a loop would use up `MARKER_MAX_POINTS` inside a lesson.
+- **A bar chart is a box standing underground.** `set size` is uniform, so a bar scaled by it grows
+  wide as well as tall. Each energy bar is laid out with its top at ground level and raised by `move
+  up`, so the terrain hides the rest and its visible height is exactly its share.
+- **Boards go at the ends of a ride, not along it.** A ride is read side on from the midway, so a
+  board in the gap hides what it is about.
+- **The landing deck is at the muzzle's height less the ball's radius**, so "landed" in the program
+  and landed in the world are one moment and the range formula holds exactly.
+- **The scoreboard is the only place to change the crash.** Both cars read what it shares, which is
+  what makes `share` worth teaching rather than a change to make twice.
+
+**Performance, measured at the spawn on the development Mac**: 86 records / **344 draw calls** / 365k
+drawn / 165 meshes / **1 transparent** / **0 point lights** / 78 textures. 65.7 KB world file. Per
+prop: ferris wheel 21.9k triangles, flowering cherry 14.6k, japanese maple 12.1k, drop tower 5.1k,
+bumper arena 4.4k, coaster track 4.1k, cannon barrel 2.5k. There is a lot of headroom, recorded as
+that rather than spent: the rides read at the distances they are seen from, and the Midway is one of
+the lightest populated worlds in the app. **Not yet measured on an i5/i7 Chromebook.** It is not in
+the HiFi gallery, though the Math blocks work there because HiFi runs this editor.
 
 ### Sunflower, and the arithmetic of an ARRIVAL FRAME
 
