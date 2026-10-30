@@ -711,6 +711,25 @@ $WORLDS = [
             . "world is only 390 feet across and you have to be able to stand back far enough to see all "
             . "of it. The placard by the door says so.",
     ],
+    'smallchange' => [
+        'title' => 'Small Change',
+        'tags'  => 'finance, math, coding, building, official',
+        'description' =>
+            "You are the size of a quarter, standing on a kitchen table covered in the paperwork of a "
+            . "first job. A dollar bill is a rug, a ruler is a sixty-foot tower, and $100 in quarters "
+            . "stands 138 feet tall.\n\n"
+            . "Six stations teach high school personal finance, and every exhibit is a live model running "
+            . "real JavaScript. Click one, press Program, change a number and watch what happens. Work out "
+            . "your take-home pay from a pay stub. Add up subscriptions on a receipt that keeps growing. "
+            . "Race two sprouts that start ten years apart against the ruler. Change the payment on a card "
+            . "balance and see the debt balloon shrink, or at $10 a month, refuse to. Flip the insurance "
+            . "switch before an accident empties a rainy-day jar. Then watch pencils draw what one company "
+            . "and twenty companies do over forty years, on graph paper the size of a building.\n\n"
+            . "Two block activities give beginners a way in, and three build challenges turn a budget and a "
+            . "savings goal into models of your own. Every rate is a classroom example, not a prediction or "
+            . "advice. A printable student card and teacher lesson plan are further down this page.",
+    ],
+
     'jsbasics' => [
         'title' => 'JavaScript Basics',
         'tags'  => 'coding, javascript, official, starter',

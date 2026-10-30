@@ -3569,6 +3569,69 @@ asphalt are cut from one grid and abut along a shared edge, so each half is open
 seam and closed everywhere else), the utility pole (a wire has no end caps because it has no
 ends inside this world), and the sign blades and chain-link fabric, which are planes.
 
+### Small Change, and a world whose exhibits are FINANCIAL MODELS
+
+`MoneyProps.js` + `MoneyModel.js` + `smallChangeLayout()`. A gallery world -- in
+`PRESET_WORLDS` (key `smallchange`), deliberately not in any menu. High school personal
+finance on a kitchen table at sixty times life size.
+
+**ITS LESSON CARD LIVES ON THE WORLD'S OWN GALLERY PAGE, per Rich.** The student worksheet and
+teacher plan are one static fragment, `EdusimWorldDatabase/lib/lessons/small-change.html`, named
+by a `lesson_card` key in `lib/teaching.php` and rendered full-width by `world.php`. There is no
+copy under `docs/guide/`. Each print button clones its half into `#lc-print-root` and hides the
+rest of the page, so a student's copy carries no answer key. Everything links to it by SLUG
+(`worlds/world.php?slug=small-change#lesson-card`) rather than by id, because ids differ between
+databases, and that is the url in the world's own browser panel, which works because the gallery
+sends `X-Frame-Options: SAMEORIGIN` and `/app/` is the same origin. A future world's card is one
+more fragment and one more table key.
+
+**The one finding the world is built on: blocks have no variables, but `change size by 7`
+multiplies by 1.07, so it IS compound interest.** Anything carrying a balance needs JavaScript,
+and `setSize` is enough to make any number visible. So each exhibit is a small model that ships
+running, with its assumptions as the constants at the top of its own code, and the interaction
+is what a spreadsheet offers: change an assumption, watch the result. Scripts share no data and
+`say` carries no value, so every model is self-contained. Two activity boards keep a way in for
+a student who has never coded.
+
+**`MoneyModel.js` is the one table, the `CONSTELLATIONS` rule.** Boards, shipped programs and
+the check tool all read it. `tools/check-smallchange.mjs` RUNS every program against a stub
+runtime (the debt model at every payment on its board, the emergency model insured and not),
+compares what it says with the model, and then holds the static lesson card to the same figures.
+A wrong number in a finance lesson is the failure this world cannot afford, so that check matters
+more than the geometry one beside it.
+
+**Every rate is labelled as an example, and that is load-bearing, like the research library's
+honesty line.** Real rates move and a world file cannot be updated once it is in somebody's
+hands. The only figures stated as fact are FICA, FICO's five published weights, the free credit
+freeze and the FDIC limit. The money is invented: no portraits, no seals, one side only, marked
+SAMPLE, and no real bank, app or stock appears. There is deliberately no fake "YOU WON" portal:
+a portal replaces the student's world, so the scam would really destroy their work.
+
+Things this world learned, most of which generalise:
+
+- **`top`, `parent`, `self`, `open`, `close` and `location` are SHADOWED in student JavaScript.**
+  `const top = 36` is a compile error ("already declared"), found only by loading the world.
+- **A uniform `setSize` exaggerates growth.** Height grows 24x, volume 13,000x. So the sprouts
+  stand against a ruler with a money column, and a placard says to read the height, not the bulk.
+  That is a chart-literacy lesson the engine handed us for free.
+- **A sprout growing 24x needs its pot to be a separate object**, the observatory's two-object
+  rule. The same goes for the coins in a jar: shrink the program's object and the glass stays.
+- **`depthTest: false` on a speech bubble means every program in the world talks across the sign
+  in front of you.** `SpeechBubbleManager` now takes an optional `camera`: bubbles hold their
+  on-screen size out to 16ft x 3.2, and only those within 24ft draw over everything. HiFi does
+  not pass a camera and is unchanged.
+- **A photo on the terrain cannot be a tabletop.** `wood-floor.jpg` through the luminance path
+  came out as flat orange. `sc-kitchen-room` lays a painted sheet at `TABLE_TOP_Y`, which is why
+  anything authored at y = 0 that must sit ON the table has to add it, and the sheet and the
+  room are scenery with a no-op `raycast`, so an empty click does not open a panel for the kitchen.
+- **BoxGeometry is six draw calls.** `threeGroups()` folds a printed sheet to three.
+- **Stacked coins were the triangle budget**: 860 lathes, drawn twice. Dropping the raised rim on
+  the ones nobody can see took the world from 1.14M drawn to 486k.
+
+**Performance, measured at the spawn**: 90 records / **439 draw calls** / 486k drawn / 198
+meshes / **4 transparent** / **0 point lights** / 129 textures / 1.6ms warm CPU render, on the
+development Mac. 38.6 KB world file. **Not yet measured on an i5/i7 Chromebook.**
+
 ### Sunflower, and the arithmetic of an ARRIVAL FRAME
 
 `SunflowerProps.js` + `sunflowerLayout()`. A gallery world -- in `PRESET_WORLDS`,

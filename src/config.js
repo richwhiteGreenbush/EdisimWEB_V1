@@ -1250,6 +1250,36 @@ export const WORLD_THEMES = {
     stars: false,
   },
 
+  smallchange: {
+    // A kitchen table in morning light, seen from the height of a coin. The terrain is dead
+    // flat and 400ft square, which at this world's sixty times is a 6.7ft table, and the
+    // `sc-kitchen-room` prop lays a painted top over it. The ground colour here is only what
+    // shows if that prop is ever deleted.
+    //
+    // `sky` is the fog colour and the cream of the room. The walls are their own unlit prop,
+    // so the fog only has to be far enough off not to wash the coin skyline out.
+    sky: 0xe9dcc2,
+    fogNear: 420,
+    fogFar: 1500,
+    groundLow: 0xa8743f,
+    groundHigh: 0xa8743f,
+    groundRoughness: 0.55,
+    amplitude: 0,
+    flatRadius: 400,
+    blendRadius: 500,
+    hemiSky: 0xfff3e0,
+    // Warm but desaturated, the Seattle saucer lesson: a coin's underside, a balloon's belly
+    // and every board's soffit take their whole light from this, and a saturated wood-brown
+    // bounce paints every downward face orange.
+    hemiGround: 0xa8977e,
+    hemiIntensity: 1.55,
+    sunColor: 0xfff0d6,
+    sunIntensity: 2.1,
+    // From behind the spawn (+Z), so every board and exhibit faces into the light.
+    sunPosition: [80, 165, 150],
+    stars: false,
+  },
+
   volcano: {
     // An active volcanic field under an ash haze. The single hardest thing about this world
     // is that a volcanic landscape is genuinely NEAR-MONOCHROME -- everything is grey-brown

@@ -21,6 +21,18 @@ const SPEECH_SECONDS = 3.5;   // how long a bubble stays up
 const MARGIN = 1.2;           // feet above the object's bounding box
 const PIXELS_PER_FOOT = 108;  // canvas resolution against world size, so text stays crisp
 const MAX_CHARS = 60;
+// A bubble is a label, and a label has to stay readable from where you would stand to look at
+// the thing talking. At world size a 44px line is under half a foot tall, which is fine for a
+// robot beside you and unreadable on a 40ft sprout you have to stand back from. Past this
+// distance the bubble grows with distance, holding the size it had here on screen -- but only
+// up to a cap, past which it falls away again: a whole world's worth of programs talking at
+// once must not paper over the view from the far side of it.
+const READABLE_DISTANCE = 16; // feet
+const MAX_DISTANCE_SCALE = 3.2;
+// Inside this a bubble draws over everything, as a bubble half-buried in its own speaker is
+// worse than one floating in front of it. Beyond it, nearer objects hide it like anything else:
+// otherwise a program on the far side of a world talks straight across the sign in front of you.
+const OVERLAY_DISTANCE = 24; // feet
 
 function buildBubbleTexture(text) {
   const measure = document.createElement('canvas').getContext('2d');
@@ -85,9 +97,10 @@ function buildBubbleTexture(text) {
 }
 
 export class SpeechBubbleManager {
-  constructor({ scene, registry }) {
+  constructor({ scene, registry, camera = null }) {
     this.scene = scene;
     this.registry = registry;
+    this.camera = camera;
     this.bubbles = new Map(); // placedId -> { sprite, expiresAt, box }
     this.box = new THREE.Box3();
   }
@@ -102,13 +115,14 @@ export class SpeechBubbleManager {
     const { texture, width, height } = buildBubbleTexture(String(text).trim());
     const material = new THREE.SpriteMaterial({ map: texture, depthTest: false, transparent: true });
     const sprite = new THREE.Sprite(material);
-    sprite.scale.set(width / PIXELS_PER_FOOT, height / PIXELS_PER_FOOT, 1);
+    const baseScale = [width / PIXELS_PER_FOOT, height / PIXELS_PER_FOOT];
+    sprite.scale.set(baseScale[0], baseScale[1], 1);
     // Drawn over everything, like the play icon -- a bubble half-buried in the object that
     // is speaking is worse than one that floats in front of it.
     sprite.renderOrder = 999;
     this.scene.add(sprite);
 
-    this.bubbles.set(id, { sprite, object3D, expiresAt: performance.now() + SPEECH_SECONDS * 1000 });
+    this.bubbles.set(id, { sprite, object3D, baseScale, expiresAt: performance.now() + SPEECH_SECONDS * 1000 });
     this.position(this.bubbles.get(id));
   }
 
@@ -116,6 +130,12 @@ export class SpeechBubbleManager {
     this.box.setFromObject(entry.object3D);
     if (!isFinite(this.box.min.x)) return;
     const centre = this.box.getCenter(new THREE.Vector3());
+    if (this.camera) {
+      const distance = this.camera.position.distanceTo(centre);
+      const k = THREE.MathUtils.clamp(distance / READABLE_DISTANCE, 1, MAX_DISTANCE_SCALE);
+      entry.sprite.scale.set(entry.baseScale[0] * k, entry.baseScale[1] * k, 1);
+      entry.sprite.material.depthTest = distance > OVERLAY_DISTANCE;
+    }
     entry.sprite.position.set(
       centre.x,
       this.box.max.y + MARGIN + entry.sprite.scale.y / 2,

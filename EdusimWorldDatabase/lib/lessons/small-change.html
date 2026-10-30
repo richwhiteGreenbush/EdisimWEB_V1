@@ -1,0 +1,201 @@
+<!-- The Small Change lesson card, rendered inside world.php by readfile().
+
+     This fragment is the card's ONE copy. It lives with the gallery because the world's own
+     page is where a teacher finds it, and every figure in it is checked against
+     src/props/MoneyModel.js by tools/check-smallchange.mjs, since nothing else would notice
+     static HTML drifting. Styles are .lc-* in assets/database.css. -->
+<section class="lesson-card" id="lesson-card" aria-labelledby="lc-h">
+  <header class="lc-head">
+    <span class="lc-kicker">Lesson Card · High school personal finance</span>
+    <h2 id="lc-h">🪙 Small Change</h2>
+    <p>A student worksheet and a teacher's quick lesson plan. Each half prints on its own.</p>
+    <div class="lc-actions no-print">
+      <a class="btn btn-ghost btn-sm" href="#lc-student">🎒 Student card</a>
+      <a class="btn btn-ghost btn-sm" href="#lc-teacher">🍎 Teacher guide</a>
+      <button type="button" class="btn btn-green btn-sm" data-lc-print="lc-student">🖨️ Print student card</button>
+      <button type="button" class="btn btn-green btn-sm" data-lc-print="lc-teacher">🖨️ Print teacher guide</button>
+    </div>
+  </header>
+
+  <div class="lc-shots no-print">
+    <figure class="lc-shot">
+      <img src="../guide/shots/smallchange_1.jpg" alt="The arrival view: a giant coin, a dollar bill path, a pay stub and a phone on a kitchen table, with stacks of quarters at the far end." loading="lazy" />
+      <figcaption>You arrive on the table. The bills are a path; the towers at the far end are stacks of quarters.</figcaption>
+    </figure>
+    <figure class="lc-shot">
+      <img src="../guide/shots/smallchange_2.jpg" alt="Two sprouts in jar lids on either side of a giant ruler. The sprout started earlier is about twice as tall." loading="lazy" />
+      <figcaption>Station 3. The sprouts run the same program. One starts ten years later.</figcaption>
+    </figure>
+    <figure class="lc-shot">
+      <img src="../guide/shots/smallchange_3.jpg" alt="A pencil drawing a red and a blue investment line on giant graph paper. The red line booms and collapses; the blue line climbs steadily." loading="lazy" />
+      <figcaption>Station 6. Red owns one company, blue owns twenty. Every run draws a new chart.</figcaption>
+    </figure>
+  </div>
+
+  <!-- ================================================================= -->
+  <div class="student-part" id="lc-student">
+    <h2 class="part-title">🎒 Student card</h2>
+    <p class="howto"><strong>Getting there:</strong> press <strong>Open this world in Edusim</strong> on this page. No account or download.
+      <span class="print-only">Type it in: <span class="mono">edusim3dweb.com/worlds/world.php?slug=small-change</span></span>
+      <span class="howto-warn">Opening a world replaces what is in your copy. Use <span class="key">☰ Menu</span> → <span class="key">Save World</span> first if you have something to keep.</span></p>
+    <p class="part-lead"><strong>How it works:</strong> walk with the arrow keys and drag to look around. Click an exhibit, press <span class="key">Program</span>, change a number and press <span class="key">Save</span>. It restarts with your number. Every rate here is an example, so your answers show how the math behaves, not what will really happen.</p>
+    <p class="part-lead">Name <span class="blank wide"></span> Date <span class="blank"></span></p>
+
+    <section class="st" style="--st: #2f9e5b;">
+      <h3>1 · Earning: what you earn is not what you get</h3>
+      <p class="find">Find the pay stub and the coin stack beside it. Click the stack → Program.</p>
+      <ol>
+        <li>In the model, gross pay is <span class="blank"></span> FICA takes <span class="blank"></span> take-home is <span class="blank"></span></li>
+        <li>Change <code class="m">wage</code> and <code class="m">hours</code> to a job you could really get. Wage <span class="blank"></span> Hours <span class="blank"></span> Take-home <span class="blank"></span></li>
+        <li>What share of your gross pay do you keep? <span class="blank"></span>%</li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #e0812b;">
+      <h3>2 · Spending: a budget is a plan</h3>
+      <p class="find">Find the receipt, the checkout phone and the 50/30/20 board.</p>
+      <ol>
+        <li>Four small subscriptions cost <span class="blank"></span> a month, which is <span class="blank"></span> a year.</li>
+        <li>Click the receipt → Program. Put in what you actually pay for, or would. Your yearly total: <span class="blank"></span></li>
+        <li>Read the BNPL placard. Five $100 purchases on "4 easy payments" come to <span class="blank"></span> every two weeks.</li>
+        <li><strong>Build it:</strong> build your budget as a stacked bar (the BUILD IT 1 board, beside the ruler).</li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #1f9d9a;">
+      <h3>3 · Saving: time does the work</h3>
+      <p class="find">Find the two sprouts on either side of the giant ruler. Watch one full run.</p>
+      <ol>
+        <li>By age 65, every $1 is worth <span class="blank"></span> if invested at 18 and <span class="blank"></span> if invested at 28.</li>
+        <li><strong>Predict:</strong> at 7%, about how many years does money take to double? <span class="blank"></span> Now use the rule of 72 to check.</li>
+        <li>Click a sprout. Set <code class="m">startAge</code> to your age. By 65, $1 becomes <span class="blank"></span></li>
+        <li>Why read the height on the ruler rather than how big the plant looks? <span class="blank wide"></span></li>
+        <li><strong>Activity 1:</strong> program the third sprout in blocks (the ACTIVITY 1 board).</li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #d3433a;">
+      <h3>4 · Credit: compounding, working against you</h3>
+      <p class="find">Find the red balloon. Click it → Program, change <code class="m">payment</code>, press Save. Each run takes up to 30 seconds.</p>
+      <table class="lc-table">
+        <tr><th>Paying a month</th><th>$10</th><th>$15</th><th>$25</th><th>$50</th></tr>
+        <tr><th>Paid off in</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Total paid on $500</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>What happens at $10, and why? <span class="blank wide"></span></li>
+        <li>On the car loan board: how much more does the loan with the lower monthly payment cost in total? <span class="blank"></span></li>
+        <li>Which single factor counts most in a FICO score? <span class="blank wide"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #7a5fd0;">
+      <h3>5 · Risk: plan for what you cannot predict</h3>
+      <p class="find">Find the spilled mug and the RAINY DAY jar. Click the coins in the jar → Program.</p>
+      <ol>
+        <li>With <code class="m">insured = false</code>, an accident leaves <span class="blank"></span> With <code class="m">insured = true</code>, it leaves <span class="blank"></span></li>
+        <li>Insurance costs money every year even when nothing goes wrong. When is it worth paying? <span class="blank wide"></span></li>
+        <li>Read the text on the phone. How many red flags can you list? <span class="blank wide"></span></li>
+        <li><strong>Activity 2:</strong> make the YOUR TURN jar react to the accident (the ACTIVITY 2 board).</li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #2f6fd6;">
+      <h3>6 · Investing: own a lot, for a long time</h3>
+      <p class="find">Find the graph paper and the two pencils. Press the green ▶ over a pencil to draw a new line (it adds to the chart).</p>
+      <table class="lc-table">
+        <tr><th>What $1 became</th><th>Run 1</th><th>Run 2</th><th>Run 3</th></tr>
+        <tr><th>Red: 1 company</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Blue: 20 companies</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>Which line is more predictable, and why? <span class="blank wide"></span></li>
+        <li>On the fee board: how much of the final amount does a 1% yearly fee take? <span class="blank"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #444;">
+      <h3>Exit ticket</h3>
+      <ol>
+        <li>Which number in today's models surprised you most, and why?<span class="line"></span></li>
+        <li>Pick one thing you would do differently with your first paycheck. Back it up with a number.<span class="line"></span><span class="line"></span></li>
+      </ol>
+    </section>
+  </div>
+
+  <!-- ================================================================= -->
+  <div class="teacher-part" id="lc-teacher">
+    <h2 class="part-title">🍎 Teacher guide</h2>
+
+    <table class="lc-table">
+      <tr><th>For</th><td>Grades 9–12, personal finance, math or computer science. No coding experience needed: students mostly change one number.</td></tr>
+      <tr><th>Time</th><td>One 45-minute period for three stations, a 90-minute block for all six, or one station a day as openers.</td></tr>
+      <tr><th>You need</th><td>A browser on each computer (Chromebooks are fine). No account, install or student data. Print the student card, or have students type answers.</td></tr>
+      <tr><th>Students will</th><td>Calculate take-home pay. Build a budget. Explain compounding, inflation and diversification from a working model. Compare the true cost of credit. Weigh insurance against savings. Spot a scam.</td></tr>
+    </table>
+
+    <div class="honest"><strong>Say this out loud.</strong> Every rate in this world is a classroom example, not a prediction or financial advice. The investing chart uses invented returns and treats companies as independent, so it overstates how much diversifying helps, though the direction is right. Research supports financial education and 3D learning in general, but nobody has tested this particular world.</div>
+
+    <h3 class="lc-sec">45-minute plan</h3>
+    <table class="lc-table">
+      <tr><th>Min</th><th>You</th><th>Students</th></tr>
+      <tr><td>0–5</td><td>Project Station 4. Ask: "$500 on a card, $10 a month. How long to pay it off?" Take guesses, then run it.</td><td>Guess, then watch the balloon refuse to shrink.</td></tr>
+      <tr><td>5–10</td><td>Demo the loop: click, Program, change a number, Save.</td><td>Open the world and walk to Station 1.</td></tr>
+      <tr><td>10–35</td><td>Circulate. Assign Stations 1, 3 and 4, or the three that fit your unit.</td><td>Work through the card in pairs.</td></tr>
+      <tr><td>35–45</td><td>Debrief with one prompt below. Collect the exit ticket.</td><td>Share one number that changed their mind.</td></tr>
+    </table>
+
+    <h3 class="lc-sec">Discussion prompts</h3>
+    <ul>
+      <li>On the Station 3 board, the later starter paid in $12,000 less and ended with about $203,000 less. Where did the rest of that gap come from?</li>
+      <li>Why might a lender be happy with a $15 minimum payment on a $500 balance?</li>
+      <li>The lower car payment costs more in total. When could it still be the right choice?</li>
+      <li>Who can afford to start at 18? What should a good plan look like for someone who can't?</li>
+    </ul>
+
+    <h3 class="lc-sec">Answer key</h3>
+    <details class="answers">
+      <summary>Show the answers</summary>
+      <table class="lc-table">
+        <tr><th>1 Earning</th><td>$15 × 40 hours: gross $600.00, FICA $45.90 (Social Security $37.20 + Medicare $8.70), example income taxes $48.00, take-home $506.10, or about 84%.</td></tr>
+        <tr><th>2 Spending</th><td>$37.96 a month, $455.52 a year. Five plans: $125.00 every two weeks, about 25% of that paycheck. Budget on $1,100: needs $550, wants $330, savings $220, so the bar is 5.5, 3.3 and 2.2ft tall.</td></tr>
+        <tr><th>3 Saving</th><td>$24.05 from age 18, $12.22 from age 28. Rule of 72: 72 / 7 ≈ 10 years to double. Height is the honest reading because the sprout scales in all three directions, so its bulk exaggerates the growth. $100 a month at 7%: start at 18, pay in $56,400, have $395,069 at 65; start at 28, pay in $44,400, have $192,405. Inflation: at 3%, $100 buys about $49 of today's goods after 24 years.</td></tr>
+        <tr><th>4 Credit</th><td>$10: never, because interest is also $10 a month. $15: 56 months, $832. $25: 26 months, $645. $50: 12 months, $564. Car: 48 months at 6% is $470 a month, $22,546 total; 84 months at 12% is $353 a month, $29,657 total, so $7,111 more. Payment history counts most, at 35%.</td></tr>
+        <tr><th>5 Risk</th><td>Uninsured leaves $100; insured leaves $800, with the policy costing $180 a year. Red flags: urgency, a threat, an unknown sender, a request for a password and Social Security number, a look-alike link, a prize never entered for, and a fee to claim it.</td></tr>
+        <tr><th>6 Investing</th><td>Answers vary by run. Across 400 simulated runs the median for one company was about $2 and for twenty about $13, and one company's results were far more spread out. The fee: $149,745 without it, $102,857 with it, so it takes 31%.</td></tr>
+      </table>
+    </details>
+
+    <h3 class="lc-sec">Adjusting it</h3>
+    <ul>
+      <li><strong>New to coding:</strong> only change numbers at the top of each program, and use the two block activities.</li>
+      <li><strong>Algebra II:</strong> derive the savings total as a geometric series, then check it against the Station 3 board.</li>
+      <li><strong>Computer science:</strong> add an employer match to a sprout's program, or a second fee to the market model.</li>
+      <li><strong>Handing work in:</strong> <span class="key">☰ Menu</span> → <span class="key">Save World</span> downloads a file you can open and inspect, programs included.</li>
+    </ul>
+
+    <h3 class="lc-sec">Teach it with care</h3>
+    <p>Money is personal, and students' families are in very different places. The examples use a fictional first job on purpose, so nobody has to share their own numbers. Avoid asking about family income or debt, and don't suggest that being short of money comes from bad choices: wages, costs and luck matter too. The models show how the math works, not who deserves what.</p>
+
+    <h3 class="lc-sec">Quick troubleshooting</h3>
+    <ul>
+      <li><strong>The menu opens the wrong thing:</strong> click the coins in the jar, not the glass; the balloon's body, not its string.</li>
+      <li><strong>A program stops with a message:</strong> a typo. Fix it in the Program panel and press Save; nothing else breaks.</li>
+      <li><strong>The world has been changed:</strong> reopen it from the gallery for a fresh copy.</li>
+      <li><strong>The chart is crowded:</strong> reopen the world, since each ▶ adds a line and marks are not saved.</li>
+    </ul>
+
+    <h3 class="lc-sec">Standards alignment</h3>
+    <p>A suggested match to the grade 12 outcomes of the 2021 <em>National Standards for Personal Financial Education</em> (Council for Economic Education and Jump$tart), which the Kansas State Board of Education adopted in 2022. Please check it against your own course requirements.</p>
+    <table class="lc-table">
+      <tr><th>Station</th><th>Topic</th><th>Outcomes</th><th>Focus</th></tr>
+      <tr><td>1</td><td>Earning Income</td><td>12-6a, 12-7c, 12-9a</td><td>Estimating taxes; gross, net and taxable income; the W-4</td></tr>
+      <tr><td>2</td><td>Spending</td><td>12-1b, 12-4a, 12-8c</td><td>Developing a budget; how prices are advertised; consumer fraud</td></tr>
+      <tr><td>3</td><td>Saving</td><td>12-4b, 12-9d</td><td>Inflation and purchasing power; paying yourself first</td></tr>
+      <tr><td>4</td><td>Managing Credit</td><td>12-1a, 12-1b, 12-8a, 12-8b</td><td>Card interest and borrowing costs; what goes into a credit score</td></tr>
+      <tr><td>5</td><td>Managing Risk</td><td>12-1a, 12-11a, 12-11c</td><td>Whether a premium is worth paying; online behavior and identity theft</td></tr>
+      <tr><td>6</td><td>Investing; Saving</td><td>Investing 12-6b, 12-7b; Saving 12-7a</td><td>Diversification; expense ratios; employer match</td></tr>
+    </table>
+  </div>
+
+</section>

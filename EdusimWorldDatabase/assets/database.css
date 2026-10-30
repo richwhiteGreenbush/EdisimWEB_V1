@@ -1467,6 +1467,71 @@ input[type="file"]:focus {
 }
 
 /* ===========================================================
+   The lesson card on a world page (lib/lessons/*.html).
+
+   A worksheet as well as a guide, which nothing else in the
+   gallery is, so it brings its own table and fill-in styles.
+   Its print path is in world.php: one half is cloned into
+   #lc-print-root and everything else on the page is hidden.
+   =========================================================== */
+/* Clear of the sticky site header when a link jumps here. */
+.lesson-card, .lesson-card .student-part, .lesson-card .teacher-part { scroll-margin-top: 90px; }
+.lesson-card { margin-top: 34px; background: #fff; border: 3px solid var(--green); border-radius: var(--radius-md); padding: 24px 28px; }
+.lc-head { border-bottom: 3px solid var(--green); padding-bottom: 14px; margin-bottom: 16px; }
+.lc-kicker { font-weight: 800; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.lc-head h2 { font-size: 1.7rem; margin: 2px 0 4px; }
+.lc-head p { margin: 0 0 12px; }
+.lc-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.lc-shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 8px; }
+.lc-shot { margin: 0; }
+.lc-shot img { width: 100%; height: auto; display: block; border-radius: 10px; }
+.lc-shot figcaption { font-size: 0.82rem; line-height: 1.35; margin-top: 5px; color: var(--ink-soft); }
+.lesson-card .part-title { font-size: 1.45rem; margin: 26px 0 8px; }
+.lesson-card .part-lead { margin: 0 0 12px; }
+.lesson-card .howto { background: var(--cream); border-radius: 10px; padding: 10px 14px; margin: 0 0 12px; }
+.lesson-card .howto-warn { display: block; margin-top: 4px; font-size: 0.9rem; color: var(--ink-soft); }
+.lesson-card .print-only { display: none; }
+.lesson-card .key { background: var(--cream); border: 1px solid #e4ddcd; border-radius: 6px; padding: 0 6px; font-weight: 800; white-space: nowrap; }
+.lesson-card .mono, .lesson-card code.m { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.92em; }
+.lesson-card code.m { background: var(--cream); padding: 0 4px; border-radius: 4px; }
+.lesson-card .st { border: 2px solid #e4ddcd; border-left: 8px solid var(--st); border-radius: 12px; padding: 12px 16px; margin: 0 0 12px; break-inside: avoid; }
+.lesson-card .st h3 { margin: 0 0 3px; font-size: 1.1rem; color: var(--st); }
+.lesson-card .find { margin: 0 0 6px; font-weight: 700; font-size: 0.94rem; }
+.lesson-card .st ol { margin: 0; padding-left: 20px; }
+.lesson-card .st li { margin-bottom: 6px; }
+.lesson-card .blank { display: inline-block; min-width: 5.5em; border-bottom: 1.5px solid #555; margin: 0 2px; height: 1.05em; vertical-align: baseline; }
+.lesson-card .blank.wide { min-width: 13em; }
+.lesson-card .line { display: block; border-bottom: 1.5px solid #555; height: 1.7em; }
+.lesson-card .lc-table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 0.93rem; }
+.lesson-card .lc-table th, .lesson-card .lc-table td { border: 1px solid #d8d1c0; padding: 6px 9px; text-align: left; vertical-align: top; }
+.lesson-card .lc-table th { background: var(--cream); font-weight: 800; }
+.lesson-card .lc-table td.fill { height: 1.7em; min-width: 5em; }
+.lesson-card .teacher-part { margin-top: 30px; border-top: 4px dashed #d8d1c0; }
+.lesson-card .honest { border-left: 6px solid var(--green); background: var(--cream); padding: 10px 14px; margin: 0 0 14px; border-radius: 0 10px 10px 0; }
+.lesson-card .lc-sec { font-size: 1.1rem; margin: 18px 0 6px; }
+.lesson-card ul { padding-left: 20px; }
+.lesson-card details.answers { border: 2px solid #e4ddcd; border-radius: 12px; padding: 10px 14px; }
+.lesson-card details.answers > summary { cursor: pointer; font-weight: 800; }
+
+@media (max-width: 720px) {
+  .lesson-card { padding: 16px; }
+  .lc-shots { grid-template-columns: 1fr; }
+}
+
+@media print {
+  .lesson-card .no-print { display: none !important; }
+  .lesson-card .print-only { display: block; margin-top: 4px; font-weight: 700; }
+  body.lc-printing > * { display: none !important; }
+  body.lc-printing > #lc-print-root { display: block !important; border: 0; padding: 0; margin: 0; font-size: 10.5pt; line-height: 1.35; }
+  #lc-print-root .teacher-part { margin-top: 0; border-top: 0; }
+  #lc-print-root .part-title { margin-top: 0; }
+  #lc-print-root details.answers > summary { display: none; }
+  #lc-print-root .st, #lc-print-root .lc-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #lc-print-root .st { padding: 6px 10px; margin-bottom: 6px; }
+  #lc-print-root .st li { margin-bottom: 3px; }
+}
+
+/* ===========================================================
    The world spotlight (index.php, set from admin.php).
 
    One featured world above the filter bar. It is a LINK to

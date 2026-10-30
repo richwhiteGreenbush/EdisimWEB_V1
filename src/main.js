@@ -344,7 +344,7 @@ const markerTrail = new MarkerTrail({
 programManager.marker = markerTrail;
 
 const playIconManager = new PlayIconManager({ scene, camera, domElement: canvas, registry, programManager, menu });
-const speechBubbles = new SpeechBubbleManager({ scene, registry });
+const speechBubbles = new SpeechBubbleManager({ scene, registry, camera });
 
 const worldStore = new WorldStore({ scene, registry, menu, programManager, playIconManager, webBrowserManager, speechBubbles, markerTrail });
 // The studio films preset worlds one after another; none of that may overwrite the world
