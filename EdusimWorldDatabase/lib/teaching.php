@@ -39,7 +39,7 @@ declare(strict_types=1);
  */
 
 /**
- * @return array{band:string,objective:string,standards:string,lesson:?string,card:?string}|null
+ * @return array{band:string,objective:string,standards:string,lesson:?string,card:?string,lesson_card?:string}|null
  */
 function ewd_teaching(string $slug): ?array
 {
@@ -108,6 +108,14 @@ function ewd_teaching_table(): array
             'objective' => 'Decompose a familiar object into simple solids and rebuild it to a stated scale, on an empty field with nothing to build around.',
             'standards' => 'NGSS 3-5-ETS1-2, MS-ETS1-2 · ISTE 1.4 Innovative Designer · CSTA 1B-AP-11, 2-AP-13',
             'lesson' => 'teachers.html', 'card' => 'builder.html',
+        ],
+        // The one world whose lesson card lives ON its page rather than under the guide:
+        // `lesson_card` names a fragment in lib/lessons/, which world.php renders in full.
+        'small-change' => [
+            'band' => 'Grades 9–12',
+            'objective' => 'Calculate take-home pay, build a budget, and use working financial models to explain compounding, the cost of credit, insurance and diversification.',
+            'standards' => 'National Standards for Personal Financial Education (2021) grade 12: Earning Income 12-7c · Spending 12-1b · Saving 12-4b · Investing 12-6b · Managing Credit 12-1b · Managing Risk 12-1a',
+            'lesson' => null, 'card' => null, 'lesson_card' => 'small-change',
         ],
         'javascript-basics' => [
             'band' => 'Grades 5–8',

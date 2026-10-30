@@ -231,6 +231,9 @@ ewd_header([
                 <dd><?= e($teach['standards']) ?></dd>
               </dl>
               <p class="teach-links">
+                <?php if (!empty($teach['lesson_card'])): ?>
+                  <a class="btn btn-green btn-sm" href="#lesson-card">📄 The lesson card, below</a>
+                <?php endif; ?>
                 <?php if ($teach['lesson'] !== null): ?>
                   <a class="btn btn-green btn-sm" href="<?= e(EWD_GUIDE_URL_DIR . $teach['lesson']) ?>" target="_blank" rel="noopener noreferrer">📄 The lesson plan</a>
                 <?php endif; ?>
@@ -359,12 +362,46 @@ ewd_header([
 
     </div>
 
+    <?php
+    // A lesson card lives on its world's own page, under the two columns because a worksheet
+    // needs the full width. The name comes from the fixed table in lib/teaching.php, never
+    // from the request, and the fragment is static HTML, so readfile() rather than include.
+    if ($teach && !empty($teach['lesson_card'])) {
+        readfile(__DIR__ . '/lib/lessons/' . $teach['lesson_card'] . '.html');
+    }
+    ?>
+
     <p style="margin-top:36px;"><a class="chip" href="index.php">← Back to all worlds</a></p>
 
   </div>
 </main>
 
 <script>
+  /* Each lesson-card button prints one half and nothing else on the page. The half is cloned
+     into a root of its own and everything else is hidden, because hiding the page around a
+     nested element still leaves it taking up its pages of blank paper. A closed <details>
+     does not print, so the clone's answer key is opened. */
+  document.querySelectorAll('[data-lc-print]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var part = document.getElementById(button.getAttribute('data-lc-print'));
+      if (!part) return;
+      var root = document.createElement('div');
+      root.id = 'lc-print-root';
+      root.className = 'lesson-card';
+      root.appendChild(part.cloneNode(true));
+      root.querySelectorAll('details').forEach(function (d) { d.open = true; });
+      document.body.appendChild(root);
+      document.body.classList.add('lc-printing');
+      var done = function () {
+        document.body.classList.remove('lc-printing');
+        root.remove();
+        window.removeEventListener('afterprint', done);
+      };
+      window.addEventListener('afterprint', done);
+      window.print();
+    });
+  });
+
   /* Copy-to-link. Polish only: the address is already visible in a readonly input that
      selects itself on focus, so a browser with no clipboard API loses the shortcut and
      nothing else.

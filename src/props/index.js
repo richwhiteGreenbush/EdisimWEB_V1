@@ -42,6 +42,7 @@ import * as Neighborhood from './NeighborhoodProps.js';
 import * as Sunflower from './SunflowerProps.js';
 import * as Butterfly from './ButterflyProps.js';
 import * as Turkle from './TurkleProps.js';
+import * as Money from './MoneyProps.js';
 import { applyWind, WIND_PROPS } from '../Wind.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
@@ -725,6 +726,31 @@ export const PROP_BUILDERS = {
   'ts-mulch-ring': Turkle.tsMulchRing,
   'ts-foundation-bed': Turkle.tsFoundationBed,
   'ts-leaf-drift': Turkle.tsLeafDrift,
+
+  // Small Change
+  'sc-kitchen-room': Money.kitchenRoom,
+  'sc-coin-stack': Money.coinStack,
+  'sc-loose-coin': Money.looseCoin,
+  'sc-bill': Money.moneyBill,
+  'sc-pay-stub': Money.payStub,
+  'sc-phone': Money.phone,
+  'sc-receipt': Money.longReceipt,
+  'sc-sprout': Money.moneySprout,
+  'sc-jar-lid': Money.jarLidSoil,
+  'sc-ruler': Money.standingRuler,
+  'sc-ice-cube': Money.iceCube,
+  'sc-saucer': Money.saucer,
+  'sc-debt-balloon': Money.debtBalloon,
+  'sc-bank-card': Money.bankCard,
+  'sc-car-key': Money.carKey,
+  'sc-mug': Money.spilledMug,
+  'sc-rainy-jar': Money.rainyDayJar,
+  'sc-jar-savings': Money.jarSavings,
+  'sc-pencil': Money.chartPencil,
+  'sc-graph-sheet': Money.graphSheet,
+  'sc-calculator': Money.calculator,
+  'sc-mail-pile': Money.mailPile,
+  'sc-fact-board': Money.factBoard,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

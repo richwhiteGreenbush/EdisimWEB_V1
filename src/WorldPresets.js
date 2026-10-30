@@ -5,6 +5,12 @@ import { createBlockInstance } from './BlockDefs.js';
 import { BEACON_DECK_Y } from './props/JsBasicsProps.js';
 import { PERCH } from './props/WonderProps.js';
 import { FLOWERS as GARDEN_FLOWERS, SPECIES_ORDER as BUTTERFLY_SPECIES } from './props/ButterflyProps.js';
+import { SC, GRAPH, RULER_FEET_PER_MULTIPLE } from './props/MoneyProps.js';
+import {
+  PROGRAMS as MONEY_PROGRAMS, money, cents, paycheck, budget, subscriptionCost, buyNowPayLater,
+  savedBy, growthFactor, doublingYears, buyingPower, payoff, carLoan, CAR_SHORT, CAR_LONG,
+  SCORE_FACTORS, insuranceCompare, feeDrag, stackFeet, GROW, CARD, RISK, PAY, MONTHLY_TAKE_HOME,
+} from './props/MoneyModel.js';
 
 import { uuid } from './Uuid.js';
 // The ready-made worlds behind Menu > Load World.
@@ -10848,7 +10854,403 @@ function turkleLayout() {
   return { theme: 'turkle', spawn: { ...SP, yaw: 0.245 }, items };
 }
 
+// ---------------------------------------------------------------------------
+// Small Change
+// ---------------------------------------------------------------------------
+
+// A personal-finance world for high school, set on a kitchen table at sixty times life size
+// and built around the first adult paperwork: a pay stub, a budget, a card, a car loan, an
+// accident, a retirement account. Six stations down an avenue, one topic of the National
+// Standards for Personal Financial Education each, in the order money moves.
+//
+// THE DESIGN RESTS ON ONE FINDING ABOUT THE RUNTIME. Blocks have no variables, but a program
+// in JavaScript does, and `setSize` is enough to make any number visible. So each exhibit is a
+// small financial model that ships RUNNING, whose assumptions are the constants at the top of
+// its own code: the interaction is the one a spreadsheet offers, change an assumption and
+// watch the result. Scripts share no data and `say` carries no value, so each model is
+// self-contained. Two activity boards keep a way in for a student who has never coded,
+// because `change size by 7` multiplies by 1.07 and therefore IS compound interest.
+//
+// Every figure comes from MoneyModel.js. Nothing is typed here.
+function smallChangeLayout() {
+  const items = [];
+  const SP = { x: 0, z: 165 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+
+  const station = (x, z, tx, tz, number, name, subtitle, accent) => {
+    items.push(prop('standing-sign', x, z, {
+      rotY: facing(x, z, tx, tz),
+      options: { lines: [`${number}  ${name}`], subtitle, width: 13, height: 3.2, postHeight: 9.5, face: '#18202b', accent },
+    }));
+  };
+  const placard = (x, z, tx, tz, eyebrow, title, body, accent) => {
+    items.push(prop('info-placard', x, z, { rotY: facing(x, z, tx, tz), options: { eyebrow, title, body, accent, width: 3.4, height: 4.2 } }));
+  };
+  const code = (x, z, tx, tz, number, title, text, caption, accent) => {
+    items.push(prop('code-board', x, z, { rotY: facing(x, z, tx, tz), options: { number, title, code: text, caption, accent } }));
+  };
+  const facts = (x, z, tx, tz, options) => {
+    items.push(prop('sc-fact-board', x, z, { rotY: facing(x, z, tx, tz), options }));
+  };
+
+  // --- the room --------------------------------------------------------------
+  items.push(prop('sc-kitchen-room', 0, 0, { absoluteY: true, y: 0 }));
+
+  // --- arrival ---------------------------------------------------------------
+  items.push(prop('welcome-board', -15, 128, {
+    rotY: face(-15, 128),
+    options: {
+      eyebrow: 'SMALL CHANGE',
+      lead: 'You are now the size of a quarter.',
+      lines: ['Six stations. Every exhibit is a live money model.', 'Click one, press Program, change a number.'],
+      footnote: 'Rates here are classroom examples, not predictions or financial advice',
+    },
+  }));
+  items.push(...browserStation(16, 146, {
+    faceX: SP.x, faceZ: SP.z, url: 'https://edusim3dweb.com/worlds/world.php?slug=small-change#lesson-card',
+  }));
+  // One coin on its edge beside the spawn: the first thing a student sees is how small they
+  // are, and the milled rim is the only place that detail can be seen.
+  items.push(prop('sc-loose-coin', 6, 149, { rotY: -0.5, options: { upright: true } }));
+
+  // The bills run down the middle of the avenue as a path, and that strip stays empty:
+  // a fresh construction piece lands 10ft ahead of the student.
+  [122, 84, 46, 8, -30, -68, -106].forEach((z, i) => {
+    items.push(prop('sc-bill', 0, z, { rotY: Math.PI / 2 + (i % 2 ? 0.05 : -0.04), options: { seed: 5 + i } }));
+  });
+
+  // --- 1. EARNING ------------------------------------------------------------
+  const pay = paycheck();
+  const earn = SC.earn;
+  station(-17, 104, 0, 150, 1, 'EARNING', 'What you earn is not what you get', earn);
+  items.push(prop('sc-pay-stub', -60, 100, {
+    rotY: facing(-60, 100, -6, 96),
+    options: {
+      rows: [
+        { label: `${PAY.hours} hours at $${PAY.wage}`, value: cents(pay.gross), bold: true },
+        { label: 'Social Security 6.2%', value: `-${cents(pay.socialSecurity)}` },
+        { label: 'Medicare 1.45%', value: `-${cents(pay.medicare)}` },
+        { label: 'Federal tax (example)', value: `-${cents(pay.federal)}` },
+        { label: 'State tax (example)', value: `-${cents(pay.state)}` },
+        { label: 'NET PAY', value: cents(pay.net), bold: true, rule: true, color: earn },
+      ],
+    },
+  }));
+  items.push(prop('sc-coin-stack', -38, 82, { options: { dollars: 20, seed: 13 }, programJs: MONEY_PROGRAMS.paycheck }));
+  code(-20, 76, -4, 96, 1, 'The take-home model',
+    'const wage = 15;\nconst hours = 40;\nconst gross = wage * hours;\nconst fica = gross * 0.0765;\nconst federal = gross * 0.05;\nconst state = gross * 0.03;\nconst net = gross - fica - federal - state;',
+    'Click the coin stack, press Program, change the wage.', earn);
+  placard(-34, 112, -6, 120, 'GROSS, NET, TAXABLE', 'Your W-4 sets the withholding',
+    'FICA is 7.65%, set by law. Income tax depends on your W-4 and is settled when you file. Withhold too much and you get a refund, which is your own money coming back.', earn);
+  placard(-50, 74, -8, 96, 'TAX BRACKETS', 'A new bracket will not cut your pay',
+    'Brackets are marginal: a higher rate applies only to the dollars above the line, not to all of your pay. Moving into a new bracket does not shrink what you already had.', earn);
+
+  // --- 2. SPENDING -----------------------------------------------------------
+  const spend = SC.spend;
+  const plan = budget();
+  const subs = subscriptionCost();
+  const bnpl = buyNowPayLater();
+  station(17, 104, 0, 150, 2, 'SPENDING', 'A budget is a plan you write before the month', spend);
+  items.push(prop('sc-phone', 62, 84, { rotY: facing(62, 84, 6, 96), options: { screen: 'bnpl' } }));
+  items.push(prop('sc-receipt', 40, 76, {
+    rotY: facing(40, 76, 6, 96),
+    options: {
+      rows: [
+        { label: 'Music', value: '10.99' }, { label: 'Video', value: '11.99' },
+        { label: 'Cloud', value: '5.99' }, { label: 'Game pass', value: '8.99' },
+        { label: 'A MONTH', value: subs.monthly.toFixed(2), bold: true, rule: true },
+        { label: 'A YEAR', value: subs.yearly.toFixed(2), bold: true },
+      ],
+      footer: 'Nothing here is expensive. That is how it works.',
+    },
+    programJs: MONEY_PROGRAMS.subscriptions,
+  }));
+  code(20, 76, 4, 96, 2, 'What small charges add up to',
+    'const subscriptions = [\n  10.99, 11.99, 5.99, 8.99,\n];\nconst monthly = subscriptions.reduce(\n  (sum, price) => sum + price, 0);',
+    'Click the receipt. Put in what you really pay for.', spend);
+  facts(46, 110, 8, 128, {
+    eyebrow: 'A STARTING POINT, NOT A RULE',
+    title: `50 / 30 / 20 on ${money(MONTHLY_TAKE_HOME)} a month`,
+    columns: ['', 'Monthly', 'Includes'],
+    rows: [
+      { cells: ['Needs 50%', money(plan.needs), 'rent, food, ride'] },
+      { cells: ['Wants 30%', money(plan.wants), 'fun, extras'] },
+      { cells: ['Savings 20%', money(plan.savings), 'goals, safety net'] },
+    ],
+    note: 'Where rent takes more than half, the split has to bend. A budget that fits your life beats one that fits the rule.',
+    accent: spend,
+  });
+  placard(44, 58, 8, 80, 'BUY NOW, PAY LATER', 'Each plan looks small on its own',
+    `Five $100 purchases split into 4 payments is ${cents(bnpl.dueEveryTwoWeeks)} due every two weeks: ${Math.round(bnpl.shareOfCheck * 100)}% of the paycheck at Station 1, before rent.`, spend);
+  items.push(prop('sc-ruler', 74, 134, { rotY: facing(74, 134, 20, 150), options: { money: false } }));
+  items.push(prop('tutorial-board', 84, 112, {
+    rotY: facing(84, 112, 40, 138),
+    options: {
+      kicker: 'BUILD IT',
+      number: 1,
+      title: 'Build your budget as a bar',
+      intro: `Menu > Create Model. Make one bar for ${money(MONTHLY_TAKE_HOME)} a month, 1ft for every $100. The ruler's numbers are 5ft apart.`,
+      steps: [
+        { lead: 'Needs', text: `A Cube stretched ${plan.needs / 100}ft tall.` },
+        { lead: 'Wants', text: `A second Cube, ${plan.wants / 100}ft. Lift it onto the first with the green ball.` },
+        { lead: 'Savings', text: `A third, ${plan.savings / 100}ft, on top. Then Connect and Render Model.` },
+      ],
+      tip: 'Now rent goes up $100. Which block shrinks? That choice IS your budget.',
+      accent: spend,
+    },
+  }));
+
+  // --- 3. SAVING ------------------------------------------------------------
+  const save = SC.save;
+  const early = savedBy({ startAge: GROW.earlyAge });
+  const late = savedBy({ startAge: GROW.lateAge });
+  station(-17, 66, 0, 110, 3, 'SAVING', 'Time does more of the work than you do', save);
+  const ROW_X = -54;
+  items.push(prop('sc-ruler', ROW_X, 16, { rotY: Math.PI / 2, options: { feetPerMultiple: RULER_FEET_PER_MULTIPLE } }));
+  items.push(prop('sc-jar-lid', ROW_X, -4, { options: { seed: 23 } }));
+  items.push(prop('sc-sprout', ROW_X, -4, { y: 1.05, absoluteY: true, rotY: 0.2, options: { seed: 21 }, programJs: MONEY_PROGRAMS.sprout(GROW.earlyAge) }));
+  items.push(prop('sc-jar-lid', ROW_X, 34, { options: { seed: 24 } }));
+  items.push(prop('sc-sprout', ROW_X, 34, { y: 1.05, absoluteY: true, rotY: 1.1, options: { seed: 22 }, programJs: MONEY_PROGRAMS.sprout(GROW.lateAge) }));
+  placard(-40, -4, -8, 12, 'SPROUT A', `Invested at ${GROW.earlyAge}`, `Every $1 becomes $${growthFactor(GROW.rate, GROW.retireAge - GROW.earlyAge).toFixed(2)} by ${GROW.retireAge}. Read its height on the ruler, not its bulk: it grows in every direction, so it looks bigger than it is.`, save);
+  placard(-40, 34, -8, 18, 'SPROUT B', `Invested at ${GROW.lateAge}`, `Every $1 becomes $${growthFactor(GROW.rate, GROW.retireAge - GROW.lateAge).toFixed(2)} by ${GROW.retireAge}. Ten years later, about half as much.`, save);
+  code(-22, 46, -4, 66, 3, 'Compounding is one line',
+    'const rate = 0.07;\nconst startAge = 18;\n\n// every year:\nbalance = balance * (1 + rate);\nawait setSize(balance * 100);',
+    'Click a sprout. Change startAge or rate. Press Save.', save);
+  facts(-20, -24, -4, 6, {
+    eyebrow: `${money(GROW.monthly)} A MONTH AT 7% (AN EXAMPLE, NOT A PROMISE)`,
+    title: 'Starting ten years sooner',
+    columns: ['', `Start at ${GROW.earlyAge}`, `Start at ${GROW.lateAge}`],
+    rows: [
+      { cells: ['You pay in', money(early.paidIn), money(late.paidIn)] },
+      { cells: [`Worth at ${GROW.retireAge}`, money(early.balance), money(late.balance)], highlight: true },
+      { cells: ['Growth', money(early.growth), money(late.growth)] },
+    ],
+    note: `Money doubles about every ${doublingYears(GROW.rate).toFixed(0)} years at 7%: the rule of 72, 72 / 7. Check it against the sprouts.`,
+    accent: save,
+  });
+  // Inflation: the same 3% that does nothing dramatic in a year.
+  items.push(prop('sc-saucer', -48, 60, {}));
+  items.push(prop('sc-ice-cube', -48, 60, { y: 0.55, absoluteY: true, rotY: 0.4, programJs: MONEY_PROGRAMS.iceCube }));
+  placard(-34, 52, -6, 70, 'INFLATION', 'Cash in a drawer melts',
+    `At 3% a year, $100 buys only $${buyingPower().toFixed(0)} worth of today's stuff after 24 years. Saving keeps your money. Beating inflation is what keeps its value.`, save);
+  items.push(prop('sc-jar-lid', -44, -46, { options: { seed: 25 } }));
+  items.push(prop('sc-sprout', -44, -46, { y: 1.05, absoluteY: true, rotY: 2.2, options: { seed: 26 } }));
+  items.push(activity(-24, -52, {
+    number: 1,
+    rotY: facing(-24, -52, -6, -24),
+    title: 'Grow $1 for ten years',
+    target: 'Click the third sprout (no green arrow), press Program, stay in Block Code:',
+    steps: [
+      ctrlStep('repeat 10 times'),
+      lookStep('change size by 7 %', 1),
+      ctrlStep('wait 0.5 seconds', 1),
+    ],
+    tip: 'change size by 7 multiplies by 1.07, which IS 7% interest. After ten rounds it has about doubled. Press the green arrow, then try 1%.',
+    accent: save,
+  }));
+
+  // --- 4. CREDIT ------------------------------------------------------------
+  const credit = SC.credit;
+  station(17, 66, 0, 110, 4, 'CREDIT', 'Compounding works against you just as hard', credit);
+  items.push(prop('sc-debt-balloon', 46, 14, { programJs: MONEY_PROGRAMS.debt }));
+  items.push(prop('sc-bank-card', 68, 34, { rotY: facing(68, 34, 8, 40), options: { apr: `${CARD.apr * 100}% APR` } }));
+  code(20, 40, 4, 60, 4, 'The debt model',
+    'const payment = 15;   // try 10, 25, 50\n\n// every month:\ndebt = debt * (1 + apr / 12) - payment;\nawait setSize(debt / balance * 100);',
+    'Click the balloon, change the payment, press Save.', credit);
+  const payRow = (payment) => {
+    const p = payoff({ payment });
+    return p
+      ? { cells: [`$${payment}`, `${p.months} months`, money(p.paid)] }
+      : { cells: [`$${payment}`, 'Never', 'Interest equals it'], highlight: true };
+  };
+  facts(38, 54, 6, 76, {
+    eyebrow: `${money(CARD.balance)} ON A CARD AT ${CARD.apr * 100}% APR (AN EXAMPLE)`,
+    title: 'The payment decides everything',
+    columns: ['Paying a month', 'Paid off in', 'Total paid'],
+    rows: [payRow(10), payRow(15), payRow(25), payRow(50)],
+    note: 'A minimum payment is what the lender needs from you, not what you need to pay.',
+    accent: credit,
+  });
+  const maxPct = Math.max(...SCORE_FACTORS.map((f) => f.pct));
+  facts(20, -8, 4, 16, {
+    eyebrow: 'FICO SCORES RUN FROM 300 TO 850',
+    title: 'What goes into a credit score',
+    columns: ['', 'Weight'],
+    rows: SCORE_FACTORS.map((f) => ({ cells: [f.label, `${f.pct}%`], bar: f.pct / maxPct })),
+    note: 'Landlords and insurers may check your credit too. You can get your reports free at annualcreditreport.com.',
+    accent: credit,
+  });
+  const shortLoan = carLoan(CAR_SHORT);
+  const longLoan = carLoan(CAR_LONG);
+  facts(40, -24, 8, 4, {
+    eyebrow: 'THE SAME $20,000 CAR, TWO EXAMPLE LOANS',
+    title: 'The lower payment costs more',
+    columns: ['', `${CAR_SHORT.months} mo at ${CAR_SHORT.apr * 100}%`, `${CAR_LONG.months} mo at ${CAR_LONG.apr * 100}%`],
+    rows: [
+      { cells: ['Each month', money(shortLoan.payment), money(longLoan.payment)] },
+      { cells: ['Total paid', money(shortLoan.total), money(longLoan.total)], highlight: true },
+      { cells: ['Interest', money(shortLoan.interest), money(longLoan.interest)] },
+    ],
+    note: 'A dealer who asks "what payment can you afford?" is not asking about the total.',
+    accent: credit,
+  });
+  items.push(prop('sc-car-key', 66, -10, { rotY: 2.3 }));
+
+  // --- 5. RISK --------------------------------------------------------------
+  const risk = SC.risk;
+  const ins = insuranceCompare();
+  station(-17, -66, 0, -24, 5, 'RISK', 'Plan for the thing you cannot predict', risk);
+  items.push(prop('sc-mug', -62, -96, { rotY: 0.9, programJs: MONEY_PROGRAMS.accident }));
+  items.push(prop('sc-rainy-jar', -28, -100, { rotY: facing(-28, -100, -6, -76) }));
+  items.push(prop('sc-jar-savings', -28, -100, { y: 0.75, absoluteY: true, programJs: MONEY_PROGRAMS.rainyDay }));
+  code(-20, -122, -4, -92, 5, 'The emergency model',
+    `const insured = false;   // try true\nconst repair = ${RISK.repair};\nconst deductible = ${RISK.deductible};\n\nconst cost = insured ? deductible : repair;\nsavings = savings - cost;`,
+    'Click the coins in the jar. Change insured. Press Save.', risk);
+  facts(-44, -128, -8, -94, {
+    eyebrow: `AN EXAMPLE ${money(RISK.repair)} ACCIDENT, ${money(RISK.savings)} SAVED`,
+    title: 'Why people pay for insurance',
+    columns: ['', 'Uninsured', 'Insured'],
+    rows: [
+      { cells: ['You pay now', money(RISK.repair), money(RISK.deductible)] },
+      { cells: ['Savings left', money(ins.leftUninsured), money(ins.leftInsured)], highlight: true },
+      { cells: ['Cost a year', '$0', money(ins.premiumYearly)] },
+    ],
+    note: 'Insure what you could not afford to replace. A lost $20 charger is not worth a policy; a car crash is.',
+    accent: risk,
+  });
+  items.push(prop('sc-phone', -68, -52, { rotY: facing(-68, -52, -8, -66), options: { screen: 'scam' } }));
+  placard(-44, -62, -8, -70, 'SCAMS', 'Count the red flags',
+    'Urgency. A threat. A prize you never entered for. A request for a password or Social Security number. No real bank asks for those by text. Go to the real site yourself.', risk);
+  placard(-48, -78, -8, -80, 'IDENTITY THEFT', 'Freezing your credit is free',
+    'A credit freeze stops new accounts being opened in your name, and federal law makes it free at all three bureaus. Deposits at an FDIC-insured bank are covered up to $250,000 per depositor.', risk);
+  items.push(prop('sc-rainy-jar', -24, -146, { rotY: facing(-24, -146, -6, -120), options: { label: 'YOUR TURN' } }));
+  items.push(prop('sc-jar-savings', -24, -146, { y: 0.75, absoluteY: true, options: { seed: 46 } }));
+  items.push(activity(-42, -148, {
+    number: 2,
+    rotY: facing(-42, -148, -6, -120),
+    title: 'Make savings react to an accident',
+    target: 'Click the coins in the YOUR TURN jar, press Program, stay in Block Code:',
+    steps: [
+      ctrlStep('when an object says accident'),
+      lookStep('change size by -50 %', 1),
+      lookStep('say Half my savings are gone', 1),
+      ctrlStep('wait 5 seconds', 1),
+      moveStep('go back to start', 1),
+    ],
+    tip: 'The mug says "accident" every 12 seconds. Any object in the world can listen for it, which is how one event reaches another.',
+    accent: risk,
+  }));
+
+  // --- 6. INVESTING ---------------------------------------------------------
+  const invest = SC.invest;
+  const fees = feeDrag();
+  station(17, -40, 0, 2, 6, 'INVESTING', 'Own a lot of things for a long time', invest);
+  const GX = 56; const GZ = -112;
+  const graphYaw = facing(GX, GZ, 6, -70);
+  const sheetX = [Math.cos(graphYaw), -Math.sin(graphYaw)]; // the sheet's own +X, in world x/z
+  const sheetN = [Math.sin(graphYaw), Math.cos(graphYaw)];  // the way the sheet faces
+  items.push(prop('sc-graph-sheet', GX, GZ, {
+    rotY: graphYaw,
+    options: { note: 'Red: one company. Blue: twenty. Press the green arrow on a pencil to draw another.' },
+  }));
+  const pencil = (color, standoff, holdings, marker) => {
+    const x = GX + sheetX[0] * GRAPH.x0 + sheetN[0] * standoff;
+    const z = GZ + sheetX[1] * GRAPH.x0 + sheetN[1] * standoff;
+    // A pencil's forward (+Z) has to run along the sheet's +X, which is a quarter turn on
+    // from the sheet's own yaw.
+    items.push(prop('sc-pencil', x, z, {
+      y: GRAPH.startY, absoluteY: true, rotY: graphYaw + Math.PI / 2,
+      options: { color },
+      programJs: MONEY_PROGRAMS.market(marker, holdings),
+    }));
+  };
+  pencil('red', GRAPH.standoff, 1, '#c7382f');
+  pencil('blue', GRAPH.standoff + 0.45, 20, '#2f6fd6');
+  code(19, -56, 4, -36, 6, 'Diversifying, in three lines',
+    'const holdings = 1;   // try 5, then 20\n\nyearReturn += meanReturn + swing * luck();\nyearReturn = yearReturn / holdings;',
+    'Click a pencil, change holdings, press Save.', invest);
+  facts(36, -60, 8, -36, {
+    eyebrow: '$10,000 FOR 40 YEARS AT 7%, AN EXAMPLE',
+    title: 'A 1% fee looks small',
+    columns: ['', 'Ends with'],
+    rows: [
+      { cells: ['No fee', money(fees.noFee)], bar: 1, color: invest },
+      { cells: ['1% yearly fee', money(fees.withFee)], bar: fees.withFee / fees.noFee, color: '#c7382f' },
+    ],
+    note: `That one percent takes ${Math.round(fees.lostShare * 100)}% of the final amount. Compare expense ratios before you buy a fund.`,
+    accent: invest,
+  });
+  placard(72, -66, 8, -60, 'WHY THE RED LINE IS BUMPIER', 'Most single stocks are risky',
+    'The model treats companies as independent. Real stocks tend to fall together, so diversifying helps less than this chart shows. It still helps. Returns here are invented, and real markets do lose money.', invest);
+  placard(86, -80, 8, -60, 'EMPLOYER MATCH', 'Take the match first',
+    'Many jobs match retirement contributions up to a limit. A 100% match doubles your money the day it goes in, before any market return. Skipping it is turning down part of your pay.', invest);
+  items.push(prop('sc-calculator', 84, -38, { rotY: facing(84, -38, 8, -30) }));
+
+  // --- the skyline: what money looks like at this scale -----------------------
+  //
+  // Four towers at the far end of the table, and the view down the avenue ends on them. A
+  // stack's height IS its value, so this is the world's own bar chart.
+  [
+    { x: -34, z: -170, dollars: 10, seed: 71 },
+    { x: -12, z: -178, dollars: 25, seed: 72 },
+    { x: 12, z: -178, dollars: 50, seed: 73 },
+    { x: 34, z: -170, dollars: 100, seed: 74 },
+  ].forEach(({ x, z, dollars, seed }) => {
+    items.push(prop('sc-coin-stack', x, z, { options: { dollars, seed } }));
+    placard(x, z + 11, 0, -130, `$${dollars} IN QUARTERS`, `${Math.round(stackFeet(dollars))}ft tall`,
+      `${dollars * 4} coins, each 4.8ft across at this scale.`, SC.save);
+  });
+  items.push(prop('tutorial-board', 22, -138, {
+    rotY: facing(22, -138, 4, -112),
+    options: {
+      kicker: 'BUILD IT',
+      number: 2,
+      title: 'Your savings goal',
+      intro: 'Menu > Create Model > Load Object > Draw. Paint the thing you are saving for and it inflates.',
+      steps: [
+        { lead: 'Price it', text: 'Pick a real price and a monthly amount you could set aside.' },
+        { lead: 'Program it', text: 'Click your balloon, press Program, and repeat for each month you must save.' },
+        { lead: 'Watch it', text: 'Inside the repeat: change size by 5 %, then wait 0.5 seconds.' },
+      ],
+      tip: 'Months needed = price / monthly amount. Use that number in the repeat.',
+      accent: SC.save,
+    },
+  }));
+  items.push(prop('tutorial-board', 44, -146, {
+    rotY: facing(44, -146, 8, -116),
+    options: {
+      kicker: 'BUILD IT',
+      number: 3,
+      title: 'Your side business',
+      intro: 'Build the stand, table or van you would run out of shapes, and then make it talk.',
+      steps: [
+        { lead: 'Build', text: 'Create Model: at least four pieces. Connect them, then Render Model.' },
+        { lead: 'Cost it', text: 'What do you pay per sale? What do you charge? The gap is your profit.' },
+        { lead: 'Program it', text: 'Use forever, say and wait to announce the price, the cost and the profit.' },
+      ],
+      tip: 'Remember Station 1: self-employed people pay both halves of FICA, 15.3%.',
+      accent: SC.earn,
+    },
+  }));
+
+  // --- table clutter: scale, and the honest mess of a real kitchen table ------
+  items.push(prop('sc-mail-pile', 86, 42, { rotY: 0.5, options: { seed: 61 } }));
+  items.push(prop('sc-mail-pile', -84, 92, { rotY: -0.7, options: { seed: 62, count: 4 } }));
+  items.push(prop('sc-loose-coin', -74, 44, { rotY: 1.2, options: { label: '10', radius: 3.5, thickness: 0.28 } }));
+  items.push(prop('sc-loose-coin', 76, 66, { rotY: 0.3 }));
+  items.push(prop('sc-loose-coin', 92, 6, { rotY: 2.1, options: { label: '1', radius: 3.75, thickness: 0.3, tone: 0xb0704a } }));
+  items.push(prop('sc-loose-coin', -86, -20, { rotY: 2.8, options: { label: '5', radius: 4.2, thickness: 0.38 } }));
+  items.push(prop('sc-loose-coin', 84, -128, { rotY: 0.8 }));
+
+  return { theme: 'smallchange', spawn: { ...SP, yaw: 0 }, items };
+}
+
 export const PRESET_WORLDS = {
+  smallchange: {
+    label: 'Small Change',
+    hint: 'A kitchen table at the scale of a coin -- six live money models for high school: pay, budgets, compounding, credit, risk and investing',
+    build: smallChangeLayout,
+  },
   turkle: {
     label: 'Turkle Street',
     hint: 'A real Kansas street corner in October — the house, the drive, the big hackberry',
