@@ -3687,9 +3687,9 @@ program. `tools/lib/run-blocks.mjs` runs a program through the real runner with 
 
 ### Atom Hall, and a chart you walk through
 
-`AtomProps.js` + `AtomModel.js` + `AtomPrograms.js` + `atomHallLayout()`. A gallery world -- in
-`PRESET_WORLDS` (key `atomhall`), deliberately not in any menu, seeded with creator "Dmitri
-Mendeleev". The periodic table as a skyline, seven walk-around molecules, a salt crystal, and a
+`AtomProps.js` + `AtomModel.js` + `AtomPrograms.js` + `atomHallLayout()`. Gallery world 46, and HiFi
+gallery world 47 -- in `PRESET_WORLDS` (key `atomhall`), deliberately not in any menu, seeded with
+creator "Dmitri Mendeleev". The periodic table as a skyline, seven walk-around molecules, a salt crystal, and a
 tank of particles run by one temperature.
 
 **THE CODING IS BLOCKS ONLY, per Rich.** No record carries `programJs`, and neither the boards nor
@@ -3761,6 +3761,10 @@ Things it hit:
   object. It still loads in 270ms.
 - **A column in the middle of a thermometer covers its own labels** the moment the reading is hot.
 - **A stand taken to the atom nearest the axis** ran straight up through caffeine's rings.
+- **A kiosk at `#lesson-card` floated above its stand, and only on the live site.** A same-origin
+  frame opened at a fragment scrolls its ancestors, and `#css3d-layer` was `overflow: hidden`, which
+  script can still scroll, so the whole layer moved 133px. It cannot be seen on localhost, where the
+  gallery is cross-origin. The layer is `overflow: clip` now, which is not a scroll container at all.
 - **The arrival frame had to be cleared twice.** At full size the two buttons and a placard covered
   the city, so the buttons shrank and the placards moved down the east avenue. The map board stands
   on 5.4ft legs so the kiosk in front of it hides only its posts.
@@ -3769,8 +3773,13 @@ Things it hit:
 calls** / 393k drawn / 200k of geometry / 147 meshes / **1 transparent** / **0 point lights** / 63
 textures / 0.9ms warm CPU render. 270ms to load, 130 KB world file. Per prop: salt crystal 97k
 triangles, caffeine 25k, benzene 13k, hall ring 9k, ethanol 9k, skyline 6k, methane 6k. **Not yet
-measured on an i5/i7 Chromebook.** Runs unchanged in HiFi (`?preset=atomhall`), including the rising
-towers and their shadows; not yet in the HiFi gallery.
+measured on an i5/i7 Chromebook.** Runs unchanged in HiFi, including the rising towers and their
+shadows.
+
+**The HiFi gallery carries it, Small Change (45) and Newton's Midway (46) without their cards.** A
+world page there links to the main gallery's card through `lesson_page` in its `teaching.php`, so the
+static figures stay in one copy. Its screenshots are from the HiFi production build, which has no
+`window.__debug`: to catch the city risen, press the real green arrow.
 
 ### Newton's Midway, and a world whose rides are physics models in blocks
 
