@@ -711,6 +711,24 @@ $WORLDS = [
             . "world is only 390 feet across and you have to be able to stand back far enough to see all "
             . "of it. The placard by the door says so.",
     ],
+    'midway' => [
+        'title' => "Newton's Midway",
+        'creator' => 'Isaac Newton',
+        'tags'  => 'science, physics, math, coding, official',
+        'description' =>
+            "A fairground on a bright afternoon where every ride is a working physics model, and all of "
+            . "it runs in block code. In this lab one foot of the world is one metre, so you are a "
+            . "five-metre giant and a forty-metre cannon shot fits in one view.\n\n"
+            . "Six stations cover high school mechanics. Ride the Drop Tower on Earth, Mars and the Moon. "
+            . "Fire the Big Cannon at two angles and see the arcs drawn in the air. Time three carts down "
+            . "the Test Track and find what F = ma does to them. Watch energy move between height, motion "
+            . "and heat behind Coaster Hill. Change the crash at the Bumper Cars and add up the momentum. "
+            . "Then time the swinging boat and work out why the swing ride's chains lean.\n\n"
+            . "Click a ride, press Program, change a number in a green block, predict, and measure. Three "
+            . "activities have you build a program from an empty page with the new Math blocks. A printable "
+            . "student lesson guide and a teacher lesson card are further down this page.",
+    ],
+
     'smallchange' => [
         'title' => 'Small Change',
         'tags'  => 'finance, math, coding, building, official',
@@ -719,13 +737,13 @@ $WORLDS = [
             . "first job. A dollar bill is a rug, a ruler is a sixty-foot tower, and $100 in quarters "
             . "stands 138 feet tall.\n\n"
             . "Six stations teach high school personal finance, and every exhibit is a live model running "
-            . "real JavaScript. Click one, press Program, change a number and watch what happens. Work out "
+            . "block code. Click one, press Program, change a number and watch what happens. Work out "
             . "your take-home pay from a pay stub. Add up subscriptions on a receipt that keeps growing. "
             . "Race two sprouts that start ten years apart against the ruler. Change the payment on a card "
             . "balance and see the debt balloon shrink, or at $10 a month, refuse to. Flip the insurance "
             . "switch before an accident empties a rainy-day jar. Then watch pencils draw what one company "
             . "and twenty companies do over forty years, on graph paper the size of a building.\n\n"
-            . "Two block activities give beginners a way in, and three build challenges turn a budget and a "
+            . "Two activities start from an empty program, and three build challenges turn a budget and a "
             . "savings goal into models of your own. Every rate is a classroom example, not a prediction or "
             . "advice. A printable student card and teacher lesson plan are further down this page.",
     ],

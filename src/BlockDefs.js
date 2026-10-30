@@ -11,7 +11,55 @@ export const CATEGORIES = {
   control: { name: 'Control', fill: '#ffab19', dark: '#cf8b17' },
   motion: { name: 'Motion', fill: '#4c97ff', dark: '#3373cc' },
   look: { name: 'Look', fill: '#9966ff', dark: '#774dcc' },
+  math: { name: 'Math', fill: '#3fae5a', dark: '#2f8a46' },
 };
+
+// What a comparison can ask. Shared by `if` and `repeat until`, and the values are persisted.
+const COMPARE_OPTIONS = [
+  { value: '<', label: '<' },
+  { value: '<=', label: '≤' },
+  { value: '=', label: '=' },
+  { value: '>=', label: '≥' },
+  { value: '>', label: '>' },
+];
+
+// A variable's name is a word: letters, digits and underscores, starting with a letter. Spaces
+// become underscores rather than being refused, because a student typing "top speed" means
+// something perfectly clear. Applied as they type, so a name in a saved block is always clean.
+export function cleanVariableName(raw) {
+  return String(raw ?? '')
+    .trimStart()
+    .replace(/\s+/g, '_')
+    .replace(/[^A-Za-z0-9_]/g, '')
+    .replace(/^[0-9_]+/, '')
+    .slice(0, 16);
+}
+
+// True for a param value that names a variable rather than holding a number. Every numeric
+// param saved before variables existed is a number, or a numeric string, so it answers false.
+export function isVariableRef(value) {
+  return typeof value === 'string' && value.trim() !== '' && Number.isNaN(Number(value));
+}
+
+// Blocks that give a variable its value, in this program.
+const SETTERS = new Set(['setVar', 'changeVar', 'calc', 'mathFn', 'randomVar']);
+
+export function variablesIn(blocks, out = new Set()) {
+  for (const block of blocks || []) {
+    if (SETTERS.has(block.type) && block.params?.name) out.add(block.params.name);
+    if (block.children) variablesIn(block.children, out);
+  }
+  return out;
+}
+
+// Every name this program publishes with `share`.
+export function sharedVariablesIn(blocks, out = new Set()) {
+  for (const block of blocks || []) {
+    if (block.type === 'shareVar' && block.params?.name) out.add(block.params.name);
+    if (block.children) sharedVariablesIn(block.children, out);
+  }
+  return out;
+}
 
 // `duplicate` is the one block whose effect is not confined to the object running it,
 // so it is the one block a copy must never inherit -- see stripDuplicateBlocks() in
@@ -23,7 +71,7 @@ export const BLOCK_DEFS = {
     category: 'control',
     hasChildren: true,
     label: [{ text: 'repeat' }, { field: 'count' }, { text: 'times' }],
-    params: { count: { type: 'number', default: 10, min: 1, step: 1 } },
+    params: { count: { type: 'number', default: 10, min: 1, step: 1, variable: true } },
   },
   forever: {
     category: 'control',
@@ -35,7 +83,7 @@ export const BLOCK_DEFS = {
     category: 'control',
     hasChildren: false,
     label: [{ text: 'wait' }, { field: 'seconds' }, { text: 'seconds' }],
-    params: { seconds: { type: 'number', default: 1, min: 0, step: 0.1 } },
+    params: { seconds: { type: 'number', default: 1, min: 0, step: 0.1, variable: true } },
   },
   // A HAT block: its children do not run when the program is played, only when some
   // object anywhere in the world runs `say` with matching text. That is why it is filed
@@ -76,6 +124,30 @@ export const BLOCK_DEFS = {
     },
   },
 
+  // `if` and `repeat until` are what make a variable worth having: a value nothing can ask
+  // about is only a label. `repeat until` is what stops a falling object at the ground, and it
+  // cannot hang the tab -- see runPass() in ProgramRunner.js.
+  ifCompare: {
+    category: 'control',
+    hasChildren: true,
+    label: [{ text: 'if' }, { field: 'a' }, { field: 'op' }, { field: 'b' }],
+    params: {
+      a: { type: 'number', default: 0, step: 1, variable: true },
+      op: { type: 'select', default: '>', options: COMPARE_OPTIONS, compact: true },
+      b: { type: 'number', default: 0, step: 1, variable: true },
+    },
+  },
+  repeatUntil: {
+    category: 'control',
+    hasChildren: true,
+    label: [{ text: 'repeat until' }, { field: 'a' }, { field: 'op' }, { field: 'b' }],
+    params: {
+      a: { type: 'number', default: 0, step: 1, variable: true },
+      op: { type: 'select', default: '<=', options: COMPARE_OPTIONS, compact: true },
+      b: { type: 'number', default: 0, step: 1, variable: true },
+    },
+  },
+
   // --- Motion ---------------------------------------------------------------
   //
   // `moveForward` and `glide` travel along the object's OWN facing, which is the whole
@@ -89,7 +161,7 @@ export const BLOCK_DEFS = {
     category: 'motion',
     hasChildren: false,
     label: [{ text: 'move forward' }, { field: 'feet' }, { text: 'feet' }],
-    params: { feet: { type: 'number', default: 2, step: 0.5 } },
+    params: { feet: { type: 'number', default: 2, step: 0.5, variable: true } },
   },
   // The one movement block that is NOT relative to facing, and deliberately so. Up is up
   // whichever way a thing is pointing, and a lift that tilted with its object would be
@@ -99,7 +171,7 @@ export const BLOCK_DEFS = {
     category: 'motion',
     hasChildren: false,
     label: [{ text: 'move up by' }, { field: 'feet' }, { text: 'feet' }],
-    params: { feet: { type: 'number', default: 1, step: 0.5 } },
+    params: { feet: { type: 'number', default: 1, step: 0.5, variable: true } },
   },
   // The one block that spans time -- and therefore the only one that can be given a
   // SHAPE. A glide that starts at full speed and stops dead reads as something being
@@ -120,8 +192,8 @@ export const BLOCK_DEFS = {
       { field: 'seconds' }, { text: 'seconds' }, { field: 'ease' },
     ],
     params: {
-      feet: { type: 'number', default: 10, step: 1 },
-      seconds: { type: 'number', default: 2, min: 0.1, step: 0.1 },
+      feet: { type: 'number', default: 10, step: 1, variable: true },
+      seconds: { type: 'number', default: 2, min: 0.1, step: 0.1, variable: true },
       ease: {
         type: 'select',
         default: 'smooth',
@@ -143,7 +215,34 @@ export const BLOCK_DEFS = {
     category: 'motion',
     hasChildren: false,
     label: [{ text: 'rotate' }, { field: 'degrees' }, { text: 'degrees' }],
-    params: { degrees: { type: 'number', default: 15, step: 5 } },
+    params: { degrees: { type: 'number', default: 15, step: 5, variable: true } },
+  },
+
+  // Both directions in ONE tick, and that is its whole reason for existing. The marker samples
+  // the object's position once a frame, so `move forward` then `move up` land on different
+  // frames and a parabola is drawn as a staircase.
+  moveBoth: {
+    category: 'motion',
+    hasChildren: false,
+    label: [
+      { text: 'move forward' }, { field: 'forward' }, { text: 'and up' },
+      { field: 'up' }, { text: 'feet' },
+    ],
+    params: {
+      forward: { type: 'number', default: 1, step: 0.5, variable: true },
+      up: { type: 'number', default: 1, step: 0.5, variable: true },
+    },
+  },
+  // Leans the object about its own forward axis, the way a head tips to one side, which is
+  // what lets a program swing anything: a pendulum, a cannon barrel, a seesaw, a big wheel.
+  // Absolute rather than "by", because a swing is computed as an angle. Positive leans the top
+  // to the left as you look at the object's front. It never changes which way the object faces
+  // (three composes rotation.z first), so `rotate` and `move forward` carry on as before.
+  setTilt: {
+    category: 'motion',
+    hasChildren: false,
+    label: [{ text: 'set tilt to' }, { field: 'degrees' }, { text: 'degrees' }],
+    params: { degrees: { type: 'number', default: 0, step: 5, variable: true } },
   },
 
   // --- Look -----------------------------------------------------------------
@@ -157,7 +256,7 @@ export const BLOCK_DEFS = {
     category: 'look',
     hasChildren: false,
     label: [{ text: 'change size by' }, { field: 'percent' }, { text: '%' }],
-    params: { percent: { type: 'number', default: 10, step: 5 } },
+    params: { percent: { type: 'number', default: 10, step: 5, variable: true } },
   },
   // "to", not "by" -- absolute, and measured against the size the object was when its
   // program started rather than against its current size. Relative to current, `set size
@@ -168,13 +267,13 @@ export const BLOCK_DEFS = {
     category: 'look',
     hasChildren: false,
     label: [{ text: 'set size to' }, { field: 'percent' }, { text: '%' }],
-    params: { percent: { type: 'number', default: 100, min: 1, step: 5 } },
+    params: { percent: { type: 'number', default: 100, min: 1, step: 5, variable: true } },
   },
   setOpacity: {
     category: 'look',
     hasChildren: false,
     label: [{ text: 'set opacity to' }, { field: 'percent' }, { text: '%' }],
-    params: { percent: { type: 'number', default: 100, min: 0, max: 100, step: 5 } },
+    params: { percent: { type: 'number', default: 100, min: 0, max: 100, step: 5, variable: true } },
   },
   changeColor: {
     category: 'look',
@@ -216,6 +315,123 @@ export const BLOCK_DEFS = {
     hasChildren: false,
     label: [{ text: 'erase all marks' }],
     params: {},
+  },
+
+  // --- Math ----------------------------------------------------------------
+  //
+  // Variables, for anything that has to work something out. A variable belongs to the object
+  // whose program sets it (hats on that object share it), it starts afresh on every run, and it
+  // is not saved. These blocks take NO FRAME: a calculation is not a thing the world can watch,
+  // and at one frame a block a six-line step would take a tenth of a second to happen.
+  //
+  // The `op` and `fn` values are persisted, so they are only ever added to.
+  setVar: {
+    category: 'math',
+    hasChildren: false,
+    label: [{ text: 'set' }, { field: 'name' }, { text: 'to' }, { field: 'value' }],
+    params: {
+      name: { type: 'name', default: 'x' },
+      value: { type: 'number', default: 0, step: 1, variable: true },
+    },
+  },
+  changeVar: {
+    category: 'math',
+    hasChildren: false,
+    label: [{ text: 'change' }, { field: 'name' }, { text: 'by' }, { field: 'value' }],
+    params: {
+      name: { type: 'name', default: 'x' },
+      value: { type: 'number', default: 1, step: 1, variable: true },
+    },
+  },
+  calc: {
+    category: 'math',
+    hasChildren: false,
+    label: [
+      { text: 'set' }, { field: 'name' }, { text: 'to' },
+      { field: 'a' }, { field: 'op' }, { field: 'b' },
+    ],
+    params: {
+      name: { type: 'name', default: 'x' },
+      a: { type: 'number', default: 1, step: 1, variable: true },
+      op: {
+        type: 'select',
+        default: '+',
+        compact: true,
+        options: [
+          { value: '+', label: '+' },
+          { value: '-', label: '−' },
+          { value: '*', label: '×' },
+          { value: '/', label: '÷' },
+          { value: '^', label: '^' },
+          { value: 'min', label: 'min' },
+          { value: 'max', label: 'max' },
+          { value: 'mod', label: 'mod' },
+        ],
+      },
+      b: { type: 'number', default: 1, step: 1, variable: true },
+    },
+  },
+  mathFn: {
+    category: 'math',
+    hasChildren: false,
+    label: [
+      { text: 'set' }, { field: 'name' }, { text: 'to' },
+      { field: 'fn' }, { text: 'of' }, { field: 'a' },
+    ],
+    params: {
+      name: { type: 'name', default: 'x' },
+      fn: {
+        type: 'select',
+        default: 'sqrt',
+        compact: true,
+        options: [
+          { value: 'sqrt', label: 'square root' },
+          { value: 'square', label: 'square' },
+          { value: 'abs', label: 'absolute' },
+          { value: 'round', label: 'rounded' },
+          { value: 'sin', label: 'sin°' },
+          { value: 'cos', label: 'cos°' },
+          { value: 'tan', label: 'tan°' },
+          { value: 'asin', label: 'asin°' },
+          { value: 'acos', label: 'acos°' },
+          { value: 'atan', label: 'atan°' },
+        ],
+      },
+      a: { type: 'number', default: 1, step: 1, variable: true },
+    },
+  },
+  randomVar: {
+    category: 'math',
+    hasChildren: false,
+    label: [
+      { text: 'set' }, { field: 'name' }, { text: 'to random' },
+      { field: 'a' }, { text: 'to' }, { field: 'b' },
+    ],
+    params: {
+      name: { type: 'name', default: 'x' },
+      a: { type: 'number', default: 0, step: 1, variable: true },
+      b: { type: 'number', default: 1, step: 1, variable: true },
+    },
+  },
+  // A readout: "landed after 2.02 s". `say` can also carry values, written {t} in its text,
+  // which is the way to put two of them in one sentence.
+  sayValue: {
+    category: 'math',
+    hasChildren: false,
+    label: [{ text: 'say' }, { field: 'label' }, { field: 'value' }, { field: 'unit' }],
+    params: {
+      label: { type: 'text', default: 'x is', short: true },
+      value: { type: 'number', default: 0, step: 1, variable: true },
+      unit: { type: 'text', default: 'feet', short: true },
+    },
+  },
+  // Publishes this object's value so every other object can read it by name. A program's own
+  // variable of the same name always wins. Shared values last until the world is replaced.
+  shareVar: {
+    category: 'math',
+    hasChildren: false,
+    label: [{ text: 'share' }, { field: 'name' }, { text: 'with every object' }],
+    params: { name: { type: 'name', default: 'x' } },
   },
 
   // --- Retired -------------------------------------------------------------
@@ -264,11 +480,20 @@ export const BLOCK_DEFS = {
 // What the palette offers, in order. Retired types are deliberately absent -- see the
 // note on them above.
 export const PALETTE_ORDER = [
-  'repeat', 'forever', 'wait', 'whenSaid', 'whenWorld', 'duplicate',
-  'moveForward', 'moveUp', 'glide', 'rotate', 'goHome',
+  'repeat', 'forever', 'wait', 'whenSaid', 'whenWorld', 'duplicate', 'ifCompare', 'repeatUntil',
+  'moveForward', 'moveUp', 'moveBoth', 'glide', 'rotate', 'setTilt', 'goHome',
   'say', 'changeSize', 'setSize', 'setOpacity', 'changeColor',
   'markerColor', 'markerDown', 'markerUp', 'eraseMarks',
+  'setVar', 'changeVar', 'calc', 'mathFn', 'randomVar', 'sayValue', 'shareVar',
 ];
+
+// One block for a program shipped on a prop, with every param filled from its schema first.
+export function makeBlock(type, params = {}, children) {
+  const block = createBlockInstance(type);
+  Object.assign(block.params, params);
+  if (children) block.children = children;
+  return block;
+}
 
 export function createBlockInstance(type) {
   const def = BLOCK_DEFS[type];

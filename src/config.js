@@ -1250,6 +1250,31 @@ export const WORLD_THEMES = {
     stars: false,
   },
 
+  midway: {
+    // A fairground on a bright, clear afternoon. The grass is kept quiet because the rides are
+    // the colour, and the sun comes from behind the spawn so everything faces into the light.
+    // Flat all the way out: a prop is grounded once, and the range deck, the test track and the
+    // midway itself are all long enough that any relief would bury one end of them. These are
+    // also measuring instruments, and a ride on a slope would make its numbers wrong.
+    sky: 0x9fd0ee,
+    fogNear: 260,
+    fogFar: 900,
+    groundLow: 0x5f9c4a,
+    groundHigh: 0x7cb45a,
+    amplitude: 0,
+    flatRadius: 400,
+    blendRadius: 500,
+    hemiSky: 0xe9f4ff,
+    // Pale and desaturated for the same reason as the Seattle saucer: the cars' undersides and
+    // the big wheel's cars take their whole light from this.
+    hemiGround: 0x9aa58d,
+    hemiIntensity: 1.6,
+    sunColor: 0xfff4de,
+    sunIntensity: 2.4,
+    sunPosition: [70, 150, 130],
+    stars: false,
+  },
+
   smallchange: {
     // A kitchen table in morning light, seen from the height of a coin. The terrain is dead
     // flat and 400ft square, which at this world's sixty times is a 6.7ft table, and the

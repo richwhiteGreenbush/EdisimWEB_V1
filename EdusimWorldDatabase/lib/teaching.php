@@ -117,6 +117,13 @@ function ewd_teaching_table(): array
             'standards' => 'National Standards for Personal Financial Education (2021) grade 12: Earning Income 12-7c · Spending 12-1b · Saving 12-4b · Investing 12-6b · Managing Credit 12-1b · Managing Risk 12-1a',
             'lesson' => null, 'card' => null, 'lesson_card' => 'small-change',
         ],
+        // Same mechanism as Small Change: the student guide and the teacher card are on this page.
+        'newton-s-midway' => [
+            'band' => 'Grades 9–12',
+            'objective' => 'Use working block models to predict and measure free fall, projectile motion, F = ma, conservation of energy and momentum, and periodic motion, and explain why a stepped model differs slightly from the formula.',
+            'standards' => 'NGSS HS-PS2-1, HS-PS2-2, HS-PS3-1, HS-PS3-2 · CSTA 3A-AP-13, 3A-AP-15, 3A-AP-17',
+            'lesson' => null, 'card' => null, 'lesson_card' => 'newtons-midway',
+        ],
         'javascript-basics' => [
             'band' => 'Grades 5–8',
             'objective' => 'Read a working JavaScript program, predict what changing one value will do, and edit it — five lessons taught by machines that are already running.',

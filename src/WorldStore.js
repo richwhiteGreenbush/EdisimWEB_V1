@@ -139,6 +139,7 @@ export class WorldStore {
     this.registry.clear();
     this.playIconManager?.clear();
     this.markerTrail?.clear();
+    this.programManager?.clearWorldVars();
     this.speechBubbles?.clear();
     this.webBrowserManager?.clear();
     await this.clearAll();

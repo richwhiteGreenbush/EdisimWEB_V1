@@ -1,3 +1,5 @@
+import { blockBoard } from './BlockBoard.js';
+import * as Midway from './MidwayProps.js';
 import * as Common from './CommonProps.js';
 import * as Museum from './MuseumProps.js';
 import * as Library from './LibraryProps.js';
@@ -601,6 +603,36 @@ export const PROP_BUILDERS = {
   'code-beacon': JsBasics.codeBeacon,
   'beacon-lamp': JsBasics.beaconLamp,
   'code-board': JsBasics.codeBoard,
+  'block-board': blockBoard,
+
+  // Newton's Midway.
+  'mw-ruler-wall': Midway.rulerWall,
+  'mw-drop-tower': Midway.dropTower,
+  'mw-drop-car': Midway.dropCar,
+  'mw-drop-post': Midway.dropPost,
+  'mw-cannon-base': Midway.cannonBase,
+  'mw-cannon-barrel': Midway.cannonBarrel,
+  'mw-test-ball': Midway.testBall,
+  'mw-range-deck': Midway.rangeDeck,
+  'mw-test-track': Midway.testTrack,
+  'mw-test-cart': Midway.testCart,
+  'mw-coaster-track': Midway.coasterTrack,
+  'mw-coaster-pod': Midway.coasterPod,
+  'mw-energy-frame': Midway.energyFrame,
+  'mw-energy-bar': Midway.energyBar,
+  'mw-bumper-arena': Midway.bumperArena,
+  'mw-bumper-car': Midway.bumperCar,
+  'mw-scoreboard': Midway.scoreboard,
+  'mw-pendulum-frame': Midway.pendulumFrame,
+  'mw-pendulum-arm': Midway.pendulumArm,
+  'mw-swing-tower': Midway.swingTower,
+  'mw-swing-hub': Midway.swingHub,
+  'mw-swing-chair': Midway.swingChair,
+  'mw-ferris-frame': Midway.ferrisFrame,
+  'mw-ferris-wheel': Midway.ferrisWheel,
+  'mw-fair-tent': Midway.fairTent,
+  'mw-bunting': Midway.bunting,
+  'mw-midway-path': Midway.midwayPath,
   'code-spinner': JsBasics.codeSpinner,
   'mood-crystal': JsBasics.moodCrystal,
   'practice-block': JsBasics.practiceBlock,

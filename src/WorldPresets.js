@@ -7,10 +7,24 @@ import { PERCH } from './props/WonderProps.js';
 import { FLOWERS as GARDEN_FLOWERS, SPECIES_ORDER as BUTTERFLY_SPECIES } from './props/ButterflyProps.js';
 import { SC, GRAPH, RULER_FEET_PER_MULTIPLE } from './props/MoneyProps.js';
 import {
-  PROGRAMS as MONEY_PROGRAMS, money, cents, paycheck, budget, subscriptionCost, buyNowPayLater,
+  money, cents, paycheck, budget, subscriptionCost, buyNowPayLater,
   savedBy, growthFactor, doublingYears, buyingPower, payoff, carLoan, CAR_SHORT, CAR_LONG,
   SCORE_FACTORS, insuranceCompare, feeDrag, stackFeet, GROW, CARD, RISK, PAY, MONTHLY_TAKE_HOME,
 } from './props/MoneyModel.js';
+import { PROGRAMS as MONEY_PROGRAMS, BOARD_STEPS as MONEY_BOARDS } from './props/MoneyPrograms.js';
+import {
+  G, MOON_G, MARS_G, DROP, CANNON, TARGET_RANGE, TRACK, CARTS, COASTER, BUMPER, PENDULUM, SWING,
+  dropFormula, cannonFormula, trackFormula, coasterFormula, bumperFormula, pendulumFormula, swingFormula,
+  coasterSlopeLength,
+} from './props/MidwayModel.js';
+import {
+  dropProgram, cannonProgram, barrelProgram, trackProgram, coasterProgram, energyBarProgram,
+  bumperControlProgram, bumperCarA, bumperCarB, pendulumProgram, swingHubProgram, swingChairProgram,
+  wheelProgram, BOARD_STEPS as MIDWAY_BOARDS,
+} from './props/MidwayPrograms.js';
+import {
+  MW, CANNON_PIVOT_Y, PENDULUM_PIVOT_Y, WHEEL_HUB_Y, ENERGY_FULL,
+} from './props/MidwayProps.js';
 
 import { uuid } from './Uuid.js';
 // The ready-made worlds behind Menu > Load World.
@@ -43,9 +57,9 @@ const ORB_ROSE = '#e0455f';
 
 function prop(name, x, z, {
   y = 0, rotY = 0, rotX = 0, absoluteY = false, scale = 1, options = {}, program = null,
-  programJs = null,
+  programJs = null, homeFromRecord = false,
 } = {}) {
-  return { kind: 'preset-prop', prop: name, options, x, z, y, rotY, rotX, absoluteY, scale, program, programJs };
+  return { kind: 'preset-prop', prop: name, options, x, z, y, rotY, rotX, absoluteY, scale, program, programJs, homeFromRecord };
 }
 
 // One block for a program shipped ON a prop (see `program` above).
@@ -99,6 +113,7 @@ function asset(kind, x, z, { height, y = 0, rotY = 0, options } = {}) {
 const ctrlStep = (text, depth = 0) => ({ cat: 'control', text, depth });
 const moveStep = (text, depth = 0) => ({ cat: 'motion', text, depth });
 const lookStep = (text, depth = 0) => ({ cat: 'look', text, depth });
+const mathStep = (text, depth = 0) => ({ cat: 'math', text, depth });
 
 // A challenge board pointed at one particular object in the world.
 //
@@ -10886,8 +10901,8 @@ function smallChangeLayout() {
   const placard = (x, z, tx, tz, eyebrow, title, body, accent) => {
     items.push(prop('info-placard', x, z, { rotY: facing(x, z, tx, tz), options: { eyebrow, title, body, accent, width: 3.4, height: 4.2 } }));
   };
-  const code = (x, z, tx, tz, number, title, text, caption, accent) => {
-    items.push(prop('code-board', x, z, { rotY: facing(x, z, tx, tz), options: { number, title, code: text, caption, accent } }));
+  const code = (x, z, tx, tz, number, title, steps, caption, accent) => {
+    items.push(prop('block-board', x, z, { rotY: facing(x, z, tx, tz), options: { number, title, steps, caption, accent } }));
   };
   const facts = (x, z, tx, tz, options) => {
     items.push(prop('sc-fact-board', x, z, { rotY: facing(x, z, tx, tz), options }));
@@ -10936,9 +10951,9 @@ function smallChangeLayout() {
       ],
     },
   }));
-  items.push(prop('sc-coin-stack', -38, 82, { options: { dollars: 20, seed: 13 }, programJs: MONEY_PROGRAMS.paycheck }));
+  items.push(prop('sc-coin-stack', -38, 82, { options: { dollars: 20, seed: 13 }, program: MONEY_PROGRAMS.paycheck(), homeFromRecord: true }));
   code(-20, 76, -4, 96, 1, 'The take-home model',
-    'const wage = 15;\nconst hours = 40;\nconst gross = wage * hours;\nconst fica = gross * 0.0765;\nconst federal = gross * 0.05;\nconst state = gross * 0.03;\nconst net = gross - fica - federal - state;',
+    MONEY_BOARDS.paycheck(),
     'Click the coin stack, press Program, change the wage.', earn);
   placard(-34, 112, -6, 120, 'GROSS, NET, TAXABLE', 'Your W-4 sets the withholding',
     'FICA is 7.65%, set by law. Income tax depends on your W-4 and is settled when you file. Withhold too much and you get a refund, which is your own money coming back.', earn);
@@ -10963,10 +10978,11 @@ function smallChangeLayout() {
       ],
       footer: 'Nothing here is expensive. That is how it works.',
     },
-    programJs: MONEY_PROGRAMS.subscriptions,
+    program: MONEY_PROGRAMS.subscriptions(),
+    homeFromRecord: true,
   }));
   code(20, 76, 4, 96, 2, 'What small charges add up to',
-    'const subscriptions = [\n  10.99, 11.99, 5.99, 8.99,\n];\nconst monthly = subscriptions.reduce(\n  (sum, price) => sum + price, 0);',
+    MONEY_BOARDS.subscriptions(),
     'Click the receipt. Put in what you really pay for.', spend);
   facts(46, 110, 8, 128, {
     eyebrow: 'A STARTING POINT, NOT A RULE',
@@ -11008,13 +11024,13 @@ function smallChangeLayout() {
   const ROW_X = -54;
   items.push(prop('sc-ruler', ROW_X, 16, { rotY: Math.PI / 2, options: { feetPerMultiple: RULER_FEET_PER_MULTIPLE } }));
   items.push(prop('sc-jar-lid', ROW_X, -4, { options: { seed: 23 } }));
-  items.push(prop('sc-sprout', ROW_X, -4, { y: 1.05, absoluteY: true, rotY: 0.2, options: { seed: 21 }, programJs: MONEY_PROGRAMS.sprout(GROW.earlyAge) }));
+  items.push(prop('sc-sprout', ROW_X, -4, { y: 1.05, absoluteY: true, rotY: 0.2, options: { seed: 21 }, program: MONEY_PROGRAMS.sprout(GROW.earlyAge), homeFromRecord: true }));
   items.push(prop('sc-jar-lid', ROW_X, 34, { options: { seed: 24 } }));
-  items.push(prop('sc-sprout', ROW_X, 34, { y: 1.05, absoluteY: true, rotY: 1.1, options: { seed: 22 }, programJs: MONEY_PROGRAMS.sprout(GROW.lateAge) }));
+  items.push(prop('sc-sprout', ROW_X, 34, { y: 1.05, absoluteY: true, rotY: 1.1, options: { seed: 22 }, program: MONEY_PROGRAMS.sprout(GROW.lateAge), homeFromRecord: true }));
   placard(-40, -4, -8, 12, 'SPROUT A', `Invested at ${GROW.earlyAge}`, `Every $1 becomes $${growthFactor(GROW.rate, GROW.retireAge - GROW.earlyAge).toFixed(2)} by ${GROW.retireAge}. Read its height on the ruler, not its bulk: it grows in every direction, so it looks bigger than it is.`, save);
   placard(-40, 34, -8, 18, 'SPROUT B', `Invested at ${GROW.lateAge}`, `Every $1 becomes $${growthFactor(GROW.rate, GROW.retireAge - GROW.lateAge).toFixed(2)} by ${GROW.retireAge}. Ten years later, about half as much.`, save);
-  code(-22, 46, -4, 66, 3, 'Compounding is one line',
-    'const rate = 0.07;\nconst startAge = 18;\n\n// every year:\nbalance = balance * (1 + rate);\nawait setSize(balance * 100);',
+  code(-22, 46, -4, 66, 3, 'Compounding is one block',
+    MONEY_BOARDS.compounding(),
     'Click a sprout. Change startAge or rate. Press Save.', save);
   facts(-20, -24, -4, 6, {
     eyebrow: `${money(GROW.monthly)} A MONTH AT 7% (AN EXAMPLE, NOT A PROMISE)`,
@@ -11030,7 +11046,7 @@ function smallChangeLayout() {
   });
   // Inflation: the same 3% that does nothing dramatic in a year.
   items.push(prop('sc-saucer', -48, 60, {}));
-  items.push(prop('sc-ice-cube', -48, 60, { y: 0.55, absoluteY: true, rotY: 0.4, programJs: MONEY_PROGRAMS.iceCube }));
+  items.push(prop('sc-ice-cube', -48, 60, { y: 0.55, absoluteY: true, rotY: 0.4, program: MONEY_PROGRAMS.iceCube(), homeFromRecord: true }));
   placard(-34, 52, -6, 70, 'INFLATION', 'Cash in a drawer melts',
     `At 3% a year, $100 buys only $${buyingPower().toFixed(0)} worth of today's stuff after 24 years. Saving keeps your money. Beating inflation is what keeps its value.`, save);
   items.push(prop('sc-jar-lid', -44, -46, { options: { seed: 25 } }));
@@ -11039,7 +11055,7 @@ function smallChangeLayout() {
     number: 1,
     rotY: facing(-24, -52, -6, -24),
     title: 'Grow $1 for ten years',
-    target: 'Click the third sprout (no green arrow), press Program, stay in Block Code:',
+    target: 'Click the third sprout (no green arrow), press Program:',
     steps: [
       ctrlStep('repeat 10 times'),
       lookStep('change size by 7 %', 1),
@@ -11052,10 +11068,10 @@ function smallChangeLayout() {
   // --- 4. CREDIT ------------------------------------------------------------
   const credit = SC.credit;
   station(17, 66, 0, 110, 4, 'CREDIT', 'Compounding works against you just as hard', credit);
-  items.push(prop('sc-debt-balloon', 46, 14, { programJs: MONEY_PROGRAMS.debt }));
+  items.push(prop('sc-debt-balloon', 46, 14, { program: MONEY_PROGRAMS.debt(), homeFromRecord: true }));
   items.push(prop('sc-bank-card', 68, 34, { rotY: facing(68, 34, 8, 40), options: { apr: `${CARD.apr * 100}% APR` } }));
   code(20, 40, 4, 60, 4, 'The debt model',
-    'const payment = 15;   // try 10, 25, 50\n\n// every month:\ndebt = debt * (1 + apr / 12) - payment;\nawait setSize(debt / balance * 100);',
+    MONEY_BOARDS.debt(),
     'Click the balloon, change the payment, press Save.', credit);
   const payRow = (payment) => {
     const p = payoff({ payment });
@@ -11100,12 +11116,12 @@ function smallChangeLayout() {
   const risk = SC.risk;
   const ins = insuranceCompare();
   station(-17, -66, 0, -24, 5, 'RISK', 'Plan for the thing you cannot predict', risk);
-  items.push(prop('sc-mug', -62, -96, { rotY: 0.9, programJs: MONEY_PROGRAMS.accident }));
+  items.push(prop('sc-mug', -62, -96, { rotY: 0.9, program: MONEY_PROGRAMS.accident(), homeFromRecord: true }));
   items.push(prop('sc-rainy-jar', -28, -100, { rotY: facing(-28, -100, -6, -76) }));
-  items.push(prop('sc-jar-savings', -28, -100, { y: 0.75, absoluteY: true, programJs: MONEY_PROGRAMS.rainyDay }));
+  items.push(prop('sc-jar-savings', -28, -100, { y: 0.75, absoluteY: true, program: MONEY_PROGRAMS.rainyDay(), homeFromRecord: true }));
   code(-20, -122, -4, -92, 5, 'The emergency model',
-    `const insured = false;   // try true\nconst repair = ${RISK.repair};\nconst deductible = ${RISK.deductible};\n\nconst cost = insured ? deductible : repair;\nsavings = savings - cost;`,
-    'Click the coins in the jar. Change insured. Press Save.', risk);
+    MONEY_BOARDS.emergency(),
+    'Click the coins in the jar. Set insured to 1. Press Save.', risk);
   facts(-44, -128, -8, -94, {
     eyebrow: `AN EXAMPLE ${money(RISK.repair)} ACCIDENT, ${money(RISK.savings)} SAVED`,
     title: 'Why people pay for insurance',
@@ -11129,7 +11145,7 @@ function smallChangeLayout() {
     number: 2,
     rotY: facing(-42, -148, -6, -120),
     title: 'Make savings react to an accident',
-    target: 'Click the coins in the YOUR TURN jar, press Program, stay in Block Code:',
+    target: 'Click the coins in the YOUR TURN jar, press Program:',
     steps: [
       ctrlStep('when an object says accident'),
       lookStep('change size by -50 %', 1),
@@ -11161,13 +11177,14 @@ function smallChangeLayout() {
     items.push(prop('sc-pencil', x, z, {
       y: GRAPH.startY, absoluteY: true, rotY: graphYaw + Math.PI / 2,
       options: { color },
-      programJs: MONEY_PROGRAMS.market(marker, holdings),
+      program: MONEY_PROGRAMS.market(marker, holdings),
+      homeFromRecord: true,
     }));
   };
   pencil('red', GRAPH.standoff, 1, '#c7382f');
   pencil('blue', GRAPH.standoff + 0.45, 20, '#2f6fd6');
-  code(19, -56, 4, -36, 6, 'Diversifying, in three lines',
-    'const holdings = 1;   // try 5, then 20\n\nyearReturn += meanReturn + swing * luck();\nyearReturn = yearReturn / holdings;',
+  code(19, -56, 4, -36, 6, 'Diversifying',
+    MONEY_BOARDS.diversify(),
     'Click a pencil, change holdings, press Save.', invest);
   facts(36, -60, 8, -36, {
     eyebrow: '$10,000 FOR 40 YEARS AT 7%, AN EXAMPLE',
@@ -11245,10 +11262,266 @@ function smallChangeLayout() {
   return { theme: 'smallchange', spawn: { ...SP, yaw: 0 }, items };
 }
 
+// Newton's Midway: six stations of high school mechanics on a fairground, all in block code. Every
+// figure comes from MidwayModel.js, and every moving thing's program from MidwayPrograms.js.
+//
+// The middle of the avenue stays empty, A Bug's Life's rule: a fresh construction piece lands 10ft
+// ahead of the student. Each ride is seen side on from there, which is the view its physics reads
+// from, and the stations get deeper as they get harder.
+function midwayLayout() {
+  const items = [];
+  const SP = { x: 0, z: 165 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+  // Everything that moves goes back to where it was placed when its program restarts.
+  const exhibit = (name, x, z, opts) => items.push(prop(name, x, z, { homeFromRecord: true, ...opts }));
+
+  const station = (x, z, tx, tz, number, name, subtitle, accent) => {
+    items.push(prop('standing-sign', x, z, {
+      rotY: facing(x, z, tx, tz),
+      options: { lines: [`${number}  ${name}`], subtitle, width: 13, height: 3.2, postHeight: 9.5, face: '#18202b', accent },
+    }));
+  };
+  const placard = (x, z, tx, tz, eyebrow, title, body, accent) => {
+    items.push(prop('info-placard', x, z, { rotY: facing(x, z, tx, tz), options: { eyebrow, title, body, accent, width: 3.4, height: 4.2 } }));
+  };
+  const blocks = (x, z, tx, tz, number, title, steps, caption, accent) => {
+    items.push(prop('block-board', x, z, { rotY: facing(x, z, tx, tz), options: { number, title, steps, caption, accent } }));
+  };
+
+  items.push(prop('mw-midway-path', 0, 0));
+
+  // --- arrival ---------------------------------------------------------------
+  items.push(prop('welcome-board', -15, 128, {
+    rotY: face(-15, 128),
+    options: {
+      eyebrow: "NEWTON'S MIDWAY",
+      lead: 'Every ride here is a physics model, running in blocks.',
+      lines: ['Click a ride. Press Program. Change a number.', 'Predict first, then press Save and measure.'],
+      footnote: 'In this lab, 1 foot of the world is 1 metre. There is no air resistance.',
+    },
+  }));
+  items.push(...browserStation(16, 146, {
+    faceX: SP.x, faceZ: SP.z, url: 'https://edusim3dweb.com/worlds/world.php?slug=newton-s-midway#lesson-card',
+  }));
+
+  // --- 1. FREE FALL ----------------------------------------------------------
+  const drop = dropFormula();
+  station(-17, 116, 0, 165, 1, 'DROP TOWER', 'Everything falls at the same rate', MW.drop);
+  items.push(prop('mw-drop-tower', -36, 92, { rotY: facing(-36, 92, -6, 120) }));
+  {
+    // The car rides the rails on the tower's front.
+    const yaw = facing(-36, 92, -6, 120);
+    exhibit('mw-drop-car', -36 + Math.sin(yaw) * 4.2, 92 + Math.cos(yaw) * 4.2, { rotY: yaw, program: dropProgram() });
+  }
+  blocks(-19, 92, -4, 120, 1, 'Time goes by one dt at a time', MIDWAY_BOARDS.drop(),
+    'Click the car, press Program, change a green number.', MW.drop);
+  placard(-52, 112, -8, 124, 'THE FORMULA', 'Time to fall a height h',
+    `t = square root of (2h / g). From ${DROP.height} m that is ${drop.time.toFixed(2)} s, at ${drop.speed.toFixed(1)} m/s. Mass is not in it. Try g = ${MOON_G} for the Moon and ${MARS_G} for Mars.`, MW.drop);
+  items.push(prop('mw-drop-post', -26, 74, { rotY: facing(-26, 74, -6, 92) }));
+  items.push(prop('mw-test-ball', -26, 74, { y: 10, absoluteY: true, options: { base: 0x2f6fd6 }, homeFromRecord: true }));
+  items.push(activity(-20, 66, {
+    number: 1,
+    rotY: facing(-20, 66, -4, 92),
+    title: 'Drop the blue ball from 10 m',
+    target: 'Click the blue ball (no green arrow), press Program:',
+    steps: [
+      mathStep('set y to 10'),
+      mathStep('set v to 0'),
+      ctrlStep('repeat until y ≤ 0'),
+      mathStep('set v to v − 0.2', 1),
+      mathStep('set dy to v × 0.02', 1),
+      mathStep('set y to y + dy', 1),
+      moveStep('move up by dy feet', 1),
+    ],
+    tip: '0.2 is g × dt: 9.8 × 0.02, near enough. Pick each name from the little arrow.',
+    accent: MW.drop,
+  }));
+
+  // --- 2. PROJECTILES --------------------------------------------------------
+  const shot = cannonFormula();
+  const FIRE_X = 38;
+  const FIRE_Z = 100;
+  station(17, 116, 0, 165, 2, 'THE BIG CANNON', 'Two motions at once', MW.cannon);
+  // Down-range is -Z. A prop's local +X points there at a yaw of +90 degrees.
+  items.push(prop('mw-range-deck', FIRE_X, FIRE_Z, { rotY: Math.PI / 2, options: { length: 62, ring: TARGET_RANGE } }));
+  items.push(prop('mw-ruler-wall', FIRE_X + 6.2, FIRE_Z, {
+    rotY: -Math.PI / 2, options: { length: 62, step: 5, height: 6, reverse: true, accent: MW.cannon },
+  }));
+  items.push(prop('mw-cannon-base', FIRE_X, FIRE_Z, { rotY: Math.PI / 2, y: 0 }));
+  // The shot comes first: it shares `angle`, and the barrel reads it on its very first frame.
+  // Rotated to face down-range, because `move forward` follows the shot's own +Z.
+  exhibit('mw-test-ball', FIRE_X, FIRE_Z, { y: CANNON_PIVOT_Y, absoluteY: true, rotY: Math.PI, program: cannonProgram() });
+  exhibit('mw-cannon-barrel', FIRE_X, FIRE_Z, { y: CANNON_PIVOT_Y, absoluteY: true, rotY: Math.PI / 2, program: barrelProgram() });
+  // Boards go at the ends of a ride rather than along it: it is read side on from the midway, and
+  // a board in the gap hides exactly what it is about.
+  blocks(41, 121, 8, 104, 2, 'Split the speed in two', MIDWAY_BOARDS.cannon(),
+    'Click the ball. Change speed or angle. Save fires it.', MW.cannon);
+  placard(30, 122, 8, 104, 'THE FORMULA', 'How far a shot goes',
+    `Range = v squared x sin(2 x angle) / g. At ${CANNON.speed} m/s and ${CANNON.angle} degrees: ${shot.range.toFixed(1)} m, up to ${shot.top.toFixed(1)} m high. Press the green arrow again to draw another arc beside it.`, MW.cannon);
+  items.push(activity(22, 44, {
+    number: 2,
+    rotY: facing(22, 44, 4, 70),
+    title: `Land in the ring at ${TARGET_RANGE} m`,
+    target: 'Click the yellow-and-black ball, press Program:',
+    steps: [
+      mathStep('set angle to 45'),
+      mathStep('set speed to ?'),
+      ctrlStep('press Save and watch where it lands'),
+    ],
+    tip: 'Work the speed out from the formula before you press Save. It takes one try if you do.',
+    accent: MW.cannon,
+  }));
+
+  // --- 3. FORCE AND MASS -----------------------------------------------------
+  const TRACK_Z = 58;
+  const LANES = [-30, -38, -46];
+  station(-17, 58, 0, 100, 3, 'TEST TRACK', 'Force, mass and acceleration', MW.track);
+  // Local +Z of the track runs down it, and down it is -Z here.
+  items.push(prop('mw-test-track', -38, TRACK_Z, { rotY: Math.PI, options: { length: TRACK.length, lanes: 3, laneWidth: 8 } }));
+  items.push(prop('mw-ruler-wall', -52.5, TRACK_Z, {
+    rotY: Math.PI / 2, options: { length: TRACK.length + 2, step: 5, height: 5, accent: MW.track },
+  }));
+  CARTS.forEach((mass, i) => {
+    exhibit('mw-test-cart', LANES[i], TRACK_Z, {
+      y: 0.15,
+      rotY: Math.PI,
+      options: { plates: i + 1, mass, body: [0xc9352c, 0xe8b52c, 0x2b5fb8][i] },
+      program: trackProgram({ mass }),
+    });
+  });
+  blocks(-21, 12, -4, 36, 3, 'a = F / m', MIDWAY_BOARDS.track(),
+    'Click a cart. Change force, mass or mu.', MW.track);
+  {
+    const quick = trackFormula({ mass: CARTS[0] });
+    const heavy = trackFormula({ mass: CARTS[2] });
+    placard(-32, 10, -6, 34, 'SAME PUSH, DIFFERENT MASS', 'Four times the mass',
+      `${TRACK.force} N on ${CARTS[0]} kg gives ${quick.a} m/s squared. On ${CARTS[2]} kg it gives ${heavy.a} m/s squared. Time them over ${TRACK.length} m. Then set mu to ${TRACK.mu} and see what friction takes.`, MW.track);
+  }
+
+  // --- 4. ENERGY -------------------------------------------------------------
+  const ride = coasterFormula();
+  const POD_X = 42;
+  const POD_Z = 0;
+  const slopeRad = (COASTER.slope * Math.PI) / 180;
+  station(17, 32, 0, 74, 4, 'COASTER HILL', 'Energy changes form. It does not go away.', MW.coaster);
+  items.push(prop('mw-coaster-track', POD_X, POD_Z, { rotY: -Math.PI / 2 }));
+  // The pod lives at the bottom of the V and its first move is the chain lift, up the +Z slope.
+  exhibit('mw-coaster-pod', POD_X, POD_Z, { y: 1 + 1.5 * (1 / Math.cos(slopeRad) - 1), absoluteY: true, rotY: Math.PI, program: coasterProgram() });
+  // Behind the track, so the car and its energy are one view from the midway.
+  const ENERGY = { x: 62, z: 0, yaw: -Math.PI / 2 };
+  items.push(prop('mw-energy-frame', ENERGY.x, ENERGY.z, { rotY: ENERGY.yaw }));
+  [
+    { name: 'PE', color: 0x2b5fb8, across: -7.33 },
+    { name: 'KE', color: 0xc9352c, across: 0 },
+    { name: 'heat', color: 0xe08a1e, across: 7.33 },
+  ].forEach(({ name, color, across }) => {
+    items.push(prop('mw-energy-bar', ENERGY.x + Math.cos(ENERGY.yaw) * across, ENERGY.z - Math.sin(ENERGY.yaw) * across, {
+      y: -ENERGY_FULL, absoluteY: true, rotY: ENERGY.yaw, options: { color }, program: energyBarProgram({ name, fullHeight: ENERGY_FULL }),
+    }));
+  });
+  blocks(21, 12, 4, 36, 4, 'Speed from energy', MIDWAY_BOARDS.coaster(),
+    'Click the round pod. Change height (up to 18), mu or mass.', MW.coaster);
+  placard(24, -8, 6, 14, 'THE FORMULA', 'What the drop is worth',
+    `m g h = one half m v squared, so v = square root of (2 g h). A ${COASTER.height} m drop gives ${ride.bottomSpeed.toFixed(1)} m/s, and mass cancels. The track's slope is ${COASTER.slope} degrees and ${coasterSlopeLength().toFixed(0)} m long to that height.`, MW.coaster);
+
+  // --- 5. MOMENTUM -----------------------------------------------------------
+  const crash = bumperFormula();
+  const ARENA = { x: -48, z: -30 };
+  const HALF = BUMPER.start / 2;
+  station(-16, -6, 0, 36, 5, 'BUMPER CARS', 'Momentum before is momentum after', MW.bumper);
+  items.push(prop('mw-bumper-arena', ARENA.x, ARENA.z));
+  // The scoreboard owns the numbers, so it has to come first: the cars read what it shares.
+  exhibit('mw-scoreboard', -46, -62, {
+    rotY: facing(-46, -62, -6, -20),
+    options: {
+      title: 'CLICK ME TO CHANGE THE CRASH',
+      lines: ['m1, m2: the two masses (kg)', 'u1, u2: their speeds, toward each other (m/s)', 'e: 1 bounces, 0 sticks together', 'Both cars read what this board works out.'],
+      accent: MW.bumper,
+    },
+    program: bumperControlProgram(),
+  });
+  exhibit('mw-bumper-car', ARENA.x, ARENA.z + HALF, { y: 0.43, rotY: Math.PI, options: { body: 0xc9352c, letter: 'A', mass: BUMPER.m1 }, program: bumperCarA() });
+  exhibit('mw-bumper-car', ARENA.x, ARENA.z - HALF, { y: 0.43, rotY: 0, options: { body: 0x2b5fb8, letter: 'B', mass: BUMPER.m2 }, program: bumperCarB() });
+  blocks(-21, -60, -4, -36, 5, 'Add up the momentum', MIDWAY_BOARDS.bumper(),
+    'Click the scoreboard. Change a mass, a speed or e.', MW.bumper);
+  placard(-30, -72, -6, -48, 'THE LAW', 'No outside force, no change',
+    `A's ${BUMPER.m1} x ${BUMPER.u1} less B's ${BUMPER.m2} x ${BUMPER.u2} is ${crash.before} kg m/s before, and the same after. Set e to 0: momentum still holds, but motion energy falls from ${crash.keBefore} J to ${bumperFormula({ e: 0 }).keAfter.toFixed(0)} J.`, MW.bumper);
+  items.push(activity(-18, -86, {
+    number: 3,
+    rotY: facing(-18, -86, -4, -60),
+    title: 'Add a third car, watching',
+    target: 'Click the green car, press Program:',
+    steps: [
+      ctrlStep('when an object says go'),
+      mathStep('set t to 0', 1),
+      ctrlStep('repeat until t ≥ tHit', 1),
+      mathStep('set dx to u1 × 0.02', 2),
+      moveStep('move forward dx feet', 2),
+      mathStep('change t by 0.02', 2),
+      lookStep('say Bang!', 1),
+    ],
+    tip: 'It uses the numbers the scoreboard shares. Change u1 there, and this car changes too.',
+    accent: MW.bumper,
+  }));
+  items.push(prop('mw-bumper-car', -36, -84, { y: 0.43, rotY: Math.PI, options: { body: 0x2f9e5b, letter: 'YOU', mass: 200 }, homeFromRecord: true }));
+
+  // --- 6. SWINGING AND TURNING -----------------------------------------------
+  const T = pendulumFormula();
+  const lean = swingFormula();
+  const SWING_AT = { x: 42, z: -104 };
+  station(17, -26, 0, 16, 6, 'SWING RIDES', 'Period, and the force toward the middle', MW.swing);
+  items.push(prop('mw-pendulum-frame', 42, -56, { rotY: -Math.PI / 2 }));
+  exhibit('mw-pendulum-arm', 42, -56, { y: PENDULUM_PIVOT_Y, absoluteY: true, rotY: -Math.PI / 2, program: pendulumProgram() });
+  blocks(20, -44, 4, -20, 6, 'Swing back toward the middle', MIDWAY_BOARDS.pendulum(),
+    'Click the boat. Change length (up to 14) or angle.', MW.swing);
+  placard(22, -72, 6, -48, 'THE FORMULA', 'What sets the period',
+    `T = 2 pi x square root of (L / g), for small swings. L = ${PENDULUM.length} m gives ${T.toFixed(2)} s. The weight of the boat is not in it. Compare ${PENDULUM.angle} degrees with 5 degrees and see how good "small" has to be.`, MW.swing);
+  items.push(prop('mw-swing-tower', SWING_AT.x, SWING_AT.z));
+  // The hub comes first: every chair reads the lean and the turn it shares.
+  exhibit('mw-swing-hub', SWING_AT.x, SWING_AT.z, { y: 18, absoluteY: true, program: swingHubProgram() });
+  [0, 1, 2, 3, 4, 5].forEach((i) => {
+    exhibit('mw-swing-chair', SWING_AT.x, SWING_AT.z, {
+      y: 18, absoluteY: true, rotY: (i / 6) * Math.PI * 2,
+      options: { color: [0x2b5fb8, 0xc9352c, 0xe8b52c, 0x2f9e5b, 0xa24ccf, 0xe0702c][i], length: SWING.length },
+      program: swingChairProgram(),
+    });
+  });
+  placard(22, -100, 6, -76, 'THE FORMULA', 'Why the chains lean',
+    `cos(lean) = g / (w squared x L). Going round in ${SWING.period} s on ${SWING.length} m chains, the lean is ${lean.angle.toFixed(1)} degrees and the chair runs ${lean.radius.toFixed(1)} m out. Click the cap on top and change the period.`, MW.swing);
+
+  // --- the wheel at the end of the midway ------------------------------------
+  items.push(prop('mw-ferris-frame', 0, -160));
+  items.push(prop('mw-ferris-wheel', 0, -160, { y: WHEEL_HUB_Y, absoluteY: true, program: wheelProgram() }));
+
+  // --- the fairground --------------------------------------------------------
+  [
+    { x: -72, z: 138, r: 8, a: 0xd6453a }, { x: 72, z: 138, r: 9, a: 0x2b5fb8 },
+    { x: -84, z: 60, r: 10, a: 0x2f9e5b }, { x: 84, z: 60, r: 8, a: 0xa24ccf },
+    { x: -92, z: -30, r: 9, a: 0xe08a1e }, { x: 92, z: -24, r: 10, a: 0xd6453a },
+    { x: -66, z: -110, r: 11, a: 0x2b5fb8 }, { x: 74, z: -128, r: 9, a: 0xe08a1e },
+    { x: -42, z: -146, r: 8, a: 0xd0397f }, { x: 42, z: -150, r: 8, a: 0x2f9e5b },
+  ].forEach(({ x, z, r, a }) => {
+    items.push(prop('mw-fair-tent', x, z, { options: { radius: r, wall: r * 0.75, a } }));
+  });
+  [152, -24, -118].forEach((z, i) => {
+    items.push(prop('mw-bunting', 0, z, { options: { span: 44, height: 18, flags: 26, seed: 3 + i } }));
+  });
+  [[-96, 118], [100, 110], [-110, 18], [112, 12], [-100, -80], [104, -92], [-120, 90], [122, 70]].forEach(([x, z], i) => {
+    items.push(prop(i % 2 ? 'flowering-cherry' : 'japanese-maple', x, z, { rotY: i * 1.3 }));
+  });
+
+  return { theme: 'midway', spawn: { ...SP, yaw: 0 }, items };
+}
+
 export const PRESET_WORLDS = {
+  midway: {
+    label: "Newton's Midway",
+    hint: 'A fairground where every ride is a physics model in blocks: free fall, projectiles, F = ma, energy, momentum and swings',
+    build: midwayLayout,
+  },
   smallchange: {
     label: 'Small Change',
-    hint: 'A kitchen table at the scale of a coin -- six live money models for high school: pay, budgets, compounding, credit, risk and investing',
+    hint: 'A kitchen table at the scale of a coin -- six live money models in blocks for high school: pay, budgets, compounding, credit, risk and investing',
     build: smallChangeLayout,
   },
   turkle: {
@@ -11508,6 +11781,9 @@ function toRecord(item, groundHeightAt) {
     base.programJs = item.programJs;
     base.programMode = 'js';
   }
+  // An exhibit whose program flies it about restarts from where it was placed, not from
+  // wherever it happened to be when Save was pressed. See ProgramManager.startFromRecord.
+  if (item.homeFromRecord) base.homeFromRecord = true;
 
   if (item.kind === 'light-orb') return { ...base, kind: 'light-orb', color: item.color };
   // A browser panel carries no files either -- WebBrowserManager.createPanel() rebuilds

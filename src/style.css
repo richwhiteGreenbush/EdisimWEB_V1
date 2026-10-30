@@ -706,10 +706,10 @@ html, body {
 
 #program-palette {
   /* Sized to the widest block template, which is now
-     "glide [10] feet over [2] seconds", measured at 263px of content. The labels are
-     nowrap, so a palette narrower than its longest block overflows sideways rather than
-     wrapping. Re-measure this whenever a longer block is added. */
-  width: 284px;
+     "glide [10] feet over [2] seconds [smoothly]". The labels are nowrap, so a palette narrower than its
+     longest block overflows sideways rather than wrapping. Re-measure this whenever a longer
+     block is added. */
+  width: 376px;
   flex-shrink: 0;
   overflow-y: auto;
   background: rgba(255, 255, 255, 0.03);
@@ -1174,6 +1174,62 @@ body.cinema-active #menu {
   accent-color: #4ade80;
 }
 
+/* A short text field, for a block with two of them on one line. */
+.pe-field-short {
+  width: 62px;
+}
+
+/* A variable's own name: a word, so it reads left-aligned, in the block's own green family
+   so it is plainly not the same kind of box as a number. */
+.pe-field-name {
+  width: 56px;
+  font-weight: 700;
+  color: #1e5e30;
+  background: #e4f6e8;
+}
+
+/* The arrow beside a number field. Closed it is only the arrow, because the text of the
+   option is what the student sees once it is open. Options carry their own colour for that. */
+.pe-var-picker {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  padding: 0;
+  margin-left: -3px;
+  cursor: pointer;
+  color: transparent;
+  background: rgba(255, 255, 255, 0.55) center / 9px 6px no-repeat
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 6'%3E%3Cpath d='M0 0h9L4.5 6z' fill='%23333'/%3E%3C/svg%3E");
+}
+
+.pe-var-picker[hidden],
+.pe-field[hidden] {
+  display: none;
+}
+
+.pe-var-picker option {
+  color: #222;
+}
+
+/* Holding a variable, the picker IS the field: a pill showing the name. */
+.pe-var-picker.pe-var-active {
+  width: auto;
+  min-width: 30px;
+  max-width: 96px;
+  margin-left: 0;
+  padding: 2px 8px;
+  font-weight: 700;
+  color: #1e5e30;
+  background: #e4f6e8;
+  text-align: center;
+}
+
+/* A name nothing sets any more. */
+.pe-var-picker.pe-var-unknown {
+  color: #fff;
+  background: #d3433a;
+}
+
 /* A dropdown param inside a block. Sized and coloured to sit in a block pill exactly as
    the number and text fields do -- a select that looks like a browser default reads as
    part of the page rather than as part of the block. */
@@ -1181,6 +1237,12 @@ body.cinema-active #menu {
   min-width: 84px;
   padding: 1px 4px;
   cursor: pointer;
+}
+
+/* An operator: one or two characters that do not need 84px. */
+.pe-field-compact {
+  width: auto;
+  min-width: 34px;
 }
 
 /* --- The settings panel ------------------------------------------------------- */
