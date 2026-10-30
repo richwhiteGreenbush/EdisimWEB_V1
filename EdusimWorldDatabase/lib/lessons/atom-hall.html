@@ -1,0 +1,241 @@
+<!-- The Atom Hall lesson cards, rendered inside world.php by readfile().
+
+     This fragment is the cards' ONE copy, as Small Change's and Newton's Midway's are. Every figure
+     in it is checked against src/props/AtomModel.js by tools/check-atomhall.mjs, since nothing else
+     would notice static HTML drifting. Styles are .lc-* in assets/database.css. -->
+<section class="lesson-card" id="lesson-card" aria-labelledby="lc-h">
+  <header class="lc-head">
+    <span class="lc-kicker">Lesson Cards · Chemistry</span>
+    <h2 id="lc-h">⚛️ Atom Hall</h2>
+    <p>A student lesson guide and a teacher lesson card. Each one prints on its own, so a student's copy has no answer key.</p>
+    <div class="lc-actions no-print">
+      <a class="btn btn-ghost btn-sm" href="#lc-student">🎒 Student lesson guide</a>
+      <a class="btn btn-ghost btn-sm" href="#lc-teacher">🍎 Teacher lesson card</a>
+      <button type="button" class="btn btn-green btn-sm" data-lc-print="lc-student">🖨️ Print student guide</button>
+      <button type="button" class="btn btn-green btn-sm" data-lc-print="lc-teacher">🖨️ Print teacher card</button>
+    </div>
+  </header>
+
+  <div class="lc-shots no-print">
+    <figure class="lc-shot">
+      <img src="../guide/shots/atomhall_1.jpg" alt="A city of coloured towers, one for each element, seen from the helium corner. The towers rise toward the far left, where the largest atoms are." loading="lazy" />
+      <figcaption>You arrive at helium. Each tower's height is its atom's radius, so the city climbs away from you.</figcaption>
+    </figure>
+    <figure class="lc-shot">
+      <img src="../guide/shots/atomhall_2.jpg" alt="The same city after pressing a button: fluorine, oxygen and chlorine now stand tallest and the alkali metals have sunk." loading="lazy" />
+      <figcaption>One button makes height mean electronegativity, and the whole city changes shape.</figcaption>
+    </figure>
+    <figure class="lc-shot">
+      <img src="../guide/shots/atomhall_3.jpg" alt="A glass tank of blue particles beside a thermostat and a tall thermometer reading 500 kelvins. The particles fill the whole tank." loading="lazy" />
+      <figcaption>The tank. One number on the thermostat sets how fast the particles move and what state they are in.</figcaption>
+    </figure>
+  </div>
+
+  <!-- ================================================================= -->
+  <div class="student-part" id="lc-student">
+    <h2 class="part-title">🎒 Student lesson guide</h2>
+    <p class="howto"><strong>Getting there:</strong> press <strong>Open this world in Edusim</strong> on this page. No account or download.
+      <span class="print-only">Type it in: <span class="mono">edusim3dweb.com/worlds/world.php?slug=atom-hall</span></span>
+      <span class="howto-warn">Opening a world replaces what is in your copy. Use <span class="key">☰ Menu</span> → <span class="key">Save World</span> first if you have something to keep.</span></p>
+    <p class="part-lead"><strong>How it works:</strong> walk with the arrow keys and drag to look around. Every tower has its numbers on a shopfront at street level. To run a program, click the green ▶ above an object. To read or change one, click the object and press <span class="key">Program</span>.</p>
+    <p class="part-lead"><strong>How to read the city:</strong> height is measured from the ground. When a tower shows atomic radius, 1 foot is 5 picometres. When it shows electronegativity, 15 feet is 1 unit. A dark stump means there is no value, not a value of zero.</p>
+    <p class="part-lead">Name <span class="blank wide"></span> Date <span class="blank"></span></p>
+
+    <section class="st" style="--st: #3d86d6;">
+      <h3>1 · The skyline: atomic radius</h3>
+      <p class="find">You start at helium, the top right corner of the table. The board on your right shows where that is. Look across the city and walk its streets.</p>
+      <ol>
+        <li><strong>Predict before you walk:</strong> where on the table will the biggest atoms be? <span class="blank wide"></span></li>
+      </ol>
+      <table class="lc-table">
+        <tr><th>Down column 1</th><th>Li</th><th>Na</th><th>K</th><th>Rb</th><th>Cs</th></tr>
+        <tr><th>Radius (pm)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Tower height (ft)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <table class="lc-table">
+        <tr><th>Across period 2</th><th>Li</th><th>Be</th><th>B</th><th>C</th><th>N</th><th>O</th><th>F</th></tr>
+        <tr><th>Radius (pm)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol start="2">
+        <li>Which way do atoms get bigger going down a column? <span class="blank"></span> Why? (Read the placards on the east avenue.)<span class="line"></span></li>
+        <li>Across a period the atom gains electrons, yet it gets smaller. Explain how.<span class="line"></span></li>
+        <li><strong>Find the odd pair:</strong> go to zirconium (Zr) and hafnium (Hf), one above the other. Hf has a whole extra shell. Compare their heights. What sits between them in the table that might explain it? <span class="blank wide"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #6a5ad0;">
+      <h3>2 · The skyline: electronegativity</h3>
+      <p class="find">Click the green ▶ above the ELECTRONEGATIVITY button. <strong>Stand still and watch.</strong> Then walk to the francium corner, bottom left of the table, for the best view.</p>
+      <ol>
+        <li>Describe what the city did. Which corner is now the tallest? <span class="blank wide"></span></li>
+      </ol>
+      <table class="lc-table">
+        <tr><th></th><th>Cs</th><th>Na</th><th>H</th><th>C</th><th>Cl</th><th>O</th><th>F</th></tr>
+        <tr><th>Electronegativity</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol start="2">
+        <li>The two trends run in opposite directions. Use atom size to explain why a small atom pulls harder on electrons.<span class="line"></span></li>
+        <li>Find helium, neon and argon. What do they show, and why would an atom that hardly ever bonds have no value? <span class="blank wide"></span></li>
+        <li>Work out the <strong>difference</strong> in electronegativity across each bond. Bigger means more one-sided.<br />C–H <span class="blank"></span> O–H <span class="blank"></span> Na–Cl <span class="blank"></span> Which of these is ionic, and which barely polar? <span class="blank wide"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #d63a30;">
+      <h3>3 · The Molecule Garden</h3>
+      <p class="find">South of the city. Walk all the way round each model. White is hydrogen, charcoal carbon, blue nitrogen, red oxygen. The gold arc marks the angle, and pale lobes are lone pairs.</p>
+      <table class="lc-table">
+        <tr><th>Molecule</th><th>Formula</th><th>Bonded atoms on the centre</th><th>Lone pairs on the centre</th><th>Bond angle</th><th>Sketch the shape</th></tr>
+        <tr><th>Methane</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Ammonia</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Water</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Carbon dioxide</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>What happens to the angle each time a lone pair replaces a bond? Why would a lone pair do that?<span class="line"></span></li>
+        <li>Water and carbon dioxide both have three atoms. Why is one bent and the other straight? <span class="blank wide"></span></li>
+        <li>Go to benzene. What is different about the six bonds in its ring? <span class="blank wide"></span></li>
+        <li><strong>Build it:</strong> use the BUILD IT board north of the city to make a water molecule from shapes, then compare it with the real one.</li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #2a9f96;">
+      <h3>4 · The salt crystal</h3>
+      <p class="find">South of the city. One half is packed, with the ions at their true sizes. Walk into the other half, where they are shrunk so you can see the pattern. Purple is sodium, green is chloride.</p>
+      <ol>
+        <li>Stand next to one sodium ion in the open half. How many chloride neighbours touch its guide lines? <span class="blank"></span> And how many sodiums round a chloride? <span class="blank"></span></li>
+        <li>Find a pair that "belongs together" as one salt molecule. Can you? What does that tell you? <span class="blank wide"></span></li>
+        <li>From the placard: Na+ is <span class="blank"></span> pm and Cl- is <span class="blank"></span> pm. Which ion is bigger, by what factor? <span class="blank"></span> Sodium is the larger <em>atom</em>. Why might its ion be the smaller one?<span class="line"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #e8892b;">
+      <h3>5 · The states-of-matter tank: temperature</h3>
+      <p class="find">Down the east avenue. Click the thermostat → Program. Change the green <code class="m">temperature</code> block, press <span class="key">Save</span>, and read what the thermometer says. <strong>Write your prediction before you press Save.</strong></p>
+      <table class="lc-table">
+        <tr><th>Temperature (K)</th><th>100</th><th>250</th><th>300</th><th>400</th><th>900</th></tr>
+        <tr><th>Predict the state</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>State it shows</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Speed (ft per step)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>Go from 100 K to 400 K, then to 900 K. How many times hotter is each? <span class="blank"></span> How many times faster? <span class="blank"></span> Write the rule in words.<span class="line"></span></li>
+        <li>Click the red column of the thermometer → Program, and find the blocks that turn temperature into speed. Which block is the rule you just wrote? <span class="blank wide"></span></li>
+        <li>Open one particle. Which two values does it read, and which does it never read? <span class="blank wide"></span></li>
+        <li>Look at a particle in the solid, the liquid and the gas. What changed about the particle itself? <span class="blank wide"></span></li>
+        <li>Set <code class="m">temperature</code> to 0. What happens? Then try −50. What does the program do, and why? <span class="blank wide"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #c9701b;">
+      <h3>6 · Change the substance, then write the heater</h3>
+      <p class="find">Stay at 300 K. Change the green <code class="m">melts</code> and <code class="m">boils</code> blocks on the thermostat.</p>
+      <table class="lc-table">
+        <tr><th>Substance</th><th>Melts (K)</th><th>Boils (K)</th><th>Predict at 300 K</th><th>What the tank shows</th></tr>
+        <tr><th>Nitrogen</th><td>63</td><td>77</td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Ethanol</th><td>159</td><td>352</td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Water</th><td>273</td><td>373</td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Mercury</th><td>234</td><td>630</td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Table salt</th><td>1074</td><td>1686</td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Iron</th><td>1811</td><td>3134</td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>Why does salt melt so much hotter than water? Use what you saw in the crystal. <span class="blank wide"></span></li>
+        <li><strong>Build it:</strong> the burner by the tank has no program. Click it, press Program, and follow the ACTIVITY 4 board. Watch the tank as it heats.</li>
+        <li>Your heater moves straight through 273 K. A real pot of ice stays at 273 K until it has all melted, even with the burner on. Where do you think that heat is going?<span class="line"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #444;">
+      <h3>Exit ticket</h3>
+      <ol>
+        <li>Name one prediction you got wrong today, and what you now think instead.<span class="line"></span><span class="line"></span></li>
+        <li>The tank is a model. Name one thing it gets right and one thing real particles do that it leaves out.<span class="line"></span></li>
+      </ol>
+    </section>
+  </div>
+
+  <!-- ================================================================= -->
+  <div class="teacher-part" id="lc-teacher">
+    <h2 class="part-title">🍎 Teacher lesson card</h2>
+
+    <table class="lc-table">
+      <tr><th>For</th><td>Grades 8–10 physical science or first-year chemistry, and computer science. No coding experience needed: students begin by pressing a button and changing one number in a green block. One activity has them build a short program from empty.</td></tr>
+      <tr><th>Time</th><td>One 45-minute period for the skyline and the tank, a 90-minute block for everything, or one section a day through a unit on the periodic table, bonding or states of matter.</td></tr>
+      <tr><th>You need</th><td>A browser on each computer (Chromebooks are fine). No account, install or student data. Printed copies of the student guide or a way to type answers.</td></tr>
+      <tr><th>Students will</th><td>Read periodic trends in atomic radius and electronegativity, and explain them from shells and nuclear charge. Relate lone pairs to bond angles. Describe an ionic lattice and why it has no molecules. Use a model to connect temperature, particle speed and state, and say where that model falls short.</td></tr>
+    </table>
+
+    <div class="honest"><strong>Say this out loud.</strong> Tower height is a chart of a number, not a picture of an atom: a cesium tower is not 48.8 feet of anything. Radii here are covalent radii (Cordero and others, 2008), so they will differ from a textbook that prints empirical or van der Waals values, and carbon is its single-bond value. The tank is a rule-based model: a particle melts because an <code class="m">if</code> block says so, not because forces let go. It leaves out forces between particles, leaves out particle mass, and has no pause at a melting point. Speed is in feet per step, so compare ratios and do not convert it to metres per second. Research supports 3D learning environments in general, but nobody has tested this particular world.</div>
+
+    <h3 class="lc-sec">45-minute plan</h3>
+    <table class="lc-table">
+      <tr><th>Min</th><th>You</th><th>Students</th></tr>
+      <tr><td>0–5</td><td>Show a printed table. Ask: "Which corner holds the biggest atoms?" Take a vote.</td><td>Vote, then open the world.</td></tr>
+      <tr><td>5–20</td><td>Circulate through Section 1. Then have everyone press ELECTRONEGATIVITY together and watch.</td><td>Fill the radius tables; explain the flip.</td></tr>
+      <tr><td>20–40</td><td>Demo once: click the thermostat, Program, change the number, Save. Insist on a written prediction before each Save.</td><td>Section 5 in pairs, then the substance table if there is time.</td></tr>
+      <tr><td>40–45</td><td>Debrief with one prompt below. Collect the exit ticket.</td><td>Share one prediction that turned out wrong.</td></tr>
+    </table>
+
+    <h3 class="lc-sec">90-minute plan</h3>
+    <table class="lc-table">
+      <tr><th>Min</th><th>You</th><th>Students</th></tr>
+      <tr><td>0–10</td><td>The same vote and opening.</td><td>Predict, then open the world.</td></tr>
+      <tr><td>10–35</td><td>Sections 1 and 2.</td><td>Both trends, the odd pair, bond differences.</td></tr>
+      <tr><td>35–55</td><td>Sections 3 and 4.</td><td>Angles and lone pairs; walk into the crystal.</td></tr>
+      <tr><td>55–85</td><td>Sections 5 and 6, including the heater.</td><td>Predict, measure, build.</td></tr>
+      <tr><td>85–90</td><td>Exit ticket.</td><td>Write it.</td></tr>
+    </table>
+
+    <h3 class="lc-sec">Discussion prompts</h3>
+    <ul>
+      <li>Why does the same pair of ideas, shells and nuclear charge, explain both trends?</li>
+      <li>Two towers can differ by 40 feet and the atoms by a few picometres. What does a chart like this make easy to see, and what can it hide?</li>
+      <li>A dark stump and a zero are different claims. Why does the difference matter in science?</li>
+      <li>The tank's particles change state at an exact number. What would you have to add to make that happen on its own?</li>
+    </ul>
+
+    <h3 class="lc-sec">Answer key</h3>
+    <details class="answers">
+      <summary>Show the answers</summary>
+      <table class="lc-table">
+        <tr><th>1 Radius</th><td>Down column 1: Li 128, Na 166, K 203, Rb 220, Cs 244 pm, which is 25.6, 33.2, 40.6, 44.0 and 48.8 ft. Across period 2: Li 128, Be 96, B 84, C 76, N 71, O 66, F 57 pm. Biggest at the bottom left: francium, 260 pm and 52.0 ft. Down a column each period adds a shell further out. Across a period protons are added while the shell stays the same, so the electrons are pulled in harder. Zr and Hf are both 175 pm despite Hf's extra shell: the 14 lanthanides between them add protons that their f electrons shield poorly, which is the lanthanide contraction.</td></tr>
+        <tr><th>2 Electronegativity</th><td>Cs 0.79, Na 0.93, H 2.20, C 2.55, Cl 3.16, O 3.44, F 3.98. The top right becomes tallest, with fluorine at 59.7 ft, and cesium falls to 11.9 ft. A small atom's bonding electrons sit closer to the nucleus and feel more of its charge. He, Ne, Ar and Rn have no value on this scale, since it is worked out from bonds and they form few or none. Differences: C–H 0.35 (barely polar), O–H 1.24 (polar covalent), Na–Cl 2.23 (ionic).</td></tr>
+        <tr><th>3 Molecules</th><td>Methane CH4: 4 bonded, 0 lone pairs, 109.5°, tetrahedral. Ammonia NH3: 3 bonded, 1 lone pair, 106.7° (the placard rounds to 107°), pyramid. Water H2O: 2 bonded, 2 lone pairs, 104.5°, bent. Carbon dioxide CO2: 2 double bonds, 0 lone pairs on carbon, 180°, straight. Lone pairs take up more room than bonds and squeeze the angle. Benzene's six ring bonds are all the same length, 0.139 nm, between single and double, because those electrons are shared round the ring.</td></tr>
+        <tr><th>4 Salt</th><td>Six neighbours each way. No pair belongs together: there is no NaCl molecule, only a repeating lattice held by every neighbour's charge. Na+ 102 pm, Cl- 181 pm, so chloride is about 1.77 times bigger. Sodium's atom is larger than chlorine's, but it loses its outer shell to become an ion, and chlorine gains an electron with no new protons. The model holds 216 ions; a 1 mm grain has about 4.5 x 10^19.</td></tr>
+        <tr><th>5 Tank</th><td>100 K solid, speed 0.20. 250 K solid, 0.32. 300 K liquid, 0.35. 400 K gas, 0.40. 900 K gas, 0.60. Each is the shipped water settings: melts 273, boils 373, and the model changes state exactly at those numbers. 100 to 400 K is 4 times hotter and 2 times faster; 100 to 900 K is 9 times hotter and 3 times faster: speed goes as the square root of absolute temperature. The rule is "set root to square root of t" followed by "set speed to root × 0.02". A particle reads <code class="m">speed</code> and <code class="m">state</code> and never reads <code class="m">temperature</code>. The particle itself does not change, only its motion. At 0 K speed is 0 and the crystal stands still (reachable in this model, not in reality). At −50 the thermostat says nothing can be colder than 0 K and uses 0, since kelvins start at absolute zero.</td></tr>
+        <tr><th>6 Substances</th><td>At 300 K: nitrogen gas; ethanol, water and mercury liquid; table salt and iron solid. Salt holds on because every ion is pulled by all its oppositely charged neighbours, while water molecules attract each other far more weakly. A real pot stays at 273 K because the heat goes into breaking particles out of the crystal rather than speeding them up, which is the latent heat of melting. The model has no energy term, so it cannot show this.</td></tr>
+      </table>
+    </details>
+
+    <h3 class="lc-sec">Adjusting it</h3>
+    <ul>
+      <li><strong>Middle school:</strong> keep Sections 1, 3 (methane and water only) and 5. Skip the difference calculation and the odd pair.</li>
+      <li><strong>Chemistry:</strong> add first ionization energy as a prediction students test against a data table, and name VSEPR once they have seen the angles.</li>
+      <li><strong>Physics:</strong> real speed goes as the square root of T over mass. Have students say what they would change on the thermometer, then why two substances at one temperature would differ.</li>
+      <li><strong>Computer science:</strong> trace how a number travels from the thermostat through the thermometer to a particle, and discuss why one object owns it.</li>
+      <li><strong>Handing work in:</strong> <span class="key">☰ Menu</span> → <span class="key">Save World</span> downloads a file you can open and inspect, programs included.</li>
+    </ul>
+
+    <h3 class="lc-sec">Quick troubleshooting</h3>
+    <ul>
+      <li><strong>Clicking a tower does nothing:</strong> that is deliberate. The whole city is one object. Read the shopfront, and use the buttons to change it.</li>
+      <li><strong>Pressing a button changes nothing:</strong> click the green ▶ floating above it, not the button itself.</li>
+      <li><strong>A message says nothing has set a value:</strong> someone removed a <code class="m">share</code> block, or deleted the thermostat. Reopen the world for a fresh copy.</li>
+      <li><strong>The tank will not follow the thermostat after the heater ran:</strong> the burner shared a newer temperature. Press the thermostat's green ▶ to take it back.</li>
+      <li><strong>The thermometer column stops at the top:</strong> its scale ends at 600 K. The tank and the speed reading still work above that.</li>
+      <li><strong>The tank runs slowly:</strong> speed is per step, so a slower computer shows the same model in slow motion. The numbers do not change.</li>
+    </ul>
+
+    <h3 class="lc-sec">Standards alignment</h3>
+    <p>A suggested match to the Next Generation Science Standards and the CSTA K–12 Computer Science Standards. Please check it against your own course requirements.</p>
+    <table class="lc-table">
+      <tr><th>Section</th><th>Topic</th><th>Standards</th><th>Focus</th></tr>
+      <tr><td>1, 2</td><td>Periodic trends</td><td>HS-PS1-1</td><td>The table as a model for predicting properties from outer electrons</td></tr>
+      <tr><td>3</td><td>Molecular shape</td><td>MS-PS1-1</td><td>Models of the atomic composition of simple molecules</td></tr>
+      <tr><td>4</td><td>Ionic lattices</td><td>MS-PS1-1, HS-PS1-3</td><td>Extended structures, and electrical forces between particles</td></tr>
+      <tr><td>5, 6</td><td>States of matter</td><td>MS-PS1-4</td><td>A model of particle motion, temperature and state</td></tr>
+      <tr><td>5, 6</td><td>Modelling in code</td><td>CSTA 2-AP-11, 2-AP-12</td><td>Named variables, and combining control structures</td></tr>
+    </table>
+  </div>
+
+</section>

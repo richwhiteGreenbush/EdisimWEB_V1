@@ -729,6 +729,26 @@ $WORLDS = [
             . "student lesson guide and a teacher lesson card are further down this page.",
     ],
 
+    'atomhall' => [
+        'title' => 'Atom Hall',
+        'creator' => 'Dmitri Mendeleev',
+        'tags'  => 'science, coding, building, official',
+        'description' =>
+            "The periodic table, built as a city you can walk through. Every element is a tower, its "
+            . "numbers on a shopfront at street level, and its height is a measurement: you arrive at "
+            . "helium, the smallest atom, and the city climbs away from you toward francium, the largest.\n\n"
+            . "Click the green arrow on one button and the whole skyline changes shape, sinking and rising "
+            . "until height means electronegativity and fluorine stands tallest. The two trends run in "
+            . "opposite directions, and that is something you can only really see from inside them.\n\n"
+            . "South of the city, walk around water, ammonia, methane, carbon dioxide, ethanol, benzene and "
+            . "caffeine, and into a salt crystal with one half packed at true ionic sizes and the other "
+            . "opened up so you can stand in the lattice.\n\n"
+            . "Then the coding, all in blocks: a tank of particles run by one temperature. Change the number "
+            . "on the thermostat and watch a crystal shake, melt, and fly apart, read the rule that turns "
+            . "temperature into speed, try another substance, and write your own heater. A printable student "
+            . "lesson guide and a teacher lesson card are further down this page.",
+    ],
+
     'smallchange' => [
         'title' => 'Small Change',
         'tags'  => 'finance, math, coding, building, official',

@@ -62,7 +62,9 @@ export class PlayIconManager {
 
   // Call whenever a record's program may have changed (saved, cleared, loaded).
   refresh(id, record, object3D) {
-    const hasProgram = recordHasProgram(record);
+    // `programQuiet` is an object that runs a program but carries no play button: 24 particles in
+    // one tank would otherwise be 24 green icons in front of the thing they are showing.
+    const hasProgram = recordHasProgram(record) && !record.programQuiet;
     const existing = this.icons.get(id);
 
     if (hasProgram && !existing) {
