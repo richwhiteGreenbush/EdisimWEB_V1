@@ -32,6 +32,10 @@ const OVERRIDES = {
   mars: { clouds: 0.1, cloudTint: 0xf0d2b8, sunsetTint: 0x6f9bd8, hills: 800, craters: true, zenithMix: 0.35, scatter: 'rocks', scatterTint: 0x7a4a36, scatterGain: 1.15 },
   solar: { space: true },
   station: { space: true },
+  // Space, with a Sun prop in it. No disc in the dome, or from the floor there are two Suns, since one
+  // is at infinity and the other is not. A haze of -0.3 zeroes the shader's (0.3 + haze) glow round the
+  // sun, which is air, and there is none here: it greyed out half the sky behind the moons.
+  standonearth: { space: true, sunDisc: false, haze: -0.3 },
   sea: { submerged: true },
   reef: { submerged: true },
   voyage: { enclosed: true },
@@ -106,11 +110,12 @@ function convert(name, c) {
   return {
     name,
     amplitude: c.amplitude, flatRadius: c.flatRadius, blendRadius: c.blendRadius, pockAmplitude: c.pockAmplitude ?? 0,
+    cap: c.cap,
     sunDir: [sp[0] / len, sp[1] / len, sp[2] / len],
     sky: {
-      zenith: toHex(zenith), horizon: c.sky, haze: closed || o.overcast ? 0.95 : 0.55,
+      zenith: toHex(zenith), horizon: c.sky, haze: o.haze ?? (closed || o.overcast ? 0.95 : 0.55),
       cloudCover: dark || closed ? 0 : (o.clouds ?? 0.34), cloudScale: 1, stars: dark ? 1 : 0,
-      cloudTint: o.cloudTint, sunsetTint: o.sunsetTint, sunDisc: !(closed || o.overcast),
+      cloudTint: o.cloudTint, sunsetTint: o.sunsetTint, sunDisc: o.sunDisc ?? !(closed || o.overcast),
     },
     dark, closed,
     sunColor: c.sunColor, sunIntensity: c.sunIntensity * 2.15,

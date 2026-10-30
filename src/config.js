@@ -1250,6 +1250,32 @@ export const WORLD_THEMES = {
     stars: false,
   },
 
+  standonearth: {
+    // Space, with the top of an Earth to stand on. The cap is what the player really walks on, and
+    // the ground past its foot is painted nearly black so it reads as more space, the way the
+    // station theme paints its terrain out. The moons, the printed Earth and the season globe all
+    // work out their own light (see EarthSkyProps.js), so the fill here is only for the boards and
+    // the machinery: it cannot wash out a phase. The sun's bearing and height match the Sun prop.
+    sky: 0x04060c,
+    fogNear: 900,
+    fogFar: 2000,
+    groundLow: 0x05060b,
+    groundHigh: 0x07090f,
+    // Fully rough, or a sun this low skims a sheen off the floor and it reads as a brown hillside.
+    groundRoughness: 1,
+    amplitude: 0,
+    flatRadius: 400,
+    blendRadius: 500,
+    cap: { radius: 110, height: 44 },
+    hemiSky: 0xcdd8ee,
+    hemiGround: 0x4a5266,
+    hemiIntensity: 1.6,
+    sunColor: 0xfff4e4,
+    sunIntensity: 1.5,
+    sunPosition: [0, 62, -250],
+    stars: true,
+  },
+
   atomhall: {
     // Late afternoon in an open-air hall of pale stone. The sun is low and behind the helium corner,
     // where a student arrives, so every tower they see is lit on the faces toward them and throws

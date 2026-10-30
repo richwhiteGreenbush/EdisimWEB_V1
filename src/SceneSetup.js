@@ -69,8 +69,24 @@ function pockNoise(x, z) {
 // renderer, a canvas and a rendered frame. Exporting a preset world to a .json for the
 // gallery needs the same numbers with none of that -- and re-deriving them in the tool
 // would be a copy of this function free to drift away from it.
+//
+// `cap` is a theme's optional spherical dome at the origin, { radius, height }: the top of a ball
+// of that radius, standing that high out of the ground. It is what lets Stand on the Earth be a
+// place a student really walks over a curve, because PlayerController walks on this mesh and on
+// nothing else. HiFi keeps its own copy of this function in engine/Height.js, so a change here
+// has to be made there too.
+function capHeightAt(cap, radius) {
+  if (!cap) return 0;
+  const below = cap.radius - cap.height;
+  const squared = cap.radius * cap.radius - radius * radius;
+  if (squared <= below * below) return 0;
+  return Math.sqrt(squared) - below;
+}
+
 export function terrainHeightAt(theme, worldX, worldZ) {
   const radius = Math.hypot(worldX, worldZ);
+  const capped = capHeightAt(theme.cap, radius);
+  if (capped > 0) return capped;
   const falloff = smoothstep(theme.flatRadius, theme.blendRadius, radius);
   if (falloff === 0) return 0;
   const base = (rawNoise(worldX, worldZ) / RAW_NOISE_PEAK) * theme.amplitude;

@@ -21,14 +21,14 @@ export const AH = {
   tank: '#e8892b',
 };
 
-const paint = (extra = {}) => standard({ vertexColors: true, roughness: 0.5, metalness: 0.04, ...extra });
-const solid = (parts, extra) => mesh(mergeParts(parts), paint(extra));
-const lathed = (profile, opts) => revolve([...profile].reverse(), opts);
+export const paint = (extra = {}) => standard({ vertexColors: true, roughness: 0.5, metalness: 0.04, ...extra });
+export const solid = (parts, extra) => mesh(mergeParts(parts), paint(extra));
+export const lathed = (profile, opts) => revolve([...profile].reverse(), opts);
 const UP = new THREE.Vector3(0, 1, 0);
 
 // Scenery a student looks at and never selects. Without a raycast a click falls through to
 // whatever is behind it, which is how a particle inside the glass can still be clicked.
-function scenery(object3D, { shadows = null } = {}) {
+export function scenery(object3D, { shadows = null } = {}) {
   object3D.traverse((node) => {
     if (!node.isMesh) return;
     node.raycast = () => {};
@@ -40,7 +40,7 @@ function scenery(object3D, { shadows = null } = {}) {
   return object3D;
 }
 
-function fitText(ctx, text, weight, size, family, room) {
+export function fitText(ctx, text, weight, size, family, room) {
   ctx.font = `${weight} ${size}px ${family}`;
   const width = ctx.measureText(text).width;
   if (width <= room) return size;
@@ -49,11 +49,11 @@ function fitText(ctx, text, weight, size, family, room) {
   return fitted;
 }
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
+export const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 
 // A closed round bar between two points. The rotation is baked in, since a merged part only
 // carries one Euler.
-function stick(parts, a, b, radius, color, sides = 14) {
+export function stick(parts, a, b, radius, color, sides = 14) {
   const from = new THREE.Vector3(...a);
   const to = new THREE.Vector3(...b);
   const span = to.clone().sub(from);
@@ -65,10 +65,10 @@ function stick(parts, a, b, radius, color, sides = 14) {
   parts.push({ geometry: g, color });
 }
 
-const block = (parts, w, h, d, color, at, rotation = null) => put(parts, new THREE.BoxGeometry(w, h, d), color, at, rotation);
+export const block = (parts, w, h, d, color, at, rotation = null) => put(parts, new THREE.BoxGeometry(w, h, d), color, at, rotation);
 
 // Words on a solid board, front +Z, with a real back from behind.
-function printedBoard(w, h, thick, draw, { pixelsPerFoot = 64, emissive = 0.3, frame = 0x2a2f38 } = {}) {
+export function printedBoard(w, h, thick, draw, { pixelsPerFoot = 64, emissive = 0.3, frame = 0x2a2f38 } = {}) {
   const parts = [];
   block(parts, w + 0.3, h + 0.3, thick, frame, [0, 0, 0]);
   const texture = canvasTexture(Math.round(w * pixelsPerFoot), Math.round(h * pixelsPerFoot), draw);
@@ -95,7 +95,7 @@ const HIDDEN = 2; // where a tower with no value stops, inside its plinth
 const WINDOW_U = TOWER_HALF * 2 / 3;
 const WINDOW_V = 3.4;
 
-class Buffers {
+export class Buffers {
   constructor() {
     this.position = [];
     this.normal = [];

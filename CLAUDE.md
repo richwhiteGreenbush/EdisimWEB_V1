@@ -3685,6 +3685,76 @@ Block types and their `op`/`fn` values are persisted, so they are only ever adde
 `programSteps()` turns blocks into the rows a board paints, so a `block-board` quotes the real
 program. `tools/lib/run-blocks.mjs` runs a program through the real runner with the clock taken out.
 
+### Stand on the Earth, and a dome you can really walk on
+
+`EarthSkyProps.js` + `EarthSkyModel.js` + `EarthSkyPrograms.js` + `standOnEarthLayout()`. A gallery
+world -- in `PRESET_WORLDS` (key `standonearth`), deliberately not in any menu, seeded with creator
+"Galileo Galilei", and in the HiFi gallery too. Moon phases and seasons, with the student as the Earth:
+the classroom ball-and-lamp activity, except that they are the one standing in the middle.
+
+**THE CODING IS BLOCKS ONLY**, as Atom Hall's is, and `tools/check-standonearth.mjs` fails otherwise.
+**Its lesson cards are one fragment**, `lib/lessons/stand-on-the-earth.html`, with the student guide and
+the teacher card printing separately. Every figure on them is checked against `EarthSkyModel.js`. HiFi's
+page links there through `lesson_page`.
+
+**THE ONE ENGINE CHANGE IS A THEME'S `cap: { radius, height }`**, a spherical dome at the origin.
+`PlayerController` walks on the terrain mesh and on nothing else, so walking over a curve means changing
+the terrain: `capHeightAt` in `SceneSetup.js`, and again in `HiFi/src/engine/Height.js`, because HiFi
+keeps its own copy of the height function. The check tool holds the two identical across the dome. A
+theme with no cap is unchanged. The globe is 110ft in radius and stands 44ft out of the ground, so from
+the pole the horizon is 33ft away and the student can walk as far as Kansas, 87ft out.
+
+**THE PRINTED EARTH IS A SHELL OVER THE TERRAIN, and its last stretch flares up.** Terrain quads are
+3.3ft, and where a triangle spans the dome's foot it cannot follow the curve and pokes through by up to a
+foot. **`CONTINENTS` is drawn onto a polar plan**, because the equirectangular map is at its worst exactly
+where a student stands on it, and type lying on the ground is unreadable past about 15ft from a 5ft eye,
+so the times are printed at 12.5.
+
+**THE LIGHT ON THE MOONS AND BOTH EARTHS IS WORKED OUT PER VERTEX, and that is the decision to keep.**
+An unlit material whose vertex colours are the dot product with one fixed direction. A lit sphere fails
+three ways in a lesson about phases: the Time of Day slider moves that sun, HiFi's environment lifts a
+dark limb, and the fill the boards need would wash out the dark side. So the boards can have as much
+hemisphere as they like. It is not painted either, which is what the Constellations world's two failed
+phases were: a phase here comes from the geometry at any angle, and the check tool MEASURES the lit share
+of each disc from the pole and which side it is on. The eight fixed moons are lit once at build, and the
+moving one repaints only when it has turned.
+
+**THE MOON'S ORBIT IS `move forward` AND `rotate`, and nothing points it at the Earth.** Turning once per
+trip round is what keeps one face inward, which is the lesson, and Activity 2 is taking that block out.
+
+**THE SEASON GLOBE IS NOT A BLOCK PROGRAM, because it cannot be.** `rotate` is the only way a program has
+of changing direction, so a program-driven Earth would swing its axis round with it, teaching exactly the
+misconception the exhibit exists to correct. It is a child of one prop reading the shared `yearDay`, and
+the check tool holds the axis to one direction in every month. The lamp sits at the orbit's true focus,
+off-centre by the real eccentricity: about seven inches on a 34ft orbit, which is the point.
+
+**A CHAIN AGAIN, IN RECORD ORDER.** Clock before Moon, dial before column. The clock waits a moment before
+reading `moonDay`, because that does not exist until the Moon, which reads the clock, has started. The
+column ships WITHOUT a guard on its arccosine, on purpose: past the polar circle it has no answer and
+Activity 4 is fixing that.
+
+Things it hit, most of which generalise:
+
+- **Near-black terrain under a low sun reads as a brown hillside**, since anything seen at a grazing angle
+  reflects, and in HiFi it would be lit sand. The floor is an unlit black ring over the terrain.
+- **A hard-edged shell round a sphere is a brown ring, not a glow.** The Sun's is a gradient on a sprite.
+- **A board on a dome throws a shadow 150ft at this sun height**, across the instruments at the far side.
+  The gauge and its column take no shadows, because a shadow across a reading reads as part of it.
+- **A polar ice cap to 80 degrees is everything a student at the pole can see.** It is 7.5ft now.
+- **A gibbous moon is lit on both sides of its middle**, so "lit on the right" has to mean more on the right.
+- **Two paths on one circle z-fight.** June and today are the same circle by default, so today is thicker.
+- **A plate's "right" is outward x up for someone looking outward.** Taken the other way the plate's back
+  faces the pole, and the name above every moon rendered as a black rectangle.
+
+**Performance, measured at the pole on the development Mac, in the app**: 38 records / **109 draw calls** /
+87k drawn / 81k of geometry / 99 meshes / **0 transparent meshes** / **0 point lights** / 325ms to load,
+25 KB world file. The lightest populated world in the app, and the moving Moon's repaint does not show in
+a 0.6ms warm render. Per prop: moon ring 24.8k triangles, shell 18.4k, season orrery 16.6k, sky bowl 6.8k,
+moving Moon 4k. **Not yet measured on an i5/i7 Chromebook.** In HiFi it needs two theme overrides, both
+in `themes.js`: no disc in the sky, or from the floor there are two Suns, and a `haze` of -0.3, which
+zeroes the shader's glow round the sun and stops space looking hazy. The black floor ring runs to 9000ft
+because `FAR_TERRAIN_RADIUS` does.
+
 ### Atom Hall, and a chart you walk through
 
 `AtomProps.js` + `AtomModel.js` + `AtomPrograms.js` + `atomHallLayout()`. Gallery world 46, and HiFi

@@ -29,7 +29,7 @@ const check = (ok, label, detail = '') => {
 };
 
 const dir = new URL('../EdusimWorldDatabase/seed/worlds/', import.meta.url);
-const NEW_WORLDS = new Set(['midway.json', 'smallchange.json', 'atomhall.json']);
+const NEW_WORLDS = new Set(['midway.json', 'smallchange.json', 'atomhall.json', 'standonearth.json']);
 const files = readdirSync(dir).filter((f) => f.endsWith('.json') && !NEW_WORLDS.has(f));
 
 let programs = 0;

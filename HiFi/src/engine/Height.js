@@ -32,9 +32,20 @@ function pockNoise(x, z) {
   return Math.sin(x * 0.32 + 0.4) * Math.cos(z * 0.29 - 1.1) * Math.cos(x * 0.11 + z * 0.13);
 }
 
+// A theme's optional dome at the origin. See capHeightAt in the main app's SceneSetup.js.
+function capHeightAt(cap, radius) {
+  if (!cap) return 0;
+  const below = cap.radius - cap.height;
+  const squared = cap.radius * cap.radius - radius * radius;
+  if (squared <= below * below) return 0;
+  return Math.sqrt(squared) - below;
+}
+
 // The main app's terrainHeightAt, unchanged.
 export function classicHeightAt(theme, x, z) {
   const radius = Math.hypot(x, z);
+  const capped = capHeightAt(theme.cap, radius);
+  if (capped > 0) return capped;
   const falloff = smoothstep(theme.flatRadius, theme.blendRadius, radius);
   if (falloff === 0) return 0;
   const base = (rawNoise(x, z) / RAW_NOISE_PEAK) * theme.amplitude;

@@ -320,6 +320,7 @@ function ewd_theme_labels(): array
         'sea'      => 'Under the Sea',
         'smallchange' => 'Small Change',
         'atomhall' => 'Atom Hall',
+        'standonearth' => 'Stand on the Earth',
     ];
 }
 
@@ -343,6 +344,7 @@ function ewd_theme_emoji(string $theme): string
         'sea'      => '🐠',
         'smallchange' => '🪙',
         'atomhall' => '⚛️',
+        'standonearth' => '🌓',
     ][$theme] ?? '🌍';
 }
 
