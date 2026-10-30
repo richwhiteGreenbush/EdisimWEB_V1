@@ -321,6 +321,7 @@ function ewd_theme_labels(): array
         'smallchange' => 'Small Change',
         'midway' => "Newton's Midway",
         'atomhall' => 'Atom Hall',
+        'standonearth' => 'Stand on the Earth',
     ];
 }
 
@@ -345,6 +346,7 @@ function ewd_theme_emoji(string $theme): string
         'smallchange' => '🪙',
         'midway' => '🎡',
         'atomhall' => '⚛️',
+        'standonearth' => '🌓',
     ][$theme] ?? '🌍';
 }
 

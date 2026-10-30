@@ -1,0 +1,236 @@
+<!-- The Stand on the Earth lesson cards, rendered inside world.php by readfile().
+
+     This fragment is the cards' ONE copy, as Atom Hall's and Newton's Midway's are. Every figure in
+     it is checked against src/props/EarthSkyModel.js by tools/check-standonearth.mjs, since nothing
+     else would notice static HTML drifting. Styles are .lc-* in assets/database.css. -->
+<section class="lesson-card" id="lesson-card" aria-labelledby="lc-h">
+  <header class="lc-head">
+    <span class="lc-kicker">Lesson Cards · Earth and space science</span>
+    <h2 id="lc-h">🌓 Stand on the Earth</h2>
+    <p>A student lesson guide and a teacher lesson card. Each one prints on its own, so a student's copy has no answer key.</p>
+    <div class="lc-actions no-print">
+      <a class="btn btn-ghost btn-sm" href="#lc-student">🎒 Student lesson guide</a>
+      <a class="btn btn-ghost btn-sm" href="#lc-teacher">🍎 Teacher lesson card</a>
+      <button type="button" class="btn btn-green btn-sm" data-lc-print="lc-student">🖨️ Print student guide</button>
+      <button type="button" class="btn btn-green btn-sm" data-lc-print="lc-teacher">🖨️ Print teacher card</button>
+    </div>
+  </header>
+
+  <div class="lc-shots no-print">
+    <figure class="lc-shot">
+      <img src="../guide/shots/standonearth_1.jpg" alt="The view from the North Pole of a globe: a blue and green Earth curving away, with a crescent Moon and a bright Sun against a black sky full of stars." loading="lazy" />
+      <figcaption>You arrive on the North Pole. Turn on the spot and every phase of the Moon is standing round you.</figcaption>
+    </figure>
+    <figure class="lc-shot">
+      <img src="../guide/shots/standonearth_2.jpg" alt="A tilted Earth with a red-tipped axis orbiting a glowing lamp on a dark floor marked with the months." loading="lazy" />
+      <figcaption>At the foot of the globe, the Earth orbits a lamp with its axis pointing the same way all year.</figcaption>
+    </figure>
+    <figure class="lc-shot">
+      <img src="../guide/shots/standonearth_3.jpg" alt="Three arcs across a starry sky over a dark circular floor marked with compass points, showing the path of the Sun in June, March and December." loading="lazy" />
+      <figcaption>The sky bowl draws the Sun's path over Girard, Kansas. Change the latitude and every path moves.</figcaption>
+    </figure>
+  </div>
+
+  <!-- ================================================================= -->
+  <div class="student-part" id="lc-student">
+    <h2 class="part-title">🎒 Student lesson guide</h2>
+    <p class="howto"><strong>Getting there:</strong> press <strong>Open this world in Edusim</strong> on this page. No account or download.
+      <span class="print-only">Type it in: <span class="mono">edusim3dweb.com/worlds/world.php?slug=stand-on-the-earth</span></span>
+      <span class="howto-warn">Opening a world replaces what is in your copy. Use <span class="key">☰ Menu</span> → <span class="key">Save World</span> first if you have something to keep.</span></p>
+    <p class="part-lead"><strong>How it works:</strong> walk with the arrow keys and drag to look around. To read or change a program, click an object and press <span class="key">Program</span>. Change a number in a green block and press <span class="key">Save</span>. A green ▶ runs a program again.</p>
+    <p class="part-lead"><strong>Where you are:</strong> you are standing on the Earth's North Pole, looking out at the Moon and the Sun. Sizes and distances here are not to scale, so that everything fits. Section 1 and the board on the floor tell you what the real ones are.</p>
+    <p class="part-lead">Name <span class="blank wide"></span> Date <span class="blank"></span></p>
+
+    <section class="st" style="--st: #8f7be0;">
+      <h3>1 · Half lit, always</h3>
+      <p class="find">Do not move yet. Look at the ground, then turn slowly all the way round.</p>
+      <ol>
+        <li><strong>Before you look:</strong> why do you think the Moon changes shape? <span class="blank wide"></span></li>
+        <li>How much of the Earth under your feet is lit? <span class="blank"></span> Where is the edge between day and night? <span class="blank wide"></span></li>
+        <li>Walk down off the globe and look back up at a thin crescent moon from beside it. Is it still only a thin crescent? <span class="blank"></span> How much of it is really lit? <span class="blank"></span></li>
+        <li>So what is changing during a month: how much of the Moon is lit, or how much of the lit part we can see? <span class="blank wide"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #8f7be0;">
+      <h3>2 · Name the phases</h3>
+      <p class="find">Stand on the pole. Start facing the Sun and turn to your LEFT. Each moon has its name above it, and stands over a time printed on the ground under it.</p>
+      <table class="lc-table">
+        <tr><th>Moon</th><th>Sketch what you see</th><th>Which side is lit?</th><th>Time printed under it</th></tr>
+        <tr><th>New moon</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Waxing crescent</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>First quarter</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Waxing gibbous</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Full moon</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Waning gibbous</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Last quarter</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Waning crescent</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>The time under a moon is when it stands highest in the sky. When is a full moon highest? <span class="blank"></span> So about when does it rise? <span class="blank"></span></li>
+        <li>You see a half moon high in the sky at sunset. Which one is it? <span class="blank"></span> How do you know?<span class="line"></span></li>
+        <li>Where is the Sun, compared with the Moon, at new moon? <span class="blank"></span> At full moon? <span class="blank"></span></li>
+        <li>A friend says the dark part of the Moon is the Earth's shadow. Use what you can see here to explain why that is wrong.<span class="line"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #6a5ad0;">
+      <h3>3 · Program the Moon</h3>
+      <p class="find">Find the MOON CLOCK by your feet. Click it → Program. Its green numbers run the Moon.</p>
+      <ol>
+        <li><strong>ACTIVITY 1:</strong> set <code class="m">dayStep</code> to 0.2 and press Save, then try 0.01. The clock names each phase as it arrives. Say the next one before it does. Which phase comes after full moon? <span class="blank"></span></li>
+        <li>How many days does the clock count from one new moon to the next? <span class="blank"></span> Which block says so? <span class="blank"></span></li>
+        <li>Look at the Moon's markings as it goes round. Do they ever turn away from you? <span class="blank"></span></li>
+        <li><strong>ACTIVITY 2:</strong> click the moving Moon → Program, and drag out its <code class="m">rotate</code> block. Press Save. <strong>Predict first.</strong> What did it do? <span class="blank wide"></span> Put the block back and press Save.</li>
+        <li>That one block turns the Moon as it goes. Why does it mean we only ever see one side?<span class="line"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #e0a02e;">
+      <h3>4 · What makes the seasons</h3>
+      <p class="find">Walk down the globe away from the Sun to the floor. Find the Earth going round the lamp, and the SEASON DIAL. <strong>Before you look:</strong> why is it hotter in summer? <span class="blank wide"></span></p>
+      <p class="find">Click the Season Dial → Program. Set <code class="m">yearDay</code> to each day below, press Save, and walk round the Earth.</p>
+      <table class="lc-table">
+        <tr><th>Day of the year</th><th>81 (March)</th><th>172 (June)</th><th>264 (September)</th><th>355 (December)</th></tr>
+        <tr><th>Does the red tip lean toward or away from the lamp, or sideways?</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>How much of the gold ring (Kansas) is lit?</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>Does the red tip ever change the direction it points? <span class="blank"></span> So what does change through the year? <span class="blank wide"></span></li>
+        <li>Read the placard. In which month is the Earth closest to the Sun? <span class="blank"></span> How far is it then, and at its farthest? <span class="blank wide"></span></li>
+        <li>Give two pieces of evidence from this world that being closer to the Sun does not cause summer.<span class="line"></span><span class="line"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #e0a02e;">
+      <h3>5 · The Sun over Kansas</h3>
+      <p class="find">Stand at the stick in the middle of the sky bowl and face S. Gold is June, pale blue March and September, deep blue December, white today. Use the gold column to read the numbers.</p>
+      <table class="lc-table">
+        <tr><th>At Girard, Kansas (latitude 37.5)</th><th>March (81)</th><th>June (172)</th><th>September (264)</th><th>December (355)</th></tr>
+        <tr><th>Noon Sun, degrees up</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>Hours of daylight</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>How does a high Sun heat the ground differently from a low one? Think of a flashlight on a table, straight down and at a slant.<span class="line"></span></li>
+        <li>Give two reasons June is warmer than December in Kansas. <span class="blank wide"></span></li>
+        <li><strong>ACTIVITY 3:</strong> set <code class="m">latitude</code> to your own town. My town: <span class="blank"></span> June noon Sun: <span class="blank"></span> December noon Sun: <span class="blank"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #c9701b;">
+      <h3>6 · Somewhere else, and a whole year</h3>
+      <p class="find"><strong>ACTIVITY 4:</strong> change <code class="m">latitude</code> on the Season Dial. A negative latitude is south of the equator. <strong>Predict before each Save.</strong></p>
+      <table class="lc-table">
+        <tr><th></th><th>Equator (0)</th><th>Sydney (−33.9)</th><th>Far north (70)</th></tr>
+        <tr><th>June: hours of daylight</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+        <tr><th>December: hours of daylight</th><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      </table>
+      <ol>
+        <li>When Kansas has summer, what does Sydney have? <span class="blank"></span> Why would that be impossible if distance caused the seasons?<span class="line"></span></li>
+        <li>At latitude 70 a message says the program has no answer. <code class="m">acos</code> only works on numbers from −1 to 1, so the Sun's path never crosses the horizon. Click the gold column → Program. Just before <code class="m">acos</code>, add two blocks: if <code class="m">x</code> &lt; −1, set <code class="m">x</code> to −1, and if <code class="m">x</code> &gt; 1, set <code class="m">x</code> to 1. What does the column read now in June? <span class="blank"></span> In December? <span class="blank"></span> What is it like to live there?<span class="line"></span></li>
+        <li><strong>ACTIVITY 5:</strong> the CALENDAR has no program. Click it and build what its board shows. Watch the Earth, the white path and the column together. In what order do the longest day and the highest Sun come? <span class="blank wide"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #444;">
+      <h3>Exit ticket</h3>
+      <ol>
+        <li>Look back at what you wrote in Sections 1 and 4 before you looked. What do you think now?<span class="line"></span><span class="line"></span></li>
+        <li>This model is not to scale. At the true scale on the floor, an Earth one foot in radius has its Moon how far away? <span class="blank"></span> Why would a model at that scale be hard to learn phases from?<span class="line"></span></li>
+      </ol>
+    </section>
+  </div>
+
+  <!-- ================================================================= -->
+  <div class="teacher-part" id="lc-teacher">
+    <h2 class="part-title">🍎 Teacher lesson card</h2>
+
+    <table class="lc-table">
+      <tr><th>For</th><td>Grades 5–8 Earth and space science, and computer science. No coding experience needed: students begin by turning on the spot and changing one number in a green block. One activity has them build a short program from empty, and the sine and arccosine in the column are there to read, not to be taught.</td></tr>
+      <tr><th>Time</th><td>One 45-minute period for either the Moon or the seasons, a 90-minute block for both, or two lessons a week apart.</td></tr>
+      <tr><th>You need</th><td>A browser on each computer. No account, install or student data. Printed copies of the student guide or a way to type answers.</td></tr>
+      <tr><th>Students will</th><td>Explain that half the Moon is always lit and that phases come from how much of the lit half we see. Name the phases in order and connect each to the time it is highest. Explain that seasons come from the Earth's fixed tilt and not from its distance from the Sun. Use a block model to predict the noon Sun and the hours of daylight at any latitude.</td></tr>
+    </table>
+
+    <div class="honest"><strong>Say this out loud.</strong> Nothing here is to scale, and it could not be: on a globe this size the true Moon would be over a mile away. The true-scale Earth and Moon on the floor show that. The Sun in the Moon lab does not move, so one trip round takes 29.5 days, the true time from new moon to new moon; the real Moon goes round in 27.3 days and needs about two more to catch up, because the Earth has moved on. The lit part of each moon is worked out from the Sun's direction and not painted, but this world does <em>not</em> model eclipses, the Moon's real tilted orbit, or the bending of light by the air, so real day lengths run a few minutes longer than the column says. It also does not model temperature: the two reasons for summer are for students to reason out. Part of MS-ESS1-1 is eclipses, so teach that part another way. Research supports 3D learning environments in general, but nobody has tested this particular world.</div>
+
+    <h3 class="lc-sec">Misconceptions this world is built to surface</h3>
+    <ul>
+      <li><strong>"The dark part of the Moon is the Earth's shadow."</strong> Walking round a crescent shows the far half lit, and at full moon the Earth is between the Sun and the Moon and there is no shadow on it.</li>
+      <li><strong>"Summer is when we are closer to the Sun."</strong> The Earth is closest in early January, and the two hemispheres have opposite seasons.</li>
+      <li><strong>"The Earth's axis wobbles through the year toward and away from the Sun."</strong> The red tip points the same way all year. What changes is where the Earth is.</li>
+      <li><strong>"The far side of the Moon is always dark."</strong> It gets as much sun as the near side. It is only always turned away from us.</li>
+    </ul>
+
+    <h3 class="lc-sec">45-minute plan</h3>
+    <table class="lc-table">
+      <tr><th>Min</th><th>You</th><th>Students</th></tr>
+      <tr><td>0–5</td><td>Ask the "before you look" question from Section 1 or 4, and have students write an answer. Do not correct anything yet.</td><td>Write, then open the world.</td></tr>
+      <tr><td>5–30</td><td>Circulate. For the Moon, Sections 1 to 3. For the seasons, Sections 4 and 5. Insist on a prediction before each Save.</td><td>Work through the guide in pairs.</td></tr>
+      <tr><td>30–40</td><td>Collect evidence on the board for and against the opening answers.</td><td>Share what they saw.</td></tr>
+      <tr><td>40–45</td><td>Exit ticket.</td><td>Write it.</td></tr>
+    </table>
+
+    <h3 class="lc-sec">90-minute plan</h3>
+    <table class="lc-table">
+      <tr><th>Min</th><th>You</th><th>Students</th></tr>
+      <tr><td>0–10</td><td>Both opening questions.</td><td>Write, then open the world.</td></tr>
+      <tr><td>10–40</td><td>Sections 1 to 3.</td><td>Sketch the phases; program the Moon.</td></tr>
+      <tr><td>40–70</td><td>Sections 4 and 5.</td><td>Walk round the Earth; stand in the bowl.</td></tr>
+      <tr><td>70–85</td><td>Section 6.</td><td>Other latitudes; fix the column; run a year.</td></tr>
+      <tr><td>85–90</td><td>Exit ticket.</td><td>Write it.</td></tr>
+    </table>
+
+    <h3 class="lc-sec">Discussion prompts</h3>
+    <ul>
+      <li>If you stood on the Moon during a full moon, what would the Earth look like?</li>
+      <li>Why don't we get an eclipse every month, if the Moon passes the Sun's side every new moon?</li>
+      <li>If the Earth had no tilt, what would a year be like in Kansas? At the North Pole?</li>
+      <li>The hottest weeks in Kansas come after the longest day. What might explain the delay?</li>
+    </ul>
+
+    <h3 class="lc-sec">Answer key</h3>
+    <details class="answers">
+      <summary>Show the answers</summary>
+      <table class="lc-table">
+        <tr><th>1 Half lit</th><td>Half the Earth is lit; the edge runs under the pole here. From beside it, a crescent moon is half lit: half of the Moon is lit at all times. Phases are about how much of the lit half can be seen from Earth, not how much is lit.</td></tr>
+        <tr><th>2 Phases</th><td>Time printed under each: new moon NOON, waxing crescent 3 PM, first quarter 6 PM, waxing gibbous 9 PM, full moon MIDNIGHT, waning gibbous 3 AM, last quarter 6 AM, waning crescent 9 AM. Waxing moons are lit on the right and waning moons on the left, seen from the north. A full moon is highest at midnight and rises around sunset. A half moon high at sunset is first quarter, because it stands over 6 PM. At new moon the Sun is on the same side of Earth as the Moon, and at full moon on the opposite side. The dark part is the Moon's own night; at full moon the Earth is between them yet the Moon is fully lit.</td></tr>
+        <tr><th>3 Program</th><td>After full moon comes waning gibbous. The clock counts 29.5 days, set by the <code class="m">orbitDays</code> block. The markings stay toward you. Without <code class="m">rotate</code> the Moon carries on in a straight line and leaves the world, since turning is what bends its path. The same block turns the Moon once per trip round, so the same face stays toward the middle.</td></tr>
+        <tr><th>4 Seasons</th><td>June: the tip leans toward the lamp, and most of the ring is lit. December: the tip leans away, and less of the ring is lit. March and September: the tip points sideways, and about half is lit. The tip never changes direction; what changes is where the Earth is in its orbit. The Earth is closest in early January, at 91.4 million miles, and farthest in early July, at 94.5 million miles. Evidence: it is closest in northern winter, and the hemispheres have opposite seasons at the same distance.</td></tr>
+        <tr><th>5 Kansas</th><td>The column says: March 53 degrees and 12 hours, June 76 degrees and 14.6 hours, September 52 degrees and 12 hours, December 29 degrees and 9.4 hours. A high Sun puts the same light on a smaller patch of ground. June is warmer because the Sun is higher and the day is longer.</td></tr>
+        <tr><th>6 Elsewhere</th><td>Equator: 12 hours in both months. Sydney: 9.7 hours in June and 14.3 in December, so opposite to Kansas at the same distance from the Sun. Latitude 70, once guarded: 24 hours in June and 0 in December, the midnight sun and polar night. The longest day and the highest Sun arrive together.</td></tr>
+        <tr><th>Exit ticket</th><td>At the true scale, 60 feet. A Moon that small and that far away is hard to see at all.</td></tr>
+      </table>
+    </details>
+
+    <h3 class="lc-sec">Adjusting it</h3>
+    <ul>
+      <li><strong>Upper elementary:</strong> keep Sections 1, 2 and 4, and leave the Program panel for a demonstration.</li>
+      <li><strong>Earth science:</strong> add the Moon's 5° orbital tilt to explain why eclipses are rare, using the discussion prompt and a lamp and ball.</li>
+      <li><strong>Math:</strong> read the column's sine as a model of a yearly cycle, and graph the noon Sun across the Calendar's year.</li>
+      <li><strong>Computer science:</strong> trace how <code class="m">yearDay</code> travels from the dial through the column to the Earth, and discuss why a value with no answer needs guarding.</li>
+      <li><strong>Handing work in:</strong> <span class="key">☰ Menu</span> → <span class="key">Save World</span> downloads a file you can open and inspect, programs included.</li>
+    </ul>
+
+    <h3 class="lc-sec">Quick troubleshooting</h3>
+    <ul>
+      <li><strong>Clicking the Earth, the lamp or a fixed moon does nothing:</strong> that is deliberate. The moving Moon, the Moon Clock, the Season Dial, the gold column and the Calendar are the ones with programs.</li>
+      <li><strong>The Moon has flown away:</strong> a student removed its <code class="m">rotate</code> block. Put it back and press Save, or reopen the world.</li>
+      <li><strong>A message says a value has no answer:</strong> that is Section 6, at a latitude past about 66.5.</li>
+      <li><strong>The season Earth does not follow the dial after the Calendar ran:</strong> the Calendar shared a newer day. Press the dial's green ▶ to take it back.</li>
+      <li><strong>The world goes dark or bright with the Time of Day slider:</strong> the moons and globes do not change, on purpose. Their light comes from the Sun in the lesson, not from the slider.</li>
+      <li><strong>Things look slow:</strong> a slower computer shows the same model in slow motion. The numbers do not change.</li>
+    </ul>
+
+    <h3 class="lc-sec">Standards alignment</h3>
+    <p>A suggested match to the Next Generation Science Standards and the CSTA K–12 Computer Science Standards. Please check it against your own course requirements.</p>
+    <table class="lc-table">
+      <tr><th>Section</th><th>Topic</th><th>Standards</th><th>Focus</th></tr>
+      <tr><td>1, 2, 3</td><td>Moon phases</td><td>MS-ESS1-1</td><td>A model of the Earth-Sun-Moon system and the cycle of lunar phases (eclipses are not modelled)</td></tr>
+      <tr><td>4, 5, 6</td><td>Seasons</td><td>MS-ESS1-1</td><td>Seasons from the tilt of the Earth's axis and its orbit</td></tr>
+      <tr><td>5, 6</td><td>Daily and yearly patterns</td><td>5-ESS1-2</td><td>Patterns in the length of day and the Sun's position</td></tr>
+      <tr><td>3, 5, 6</td><td>Modelling in code</td><td>CSTA 2-AP-11, 2-AP-12</td><td>Named variables, and combining control structures</td></tr>
+    </table>
+  </div>
+
+</section>

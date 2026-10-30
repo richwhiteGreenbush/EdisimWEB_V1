@@ -8,7 +8,7 @@ import { canvasTexture, seededRandom, randomIn } from '../PropKit.js';
 // Coarse continent outlines as [longitude, latitude] rings. Deliberately low-detail --
 // at globe scale (and at 22ft across in the lunar sky) this reads as Earth, and the
 // whole map stays a few hundred numbers instead of a shipped image file.
-const CONTINENTS = [
+export const CONTINENTS = [
   // North America
   [[-168, 66], [-160, 71], [-140, 70], [-125, 70], [-110, 68], [-95, 73], [-85, 70], [-75, 68],
    [-60, 60], [-55, 52], [-65, 45], [-70, 42], [-75, 35], [-81, 25], [-97, 25], [-105, 20],

@@ -1,6 +1,7 @@
 import { blockBoard } from './BlockBoard.js';
 import * as Midway from './MidwayProps.js';
 import * as Atom from './AtomProps.js';
+import * as EarthSky from './EarthSkyProps.js';
 import * as Common from './CommonProps.js';
 import * as Museum from './MuseumProps.js';
 import * as Library from './LibraryProps.js';
@@ -605,6 +606,22 @@ export const PROP_BUILDERS = {
   'beacon-lamp': JsBasics.beaconLamp,
   'code-board': JsBasics.codeBoard,
   'block-board': blockBoard,
+
+  // Stand on the Earth.
+  'se-earth-shell': EarthSky.earthShell,
+  'se-floor-marks': EarthSky.floorMarks,
+  'se-lab-sun': EarthSky.labSun,
+  'se-moon-ring': EarthSky.moonRing,
+  'se-moon': EarthSky.orbitingMoon,
+  'se-moon-clock': EarthSky.moonClock,
+  'se-season-orrery': EarthSky.seasonOrrery,
+  'se-sky-bowl': EarthSky.skyBowl,
+  'se-season-dial': EarthSky.seasonDial,
+  'se-calendar-post': EarthSky.calendarPost,
+  'se-daylight-column': EarthSky.daylightColumn,
+  'se-daylight-gauge': EarthSky.daylightGauge,
+  'se-true-scale-earth': EarthSky.trueScaleEarth,
+  'se-true-scale-moon': EarthSky.trueScaleMoon,
 
   // Atom Hall.
   'ah-skyline': Atom.skyline,

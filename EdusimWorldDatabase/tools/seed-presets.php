@@ -729,6 +729,24 @@ $WORLDS = [
             . "student lesson guide and a teacher lesson card are further down this page.",
     ],
 
+    'standonearth' => [
+        'title' => 'Stand on the Earth',
+        'creator' => 'Galileo Galilei',
+        'tags'  => 'space, science, coding, official',
+        'description' =>
+            "You are standing on the North Pole of a globe, and you can walk on it: the ground curves away "
+            . "at your feet, half lit and half in night, with the time printed on it for every part of the world. "
+            . "Eight moons stand round you and turning on the spot shows you every phase of the Moon at once, "
+            . "lit by the Sun and not painted on, while a ninth goes round them.\n\n"
+            . "Down at the foot of the globe a tilted Earth orbits a lamp with its axis pointing the same way "
+            . "all year, which is what makes the seasons, and a sky bowl draws the Sun's path over Girard, "
+            . "Kansas for June, March and December. An Earth and Moon laid out to true scale show how far apart "
+            . "they really are.\n\n"
+            . "The coding is all in blocks: speed up the month, stop the Moon turning and see what happens, "
+            . "work out the noon Sun and the hours of daylight for your own town, and write a calendar that runs "
+            . "the whole year. A printable student lesson guide and a teacher lesson card are further down this page.",
+    ],
+
     'atomhall' => [
         'title' => 'Atom Hall',
         'creator' => 'Dmitri Mendeleev',

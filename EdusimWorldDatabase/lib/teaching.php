@@ -124,6 +124,12 @@ function ewd_teaching_table(): array
             'standards' => 'NGSS HS-PS2-1, HS-PS2-2, HS-PS3-1, HS-PS3-2 · CSTA 3A-AP-13, 3A-AP-15, 3A-AP-17',
             'lesson' => null, 'card' => null, 'lesson_card' => 'newtons-midway',
         ],
+        'stand-on-the-earth' => [
+            'band' => 'Grades 5–8',
+            'objective' => "Use a walk-around model of the Earth, Moon and Sun to explain the cycle of Moon phases and why the seasons come from the tilt of the Earth's axis rather than its distance from the Sun, and use a block model to predict the noon Sun and hours of daylight at any latitude.",
+            'standards' => 'NGSS MS-ESS1-1, 5-ESS1-2 · CSTA 2-AP-11, 2-AP-12',
+            'lesson' => null, 'card' => null, 'lesson_card' => 'stand-on-the-earth',
+        ],
         'atom-hall' => [
             'band' => 'Grades 8–10',
             'objective' => 'Read periodic trends in atomic radius and electronegativity from a walkable skyline, relate lone pairs to bond angles, describe an ionic lattice, and use a block model to connect temperature, particle speed and state.',

@@ -35,6 +35,15 @@ import {
   BOARD_STEPS as ATOM_BOARDS,
 } from './props/AtomPrograms.js';
 import { AH, THERMOMETER_COLUMN_X } from './props/AtomProps.js';
+import {
+  GLOBE, SUN_BEARING, MOON, START_DAY, moonBearing, ORBIT_DAYS, SIDEREAL_DAYS, GAUGE as DAY_GAUGE,
+  PERIHELION_MILES, APHELION_MILES, TILT, MILES, trueScale, GIRARD_LATITUDE, declination, noonHeight, dayLength,
+  SOLSTICE_DAYS,
+} from './props/EarthSkyModel.js';
+import {
+  moonClockProgram, moonProgram, seasonDialProgram, daylightProgram, BOARD_STEPS as SKY_BOARDS,
+} from './props/EarthSkyPrograms.js';
+import { SE, labSunPosition, DAYLIGHT_COLUMN_X } from './props/EarthSkyProps.js';
 
 import { uuid } from './Uuid.js';
 // The ready-made worlds behind Menu > Load World.
@@ -11281,6 +11290,187 @@ function smallChangeLayout() {
 // The middle of the avenue stays empty, A Bug's Life's rule: a fresh construction piece lands 10ft
 // ahead of the student. Each ride is seen side on from there, which is the view its physics reads
 // from, and the stations get deeper as they get harder.
+function standOnEarthLayout() {
+  const items = [];
+  // THE SPAWN IS THE NORTH POLE, and the student is the Earth. They arrive facing a little left of
+  // the Sun, with a new moon and a crescent ahead: turn left to walk the phases in their real order.
+  const POLE = { x: 0, z: 0 };
+  const SP = { x: 0, z: 0, yaw: SUN_BEARING + Math.PI + 0.45 };
+  // A point `feet` from the pole, `degrees` to the student's left of where they arrive looking.
+  const ahead = (degrees, feet) => {
+    const a = SP.yaw + degrees * (Math.PI / 180);
+    return { x: SP.x - Math.sin(a) * feet, z: SP.z - Math.cos(a) * feet };
+  };
+  const placard = (x, z, tx, tz, eyebrow, title, body, accent) => {
+    items.push(prop('info-placard', x, z, { rotY: facing(x, z, tx, tz), options: { eyebrow, title, body, accent, width: 3.4, height: 4.2 } }));
+  };
+  const sign = (x, z, tx, tz, line, subtitle, accent) => {
+    items.push(prop('standing-sign', x, z, {
+      rotY: facing(x, z, tx, tz),
+      options: { lines: [line], subtitle, width: 13, height: 3.2, postHeight: 9.5, face: '#18202b', accent },
+    }));
+  };
+  const blocks = (x, z, tx, tz, number, title, steps, caption, accent) => {
+    items.push(prop('block-board', x, z, { rotY: facing(x, z, tx, tz), options: { number, title, steps, caption, accent } }));
+  };
+
+  items.push(prop('se-earth-shell', 0, 0, { y: 0, absoluteY: true }));
+  items.push(prop('se-floor-marks', 0, 0, { y: 0, absoluteY: true }));
+  items.push(prop('se-moon-ring', 0, 0, { y: 0, absoluteY: true }));
+  {
+    const sun = labSunPosition();
+    items.push(prop('se-lab-sun', sun.x, sun.z, { y: sun.y, absoluteY: true }));
+  }
+
+  // --- at the pole -------------------------------------------------------------
+  {
+    const at = ahead(38, 38);
+    items.push(prop('welcome-board', at.x, at.z, {
+      rotY: facing(at.x, at.z, POLE.x, POLE.z),
+      options: {
+        eyebrow: 'STAND ON THE EARTH',
+        lead: 'You are on the North Pole. The Sun is ahead of you.',
+        lines: ['Turn slowly to your left, all the way round.', 'Eight moons. One Sun. Half of each is always lit.'],
+        footnote: 'Not to scale: the true distances are on a board down on the floor.',
+      },
+    }));
+  }
+  {
+    const at = ahead(-44, 24);
+    items.push(...browserStation(at.x, at.z, {
+      faceX: POLE.x, faceZ: POLE.z, y: 0, url: 'https://edusim3dweb.com/worlds/world.php?slug=stand-on-the-earth#lesson-card',
+    }));
+  }
+  // The clock owns the Moon's numbers, so it has to come before the Moon, which reads them.
+  {
+    const at = ahead(-4, 10);
+    items.push(prop('se-moon-clock', at.x, at.z, { rotY: facing(at.x, at.z, POLE.x, POLE.z), program: moonClockProgram() }));
+  }
+  {
+    const b = moonBearing(START_DAY);
+    const x = Math.sin(b) * MOON.orbit;
+    const z = Math.cos(b) * MOON.orbit;
+    // A prop's forward is its +Z, so a quarter turn past the bearing lays that along the orbit.
+    items.push(prop('se-moon', x, z, {
+      y: MOON.y, absoluteY: true, rotY: b + Math.PI / 2, program: moonProgram(), homeFromRecord: true,
+    }));
+  }
+
+  // Behind the student as they arrive, on the far side of the pole.
+  blocks(...Object.values(ahead(170, 24)), POLE.x, POLE.z, 1, 'How the Moon goes round', SKY_BOARDS.moon(),
+    'Click the moving Moon, or the Moon Clock, and press Program.', SE.moon);
+  {
+    const a = ahead(135, 25);
+    items.push(activity(a.x, a.z, {
+      number: 1,
+      rotY: facing(a.x, a.z, POLE.x, POLE.z),
+      title: 'Hurry up the month',
+      target: 'Click the Moon Clock, press Program:',
+      steps: [mathStep('set dayStep to 0.2'), lookStep('Press Save. Watch the Moon.')],
+      tip: 'Then try 0.01. Which phase comes after first quarter? Say it before the clock does.',
+      accent: SE.moon,
+    }));
+    const b = ahead(-155, 25);
+    items.push(activity(b.x, b.z, {
+      number: 2,
+      rotY: facing(b.x, b.z, POLE.x, POLE.z),
+      title: 'Stop the Moon turning',
+      target: 'Click the moving Moon, press Program:',
+      steps: [moveStep('rotate turn degrees'), ctrlStep('Drag this block out. Press Save.')],
+      tip: 'Where does it go? What is the turning doing for the Moon? Put it back and press Save.',
+      accent: SE.moon,
+    }));
+  }
+  placard(...Object.values(ahead(80, 16)), POLE.x, POLE.z, 'LOOK AT YOUR FEET', 'Half the Earth is lit',
+    'Half the world has day and half has night, and the line between them runs under you here. The Moon is the same: half lit, always, whichever way you are looking at it.', SE.moon);
+  placard(...Object.values(ahead(112, 16)), POLE.x, POLE.z, 'WHAT TIME IS IT THERE?', 'Read the ground',
+    'Each moon stands over a time printed on the Earth. A first quarter moon is over 6 PM: it is highest at sunset. A full moon is over midnight, so it rises as the Sun sets.', SE.moon);
+  placard(...Object.values(ahead(-100, 16)), POLE.x, POLE.z, 'NOT THE SHADOW', 'What phases are not',
+    'The dark part of the Moon is not the Earth’s shadow. It is the Moon’s own night. The Earth’s shadow only reaches the Moon in an eclipse, and the Moon’s tilted orbit usually carries it past.', SE.moon);
+  placard(...Object.values(ahead(-125, 16)), POLE.x, POLE.z, 'ONE FACE', 'Why we see one side',
+    `It turns once each time it goes round, so the same face stays toward us. The far side gets just as much sun. Here one trip is ${ORBIT_DAYS} days new moon to new moon. The real Moon goes round in ${SIDEREAL_DAYS}: the extra two days are the Earth moving on round the Sun.`, SE.moon);
+
+  // --- down at the foot of the globe: the seasons, on the far side from the Sun --
+  const FOOT = { x: 0, z: 104 };
+  sign(0, 96, 0, 60, 'THE SEASONS', 'Tilt, not distance. Keep walking.', SE.season);
+
+  // Sharing before reading: a program's start order is record order, so the dial comes first, then the
+  // column that reads it, and the props read the column through their ticks.
+  const DIAL_AT = { x: 0, z: 148 };
+  items.push(prop('se-season-dial', DIAL_AT.x - 8, DIAL_AT.z - 8, {
+    rotY: facing(DIAL_AT.x - 8, DIAL_AT.z - 8, FOOT.x, FOOT.z), program: seasonDialProgram(),
+  }));
+  items.push(prop('se-daylight-gauge', DIAL_AT.x + 3, DIAL_AT.z, { rotY: facing(DIAL_AT.x + 3, DIAL_AT.z, FOOT.x, FOOT.z) }));
+  {
+    const yaw = facing(DIAL_AT.x + 3, DIAL_AT.z, FOOT.x, FOOT.z);
+    const c = {
+      x: DIAL_AT.x + 3 + Math.cos(yaw) * DAYLIGHT_COLUMN_X + Math.sin(yaw) * 0.55,
+      z: DIAL_AT.z - Math.sin(yaw) * DAYLIGHT_COLUMN_X + Math.cos(yaw) * 0.55,
+    };
+    items.push(prop('se-daylight-column', c.x, c.z, {
+      y: -DAY_GAUGE.hours * DAY_GAUGE.feetPerHour, absoluteY: true, rotY: yaw, program: daylightProgram(), homeFromRecord: true,
+    }));
+  }
+  blocks(13, 148, 0, 104, 3, 'The dial owns the day and the place', SKY_BOARDS.dial(),
+    'Click the Season Dial, press Program, change a green number.', SE.season);
+  blocks(-22, 151, 0, 104, 4, 'Working out the noon Sun', SKY_BOARDS.sky(),
+    'This is in the gold column. Click it to open the whole program.', SE.season);
+
+  // The orbit, east of the dial, and the bowl, west.
+  const ORBIT_AT = { x: 62, z: 131 };
+  items.push(prop('se-season-orrery', ORBIT_AT.x, ORBIT_AT.z));
+  const BOWL_AT = { x: -62, z: 131 };
+  items.push(prop('se-sky-bowl', BOWL_AT.x, BOWL_AT.z));
+
+  const june = declination(SOLSTICE_DAYS.june);
+  const december = declination(SOLSTICE_DAYS.december);
+  placard(ORBIT_AT.x - 40, ORBIT_AT.z - 34, ORBIT_AT.x - 10, ORBIT_AT.z, 'THE COMMON WRONG ANSWER', 'Not how close we are',
+    `The Earth is closest to the Sun in early January: ${PERIHELION_MILES} million miles, against ${APHELION_MILES} in early July. If distance made the seasons, the whole world would have its summer together. Australia has summer when Kansas has winter.`, SE.season);
+  placard(ORBIT_AT.x - 2, ORBIT_AT.z - 46, ORBIT_AT.x, ORBIT_AT.z, 'WATCH THE RED TIP', 'The axis never swings',
+    `The Earth leans ${TILT} degrees and keeps leaning the same way all year. In June that tips the north toward the Sun; in December the same lean tips it away. The gold ring is the latitude of Kansas: see how much of it is lit.`, SE.season);
+  placard(BOWL_AT.x + 2, BOWL_AT.z - 34, BOWL_AT.x, BOWL_AT.z, 'THE SAME THING FROM THE GROUND', 'High Sun, long day',
+    `At Girard, Kansas the noon Sun stands ${Math.round(noonHeight(GIRARD_LATITUDE, june))} degrees up in June and ${Math.round(noonHeight(GIRARD_LATITUDE, december))} in December, with ${dayLength(GIRARD_LATITUDE, june).toFixed(1)} hours of daylight against ${dayLength(GIRARD_LATITUDE, december).toFixed(1)}. Stand at the stick and face south. Gold is June, pale blue March and September, blue December, white today.`, SE.season);
+
+  // The challenges, in the order a student walks past them.
+  const challenge = (number, x, z, tx, tz, title, target, steps, tip) => {
+    items.push(activity(x, z, { number, rotY: facing(x, z, tx, tz), title, target, steps, tip, accent: SE.season }));
+  };
+  challenge(3, -18, 112, 0, 140, 'June and December',
+    'Click the Season Dial, press Program:',
+    [mathStep('set yearDay to 172'), mathStep('then 355'), mathStep('then 81')],
+    'Read the gold column each time. Then set latitude to your own town.');
+  challenge(4, 18, 112, 0, 140, 'Go somewhere else',
+    'Change latitude on the Season Dial:',
+    [mathStep('set latitude to 0'), mathStep('then -33.9'), mathStep('then 70')],
+    'At 70 the column has no answer: acos only takes -1 to 1. Open it, and just before acos add: if x < -1, set x to -1. If x > 1, set x to 1.');
+  items.push(prop('se-calendar-post', 0, 176, { rotY: facing(0, 176, 0, 148) }));
+  challenge(5, 16, 174, 0, 150, 'Run the whole year',
+    'The Calendar has no program. Click it and build:',
+    [
+      ctrlStep('repeat 365 times'),
+      mathStep('change yearDay by 1', 1),
+      mathStep('share yearDay', 1),
+      ctrlStep('wait 0.05 seconds', 1),
+    ],
+    'Watch the Earth, the white path and the column. The Season Dial’s green arrow takes the day back.');
+
+  // --- true scale, on the sunward side of the floor ------------------------------
+  {
+    const k = trueScale(1);
+    const y = -150;
+    const half = k.moonDistance / 2;
+    items.push(prop('se-true-scale-earth', -half, y, { options: { radius: 1 } }));
+    items.push(prop('se-true-scale-moon', half, y, { options: { radius: k.moonRadius } }));
+    sign(0, y + 16, 0, 0, 'THE REAL DISTANCES', 'This Earth and Moon are to scale', SE.scale);
+    placard(-half + 4, y + 7, 0, 0, 'THE TRUE SCALE', 'An Earth one foot in radius',
+      `Then the Moon is ${(k.moonRadius * 12).toFixed(1)} inches in radius and ${Math.round(k.moonDistance)} feet away, which is this gap. Almost every picture of the two gets that wrong, and so does the lab on the pole, to fit the world.`, SE.scale);
+    placard(half - 4, y + 7, 0, 0, 'AND THE SUN?', `${Math.round(k.sunRadius)} feet in radius`,
+      `At this scale the Sun is ${(k.sunDistance / 5280).toFixed(1)} miles away. Real sizes: Earth ${MILES.earthRadius.toLocaleString('en-US')} miles in radius, Moon ${MILES.moonRadius.toLocaleString('en-US')}, ${MILES.moonDistance.toLocaleString('en-US')} miles apart. The globe you stand on is ${GLOBE.radius} feet in radius.`, SE.scale);
+  }
+
+  return { theme: 'standonearth', spawn: SP, items };
+}
+
 function atomHallLayout() {
   const items = [];
   // THE SPAWN IS AT THE HELIUM CORNER, LOOKING TOWARD FRANCIUM, because atomic radius grows down and
@@ -11767,6 +11957,11 @@ function midwayLayout() {
 }
 
 export const PRESET_WORLDS = {
+  standonearth: {
+    label: 'Stand on the Earth',
+    hint: 'Stand on the North Pole of a globe with the phases of the Moon all round you, then watch a tilted Earth make the seasons, all in block code',
+    build: standOnEarthLayout,
+  },
   atomhall: {
     label: 'Atom Hall',
     hint: 'The periodic table as a skyline you walk through, walk-around molecules, a salt crystal, and a tank of particles run by a temperature in block code',
