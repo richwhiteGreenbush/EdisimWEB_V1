@@ -3687,7 +3687,7 @@ program. `tools/lib/run-blocks.mjs` runs a program through the real runner with 
 
 ### Newton's Midway, and a world whose rides are physics models in blocks
 
-`MidwayProps.js` + `MidwayModel.js` + `MidwayPrograms.js` + `midwayLayout()`. A gallery world, in
+`MidwayProps.js` + `MidwayModel.js` + `MidwayPrograms.js` + `midwayLayout()`. Gallery world 45, in
 `PRESET_WORLDS` (key `midway`), seeded with creator "Isaac Newton". High school mechanics on a
 fairground, blocks only: **no record carries JavaScript, and neither lesson card mentions it**, per
 Rich. Six stations: Drop Tower, Big Cannon, Test Track, Coaster Hill, Bumper Cars, Swing Rides.
