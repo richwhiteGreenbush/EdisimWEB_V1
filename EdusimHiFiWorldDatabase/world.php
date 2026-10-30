@@ -231,6 +231,9 @@ ewd_header([
                 <dd><?= e($teach['standards']) ?></dd>
               </dl>
               <p class="teach-links">
+                <?php if (!empty($teach['lesson_page'])): ?>
+                  <a class="btn btn-green btn-sm" href="<?= e($teach['lesson_page']) ?>">Student guide &amp; teacher lesson card</a>
+                <?php endif; ?>
                 <?php if ($teach['lesson'] !== null): ?>
                   <a class="btn btn-green btn-sm" href="<?= e(EWD_GUIDE_URL_DIR . $teach['lesson']) ?>" target="_blank" rel="noopener noreferrer">📄 The lesson plan</a>
                 <?php endif; ?>

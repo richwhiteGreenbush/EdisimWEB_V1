@@ -289,6 +289,26 @@ function ewd_teaching_table(): array
             'standards' => 'ISTE 1.5 Computational Thinker · CSTA 1B-AP-10, 1B-AP-12',
             'lesson' => null, 'card' => 'coding.html',
         ],
+        // The lesson cards for these three live on the main gallery's page, in one copy: `lesson_page`
+        // links there rather than keeping a second set of static figures here to drift.
+        'small-change' => [
+            'band' => 'Grades 9–12',
+            'objective' => 'Calculate take-home pay, build a budget, and use working financial models to explain compounding, the cost of credit, insurance and diversification.',
+            'standards' => 'National Standards for Personal Financial Education (2021) grade 12: Earning Income 12-7c · Spending 12-1b · Saving 12-4b · Investing 12-6b · Managing Credit 12-1b · Managing Risk 12-1a',
+            'lesson' => null, 'card' => null, 'lesson_page' => '../worlds/world.php?slug=small-change#lesson-card',
+        ],
+        'newton-s-midway' => [
+            'band' => 'Grades 9–12',
+            'objective' => 'Use working block models to predict and measure free fall, projectile motion, F = ma, conservation of energy and momentum, and periodic motion, and explain why a stepped model differs slightly from the formula.',
+            'standards' => 'NGSS HS-PS2-1, HS-PS2-2, HS-PS3-1, HS-PS3-2 · CSTA 3A-AP-13, 3A-AP-15, 3A-AP-17',
+            'lesson' => null, 'card' => null, 'lesson_page' => '../worlds/world.php?slug=newton-s-midway#lesson-card',
+        ],
+        'atom-hall' => [
+            'band' => 'Grades 8–10',
+            'objective' => 'Read periodic trends in atomic radius and electronegativity from a walkable skyline, relate lone pairs to bond angles, describe an ionic lattice, and use a block model to connect temperature, particle speed and state.',
+            'standards' => 'NGSS HS-PS1-1, HS-PS1-3, MS-PS1-1, MS-PS1-4 · CSTA 2-AP-11, 2-AP-12',
+            'lesson' => null, 'card' => null, 'lesson_page' => '../worlds/world.php?slug=atom-hall#lesson-card',
+        ],
         'seattle-center' => [
             'band' => 'Grades 3–8',
             'objective' => 'Describe what a world’s fair leaves behind, and write three programs for three exhibits — a loop, nested loops, and a sequence.',
