@@ -2,6 +2,7 @@ import { BLOCK_DEFS, DUPLICATE_BLOCK } from './BlockDefs.js';
 
 import { uuid } from './Uuid.js';
 import { restTransform } from './RootMotion.js';
+import { markProgramCopy } from './BuildStats.js';
 // Backs the "duplicate" program block: makes a second, independent copy of a placed
 // object, wherever that object currently is.
 //
@@ -108,6 +109,7 @@ export function duplicatePlacedObject({ id, offset = 4, registry, worldStore, me
   };
 
   const copy = cloneRecord(item.record, transform);
+  markProgramCopy(copy);
 
   worldStore
     .rehydrateOne(copy)

@@ -89,9 +89,15 @@
     }
   }
 
-  function send(kind, path) {
+  // `detail` is the app's build detail (src/BuildStats.js). It goes without a referrer, so
+  // nothing joins where a visitor came from to what got built.
+  function send(kind, path, detail) {
     if (optedOut()) return;
-    var body = JSON.stringify({
+    var body = JSON.stringify(detail ? {
+      kind: kind,
+      path: (path || location.pathname).slice(0, 120),
+      detail: detail
+    } : {
       kind: kind,
       path: (path || location.pathname).slice(0, 120),
       ref: referrerHost()

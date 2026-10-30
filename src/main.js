@@ -32,6 +32,7 @@ import { PhotoMode } from './PhotoMode.js';
 import { SettingsPanel } from './SettingsPanel.js';
 import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD } from './config.js';
 import { takeLinkedWorldId, fetchLinkedWorld } from './WorldLink.js';
+import { enableBuildStats, setStatsWorld } from './BuildStats.js';
 
 // `?studio` opens the Social Media Studio (src/studio/) instead of the app's own boot: the
 // same scene and worlds, with a director on the camera and an MP4 exporter. Read first,
@@ -91,6 +92,7 @@ const constructionManager = new ConstructionManager({
 async function loadPresetWorld(name) {
   const { records, spawn, label } = buildPresetWorldRecords(name, { groundHeightAt });
   await worldStore.loadFromRecords(records);
+  setStatsWorld(`preset:${name}`);
   player.resetTo(spawn);
   // The world ARRIVES rather than cutting. Every preset in this project is composed
   // around one arrival frame -- the notes for each of them argue about the angle at
@@ -128,6 +130,7 @@ loadWorldInput.addEventListener('change', async () => {
   try {
     const records = await readWorldFile(file);
     const spawn = await worldStore.loadFromRecords(records);
+    setStatsWorld('file');
     // Move them ONLY if the file says where to stand.
     //
     // This used to never move anybody, on the grounds that the student chose the file
@@ -289,6 +292,7 @@ const menuActions = {
     webBrowserManager.clear();
     buildGizmo.deactivate();
     await worldStore.clearAll();
+    setStatsWorld('cleared');
     // The theme is carried by a record, and clearing removed it -- so put the sky,
     // terrain and lighting back to the default world rather than leaving the player
     // standing on grey lunar hills under a black sky with nothing on them.
@@ -447,6 +451,7 @@ const linkedWorldId = studioMode ? null : takeLinkedWorldId();
 try {
   if (!studioMode) window.edusimCount?.('app', '/app/');
 } catch (err) { /* counting must never delay the boot */ }
+if (!studioMode) enableBuildStats();
 
 if (studioMode) {
   // Loaded only when asked for, so the studio costs a student's boot nothing at all. It
@@ -473,6 +478,7 @@ if (!studioMode) worldStore
       menu.toast('Opening the shared world…');
       const records = await fetchLinkedWorld(linkedWorldId);
       const spawn = await worldStore.loadFromRecords(records);
+      setStatsWorld(`gallery:${linkedWorldId}`);
       // Stand them where the world says, and at the app's own default spot if it does not
       // say -- which is every world file exported before spawns existed.
       //

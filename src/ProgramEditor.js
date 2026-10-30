@@ -1,6 +1,7 @@
 import { CATEGORIES, BLOCK_DEFS, PALETTE_ORDER, createBlockInstance, cloneBlockTree } from './BlockDefs.js';
 import { blocksToJs, highlightJs, compileJs, JS_STARTER, JS_API_HINT } from './JsProgram.js';
 import { recordHasProgram } from './ProgramManager.js';
+import { countProgram } from './BuildStats.js';
 
 const DROP_ZONE_MAX_DY = 260; // px -- beyond this, dropping means "delete", not "insert far away"
 const DROP_ZONE_X_SLOP = 24; // px of leftward slop so a slightly-off pointer still hits a zone
@@ -293,6 +294,7 @@ export class ProgramEditor {
     else delete record.programMode;
 
     this.worldStore?.saveObject(record);
+    countProgram(record);
     this.programManager?.startFromRecord(this.activeId, record, item.object3D);
     this.playIconManager?.refresh(this.activeId, record, item.object3D);
     const running = recordHasProgram(record);

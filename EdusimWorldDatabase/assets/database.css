@@ -1399,6 +1399,20 @@ input[type="file"]:focus {
 .stat-table td.n,
 .stat-table th + th { text-align: right; font-variant-numeric: tabular-nums; }
 .stat-table td:first-child { word-break: break-all; }
+.stat-table .build-row td { background: rgba(30, 42, 58, 0.025); word-break: normal; }
+.build-row summary { cursor: pointer; font-weight: 700; color: var(--ink-soft); }
+.build-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+.stat-table .build-table th,
+.stat-table .build-table td {
+  background: none;
+  padding: 5px 8px 5px 0;
+  text-align: left;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+.stat-table .build-table .n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.build-program { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.78rem; }
 
 /* ===========================================================
    The teacher layer on a world page (lib/teaching.php).

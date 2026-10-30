@@ -35,6 +35,14 @@ ewd_define('EWD_STATS_DB_FILE', EWD_DATA_DIR . '/stats.sqlite');
 // stay correct and only the attribution blurs, which is the right thing to lose.
 ewd_define('EWD_STATS_MAX_REFERRERS_PER_DAY', 400);
 
+// The same idea for build detail. Every word in a row is off a fixed list, but a script can
+// still invent a new ORDER of them on every request, so past this many rows in a day the
+// counts keep landing and the new ones read `other`.
+ewd_define('EWD_STATS_MAX_BUILD_ROWS_PER_DAY', 1500);
+
+// Longer than any signature src/BuildStats.js writes, whose block count it caps.
+ewd_define('EWD_STATS_MAX_PROGRAM_LENGTH', 700);
+
 function ewd_stats_db(): PDO
 {
     static $pdo = null;
@@ -70,6 +78,18 @@ function ewd_stats_db(): PDO
          ) WITHOUT ROWID'
     );
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_page_hits_day ON page_hits (day)');
+    // The detail under `built`. Same shape, same guarantee: a counter and nothing else.
+    // `program` is '' on a row that counts an object being placed.
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS build_counts (
+            day     TEXT    NOT NULL,   -- UTC date, YYYY-MM-DD
+            world   TEXT    NOT NULL,
+            object  TEXT    NOT NULL,
+            program TEXT    NOT NULL DEFAULT "",
+            hits    INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (day, world, object, program)
+         ) WITHOUT ROWID'
+    );
 
     return $pdo;
 }
@@ -160,6 +180,208 @@ function ewd_stats_record(string $kind, string $path, string $referrer): void
     $sql = 'INSERT INTO page_hits (day, kind, path, referrer, hits) VALUES (?, ?, ?, ?, 1)
             ON CONFLICT (day, kind, path, referrer) DO UPDATE SET hits = hits + 1';
     $db->prepare($sql)->execute([$day, $kind, ewd_stats_path($path), $ref]);
+}
+
+/*
+ * BUILD DETAIL: which world, which kind of object, what a program is made of.
+ *
+ * THE SERVER DOES NOT TRUST THE CLIENT TO HAVE LEFT OUT WHAT A STUDENT WROTE. Nothing below
+ * stores a client's string: each value is checked against lib/stats-vocab.php, generated from
+ * the app's own tables, and anything not on it becomes `other`. So a program's say text, its
+ * numbers or its source cannot land here even from a modified client, because there is no
+ * accepted value that could hold them. A gallery id is the one number kept, and it is public.
+ */
+function ewd_stats_build_kinds(): array
+{
+    return ['placed', 'programmed'];
+}
+
+function ewd_stats_vocab(): array
+{
+    static $vocab = null;
+    if ($vocab === null) {
+        $raw = require __DIR__ . '/stats-vocab.php';
+        $vocab = [
+            'words'   => array_flip($raw['words']),
+            'shapes'  => array_flip($raw['shapes']),
+            'props'   => array_flip($raw['props']),
+            'presets' => $raw['presets'],
+        ];
+    }
+    return $vocab;
+}
+
+function ewd_stats_clean_world(string $raw): string
+{
+    if (in_array($raw, ['file', 'cleared', 'unknown'], true)) {
+        return $raw;
+    }
+    if (preg_match('/^gallery:([1-9][0-9]{0,8})$/', $raw)) {
+        return $raw;
+    }
+    if (str_starts_with($raw, 'preset:') && isset(ewd_stats_vocab()['presets'][substr($raw, 7)])) {
+        return $raw;
+    }
+    return 'other';
+}
+
+function ewd_stats_clean_object(string $raw): string
+{
+    $kinds = ['model', 'built-model', 'image', 'gif', 'balloon', 'light-orb', 'web-browser',
+              'startup-library', 'startup-tree', 'startup-billboard', 'startup-llama'];
+    if (in_array($raw, $kinds, true)) {
+        return $raw;
+    }
+    $vocab = ewd_stats_vocab();
+    if (str_starts_with($raw, 'shape:') && isset($vocab['shapes'][substr($raw, 6)])) {
+        return $raw;
+    }
+    if (str_starts_with($raw, 'prop:') && isset($vocab['props'][substr($raw, 5)])) {
+        return $raw;
+    }
+    return 'other';
+}
+
+function ewd_stats_clean_program(string $raw): string
+{
+    if ($raw === '' || strlen($raw) > EWD_STATS_MAX_PROGRAM_LENGTH) {
+        return 'other';
+    }
+    if (!preg_match('/^(js:)?[A-Za-z(),.]*$/', $raw)) {
+        return 'other';
+    }
+    $js   = str_starts_with($raw, 'js:');
+    $body = $js ? substr($raw, 3) : $raw;
+    $body = preg_replace_callback('/[A-Za-z]+/', static function (array $m): string {
+        return isset(ewd_stats_vocab()['words'][$m[0]]) ? $m[0] : 'other';
+    }, $body) ?? 'other';
+    return ($js ? 'js:' : '') . $body;
+}
+
+function ewd_stats_record_build(string $kind, string $world, string $object, string $program): void
+{
+    if (!in_array($kind, ewd_stats_build_kinds(), true)) {
+        return;
+    }
+
+    $world   = ewd_stats_clean_world($world);
+    $object  = ewd_stats_clean_object($object);
+    $program = $kind === 'programmed' ? ewd_stats_clean_program($program) : '';
+
+    $db  = ewd_stats_db();
+    $day = gmdate('Y-m-d');
+
+    $seen = $db->prepare('SELECT 1 FROM build_counts WHERE day = ? AND world = ? AND object = ? AND program = ?');
+    $seen->execute([$day, $world, $object, $program]);
+    if (!$seen->fetchColumn()) {
+        $rows = $db->prepare('SELECT COUNT(*) FROM build_counts WHERE day = ?');
+        $rows->execute([$day]);
+        if ((int)$rows->fetchColumn() >= EWD_STATS_MAX_BUILD_ROWS_PER_DAY) {
+            $world   = 'other';
+            $object  = 'other';
+            $program = $program === '' ? '' : 'other';
+        }
+    }
+
+    $sql = 'INSERT INTO build_counts (day, world, object, program, hits) VALUES (?, ?, ?, ?, 1)
+            ON CONFLICT (day, world, object, program) DO UPDATE SET hits = hits + 1';
+    $db->prepare($sql)->execute([$day, $world, $object, $program]);
+}
+
+/** Build detail for the last $days days: day => list of rows, busiest first. */
+function ewd_stats_build_days(int $days = 30): array
+{
+    $db = ewd_stats_db();
+    $from = gmdate('Y-m-d', time() - max(1, $days) * 86400);
+    $rows = $db->prepare(
+        'SELECT day, world, object, program, hits FROM build_counts WHERE day >= ?
+          ORDER BY day DESC, hits DESC, world, object, program'
+    );
+    $rows->execute([$from]);
+
+    $out = [];
+    foreach ($rows->fetchAll() as $r) {
+        $out[$r['day']][] = $r;
+    }
+    return $out;
+}
+
+/** The titles of the gallery worlds these rows name, read only when somebody opens the page.
+ *  An empty result is fine: a row then reads "World #44" rather than breaking the page. */
+function ewd_stats_gallery_titles(array $buildDays): array
+{
+    $ids = [];
+    foreach ($buildDays as $rows) {
+        foreach ($rows as $r) {
+            if (str_starts_with((string)$r['world'], 'gallery:')) {
+                $ids[(int)substr((string)$r['world'], 8)] = true;
+            }
+        }
+    }
+    if (!$ids) {
+        return [];
+    }
+    try {
+        $marks = implode(',', array_fill(0, count($ids), '?'));
+        $query = ewd_db()->prepare("SELECT id, title FROM worlds WHERE id IN ($marks)");
+        $query->execute(array_keys($ids));
+        $titles = [];
+        foreach ($query->fetchAll() as $row) {
+            $titles[(int)$row['id']] = (string)$row['title'];
+        }
+        return $titles;
+    } catch (Throwable $e) {
+        return [];
+    }
+}
+
+function ewd_stats_world_label(string $world, array $titles): string
+{
+    if (str_starts_with($world, 'gallery:')) {
+        $id = (int)substr($world, 8);
+        return $titles[$id] ?? ('World #' . $id);
+    }
+    if (str_starts_with($world, 'preset:')) {
+        return ewd_stats_vocab()['presets'][substr($world, 7)] ?? substr($world, 7);
+    }
+    return [
+        'file'    => 'A world file',
+        'cleared' => 'A cleared world',
+        'unknown' => 'Saved in the browser',
+    ][$world] ?? 'Other';
+}
+
+function ewd_stats_object_label(string $object): string
+{
+    if (str_starts_with($object, 'shape:')) {
+        return ucfirst(substr($object, 6));
+    }
+    if (str_starts_with($object, 'prop:')) {
+        return 'World object: ' . substr($object, 5);
+    }
+    return [
+        'model'             => 'Imported 3D model',
+        'built-model'       => 'Rendered model',
+        'image'             => 'Image',
+        'gif'               => 'Animated GIF',
+        'balloon'           => 'Drawn balloon',
+        'light-orb'         => 'Light orb',
+        'web-browser'       => 'Browser panel',
+        'startup-library'   => 'World object: little library',
+        'startup-tree'      => 'World object: maple tree',
+        'startup-billboard' => 'World object: billboard',
+        'startup-llama'     => 'World object: llama',
+    ][$object] ?? 'Other';
+}
+
+/** Reads a signature back for a person: blocks as written, JavaScript as a list of calls. */
+function ewd_stats_program_label(string $program): string
+{
+    if (str_starts_with($program, 'js:')) {
+        $calls = substr($program, 3);
+        return $calls === '' ? 'JavaScript, no Edusim commands' : 'JavaScript: ' . str_replace(',', ', ', $calls);
+    }
+    return $program === 'other' ? 'Other' : 'Blocks: ' . str_replace(',', ', ', $program);
 }
 
 /** Totals per kind for the last $days days, newest day first. */

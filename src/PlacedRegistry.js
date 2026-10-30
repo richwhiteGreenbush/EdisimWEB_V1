@@ -1,4 +1,5 @@
 import { popIn } from './Motion.js';
+import { countPlaced } from './BuildStats.js';
 
 // Tracks every live, placed Object3D (from imports, images, or drawn balloons) so
 // ImportManager, DrawTool, and WorldStore can all add/remove/dispose through one place.
@@ -68,6 +69,7 @@ export class PlacedRegistry {
         window.edusimCount?.('built', '/app/');
       } catch (err) { /* counting can never be the reason a shape fails to appear */ }
     }
+    if (!this.bulkLoading) countPlaced(record);
   }
 
   get(id) {

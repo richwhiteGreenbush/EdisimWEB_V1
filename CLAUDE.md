@@ -5366,6 +5366,23 @@ start only -- the brand's own faces, since the video is brand material -- with a
 to system fonts. Settings live in localStorage `edusim-studio`, per machine, never in a
 world.
 
+### Build detail on the stats page
+
+`worlds/stats.php` opens each day's Built figure into which world, which kind of object and
+which program. `src/BuildStats.js` reports it and `build_counts` in `lib/stats.php` holds it.
+
+**ONLY NAMES OFF A FIXED LIST CAN BE STORED, and the privacy page and the IT brief both say so.**
+A program is sent as its shape (`forever(rotate),say`, or `js:rotate,say`), never its numbers,
+text or source. The server checks every value against `lib/stats-vocab.php` and stores `other`
+for anything else, so a modified client cannot put a student's words in the table either. Do not
+add a free-text field to this path: "student work never reaches us" depends on it.
+
+`lib/stats-vocab.php` is generated: run `node tools/build-stats-vocab.mjs` after adding a world,
+prop or block (a new name counts as `other` until then, with no count lost), and
+`node tools/check-build-stats.mjs` after touching the signature code. A count is one per
+(world, object, program) per app session, the `built` rule. Copies made by a `duplicate` block
+are not counted, and neither HiFi nor `?studio` calls `enableBuildStats()`, so neither reports.
+
 ### Build/tooling notes
 
 - `vite.config.js`'s `optimizeDeps.include` must list `three` alongside the specific

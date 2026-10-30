@@ -49,11 +49,24 @@ if (!is_array($in)) {
 }
 
 try {
-    ewd_stats_record(
-        (string)($in['kind'] ?? ''),
-        (string)($in['path'] ?? '/'),
-        (string)($in['ref'] ?? '')
-    );
+    $kind = (string)($in['kind'] ?? '');
+    if (in_array($kind, ewd_stats_build_kinds(), true)) {
+        // No referrer on these, even if one is sent: nothing should join where a visitor came
+        // from to what got built.
+        $detail = is_array($in['detail'] ?? null) ? $in['detail'] : [];
+        ewd_stats_record_build(
+            $kind,
+            is_string($detail['world'] ?? null) ? $detail['world'] : '',
+            is_string($detail['object'] ?? null) ? $detail['object'] : '',
+            is_string($detail['program'] ?? null) ? $detail['program'] : ''
+        );
+    } else {
+        ewd_stats_record(
+            $kind,
+            (string)($in['path'] ?? '/'),
+            (string)($in['ref'] ?? '')
+        );
+    }
 } catch (Throwable $e) {
     // A locked or missing stats database must never be visible from a page. The world
     // gallery is a different file entirely (see lib/stats.php), so nothing that goes
