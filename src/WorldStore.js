@@ -91,7 +91,10 @@ export class WorldStore {
     const stickerTick = stickerTickFor(record, object3D);
     const tick = composeTicks(extra.tick, stickerTick);
     this.registry.add(record.id, object3D, { ...extra, tick, baseTick: extra.tick, stickerTick, record });
-    if (recordHasProgram(record)) {
+    // `programIdle` is a program that waits for its green play button instead of running on
+    // load: two buttons that each set the same shared value would otherwise race every time the
+    // world opened. Absent on every record that has never needed it.
+    if (recordHasProgram(record) && !record.programIdle) {
       // startFromRecord dispatches on the record's programMode, so a saved JavaScript
       // program resumes from every rehydration path exactly as a block program does.
       this.programManager?.startFromRecord(record.id, record, object3D);

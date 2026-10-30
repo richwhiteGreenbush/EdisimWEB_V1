@@ -124,6 +124,12 @@ function ewd_teaching_table(): array
             'standards' => 'NGSS HS-PS2-1, HS-PS2-2, HS-PS3-1, HS-PS3-2 · CSTA 3A-AP-13, 3A-AP-15, 3A-AP-17',
             'lesson' => null, 'card' => null, 'lesson_card' => 'newtons-midway',
         ],
+        'atom-hall' => [
+            'band' => 'Grades 8–10',
+            'objective' => 'Read periodic trends in atomic radius and electronegativity from a walkable skyline, relate lone pairs to bond angles, describe an ionic lattice, and use a block model to connect temperature, particle speed and state.',
+            'standards' => 'NGSS HS-PS1-1, HS-PS1-3, MS-PS1-1, MS-PS1-4 · CSTA 2-AP-11, 2-AP-12',
+            'lesson' => null, 'card' => null, 'lesson_card' => 'atom-hall',
+        ],
         'javascript-basics' => [
             'band' => 'Grades 5–8',
             'objective' => 'Read a working JavaScript program, predict what changing one value will do, and edit it — five lessons taught by machines that are already running.',

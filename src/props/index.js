@@ -1,5 +1,6 @@
 import { blockBoard } from './BlockBoard.js';
 import * as Midway from './MidwayProps.js';
+import * as Atom from './AtomProps.js';
 import * as Common from './CommonProps.js';
 import * as Museum from './MuseumProps.js';
 import * as Library from './LibraryProps.js';
@@ -604,6 +605,21 @@ export const PROP_BUILDERS = {
   'beacon-lamp': JsBasics.beaconLamp,
   'code-board': JsBasics.codeBoard,
   'block-board': blockBoard,
+
+  // Atom Hall.
+  'ah-skyline': Atom.skyline,
+  'ah-table-floor': Atom.tableFloor,
+  'ah-hall-ring': Atom.hallRing,
+  'ah-trend-button': Atom.trendButton,
+  'ah-table-map': Atom.tableMap,
+  'ah-molecule': Atom.molecule,
+  'ah-salt-crystal': Atom.saltCrystal,
+  'ah-tank': Atom.tank,
+  'ah-particle': Atom.particle,
+  'ah-thermostat': Atom.thermostat,
+  'ah-thermometer': Atom.thermometerFrame,
+  'ah-thermometer-column': Atom.thermometerColumn,
+  'ah-burner': Atom.burner,
 
   // Newton's Midway.
   'mw-ruler-wall': Midway.rulerWall,

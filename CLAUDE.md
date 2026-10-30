@@ -3685,6 +3685,102 @@ Block types and their `op`/`fn` values are persisted, so they are only ever adde
 `programSteps()` turns blocks into the rows a board paints, so a `block-board` quotes the real
 program. `tools/lib/run-blocks.mjs` runs a program through the real runner with the clock taken out.
 
+### Atom Hall, and a chart you walk through
+
+`AtomProps.js` + `AtomModel.js` + `AtomPrograms.js` + `atomHallLayout()`. Gallery world 46, and HiFi
+gallery world 47 -- in `PRESET_WORLDS` (key `atomhall`), deliberately not in any menu, seeded with
+creator "Dmitri Mendeleev". The periodic table as a skyline, seven walk-around molecules, a salt crystal, and a
+tank of particles run by one temperature.
+
+**THE CODING IS BLOCKS ONLY, per Rich.** No record carries `programJs`, and neither the boards nor
+the cards mention JavaScript; `tools/check-atomhall.mjs` fails if that changes. The editor's toggle
+is app-wide and stays. It leans on the Math blocks and `share`.
+
+**Its lesson cards live on the world's own gallery page**, the Small Change mechanism: one fragment,
+`lib/lessons/atom-hall.html`, named by `lesson_card` in `lib/teaching.php`, with a student guide and
+a teacher card that each print alone. Every figure on them is checked against `AtomModel.js`.
+
+**ONE TABLE, AND A MISSING VALUE STAYS MISSING.** `AtomModel.js` is pure arithmetic and feeds
+everything. Radii are Cordero's 2008 covalent values (not van der Waals, which would break the trend
+at the noble gases), electronegativity is Pauling as WebElements and the CRC tabulate it (so lead is
+2.33), and nothing past curium is used, because what gets printed beyond it is convention rather
+than measurement. He, Ne, Ar and Rn have no value and stand as dark stumps reading "no value". An
+estimate at full height would look exactly like a measurement.
+
+**THE SKYLINE IS ONE PROP WITH FOUR MESHES, and that needed the one engine change this world makes.**
+118 towers as objects would be 236 draw calls and 118 green icons. But a merged prop cannot run a
+program, so `PlacedRegistry.tick` now passes `programManager.worldVars` as the third argument of
+`tick.update()`, and the skyline reads the `trend` two buttons `share`. Note `composeTicks` had to
+forward it too. Two additive record fields exist for the same reason: `programIdle` (waits for its
+▶ instead of running on load, or two buttons sharing one value race every time the world opens) and
+`programQuiet` (runs, no ▶, or 24 particles are 24 green icons in front of what they are showing).
+
+**A TOWER RISES, IT DOES NOT STRETCH.** Each is built 66ft tall and sunk until what is above ground
+is its value, the Midway energy bar's idea. So the windows and the roof band ride up with it and
+only positions ever change. That is not a nicety: `ThreeBridge` re-uploads position, normal and
+colour on a version bump and NOT uv, so a stretched tower with rewritten UVs would look right here
+and smear in HiFi. The position attribute is `DynamicDrawUsage` (which is what makes the bridge's
+Babylon buffer updatable), the bounding sphere is set by hand or the near side culls once a tower
+moves, and nothing is written while nothing moves. It needs flat ground: `amplitude: 0`.
+
+**THE GROUND IS TRUE ZERO, and it forced the shopfront.** 1ft = 5pm and 15ft = 1 Pauling unit, both
+stated on the boards. A label on a tower's face would ride off with it and a stump has no face, so
+every cell has a fixed 5.2ft plinth whose four faces are the printed tile. That only works because
+every real value is taller than 5.2ft (helium, 5.6, is the smallest); the check tool holds it.
+
+**THE ARRIVAL IS THE HELIUM CORNER AND THAT IS THE COMPOSITION.** Radius grows down and to the left,
+so from the printed table's bottom edge the tallest row hides everything. From helium the smallest
+atoms are at your feet and the city climbs away. Electronegativity runs the opposite way, so it
+gets its own corner and buttons at francium. A table seen from a corner is mirrored, which is what
+the two `ah-table-map` "you are here" boards are for. **A street must be readable across**: at a
+13ft pitch a shopfront subtended over 120 degrees from mid-street, so the pitch is 14 and the plinths
+narrower. A shopfront read at 3.3ft fills the 51 degrees either side and no more.
+
+**A CHAIN OF THREE, IN RECORD ORDER.** The thermostat owns the numbers and stops. The thermometer's
+column reads `temperature` and is the one place it becomes `speed` and `state`. A particle reads only
+those two. So the thermostat must precede the column and the column the particles, or the first frame
+warns of an unknown variable. Because the thermostat stops rather than looping, a program on the
+burner takes over by sharing a newer `temperature`, and the thermostat's ▶ takes it back.
+
+**WHAT THE TANK IS HONEST ABOUT, and this is load-bearing like the research section's line.** Speed
+is k x sqrt(T), so 4 times hotter really is 2 times faster, in feet per step. But a particle melts
+because an `if` says so: no forces, no mass, and no plateau at a melting point. A placard and the
+teacher card both say so, and the guide's last question is built on the missing plateau.
+**A particle never changes colour**, because the commonest misconception here is that particles melt.
+It moves forward and up only (`moveBoth`), which is why the tank is wide and shallow: full 3D would
+need sin and cos per particle, doubling a stack a student is invited to read.
+
+**The crystal is half packed and half open**, Fantastic Voyage's half-whole-half-sectioned argument.
+Same positions, 7ft apart so a student fits between them; the true ionic radii add to 2.83 A against
+a 2.82 spacing, so the packed half really touches. The open half is north, facing the city.
+
+Things it hit:
+
+- **A record's programs are per-particle, so the file is the app's biggest at 130 KB**, twice Midway.
+  Each of the 24 particles carries about 3.5 KB of block JSON, because block ids must be fresh per
+  object. It still loads in 270ms.
+- **A column in the middle of a thermometer covers its own labels** the moment the reading is hot.
+- **A stand taken to the atom nearest the axis** ran straight up through caffeine's rings.
+- **A kiosk at `#lesson-card` floated above its stand, and only on the live site.** A same-origin
+  frame opened at a fragment scrolls its ancestors, and `#css3d-layer` was `overflow: hidden`, which
+  script can still scroll, so the whole layer moved 133px. It cannot be seen on localhost, where the
+  gallery is cross-origin. The layer is `overflow: clip` now, which is not a scroll container at all.
+- **The arrival frame had to be cleared twice.** At full size the two buttons and a placard covered
+  the city, so the buttons shrank and the placards moved down the east avenue. The map board stands
+  on 5.4ft legs so the kiosk in front of it hides only its posts.
+
+**Performance, measured at the spawn on the development Mac, in the app**: 77 records / **205 draw
+calls** / 393k drawn / 200k of geometry / 147 meshes / **1 transparent** / **0 point lights** / 63
+textures / 0.9ms warm CPU render. 270ms to load, 130 KB world file. Per prop: salt crystal 97k
+triangles, caffeine 25k, benzene 13k, hall ring 9k, ethanol 9k, skyline 6k, methane 6k. **Not yet
+measured on an i5/i7 Chromebook.** Runs unchanged in HiFi, including the rising towers and their
+shadows.
+
+**The HiFi gallery carries it, Small Change (45) and Newton's Midway (46) without their cards.** A
+world page there links to the main gallery's card through `lesson_page` in its `teaching.php`, so the
+static figures stay in one copy. Its screenshots are from the HiFi production build, which has no
+`window.__debug`: to catch the city risen, press the real green arrow.
+
 ### Newton's Midway, and a world whose rides are physics models in blocks
 
 `MidwayProps.js` + `MidwayModel.js` + `MidwayPrograms.js` + `midwayLayout()`. Gallery world 45, in

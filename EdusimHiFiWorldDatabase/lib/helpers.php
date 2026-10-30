@@ -318,6 +318,9 @@ function ewd_theme_labels(): array
         'voyage'   => 'Fantastic Voyage',
         'newyork'  => "1940's New York",
         'sea'      => 'Under the Sea',
+        'smallchange' => 'Small Change',
+        'midway' => "Newton's Midway",
+        'atomhall' => 'Atom Hall',
     ];
 }
 
@@ -339,6 +342,9 @@ function ewd_theme_emoji(string $theme): string
         'voyage'   => '🫀',
         'newyork'  => '🏙️',
         'sea'      => '🐠',
+        'smallchange' => '🪙',
+        'midway' => '🎡',
+        'atomhall' => '⚛️',
     ][$theme] ?? '🌍';
 }
 

@@ -26,6 +26,16 @@ import {
   MW, CANNON_PIVOT_Y, PENDULUM_PIVOT_Y, WHEEL_HUB_Y, ENERGY_FULL,
 } from './props/MidwayProps.js';
 
+import {
+  TANK, GAUGE, THERMOSTAT, SUBSTANCES, RADIUS_PM_PER_FOOT, EN_FEET_PER_UNIT, MOLECULE_SCALE, SALT, SALT_SCALE,
+  particleHomes, particleWalls, enlargement, ionsInSaltGrain, elementBySymbol, towerHeight, TREND_RADIUS, TREND_EN,
+} from './props/AtomModel.js';
+import {
+  radiusButton, electronegativityButton, thermostatProgram, thermometerProgram, particleProgram,
+  BOARD_STEPS as ATOM_BOARDS,
+} from './props/AtomPrograms.js';
+import { AH, THERMOMETER_COLUMN_X } from './props/AtomProps.js';
+
 import { uuid } from './Uuid.js';
 // The ready-made worlds behind Menu > Load World.
 //
@@ -57,9 +67,12 @@ const ORB_ROSE = '#e0455f';
 
 function prop(name, x, z, {
   y = 0, rotY = 0, rotX = 0, absoluteY = false, scale = 1, options = {}, program = null,
-  programJs = null, homeFromRecord = false,
+  programJs = null, homeFromRecord = false, programIdle = false, programQuiet = false,
 } = {}) {
-  return { kind: 'preset-prop', prop: name, options, x, z, y, rotY, rotX, absoluteY, scale, program, programJs, homeFromRecord };
+  return {
+    kind: 'preset-prop', prop: name, options, x, z, y, rotY, rotX, absoluteY, scale,
+    program, programJs, homeFromRecord, programIdle, programQuiet,
+  };
 }
 
 // One block for a program shipped ON a prop (see `program` above).
@@ -11268,6 +11281,246 @@ function smallChangeLayout() {
 // The middle of the avenue stays empty, A Bug's Life's rule: a fresh construction piece lands 10ft
 // ahead of the student. Each ride is seen side on from there, which is the view its physics reads
 // from, and the stations get deeper as they get harder.
+function atomHallLayout() {
+  const items = [];
+  // THE SPAWN IS AT THE HELIUM CORNER, LOOKING TOWARD FRANCIUM, because atomic radius grows down and
+  // to the left: from here the smallest atoms are at your feet and the city climbs away from you,
+  // so every tower can be seen. From the usual place in front of the table's bottom edge the
+  // tallest row hides all the others.
+  const SP = { x: 147, z: -89, yaw: 2.2 };
+  const face = (x, z) => facing(x, z, SP.x, SP.z);
+  // A point `feet` from the spawn, `degrees` to the student's left of where they arrive looking.
+  const ahead = (degrees, feet) => {
+    const a = SP.yaw + degrees * (Math.PI / 180);
+    return { x: SP.x - Math.sin(a) * feet, z: SP.z - Math.cos(a) * feet };
+  };
+  const placard = (x, z, tx, tz, eyebrow, title, body, accent) => {
+    items.push(prop('info-placard', x, z, { rotY: facing(x, z, tx, tz), options: { eyebrow, title, body, accent, width: 3.4, height: 4.2 } }));
+  };
+  const sign = (x, z, tx, tz, line, subtitle, accent) => {
+    items.push(prop('standing-sign', x, z, {
+      rotY: facing(x, z, tx, tz),
+      options: { lines: [line], subtitle, width: 13, height: 3.2, postHeight: 9.5, face: '#18202b', accent },
+    }));
+  };
+  const blocks = (x, z, tx, tz, number, title, steps, caption, accent) => {
+    items.push(prop('block-board', x, z, { rotY: facing(x, z, tx, tz), options: { number, title, steps, caption, accent } }));
+  };
+  const button = (x, z, tx, tz, label, program, color) => {
+    items.push(prop('ah-trend-button', x, z, {
+      rotY: facing(x, z, tx, tz),
+      options: { label, subtitle: 'Click the green arrow above me', color },
+      program,
+      programIdle: true,
+    }));
+  };
+
+  items.push(prop('ah-hall-ring', 0, 0));
+  items.push(prop('ah-table-floor', 0, 0));
+  items.push(prop('ah-skyline', 0, 0));
+
+  // --- arrival: the helium corner ---------------------------------------------
+  const cs = elementBySymbol('Cs');
+  const fluorine = elementBySymbol('F');
+  {
+    const at = ahead(35, 34);
+    items.push(prop('welcome-board', at.x, at.z, {
+      rotY: face(at.x, at.z),
+      options: {
+        eyebrow: 'ATOM HALL',
+        lead: 'The periodic table, built as a city you can walk through.',
+        lines: ['A tower’s height is a number about its atom.', 'Walk the streets. Read the shopfronts.'],
+        footnote: `Now: atomic radius. 1 ft of tower = ${RADIUS_PM_PER_FOOT} picometres, measured from the ground.`,
+      },
+    }));
+  }
+  {
+    const at = ahead(-40, 22);
+    items.push(...browserStation(at.x, at.z, {
+      faceX: SP.x, faceZ: SP.z, url: 'https://edusim3dweb.com/worlds/world.php?slug=atom-hall#lesson-card',
+    }));
+  }
+  {
+    const at = ahead(-27, 44);
+    items.push(prop('ah-table-map', at.x, at.z, {
+      rotY: face(at.x, at.z),
+      options: {
+        here: 'He',
+        title: 'You are at helium, the top right corner',
+        note: 'Look across the city toward francium, bottom left. That is the printed table seen from this corner.',
+      },
+    }));
+  }
+  {
+    const a = ahead(-5, 15);
+    const b = ahead(-20, 15);
+    button(a.x, a.z, SP.x, SP.z, 'ATOMIC RADIUS', radiusButton(), AH.skyline);
+    button(b.x, b.z, SP.x, SP.z, 'ELECTRONEGATIVITY', electronegativityButton(), AH.trend);
+  }
+
+  // --- the francium corner ----------------------------------------------------
+  // Electronegativity runs the other way, so its best view is from the opposite corner.
+  const FR = { x: -146, z: 66 };
+  items.push(prop('ah-table-map', -150, 86, {
+    rotY: facing(-150, 86, -120, 44),
+    options: {
+      here: 'Fr',
+      title: 'You are at francium, the bottom left corner',
+      note: 'Press ELECTRONEGATIVITY, then look across toward fluorine at the top right.',
+    },
+  }));
+  button(-138, 60, FR.x, FR.z, 'ATOMIC RADIUS', radiusButton(), AH.skyline);
+  button(-146, 54, FR.x, FR.z, 'ELECTRONEGATIVITY', electronegativityButton(), AH.trend);
+  placard(-156, 44, -125, 30, 'THE SECOND TREND', 'Electronegativity',
+    `How hard an atom pulls on the electrons in a bond. Fluorine is the strongest at ${fluorine.en}, at ${Math.round(towerHeight(fluorine, TREND_EN))} ft. Cesium manages ${cs.en}. 1 unit is ${EN_FEET_PER_UNIT} ft of tower.`, AH.trend);
+  placard(-163, 56, -125, 30, 'A DARK STUMP MEANS', 'No value, not zero',
+    'He, Ne, Ar and Rn have no Pauling value, since they hardly ever bond. Past curium nobody has made enough atoms to measure.', AH.trend);
+
+  // --- why the trends run the way they do, at the head of the east avenue -------
+  placard(140, -32, 150, -32, 'WHY DOWN IS BIGGER', 'New shells',
+    `Each period adds a new shell of electrons, further out. Lithium is ${elementBySymbol('Li').radius} pm, cesium ${cs.radius} pm.`, AH.skyline);
+  placard(140, -22, 150, -22, 'WHY ACROSS IS SMALLER', 'More pull, same shell',
+    `Across a period the nucleus gains protons and the shell stays the same, so it is pulled in. Lithium is ${elementBySymbol('Li').radius} pm, fluorine ${fluorine.radius} pm.`, AH.skyline);
+
+  // --- the states-of-matter lab, down the east avenue -----------------------------
+  const LAB = { x: 165, z: 18 };
+  const toward = { x: 136, z: 18 };
+  sign(150, -12, SP.x, SP.z, 'STATES OF MATTER', 'One number runs the whole tank', AH.tank);
+  const yaw = facing(LAB.x, LAB.z, toward.x, toward.z);
+  const across = { x: Math.cos(yaw), z: -Math.sin(yaw) };
+  const deep = { x: Math.sin(yaw), z: Math.cos(yaw) };
+  const local = (x, z) => ({ x: LAB.x + across.x * x + deep.x * z, z: LAB.z + across.z * x + deep.z * z });
+  items.push(prop('ah-tank', LAB.x, LAB.z, { rotY: yaw }));
+  {
+    // Sharing before reading: a program's start order is record order, so the thermostat comes
+    // first, then the thermometer that reads it, then the particles that read the thermometer.
+    const t = local(-10.5, 3);
+    items.push(prop('ah-thermostat', t.x, t.z, { rotY: yaw, program: thermostatProgram() }));
+    const g = local(11, 0);
+    items.push(prop('ah-thermometer', g.x, g.z, { rotY: yaw }));
+    const c = local(11 + THERMOMETER_COLUMN_X, 0.5);
+    items.push(prop('ah-thermometer-column', c.x, c.z, {
+      y: -GAUGE.full, absoluteY: true, rotY: yaw, program: thermometerProgram(), homeFromRecord: true,
+    }));
+  }
+  for (const home of particleHomes()) {
+    const at = local(home.x, home.z);
+    items.push(prop('ah-particle', at.x, at.z, {
+      y: TANK.floorY + home.y,
+      absoluteY: true,
+      // A prop's forward is its +Z. A quarter turn lays that along the tank's width.
+      rotY: yaw + Math.PI / 2,
+      program: particleProgram(particleWalls(home)),
+      homeFromRecord: true,
+      programQuiet: true,
+    }));
+  }
+  {
+    const at = local(-19, 4);
+    items.push(prop('ah-burner', at.x, at.z, { rotY: yaw }));
+  }
+  {
+    const a = local(-20, -0.5);
+    blocks(a.x, a.z, toward.x, toward.z - 18, 1, 'The thermostat owns the number', ATOM_BOARDS.thermostat(),
+      'Click the thermostat, press Program, change a green number.', AH.tank);
+    const b = local(19, -0.5);
+    blocks(b.x, b.z, toward.x, toward.z + 16, 2, 'Temperature becomes speed', ATOM_BOARDS.law(),
+      'This is in the thermometer. Click the red column to open it.', AH.tank);
+  }
+  placard(146, 32, 136, 18, 'WHAT IS REALLY THERE', 'This is a model',
+    'A rule says when these particles melt. Real ones have forces between them: they break free when moving fast enough. Heavier ones also move slower at the same temperature.', AH.tank);
+  placard(146, 4, 136, 18, 'LOOK AT THE COLOUR', 'The particles never change',
+    'A particle of water is the same particle in ice and in steam. All that changes is how it moves.', AH.tank);
+
+  // The challenges go down the avenue past the tank, in order.
+  const challenge = (number, z, title, target, steps, tip) => {
+    const x = 165;
+    items.push(activity(x, z, {
+      number, rotY: facing(x, z, 136, z), title, target, steps, tip, accent: AH.tank,
+    }));
+  };
+  challenge(1, -58, 'Find the edges',
+    'Click the thermostat, press Program:',
+    [mathStep('set temperature to 250'), mathStep('share temperature'), lookStep('Press Save. Watch the tank.')],
+    'Try 250, 300, 400. Then close in: where exactly does it melt? Where does it boil?');
+  challenge(2, -42, 'Four times hotter',
+    'Use the thermostat, and read the thermometer:',
+    [mathStep('set temperature to 100'), mathStep('then 400'), mathStep('then 900')],
+    'The thermometer says each speed. Temperature went up 9 times. How much did the speed go up, and why?');
+  challenge(3, 62, 'A different substance',
+    'Change the two other numbers on the thermostat:',
+    SUBSTANCES.filter((s) => s.name !== 'Water').slice(0, 2).concat(SUBSTANCES.filter((s) => s.name === 'Table salt'))
+      .map((s) => mathStep(`${s.name}: melts ${s.melts}, boils ${s.boils}`)),
+    'At 300 K, what state is each one in? Keep temperature at 300 and predict before you press Save.');
+  challenge(4, 78, 'Write the heater',
+    'The burner has no program. Click it and build:',
+    [
+      mathStep('set temperature to 200'),
+      ctrlStep('repeat until temperature ≥ 500'),
+      mathStep('change temperature by 1', 1),
+      mathStep('share temperature', 1),
+      ctrlStep('wait 0.05 seconds', 1),
+    ],
+    'Sharing a newer temperature takes over from the thermostat. Press the thermostat’s green arrow to take it back.');
+
+  // --- the molecule garden, south of the table --------------------------------------
+  sign(120, 86, SP.x, SP.z - 20, 'THE MOLECULE GARDEN', `Every model here is ${Math.round(enlargement(MOLECULE_SCALE) / 1e9)} billion times life size`, AH.molecule);
+  const garden = (kind, x, z, tx, tz, title, body) => {
+    items.push(prop('ah-molecule', x, z, { rotY: facing(x, z, tx, tz), options: { kind } }));
+    const dx = tx - x;
+    const dz = tz - z;
+    const d = Math.hypot(dx, dz) || 1;
+    placard(x + (dx / d) * 11 + (dz / d) * 5, z + (dz / d) * 11 - (dx / d) * 5, tx, tz, 'WALK ROUND IT', title, body, AH.molecule);
+  };
+  const CENTRE = { x: 30, z: 74 };
+  garden('water', 96, 102, CENTRE.x, CENTRE.z, 'Water: 104.5°',
+    'Two lone pairs on the oxygen, the pale lobes, push the hydrogens closer together than a tetrahedron’s 109.5°. The O–H bond is 0.096 nm.');
+  garden('methane', 66, 102, CENTRE.x, CENTRE.z, 'Methane: 109.5°',
+    'Four bonds and no lone pairs spread as far apart as they can in 3D. Flat on paper it looks like 90°. It is not.');
+  garden('ammonia', 38, 102, CENTRE.x, CENTRE.z, 'Ammonia: 107°',
+    'Three bonds and one lone pair, so a pyramid. Compare the angle with methane (no lone pairs) and water (two).');
+  garden('carbonDioxide', 92, 136, CENTRE.x, CENTRE.z, 'Carbon dioxide: 180°',
+    'Two double bonds and nothing on the carbon to bend them, so a straight line. Same formula shape as water, completely different molecule.');
+  garden('ethanol', 60, 134, CENTRE.x, CENTRE.z, 'Ethanol',
+    'Water with one hydrogen swapped for a carbon chain. That –OH is why it mixes with water, and why it melts and boils so differently from methane.');
+  garden('benzene', -62, 100, 0, 74, 'Benzene',
+    'Six carbons in a flat ring, and all six bonds are the same length: 0.139 nm, between a single and a double bond. The thin inner sticks show that.');
+  garden('caffeine', -86, 136, 0, 74, 'Caffeine',
+    'Twenty-four atoms, from PubChem’s computed shape. Red double bonds, blue nitrogens. Mostly flat, because of the two joined rings.');
+
+  // --- the salt crystal -------------------------------------------------------
+  const SALT_AT = { x: -6, z: 128 };
+  items.push(prop('ah-salt-crystal', SALT_AT.x, SALT_AT.z, { rotY: Math.PI / 2 }));
+  sign(-46, 92, 0, 70, 'THE SALT CRYSTAL', 'Walk into the open half', AH.salt);
+  placard(-34, 102, 0, 72, 'WHAT YOU ARE LOOKING AT', 'There is no salt molecule',
+    `Each sodium ion (purple) has six chloride neighbours (green), and each chloride six sodiums, without end. The lines are guides to the pattern, not bonds.`, AH.salt);
+  placard(18, 100, 0, 72, 'TRUE SIZES', 'The packed half',
+    `Here the ions touch at their real sizes: Na+ ${SALT.naRadius * 100} pm, Cl- ${SALT.clRadius * 100} pm. This model is ${(enlargement(SALT_SCALE) / 1e9).toFixed(1)} billion times life size, and has ${SALT.ionsPerEdge ** 3} ions. A 1 mm grain has about ${(ionsInSaltGrain() / 1e19).toFixed(1)} x 10^19.`, AH.salt);
+  placard(30, 112, 0, 72, 'TIE IT TOGETHER', 'Why salt melts at 1074 K',
+    'Pulling a crystal apart means fighting every neighbour’s charge at once. Water molecules only hold on to each other weakly. Now try salt’s numbers on the thermostat.', AH.salt);
+
+  // --- one thing to build with your hands ---------------------------------------
+  items.push(prop('tutorial-board', -30, -86, {
+    rotY: facing(-30, -86, -30, -60),
+    options: {
+      kicker: 'BUILD IT',
+      title: 'Make a water molecule',
+      intro: 'Menu, then Create Model.',
+      steps: [
+        'A red sphere for the oxygen, about 2 ft across.',
+        'Two small white spheres for the hydrogens.',
+        'Stretch two white cylinders for the bonds.',
+        'Use Rotate/Move Shape to open them to 104.5 degrees. Rotation snaps to 15, so get as close as you can.',
+        'Connect them all, then Render Model.',
+      ],
+      tip: 'Walk to the real one in the Molecule Garden and compare.',
+      accent: AH.molecule,
+    },
+  }));
+
+  return { theme: 'atomhall', spawn: SP, items };
+}
+
 function midwayLayout() {
   const items = [];
   const SP = { x: 0, z: 165 };
@@ -11514,6 +11767,11 @@ function midwayLayout() {
 }
 
 export const PRESET_WORLDS = {
+  atomhall: {
+    label: 'Atom Hall',
+    hint: 'The periodic table as a skyline you walk through, walk-around molecules, a salt crystal, and a tank of particles run by a temperature in block code',
+    build: atomHallLayout,
+  },
   midway: {
     label: "Newton's Midway",
     hint: 'A fairground where every ride is a physics model in blocks: free fall, projectiles, F = ma, energy, momentum and swings',
@@ -11784,6 +12042,9 @@ function toRecord(item, groundHeightAt) {
   // An exhibit whose program flies it about restarts from where it was placed, not from
   // wherever it happened to be when Save was pressed. See ProgramManager.startFromRecord.
   if (item.homeFromRecord) base.homeFromRecord = true;
+  // See WorldStore.addAndRun and PlayIconManager.refresh. Same hygiene: only when set.
+  if (item.programIdle) base.programIdle = true;
+  if (item.programQuiet) base.programQuiet = true;
 
   if (item.kind === 'light-orb') return { ...base, kind: 'light-orb', color: item.color };
   // A browser panel carries no files either -- WebBrowserManager.createPanel() rebuilds

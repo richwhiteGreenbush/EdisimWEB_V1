@@ -904,6 +904,15 @@ html, body {
   z-index: 5;
   pointer-events: none;
   overflow: hidden;
+  /* Hidden can still be scrolled by script, and a same-origin frame opened at a #fragment scrolls
+     its ancestors to bring the target into view. That moved every panel in the world up off its
+     stand, permanently, with no error. A clipped box is not a scroll container at all. Important
+     because CSS3DRenderer writes overflow: hidden on its own elements inline. */
+  overflow: clip !important;
+}
+
+#css3d-layer > div {
+  overflow: clip !important;
 }
 
 /* While the VR view is running, every DOM overlay has to go.
@@ -944,6 +953,7 @@ body.vr-active #toast-host {
   pointer-events: auto;
   border-radius: 6px;
   overflow: hidden;
+  overflow: clip;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   /* A flat DOM element has no real "back" -- without this, walking behind a placed
      panel would show its content mirrored instead of the panel simply disappearing

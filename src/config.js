@@ -1250,6 +1250,30 @@ export const WORLD_THEMES = {
     stars: false,
   },
 
+  atomhall: {
+    // Late afternoon in an open-air hall of pale stone. The sun is low and behind the helium corner,
+    // where a student arrives, so every tower they see is lit on the faces toward them and throws
+    // a long shadow across the table. Dead flat, because the skyline's towers are sunk into the
+    // ground to their value and a slope would change what a height means.
+    sky: 0xb7d3e8,
+    fogNear: 280,
+    fogFar: 1000,
+    groundLow: 0xa9a598,
+    groundHigh: 0xb6b2a4,
+    amplitude: 0,
+    flatRadius: 400,
+    blendRadius: 500,
+    hemiSky: 0xf0f5ff,
+    // Pale and nearly grey: the shaded sides of the city and every downward face of a molecule take
+    // their whole light from this.
+    hemiGround: 0xa3a196,
+    hemiIntensity: 1.55,
+    sunColor: 0xffe7c4,
+    sunIntensity: 2.5,
+    sunPosition: [135, 100, -125],
+    stars: false,
+  },
+
   midway: {
     // A fairground on a bright, clear afternoon. The grass is kept quiet because the rides are
     // the colour, and the sun comes from behind the spawn so everything faces into the light.

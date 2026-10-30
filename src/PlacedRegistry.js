@@ -125,8 +125,13 @@ export class PlacedRegistry {
   // is invisible under `glide` and a full eight feet of lag under `forever { moveForward
   // 8 }`. Anything that has to sample a programmed object belongs after the program runs
   // -- which is where markerTrail.tick() already sits, for exactly this reason.
+  //
+  // The third argument is what programs have published with `share`, which is what lets one
+  // merged prop answer a block program without being 118 separately programmed objects: Atom
+  // Hall's skyline reads `trend` from here. Absent when no ProgramManager was given.
   tick(dt = 0, camera = null) {
-    for (const item of this.items.values()) item.tick?.update?.(dt, camera);
+    const worldVars = this.programManager?.worldVars;
+    for (const item of this.items.values()) item.tick?.update?.(dt, camera, worldVars);
   }
 
   get count() {

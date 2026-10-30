@@ -331,8 +331,8 @@ export function composeTicks(...ticks) {
   if (!live.length) return undefined;
   if (live.length === 1) return live[0];
   return {
-    update(dt, camera) {
-      for (const t of live) t.update?.(dt, camera);
+    update(dt, camera, worldVars) {
+      for (const t of live) t.update?.(dt, camera, worldVars);
     },
     dispose() {
       for (const t of live) t.dispose?.();

@@ -885,6 +885,53 @@ $WORLDS = [
             . "blocks. The giant teacup is already spinning \u{2014} open its program and "
             . "change the number.",
     ],
+    'smallchange' => [
+        'title'   => 'Small Change',
+        'creator' => 'Edusim HiFi',
+        'tags'    => 'hifi, finance, math, coding, official',
+        'description' =>
+            "You are the size of a quarter, standing on a kitchen table covered in the paperwork of a "
+            . "first job. A dollar bill is a rug, a ruler is a sixty-foot tower, and $100 in quarters "
+            . "stands 138 feet tall.\n\n"
+            . "Six stations teach high school personal finance, and every exhibit is a live model running "
+            . "block code. Click one, press Program, change a number and watch what happens: take-home pay, "
+            . "subscriptions, compounding, credit card debt, insurance and investing. Every rate is a "
+            . "classroom example, not a prediction or advice.\n\n"
+            . "The printable student card and teacher lesson plan are on this world's page in the main "
+            . "World Database, linked below.",
+    ],
+    'midway' => [
+        'title'   => "Newton's Midway",
+        'creator' => 'Isaac Newton',
+        'tags'    => 'hifi, science, physics, math, coding, official',
+        'description' =>
+            "A fairground on a bright afternoon where every ride is a working physics model, all of it "
+            . "running in block code. In this lab one foot of the world is one metre, so you are a "
+            . "five-metre giant and a forty-metre cannon shot fits in one view.\n\n"
+            . "Six stations cover high school mechanics: free fall on the Drop Tower, two-angle shots from "
+            . "the Big Cannon, F = ma on the Test Track, energy behind Coaster Hill, momentum at the Bumper "
+            . "Cars, and the swinging boat and the swing ride. Click a ride, press Program, change a number "
+            . "in a green block, predict, and measure.\n\n"
+            . "The printable student lesson guide and teacher lesson card are on this world's page in the "
+            . "main World Database, linked below.",
+    ],
+    'atomhall' => [
+        'title'   => 'Atom Hall',
+        'creator' => 'Dmitri Mendeleev',
+        'tags'    => 'hifi, science, coding, building, official',
+        'description' =>
+            "The periodic table, built as a city you can walk through. Every element is a tower, its "
+            . "numbers on a shopfront at street level, and its height is a measurement: you arrive at "
+            . "helium, the smallest atom, and the city climbs away from you toward francium, the largest.\n\n"
+            . "Click the green arrow on one button and the whole skyline changes shape until height means "
+            . "electronegativity and fluorine stands tallest. South of the city, walk around seven molecules "
+            . "and into a salt crystal, half packed at true ionic sizes and half opened up. Then the coding, "
+            . "all in blocks: a tank of particles run by one temperature, where you can melt a crystal, try "
+            . "another substance, and write your own heater.\n\n"
+            . "The printable student lesson guide and teacher lesson card are on this world's page in the "
+            . "main World Database, linked below.",
+    ],
+
     'turkle' => [
         'title'   => 'Turkle Street',
         'creator' => 'Edusim HiFi',

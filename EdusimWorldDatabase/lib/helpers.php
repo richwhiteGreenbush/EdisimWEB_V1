@@ -319,6 +319,7 @@ function ewd_theme_labels(): array
         'newyork'  => "1940's New York",
         'sea'      => 'Under the Sea',
         'smallchange' => 'Small Change',
+        'atomhall' => 'Atom Hall',
     ];
 }
 
@@ -341,6 +342,7 @@ function ewd_theme_emoji(string $theme): string
         'newyork'  => '🏙️',
         'sea'      => '🐠',
         'smallchange' => '🪙',
+        'atomhall' => '⚛️',
     ][$theme] ?? '🌍';
 }
 
