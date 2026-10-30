@@ -3687,9 +3687,9 @@ program. `tools/lib/run-blocks.mjs` runs a program through the real runner with 
 
 ### Stand on the Earth, and a dome you can really walk on
 
-`EarthSkyProps.js` + `EarthSkyModel.js` + `EarthSkyPrograms.js` + `standOnEarthLayout()`. A gallery
-world -- in `PRESET_WORLDS` (key `standonearth`), deliberately not in any menu, seeded with creator
-"Galileo Galilei", and in the HiFi gallery too. Moon phases and seasons, with the student as the Earth:
+`EarthSkyProps.js` + `EarthSkyModel.js` + `EarthSkyPrograms.js` + `standOnEarthLayout()`. Gallery
+world 47, and HiFi gallery world 48 -- in `PRESET_WORLDS` (key `standonearth`), deliberately not in
+any menu, seeded with creator "Galileo Galilei". Moon phases and seasons, with the student as the Earth:
 the classroom ball-and-lamp activity, except that they are the one standing in the middle.
 
 **THE CODING IS BLOCKS ONLY**, as Atom Hall's is, and `tools/check-standonearth.mjs` fails otherwise.
