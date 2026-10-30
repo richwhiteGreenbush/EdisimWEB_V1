@@ -78,6 +78,13 @@ $daily  = ewd_stats_daily($days);
 $pages  = ewd_stats_top_paths($days, 'page', 30);
 $refs   = ewd_stats_referrers($days, 25);
 
+$buildDays   = ewd_stats_build_days($days);
+$worldTitles = ewd_stats_gallery_titles($buildDays);
+foreach (array_keys($buildDays) as $d) {
+    $daily[$d] ??= [];
+}
+krsort($daily);
+
 // The activation rate the plan's second metric is defined as: of the sessions that
 // reached the app, how many actually built something. Guarded against a zero
 // denominator, which is what every fresh install has.
@@ -152,9 +159,55 @@ ewd_header(['title' => 'Traffic']);
                   <td class="n"><?= number_format((int)($k['app'] ?? 0)) ?></td>
                   <td class="n"><?= number_format((int)($k['built'] ?? 0)) ?></td>
                 </tr>
+                <?php if (!empty($buildDays[$day])):
+                  $placedRows  = array_filter($buildDays[$day], static fn ($r) => $r['program'] === '');
+                  $programRows = array_filter($buildDays[$day], static fn ($r) => $r['program'] !== '');
+                ?>
+                  <tr class="build-row">
+                    <td colspan="5">
+                      <details>
+                        <summary>What was built: <?= count($placedRows) ?> <?= count($placedRows) === 1 ? 'object' : 'objects' ?>, <?= count($programRows) ?> <?= count($programRows) === 1 ? 'program' : 'programs' ?></summary>
+                        <?php if ($placedRows): ?>
+                          <table class="build-table">
+                            <thead><tr><th>World</th><th>Object placed</th><th class="n">Sessions</th></tr></thead>
+                            <tbody>
+                              <?php foreach ($placedRows as $r): ?>
+                                <tr>
+                                  <td><?= e(ewd_stats_world_label((string)$r['world'], $worldTitles)) ?></td>
+                                  <td><?= e(ewd_stats_object_label((string)$r['object'])) ?></td>
+                                  <td class="n"><?= number_format((int)$r['hits']) ?></td>
+                                </tr>
+                              <?php endforeach; ?>
+                            </tbody>
+                          </table>
+                        <?php endif; ?>
+                        <?php if ($programRows): ?>
+                          <table class="build-table">
+                            <thead><tr><th>World</th><th>Object programmed</th><th>Program saved</th><th class="n">Sessions</th></tr></thead>
+                            <tbody>
+                              <?php foreach ($programRows as $r): ?>
+                                <tr>
+                                  <td><?= e(ewd_stats_world_label((string)$r['world'], $worldTitles)) ?></td>
+                                  <td><?= e(ewd_stats_object_label((string)$r['object'])) ?></td>
+                                  <td class="build-program"><?= e(ewd_stats_program_label((string)$r['program'])) ?></td>
+                                  <td class="n"><?= number_format((int)$r['hits']) ?></td>
+                                </tr>
+                              <?php endforeach; ?>
+                            </tbody>
+                          </table>
+                        <?php endif; ?>
+                      </details>
+                    </td>
+                  </tr>
+                <?php endif; ?>
               <?php endforeach; ?>
             </tbody>
           </table>
+          <p class="hint" style="margin-top:10px;">
+            Open a day to see what was built. A program shows the blocks or commands it uses,
+            never its numbers, its text or its code. Days before this detail went live show only
+            the total.
+          </p>
         <?php endif; ?>
       </div>
 
