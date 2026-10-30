@@ -3571,7 +3571,7 @@ ends inside this world), and the sign blades and chain-link fabric, which are pl
 
 ### Small Change, and a world whose exhibits are FINANCIAL MODELS
 
-`MoneyProps.js` + `MoneyModel.js` + `smallChangeLayout()`. A gallery world -- in
+`MoneyProps.js` + `MoneyModel.js` + `smallChangeLayout()`. Gallery world 44 -- in
 `PRESET_WORLDS` (key `smallchange`), deliberately not in any menu. High school personal
 finance on a kitchen table at sixty times life size.
 
