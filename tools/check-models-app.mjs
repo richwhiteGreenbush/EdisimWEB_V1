@@ -47,6 +47,22 @@ const records = (kind) => page.evaluate((k) => [...window.__debug.registry.items
   .map((i) => i.record).filter((r) => r?.kind === k).map((r) => JSON.parse(JSON.stringify(r))), kind);
 const screen = (name) => page.screenshot({ path: resolve(SHOTS, `${name}.jpg`), quality: 82, type: 'jpeg' });
 
+// Records rehydrate one at a time, so "the registry has something in it" is not "the world has
+// loaded". On a slow first run, checks started early saw records still arriving and the arrival
+// camera still moving, which reads as a miscounted sign and a player walking behind the panel.
+async function settled() {
+  await page.waitForFunction(() => {
+    const d = window.__debug;
+    const now = `${d.registry.count}|${d.camera.position.toArray().map((v) => v.toFixed(2)).join()}`;
+    const t = performance.now();
+    if (window.__settledKey !== now) {
+      window.__settledKey = now;
+      window.__settledAt = t;
+      return false;
+    }
+    return t - window.__settledAt > 2000;
+  }, null, { timeout: 180000, polling: 200 });
+}
 async function boot() {
   await page.waitForFunction(() => window.__debug?.registry?.count > 0, null, { timeout: 180000 });
   // HiFi covers the canvas with its loading screen until the world is ready, and a click on
@@ -54,7 +70,7 @@ async function boot() {
   if (await page.evaluate(() => !!window.__debug?.bscene)) {
     await page.waitForFunction(() => window.__ready === true, null, { timeout: 300000 });
   }
-  await page.waitForTimeout(1500);
+  await settled();
 }
 await page.goto(APP_URL, { waitUntil: 'load' });
 await boot();
@@ -254,7 +270,7 @@ if (download) {
   check('the world file carries the model', list.some((r) => r.kind === 'catalog-model' && r.model === 'human-heart'));
   await page.setInputFiles('input[type=file][accept=".json"]', path);
   await page.waitForFunction(() => [...window.__debug.registry.items.values()].some((i) => i.record?.kind === 'catalog-model'), null, { timeout: 60000 });
-  await page.waitForTimeout(1500);
+  await settled();
   check('it comes back from a world file', (await records('catalog-model')).length === 1);
 } else {
   check('the world file exports', false, 'no download event');
