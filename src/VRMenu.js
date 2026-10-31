@@ -155,7 +155,7 @@ export class VRMenu {
     // may genuinely want to save what they have just built before taking the headset off.
     rows.push({ id: 'saveWorld', label: 'Save World', leavesVR: true });
     rows.push({ id: 'loadWorldFile', label: 'Load World File', leavesVR: true });
-    // Out of VR first, like Import: fifty picture cards and a search box are flat-screen DOM,
+    // Out of VR first, like Import: a hundred picture cards and a search box are flat-screen DOM,
     // and so is the hammer panel a model is shaped with once it lands.
     rows.push({ id: 'modelDatabase', label: 'Model Database', leavesVR: true });
 

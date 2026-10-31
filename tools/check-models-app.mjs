@@ -11,6 +11,7 @@
 import { mkdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { MODELS, MODEL_CATEGORIES } from '../src/models/catalog.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const APP_URL = process.env.APP_URL || 'http://localhost:5199/';
@@ -93,8 +94,8 @@ const menuButton = (name) => page.locator('#primitive-menu button', { hasText: n
 await page.click('#menu-toggle');
 await page.click('.menu-btn-models');
 check('the menu row opens the panel', await page.locator('#modeldb-overlay').isVisible());
-check('the panel lists fifty models', (await page.locator('.mdb-card').count()) === 50, String(await page.locator('.mdb-card').count()));
-check('there are eight types plus All', (await page.locator('.mdb-rail-btn').count()) === 9);
+check('the panel lists every model', (await page.locator('.mdb-card').count()) === MODELS.length, String(await page.locator('.mdb-card').count()));
+check('there is a tab for each type plus All', (await page.locator('.mdb-rail-btn').count()) === MODEL_CATEGORIES.length + 1);
 await screen('01-panel');
 
 await page.fill('.mdb-search', 'mitochondria');
@@ -106,7 +107,7 @@ check('search matches inside a title', (await page.locator('.mdb-card-title').fi
 
 await page.fill('.mdb-search', '');
 await page.locator('.mdb-rail-btn', { hasText: 'Landmarks' }).click();
-check('a type tab filters the cards', (await page.locator('.mdb-card').count()) === 7);
+check('a type tab filters the cards', (await page.locator('.mdb-card').count()) === MODELS.filter((m) => m.category === 'landmarks').length);
 await page.locator('.mdb-rail-btn', { hasText: 'All models' }).click();
 await page.selectOption('.mdb-grade select', '6-8');
 const sixToEight = await page.locator('.mdb-card').count();

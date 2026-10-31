@@ -4,6 +4,9 @@
 //   node tools/model-pictures.mjs                  every model's card picture and turntable
 //   node tools/model-pictures.mjs --only violin,djembe
 //   node tools/model-pictures.mjs --shot violin    look at one model: writes scratch/model-shots/
+//   node tools/model-pictures.mjs --shot violin --look 3,5,4,0,4,0 --name scroll
+//                                                  one close-up from eye x,y,z toward x,y,z, in feet
+//                                                  at scale 1: writes scratch/model-shots/violin-scroll.jpg
 //
 // The default writes three places: public/models/ and HiFi/public/models/ (each edition serves
 // its own copy) and docs/assets/models/ (the card pictures only, for the teacher page).
@@ -31,6 +34,8 @@ const flag = (name) => {
 };
 const shotId = flag('shot');
 const only = flag('only')?.split(',').map((s) => s.trim()).filter(Boolean) ?? null;
+const look = flag('look')?.split(',').map(Number) ?? null;
+const lookName = flag('name') || 'look';
 
 async function loadPlaywright() {
   try {
@@ -209,6 +214,15 @@ window.__stage = await (async () => {
       dispose(stage);
       return { thumb, spin };
     },
+    async look(id, [ex, ey, ez, tx, ty, tz]) {
+      const stage = await setup(id, { scaled: false });
+      const camera = new THREE.PerspectiveCamera(50, 16 / 10, 0.02, 4000);
+      camera.position.set(ex, ey, ez);
+      camera.lookAt(tx, ty, tz);
+      const data = draw(stage, camera, 1100, 688).toDataURL('image/jpeg', 0.9);
+      dispose(stage);
+      return data;
+    },
     async shot(id) {
       const fitted = await setup(id, { scaled: false });
       const out = { stats: stats(fitted), views: {} };
@@ -252,7 +266,12 @@ async function main() {
   await page.waitForFunction(() => !!window.__debug?.renderer, null, { timeout: 120000 });
   await page.evaluate(`(async () => { ${STAGE} })()`);
 
-  if (shotId) {
+  if (shotId && look) {
+    const data = await page.evaluate(([id, at]) => window.__stage.look(id, at), [shotId, look]);
+    const path = resolve(ROOT, `scratch/model-shots/${shotId}-${lookName}.jpg`);
+    writeData(path, data);
+    console.log(path);
+  } else if (shotId) {
     const { stats, views } = await page.evaluate((id) => window.__stage.shot(id), shotId);
     console.log(`${shotId}: ${stats.triangles} triangles, ${stats.meshes} meshes, ${stats.transparent} transparent, ${stats.lights} lights, ${stats.size.join(' x ')} ft at scale 1`);
     for (const [name, data] of Object.entries(views)) {

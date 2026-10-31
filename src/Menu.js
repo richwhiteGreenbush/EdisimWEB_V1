@@ -113,7 +113,7 @@ export class Menu {
 
     // Above Create Model, because it answers the same question with less work: "I need a
     // heart in this world" is a search away, where building one is an afternoon. It opens a
-    // panel, not a dropdown, because fifty pictures do not fit in this column.
+    // panel, not a dropdown, because a hundred pictures do not fit in this column.
     const modelDatabaseBtn = this._button(
       'Model Database',
       'Browse and search ready-made educational models, and place them in this world'
