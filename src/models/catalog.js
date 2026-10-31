@@ -265,6 +265,34 @@ export const MODELS = [
     tryThis: 'Find one of each kind of cell. Which is there the most of in real blood?',
     answer: 'Red blood cells, by a very long way.',
   },
+  {
+    id: 'human-skull', title: 'Human Skull', category: 'body', builder: 'organic5', scale: 1, yaw: -0.35,
+    grades: UP3, subjects: ['biology', 'human body', 'anatomy'],
+    aliases: ['cranium', 'jaw', 'mandible', 'sutures', 'teeth', 'bones', 'eye sockets', 'skeleton', 'anatomy'],
+    blurb: 'A teaching skull on a stand, with its top cap lifted to show the inside and its jaw hinged open.',
+    facts: [
+      'An adult skull is made of 22 bones, not counting the tiny bones of the ear.',
+      'The lower jaw is the only skull bone that moves freely. Most of the others are locked together at wavy joints called sutures.',
+      'A baby\u2019s skull has soft gaps between its bones, which let the head pass through birth and the brain grow.',
+    ],
+    realSize: 'About 9 inches tall', shownAt: 'Enlarged about 5 times',
+    tryThis: 'Find the sutures on the top. Why might the bones join with wavy edges instead of straight ones?',
+    answer: 'The interlocking edges make a stronger joint, like the teeth of a zip.',
+  },
+  {
+    id: 'human-spine', title: 'Human Spine', category: 'body', builder: 'organic5', scale: 1, yaw: -0.9,
+    grades: UP3, subjects: ['biology', 'human body', 'health'],
+    aliases: ['vertebrae', 'backbone', 'spinal cord', 'discs', 'cervical', 'thoracic', 'lumbar', 'sacrum', 'nerves'],
+    blurb: 'A full spine on a stand, showing its S-shaped curve, cushioning discs and the spinal cord running through it.',
+    facts: [
+      'An adult spine has 24 separate vertebrae: 7 in the neck, 12 in the chest and 5 in the lower back.',
+      'Below those are the sacrum and the tailbone, each made of fused bones.',
+      'Its S-shaped curve and soft discs absorb shock, and the bones protect the spinal cord.',
+    ],
+    realSize: 'About 28 inches long', shownAt: 'About two and a half times life size',
+    tryThis: 'Count the neck, chest and lower back vertebrae. Why are the lowest ones the biggest?',
+    answer: '7, 12 and 5. The lowest carry the most weight.',
+  },
 
   // --- Plants & Animals ---------------------------------------------------------------
   {
@@ -564,6 +592,46 @@ export const MODELS = [
     tryThis: 'Place a Woolly Mammoth beside it. How are their ears different, and why might that be?',
     answer: 'The mammoth\u2019s ears were much smaller, which loses less heat in a cold climate.',
   },
+  {
+    id: 'bacteriophage', title: 'Bacteriophage Virus', category: 'life', builder: 'organic5', scale: 1, pictureElevation: 10,
+    grades: UP6, subjects: ['biology', 'microbiology', 'health'],
+    aliases: ['virus', 'phage', 't4', 'bacteria', 'dna', 'capsid', 'tail fibers', 'infection', 'microscopic'],
+    blurb: 'A T4 virus landing on a bacterium, with its faceted head, tail and six long leg fibers.',
+    facts: [
+      'A bacteriophage is a virus that infects bacteria, not people.',
+      'It lands on a bacterium and injects its DNA through its tail, like a tiny syringe.',
+      'Phages were discovered in the 1910s, and they are thought to be the most common life-like things on Earth.',
+    ],
+    realSize: 'About 200 nanometres tall', shownAt: 'Enlarged about 12 million times',
+    tryThis: 'Why would a virus need a bacterium at all? What can it not do alone?',
+    answer: 'A virus cannot copy itself alone. It has to use the machinery of a living cell.',
+  },
+  {
+    id: 'giraffe', title: 'Giraffe', category: 'life', builder: 'organic5', scale: 0.6, yaw: -0.8,
+    grades: ALL, subjects: ['biology', 'ecology', 'geography'],
+    aliases: ['africa', 'savanna', 'long neck', 'mammal', 'ossicones', 'acacia', 'browser', 'tallest animal'],
+    blurb: 'The tallest living land animal, with its long neck, blotched coat and short horn-like ossicones.',
+    facts: [
+      'Giraffes are the tallest living land animals, and large males reach about 18 feet.',
+      'A giraffe has 7 neck bones, the same number as a human, but each is far longer.',
+      'Its long dark tongue reaches leaves that other animals cannot, even among acacia thorns.',
+    ],
+    realSize: 'Up to about 18 feet tall', shownAt: 'About 60% of life size',
+    tryThis: 'Stand beside it. How many of you would it take to reach its head at this scale?',
+  },
+  {
+    id: 'polar-bear', title: 'Polar Bear', category: 'life', builder: 'organic5', scale: 0.7, yaw: -0.8,
+    grades: ALL, subjects: ['biology', 'ecology', 'earth science'],
+    aliases: ['arctic', 'sea ice', 'bear', 'mammal', 'climate', 'blubber', 'fur', 'seal', 'carnivore'],
+    blurb: 'A large male walking across a slab of sea ice, with its thick pale coat and huge paws.',
+    facts: [
+      'Polar bears are the largest living land carnivores, and they hunt mostly seals from the sea ice.',
+      'Their hairs look white but are actually clear, and their skin underneath is black.',
+      'Thick fat and dense fur keep them warm, and their big paws work as paddles and snowshoes.',
+    ],
+    realSize: 'Large males are up to about 10 feet long', shownAt: 'About 70% of life size',
+    tryThis: 'Why would losing sea ice be a problem for an animal that hunts on it?',
+  },
 
   // --- Earth & Space ------------------------------------------------------------------
   {
@@ -827,6 +895,47 @@ export const MODELS = [
     realSize: 'About 122 feet long', shownAt: 'About 1/5 of life size',
     tryThis: 'Why would landing like a glider be different from a capsule falling into the sea?',
   },
+  {
+    id: 'sun-cutaway', title: 'Sun Cutaway', category: 'space', builder: 'science5', scale: 1, pictureElevation: 10,
+    grades: UP3, subjects: ['astronomy', 'physics'],
+    aliases: ['star', 'core', 'fusion', 'corona', 'sunspot', 'solar flare', 'radiative zone', 'convection', 'photosphere'],
+    blurb: 'The Sun with a wedge removed, showing its core and layers, with sunspots on its surface and a looping prominence rising off it.',
+    facts: [
+      'In the Sun\u2019s core, hydrogen fuses into helium and releases enormous energy.',
+      'That energy takes many thousands of years to work its way out of the Sun.',
+      'Once it escapes, sunlight reaches Earth in about 8 minutes. The Sun is about 109 Earths wide.',
+    ],
+    realSize: 'About 865,000 miles across', shownAt: 'A tiny scale model, with its thinnest layer and surface features enlarged',
+    tryThis: 'Sunspots are cooler than the surface around them. How can you tell from the model?',
+    answer: 'They look dark. They still shine, but less brightly than the hotter surface around them.',
+  },
+  {
+    id: 'moon-phases', title: 'Moon Phases Model', category: 'space', builder: 'science5', scale: 1, pictureElevation: 30,
+    grades: ALL, subjects: ['astronomy', 'earth science'],
+    aliases: ['lunar cycle', 'crescent', 'gibbous', 'full moon', 'new moon', 'first quarter', 'orbit', 'sun', 'month'],
+    blurb: 'A table with the Earth at its centre and eight Moons around it, each half lit by a lamp at one side.',
+    facts: [
+      'Half of the Moon is always lit by the Sun. The phases come from how much of that half we can see.',
+      'The cycle from new Moon to new Moon takes about 29.5 days.',
+      'Phases are not caused by Earth\u2019s shadow. That happens only during a lunar eclipse.',
+    ],
+    realSize: 'The Moon is about 239,000 miles from Earth', shownAt: 'A small teaching model, not to scale',
+    tryThis: 'Stand at the Earth and look at each Moon in turn. Which one looks full?',
+    answer: 'The one on the far side of the Earth from the lamp.',
+  },
+  {
+    id: 'glacier-block', title: 'Glacier Valley', category: 'space', builder: 'science5', scale: 1, yaw: 0.3, pictureElevation: 28,
+    grades: UP3, subjects: ['earth science', 'geology', 'climate'],
+    aliases: ['ice', 'moraine', 'crevasse', 'u-shaped valley', 'erosion', 'meltwater', 'alps', 'ice age', 'fjord'],
+    blurb: 'A mountain valley in a block, with a glacier grinding down it, crevasses, moraines and a meltwater lake.',
+    facts: [
+      'A glacier is a huge mass of ice that slowly flows downhill under its own weight.',
+      'As it moves, it carves valleys into a U shape, and rivers cut a V shape.',
+      'The rock it carries and leaves behind forms ridges called moraines.',
+    ],
+    realSize: 'Many miles long', shownAt: 'A small teaching model',
+    tryThis: 'Find the ridge at the end of the glacier. What does it tell you about where the ice used to reach?',
+  },
 
   // --- Chemistry & Physics ------------------------------------------------------------
   {
@@ -1047,6 +1156,48 @@ export const MODELS = [
     tryThis: 'Read the weights on the right. What must the block on the left weigh?',
     answer: 'The weights read 5, 2 and 1 pounds, so the block weighs 8 pounds. It is also how an equation works: both sides are equal.',
   },
+  {
+    id: 'newtons-reflector', title: 'Newton\u2019s Reflecting Telescope', category: 'lab', builder: 'science5', scale: 1, yaw: -0.8,
+    grades: UP3, subjects: ['physics', 'astronomy', 'history of science'],
+    aliases: ['isaac newton', 'mirror', 'reflector', 'telescope', 'optics', 'royal society', 'ball mount'],
+    blurb: 'A small telescope on a ball mount, with its side opened to show the two mirrors inside.',
+    facts: [
+      'Isaac Newton built his reflecting telescope in 1668.',
+      'It uses a curved mirror to gather light, which avoids the colour fringes that lenses make.',
+      'Most large research telescopes today use mirrors too.',
+    ],
+    realSize: 'About 6 inches long', shownAt: 'Enlarged about 12 times, with its mirror\u2019s curve drawn deeper so it can be seen',
+    tryThis: 'Follow the light: in through the open end, to the big mirror, to the small one, then where?',
+    answer: 'Out through the side of the tube, to the eyepiece.',
+  },
+  {
+    id: 'hydraulic-lift', title: 'Hydraulic Lift', category: 'lab', builder: 'science5', scale: 1, yaw: -0.3, pictureElevation: 14,
+    grades: UP3, subjects: ['physics', 'engineering'],
+    aliases: ['pascal', 'pressure', 'piston', 'fluid', 'car lift', 'force', 'brakes', 'simple machine'],
+    blurb: 'Two connected glass cylinders of oil, where a small piston and a light weight lift a much heavier one.',
+    facts: [
+      'Pressure on a trapped liquid spreads through all of it equally. This is Pascal\u2019s principle.',
+      'A big piston has more area for that pressure to push on, so it lifts with more force.',
+      'Here the large piston has 16 times the area of the small one, so 1 pound balances 16 pounds.',
+    ],
+    realSize: 'From a car jack to a large machine', shownAt: 'A large demonstration model',
+    tryThis: 'To lift the big piston 1 inch, how far must the small one move?',
+    answer: 'About 16 inches. You trade distance for force.',
+  },
+  {
+    id: 'diamond-graphite', title: 'Diamond and Graphite', category: 'lab', builder: 'math5', scale: 1, pictureElevation: 16,
+    grades: UP6, subjects: ['chemistry', 'earth science'],
+    aliases: ['carbon', 'crystal', 'allotrope', 'covalent', 'lattice', 'pencil', 'gem', 'hardness', 'hexagon'],
+    blurb: 'Two ball-and-stick models side by side, showing how the same carbon atoms make a gem and a pencil.',
+    facts: [
+      'Diamond and graphite are both pure carbon. Only the arrangement of the atoms is different.',
+      'In diamond, every atom bonds to 4 others in a rigid 3D network, which makes it extremely hard.',
+      'In graphite, atoms form flat sheets of hexagons that slide over one another, so it leaves marks on paper.',
+    ],
+    realSize: 'Atoms about 0.15 billionths of a metre apart', shownAt: 'Enlarged tens of billions of times, with graphite\u2019s layers drawn closer',
+    tryThis: 'Pick an atom in each model and count how many others it joins directly.',
+    answer: 'Four in diamond and three in graphite.',
+  },
 
   // --- Math & Geometry -----------------------------------------------------------------
   {
@@ -1188,6 +1339,34 @@ export const MODELS = [
     realSize: 'A desktop puzzle is about a foot wide', shownAt: 'Enlarged about 9 times',
     tryThis: 'Work out the fewest moves for three discs, then four. Can you see the pattern?',
     answer: 'Three discs take 7 moves and four take 15. Each is double the last, plus one.',
+  },
+  {
+    id: 'klein-bottle', title: 'Klein Bottle', category: 'math', builder: 'math5', scale: 1, pictureElevation: 10,
+    grades: UP6, subjects: ['mathematics', 'geometry'],
+    aliases: ['topology', 'one sided', 'felix klein', 'surface', 'non-orientable', 'mobius', 'four dimensions'],
+    blurb: 'A glass-like bottle whose neck passes through its own side and joins its base, with no inside or outside.',
+    facts: [
+      'A Klein bottle is a surface with no inside or outside, described by Felix Klein in 1882.',
+      'In true form it does not cross itself, but that needs four dimensions.',
+      'A model in our three dimensions has to pass through itself, as this one does.',
+    ],
+    realSize: 'Any size at all', shownAt: 'A large demonstration model',
+    tryThis: 'Compare it with the M\u00f6bius Strip. How are they alike? Try tracing a path along the surface.',
+    answer: 'Both have only one side, so a path can reach every part of the surface without crossing an edge.',
+  },
+  {
+    id: 'tangram', title: 'Tangram', category: 'math', builder: 'math5', scale: 1, pictureElevation: 46,
+    grades: ALL, subjects: ['mathematics', 'geometry', 'world cultures'],
+    aliases: ['puzzle', 'china', 'dissection', 'triangles', 'parallelogram', 'shapes', 'area', 'fractions'],
+    blurb: 'Seven coloured pieces cut from one square, shown assembled and rearranged into a cat and a boat.',
+    facts: [
+      'The tangram is a Chinese puzzle that spread around the world in the early 1800s.',
+      'Its seven pieces are 5 triangles, 1 square and 1 parallelogram.',
+      'However you arrange all seven, the total area stays the same.',
+    ],
+    realSize: 'A puzzle that fits in your hand', shownAt: 'Enlarged about 10 times',
+    tryThis: 'What fraction of the whole square is one of the big triangles? What about the small square?',
+    answer: 'A big triangle is one quarter. The small square is one eighth.',
   },
 
   // --- Inventions & Transport ---------------------------------------------------------
@@ -1422,6 +1601,47 @@ export const MODELS = [
     tryThis: 'Why did going from New York to San Francisco by sea mean going around South America?',
     answer: 'The Panama Canal did not open until 1914.',
     program: 'shuttle',
+  },
+  {
+    id: 'pendulum-clock', title: 'Pendulum Clock', category: 'machines', builder: 'math5', scale: 1, yaw: -0.3,
+    grades: ALL, subjects: ['physics', 'history', 'engineering'],
+    aliases: ['grandfather clock', 'longcase', 'huygens', 'escapement', 'gears', 'time', 'weights', 'galileo'],
+    blurb: 'A tall wooden longcase clock with its side open to show the gears, escapement, weights and pendulum.',
+    facts: [
+      'Christiaan Huygens designed the first pendulum clock in 1656.',
+      'A pendulum\u2019s swing time depends on its length, not on how heavy it is.',
+      'A pendulum about 39 inches long takes one second to swing each way.',
+    ],
+    realSize: 'About 7 feet tall', shownAt: 'Life size, with the gears lowered below the dial so you can see them. In a real clock they sit behind it',
+    tryThis: 'If a clock runs slow, should you make its pendulum longer or shorter?',
+    answer: 'Shorter. A shorter pendulum swings faster.',
+  },
+  {
+    id: 'telegraph-key', title: 'Morse Telegraph', category: 'machines', builder: 'heritage5', scale: 1, yaw: -0.4, pictureElevation: 26,
+    grades: ALL, subjects: ['history', 'technology', 'physics'],
+    aliases: ['samuel morse', 'morse code', 'dots and dashes', 'sounder', 'electromagnet', 'wire', 'communication', '1844'],
+    blurb: 'A brass telegraph key and sounder wired to a battery on a wooden desk, with a printed code chart.',
+    facts: [
+      'Samuel Morse and Alfred Vail sent a famous message from Washington to Baltimore in 1844.',
+      'Pressing the key closes a circuit, and an electromagnet at the far end clicks in response.',
+      'Morse code spells letters from short and long signals, called dots and dashes.',
+    ],
+    realSize: 'A desktop key is a few inches long', shownAt: 'Enlarged about 8 times, with both ends of the line on one desk',
+    tryThis: 'Use the chart to spell your name in dots and dashes. Why would E be just one dot?',
+    answer: 'E is the most common letter in English, so giving it the shortest code saves time.',
+  },
+  {
+    id: 'goddard-rocket', title: 'Goddard\u2019s Rocket', category: 'machines', builder: 'heritage5', scale: 1, yaw: -0.3, pictureElevation: 8,
+    grades: UP3, subjects: ['history', 'physics', 'engineering'],
+    aliases: ['robert goddard', 'liquid fuel', 'auburn', 'massachusetts', '1926', 'nell', 'oxygen', 'gasoline', 'launch frame'],
+    blurb: 'The first liquid-fueled rocket in its launch frame, a spindly machine with its engine at the top.',
+    facts: [
+      'Robert Goddard launched the first liquid-fueled rocket on March 16, 1926, in Auburn, Massachusetts.',
+      'It burned gasoline and liquid oxygen, and flew for about 2.5 seconds.',
+      'It rose only 41 feet, but it showed the way to the rockets that later reached the Moon.',
+    ],
+    realSize: 'About 11 feet tall', shownAt: 'About life size, with the details of its frame approximate',
+    tryThis: 'Compare it with the Saturn V, which first flew only 41 years later. What changed most?',
   },
 
   // --- Landmarks ----------------------------------------------------------------------
@@ -1662,6 +1882,46 @@ export const MODELS = [
     realSize: 'About 1,454 feet tall to the tip of its antenna', shownAt: 'About 1/35 of life size',
     tryThis: 'Why would a city want tall buildings to get narrower as they rise?',
   },
+  {
+    id: 'himeji-castle', title: 'Himeji Castle', category: 'landmarks', builder: 'world5', scale: 1, yaw: 0.35, pictureElevation: 14,
+    grades: ALL, subjects: ['history', 'world cultures', 'engineering'],
+    aliases: ['japan', 'samurai', 'white heron', 'keep', 'tenshu', 'feudal', 'unesco', 'moat', 'plaster'],
+    blurb: 'The white hilltop castle of Japan, with its great main keep and layered curving roofs.',
+    facts: [
+      'Its great main keep was finished in about 1609.',
+      'It is nicknamed the White Heron Castle, after its white plaster walls and its graceful shape.',
+      'It was never attacked in battle, and it survived bombing in World War II and a big earthquake in 1995. It became a World Heritage Site in 1993.',
+    ],
+    realSize: 'The main keep is about 150 feet tall', shownAt: 'About 1/10 of life size, with its grounds drawn in closer',
+    tryThis: 'Place a Medieval Castle beside it. How are their ideas of defence alike and different?',
+  },
+  {
+    id: 'djenne-mosque', title: 'Great Mosque of Djenn\u00e9', category: 'landmarks', builder: 'world5', scale: 1, yaw: 0.4, pictureElevation: 19,
+    grades: ALL, subjects: ['history', 'world cultures', 'art', 'engineering'],
+    aliases: ['mali', 'africa', 'mud brick', 'adobe', 'banco', 'sudano-sahelian', 'unesco', 'toron', 'west africa'],
+    blurb: 'The vast mud-brick building of Mali, its towers bristling with palm-wood beams.',
+    facts: [
+      'It is the largest mud-brick building in the world, and the present building dates from 1907.',
+      'The bundles of palm wood sticking out of its walls strengthen them, and serve as scaffolding.',
+      'Each year the people of Djenn\u00e9 gather to replaster it with fresh mud, in a great community festival.',
+    ],
+    realSize: 'Its platform is about 250 feet on each side', shownAt: 'About 1/10 of life size',
+    tryThis: 'Why would a building of mud need looking after every year, and why might a whole town help?',
+  },
+  {
+    id: 'us-capitol', title: 'United States Capitol', category: 'landmarks', builder: 'heritage5', scale: 1, yaw: 0.35, pictureElevation: 12,
+    grades: ALL, subjects: ['civics', 'history', 'art'],
+    aliases: ['congress', 'washington', 'dome', 'senate', 'house of representatives', 'government', 'legislature', 'statue of freedom'],
+    blurb: 'The domed home of Congress in Washington, D.C., with its long wings for the Senate and the House.',
+    facts: [
+      'Congress meets here: the Senate in the north wing and the House of Representatives in the south wing.',
+      'George Washington laid its cornerstone in 1793.',
+      'Its cast-iron dome was built during the 1850s and 1860s, and work went on through the Civil War.',
+    ],
+    realSize: 'About 288 feet tall to the top of the statue', shownAt: 'About 1/20 of life size',
+    tryThis: 'Why would a country want its lawmakers to meet in one building with two separate wings?',
+    answer: 'Congress has two chambers, the Senate and the House, and each has its own wing.',
+  },
 
   // --- History & Artifacts ------------------------------------------------------------
   {
@@ -1879,6 +2139,49 @@ export const MODELS = [
     realSize: 'About 16 feet wide', shownAt: 'About life size',
     tryThis: 'What would be good about living in this house? What would be hard?',
   },
+  {
+    id: 'zhang-heng-seismoscope', title: 'Zhang Heng\u2019s Seismoscope', category: 'artifacts', builder: 'math5', scale: 1,
+    grades: ALL, subjects: ['history of science', 'earth science', 'world cultures'],
+    aliases: ['china', 'earthquake', 'han dynasty', 'dragons', 'toads', 'bronze', 'seismograph', 'invention'],
+    blurb: 'A bronze urn with eight dragons holding balls above eight open-mouthed toads, to signal an earthquake.',
+    facts: [
+      'The Chinese scholar Zhang Heng built the first known earthquake detector in the year 132.',
+      'A shake made a dragon drop its ball into the toad below, and that was said to show the direction of the quake.',
+      'None survives and its inner workings are unknown, so models like this one are based on old descriptions.',
+    ],
+    realSize: 'Described as about 6 feet across', shownAt: 'About life size',
+    tryThis: 'Count the dragons. How would eight dragons help tell where a far-off earthquake came from?',
+    answer: 'There are eight, facing the eight main compass directions.',
+  },
+  {
+    id: 'shaduf', title: 'Egyptian Shaduf', category: 'artifacts', builder: 'heritage5', scale: 1, yaw: -0.8, pictureElevation: 14,
+    grades: ALL, subjects: ['history', 'physics', 'world cultures'],
+    aliases: ['egypt', 'nile', 'irrigation', 'lever', 'counterweight', 'farming', 'simple machine', 'water', 'mesopotamia'],
+    blurb: 'A long pole on a pivot with a bucket at one end and a mud counterweight at the other, beside a canal.',
+    facts: [
+      'A shaduf lifts water from a river or canal to water crops, using a lever and a counterweight.',
+      'Tomb paintings show them in ancient Egypt, and they were used in Mesopotamia even earlier.',
+      'Farmers still use them in some places today.',
+    ],
+    realSize: 'A pole often 10 to 15 feet long', shownAt: 'About life size',
+    tryThis: 'Why would the heavy weight make lifting a full bucket easier? What job does the person do?',
+    answer: 'The weight does the lifting. The person pulls the empty bucket down into the water.',
+  },
+  {
+    id: 'greek-trireme', title: 'Greek Trireme', category: 'artifacts', builder: 'heritage5', scale: 0.33, yaw: -0.9, pictureElevation: 14,
+    grades: UP3, subjects: ['history', 'world cultures', 'engineering'],
+    aliases: ['greece', 'athens', 'warship', 'oars', 'rowers', 'ram', 'salamis', 'ancient', 'navy'],
+    blurb: 'An ancient Greek warship with three banks of oars, a bronze ram, a painted eye and a square sail.',
+    facts: [
+      'A trireme had three levels of oars, worked by about 170 rowers.',
+      'Its main weapon was the bronze ram on its bow.',
+      'Athenian triremes helped defeat the Persian fleet at the Battle of Salamis in 480 BCE.',
+    ],
+    realSize: 'About 120 feet long', shownAt: 'About 1/3 of life size, with each tier\u2019s oar blades painted differently so they can be counted',
+    tryThis: 'Why would three levels of oars be better than one long row? Think about the length of the ship.',
+    answer: 'It packs in more rowers, and so more speed and power, without making the ship much longer.',
+    program: 'shuttle',
+  },
 
   // --- Arts & Music -------------------------------------------------------------------
   {
@@ -2094,6 +2397,47 @@ export const MODELS = [
     realSize: 'An alto is about 2 feet tall', shownAt: 'Enlarged about 3 times',
     tryThis: 'Compare it with the Trumpet. Why would one count as brass and the other as a woodwind?',
     answer: 'A trumpet player buzzes their lips, and a saxophone player vibrates a reed.',
+  },
+  {
+    id: 'kora', title: 'Kora', category: 'arts', builder: 'world5', scale: 1, yaw: -0.3,
+    grades: ALL, subjects: ['music', 'world cultures', 'history'],
+    aliases: ['west africa', 'mali', 'senegal', 'gambia', 'griot', 'jali', 'mandinka', 'calabash', 'harp', 'strings'],
+    blurb: 'A West African harp-lute with a large calabash body, a long neck and 21 strings in two rows.',
+    facts: [
+      'The kora is played in West Africa, especially by griots, who keep history and stories alive in song.',
+      'It has 21 strings, once made from thin strips of hide and now usually fishing line or harp string, and a body cut from a large gourd.',
+      'The player holds it facing them and plucks with the thumbs and forefingers of both hands.',
+    ],
+    realSize: 'About 4 feet tall', shownAt: 'About one and a half times life size',
+    tryThis: 'How is this different from the Concert Harp? Why would a history-keeper want something portable?',
+  },
+  {
+    id: 'steelpan', title: 'Steelpan', category: 'arts', builder: 'world5', scale: 1, pictureElevation: 34,
+    grades: ALL, subjects: ['music', 'world cultures', 'physics'],
+    aliases: ['steel drum', 'trinidad', 'tobago', 'caribbean', 'oil drum', 'percussion', 'calypso', 'carnival'],
+    blurb: 'A chromed tenor pan on its stand, with its bowl hammered into a pattern of note shapes.',
+    facts: [
+      'The steelpan was invented in Trinidad and Tobago in the 1930s and 1940s, and is its national instrument.',
+      'The first pans were made from metal containers like biscuit tins and paint cans. Empty oil drums took over in the 1940s.',
+      'Each note is a separate hammered patch of the bowl, and smaller patches play higher notes.',
+    ],
+    realSize: 'About 2 feet across', shownAt: 'Enlarged about 2 times',
+    tryThis: 'Find the biggest and smallest note shapes. Which plays the highest note?',
+    answer: 'The smallest shape plays the highest note.',
+  },
+  {
+    id: 'tuba', title: 'Tuba', category: 'arts', builder: 'world5', scale: 1, yaw: -0.4,
+    grades: ALL, subjects: ['music', 'physics', 'history'],
+    aliases: ['brass', 'valves', 'band', 'orchestra', 'low notes', 'instrument', 'bell', 'wieprecht'],
+    blurb: 'A large gold-lacquered tuba on a stand, with its coiled tubing, four valves and upward-facing bell.',
+    facts: [
+      'The tuba is the largest and lowest-pitched brass instrument.',
+      'It was patented in Berlin in 1835.',
+      'A large B-flat tuba has about 18 feet of tubing if straightened, which is why it plays such low notes.',
+    ],
+    realSize: 'About 3 feet tall', shownAt: 'About twice life size',
+    tryThis: 'Place a Trumpet beside it. How does the length of tubing change the note?',
+    answer: 'Longer tubing plays lower notes.',
   },
 ];
 
