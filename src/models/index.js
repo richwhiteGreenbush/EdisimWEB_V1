@@ -44,6 +44,11 @@ const BUILDER_CHUNKS = {
   math4: () => import('./builders/Math4.js'),
   heritage4: () => import('./builders/Heritage4.js'),
   world4: () => import('./builders/World4.js'),
+  organic5: () => import('./builders/Organic5.js'),
+  science5: () => import('./builders/Science5.js'),
+  math5: () => import('./builders/Math5.js'),
+  heritage5: () => import('./builders/Heritage5.js'),
+  world5: () => import('./builders/World5.js'),
 };
 
 export async function buildCatalogModel(id) {
