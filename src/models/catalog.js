@@ -237,6 +237,34 @@ export const MODELS = [
     tryThis: 'Bend your own elbow and feel your upper arm. Which muscle got shorter and fatter?',
     answer: 'The biceps, on the front of the upper arm.',
   },
+  {
+    id: 'bone-section', title: 'Bone Cross Section', category: 'body', builder: 'organic4', scale: 1, yaw: -0.4,
+    grades: UP3, subjects: ['biology', 'human body', 'health'],
+    aliases: ['femur', 'marrow', 'compact bone', 'spongy bone', 'periosteum', 'skeleton', 'blood cells', 'osteon'],
+    blurb: 'The end of a thigh bone sawn open to show hard compact bone, spongy bone and marrow.',
+    facts: [
+      'Bone is living tissue with its own blood supply, and it can repair itself after a break.',
+      'Dense compact bone forms the outside, and lighter spongy bone fills the ends.',
+      'Red marrow inside some bones makes the body\u2019s blood cells.',
+    ],
+    realSize: 'A thigh bone is about 18 inches long', shownAt: 'Enlarged about 10 times, showing only its upper part',
+    tryThis: 'Why would a bone be spongy inside instead of solid all the way through?',
+    answer: 'Spongy bone is strong for its weight, so the skeleton stays strong without being too heavy to move.',
+  },
+  {
+    id: 'blood-vessel', title: 'Inside a Blood Vessel', category: 'body', builder: 'organic4', scale: 1, yaw: -0.6,
+    grades: UP3, subjects: ['biology', 'human body', 'health'],
+    aliases: ['artery', 'red blood cells', 'white blood cells', 'platelets', 'plasma', 'circulation', 'hemoglobin', 'immune system'],
+    blurb: 'An artery cut open along its length, with red cells, white cells and platelets flowing inside.',
+    facts: [
+      'Red blood cells carry oxygen, using a protein called hemoglobin.',
+      'White blood cells help fight infection, and platelets help blood to clot.',
+      'An artery has thick, muscular walls, since it carries blood under pressure from the heart.',
+    ],
+    realSize: 'The largest artery is about an inch wide, and a red blood cell is far too small to see', shownAt: 'Greatly enlarged, with the cells much larger than the vessel would really show',
+    tryThis: 'Find one of each kind of cell. Which is there the most of in real blood?',
+    answer: 'Red blood cells, by a very long way.',
+  },
 
   // --- Plants & Animals ---------------------------------------------------------------
   {
@@ -494,6 +522,48 @@ export const MODELS = [
     realSize: 'A nest can be far bigger than this slice', shownAt: 'Ants enlarged about 30 times, with the queen and eggs drawn larger still',
     tryThis: 'Find the queen. Why would her chamber be deep underground?',
   },
+  {
+    id: 'beehive-cutaway', title: 'Beehive Cutaway', category: 'life', builder: 'organic4', scale: 1, pictureElevation: 18,
+    grades: ALL, subjects: ['biology', 'ecology', 'mathematics'],
+    aliases: ['honeycomb', 'hexagon', 'langstroth', 'frames', 'beekeeper', 'brood', 'wax', 'queen bee', 'pollinator'],
+    blurb: 'A wooden hive with its side open and a frame lifted out, showing six-sided cells of honey and young bees.',
+    facts: [
+      'Bees build six-sided cells, a shape that holds a lot of honey for very little wax.',
+      'Some cells hold honey and pollen, and others hold the eggs and young of the colony.',
+      'Lorenzo Langstroth patented a hive with removable frames in 1852, and most hives still use the idea.',
+    ],
+    realSize: 'A hive box is about 20 inches long', shownAt: 'Enlarged about 4 times',
+    tryThis: 'Why would six-sided cells waste less space than round ones?',
+    answer: 'Hexagons fit together with no gaps, and round cells leave gaps between them.',
+  },
+  {
+    id: 'seed-germination', title: 'Bean Seed Sprouting', category: 'life', builder: 'organic4', scale: 1, pictureElevation: 8,
+    grades: ALL, subjects: ['biology', 'plants', 'life cycles'],
+    aliases: ['germination', 'seedling', 'bean', 'root', 'radicle', 'cotyledon', 'growth', 'garden', 'plant life cycle'],
+    blurb: 'Six stages of a bean growing in a slice of soil, from a dry seed to a seedling with true leaves.',
+    facts: [
+      'A seed needs water, warmth and oxygen to start growing. Most do not need light yet.',
+      'The first root usually comes out before any shoot.',
+      'The two halves of a bean, called cotyledons, feed the young plant until its leaves can make food.',
+    ],
+    realSize: 'The seedling is a few inches tall', shownAt: 'Enlarged about 10 times',
+    tryThis: 'What happens to the cotyledons as the plant grows? Look at each stage in turn.',
+    answer: 'They shrink as their stored food is used up, and then they wither.',
+  },
+  {
+    id: 'african-elephant', title: 'African Elephant', category: 'life', builder: 'organic4', scale: 0.6, yaw: -0.8,
+    grades: ALL, subjects: ['biology', 'ecology', 'geography'],
+    aliases: ['savanna', 'trunk', 'tusks', 'mammal', 'africa', 'largest land animal', 'herd', 'ivory', 'conservation'],
+    blurb: 'A large savanna elephant with its huge ears, curved tusks and wrinkled skin.',
+    facts: [
+      'The African savanna elephant is the largest living land animal.',
+      'Its trunk has no bones and tens of thousands of muscle bundles, and can pick up something as small as a peanut.',
+      'Its huge ears help it to stay cool by giving off heat from the blood inside them.',
+    ],
+    realSize: 'Large males are about 11 feet tall at the shoulder', shownAt: 'About 60% of life size',
+    tryThis: 'Place a Woolly Mammoth beside it. How are their ears different, and why might that be?',
+    answer: 'The mammoth\u2019s ears were much smaller, which loses less heat in a cold climate.',
+  },
 
   // --- Earth & Space ------------------------------------------------------------------
   {
@@ -716,6 +786,47 @@ export const MODELS = [
     tryThis: 'Why would a hurricane weaken once it moves over land?',
     answer: 'It loses the warm ocean water that gives it energy.',
   },
+  {
+    id: 'james-webb-telescope', title: 'James Webb Space Telescope', category: 'space', builder: 'science4', scale: 0.33, yaw: -0.7, pictureElevation: 16,
+    grades: ALL, subjects: ['astronomy', 'space exploration', 'engineering'],
+    aliases: ['jwst', 'webb', 'nasa', 'infrared', 'sunshield', 'gold mirror', 'hexagon', 'telescope', 'esa'],
+    blurb: 'The orbiting infrared telescope, with its gold mirror of 18 hexagons above a huge silver sunshield.',
+    facts: [
+      'It launched on December 25, 2021, and orbits the Sun about a million miles from Earth.',
+      'Its 21-foot mirror is made of 18 six-sided, gold-coated segments.',
+      'A sunshield the size of a tennis court keeps it cold, since it sees heat in the form of infrared light.',
+    ],
+    realSize: 'The sunshield is about 70 feet long', shownAt: 'About 1/3 of life size, with its shield layers spread further apart',
+    tryThis: 'Count the mirror segments. Why would a mirror this big need to be made of folding parts?',
+    answer: 'It had to fold up to fit inside its rocket. There are 18 segments.',
+  },
+  {
+    id: 'limestone-cave', title: 'Limestone Cave', category: 'space', builder: 'science4', scale: 1, yaw: -0.25, pictureElevation: 12,
+    grades: ALL, subjects: ['earth science', 'geology'],
+    aliases: ['stalactite', 'stalagmite', 'cavern', 'calcite', 'dripstone', 'mammoth cave', 'carlsbad', 'erosion', 'underground'],
+    blurb: 'A cutaway hillside with a cave inside, its stalactites and stalagmites meeting in columns.',
+    facts: [
+      'Slightly acidic groundwater slowly dissolves limestone, and that hollows out caves.',
+      'Stalactites hang down from the ceiling, and stalagmites grow up from the floor.',
+      'They build up from minerals left behind by dripping water, usually very slowly.',
+    ],
+    realSize: 'Some caves run for hundreds of miles', shownAt: 'A small teaching model',
+    tryThis: 'Find a column. How did a stalactite and a stalagmite come to make it?',
+    answer: 'They kept growing toward each other until they met.',
+  },
+  {
+    id: 'space-shuttle', title: 'Space Shuttle', category: 'space', builder: 'science4', scale: 0.2, yaw: -0.8, pictureElevation: 16,
+    grades: ALL, subjects: ['space exploration', 'engineering', 'history'],
+    aliases: ['orbiter', 'nasa', 'atlantis', 'discovery', 'endeavour', 'columbia', 'payload bay', 'heat tiles', 'canadarm', 'reusable'],
+    blurb: 'A shuttle orbiter on a display stand with its payload bay doors open and robot arm raised.',
+    facts: [
+      'The shuttles flew 135 missions between 1981 and 2011.',
+      'It launched like a rocket and landed like a glider, so the orbiter could fly again.',
+      'Thousands of heat-resistant tiles protected it as it came back through the atmosphere.',
+    ],
+    realSize: 'About 122 feet long', shownAt: 'About 1/5 of life size',
+    tryThis: 'Why would landing like a glider be different from a capsule falling into the sea?',
+  },
 
   // --- Chemistry & Physics ------------------------------------------------------------
   {
@@ -895,6 +1006,47 @@ export const MODELS = [
     realSize: 'About 3 feet long', shownAt: 'Enlarged about 3 times',
     tryThis: 'Why was seeing moons around Jupiter such an important discovery?',
   },
+  {
+    id: 'electric-motor', title: 'Electric Motor', category: 'lab', builder: 'science4', scale: 1, yaw: -0.3, pictureElevation: 20,
+    grades: UP3, subjects: ['physics', 'engineering'],
+    aliases: ['magnet', 'coil', 'armature', 'commutator', 'brushes', 'rotor', 'electromagnet', 'faraday', 'electricity'],
+    blurb: 'A simple motor opened up to show its magnets, its spinning coil, its brushes and its commutator.',
+    facts: [
+      'Current in the coil makes it a magnet, which is pushed and pulled by the fixed magnets around it.',
+      'The commutator reverses the current every half turn, so the coil keeps spinning the same way.',
+      'Michael Faraday demonstrated electric motion in 1821.',
+    ],
+    realSize: 'A small toy motor is about an inch long', shownAt: 'Enlarged many times, with only two poles to keep it simple',
+    tryThis: 'What would happen if you turned the battery around?',
+    answer: 'The current reverses, so the motor spins the other way.',
+  },
+  {
+    id: 'tesla-coil', title: 'Tesla Coil', category: 'lab', builder: 'science4', scale: 1, pictureElevation: 6,
+    grades: UP3, subjects: ['physics', 'history of science'],
+    aliases: ['nikola tesla', 'electricity', 'lightning', 'high voltage', 'transformer', 'arc', 'plasma', 'resonance'],
+    blurb: 'A tall coil topped with a metal ring, throwing frozen arcs of artificial lightning.',
+    facts: [
+      'Nikola Tesla invented it around 1891 to experiment with high-voltage electricity and lighting without wires.',
+      'A few turns of thick wire pass energy to a tall coil of thin wire, which makes a very high voltage.',
+      'That voltage can break down the air itself, which is what makes the visible sparks.',
+    ],
+    realSize: 'From tabletop models to machines many feet tall', shownAt: 'A large demonstration model, with its sparks frozen',
+    tryThis: 'Why would sparks jump from the top ring and not from the bottom?',
+  },
+  {
+    id: 'balance-scale', title: 'Balance Scale', category: 'lab', builder: 'math4', scale: 1,
+    grades: ALL, subjects: ['physics', 'mathematics', 'science skills'],
+    aliases: ['weights', 'mass', 'equal arm', 'lever', 'pans', 'measuring', 'equation', 'fulcrum'],
+    blurb: 'A brass equal-arm balance in perfect level, with a block on one pan and weights on the other.',
+    facts: [
+      'When the pans are level, both sides hold the same mass.',
+      'It works as a lever, with its pivot at the exact middle of the beam.',
+      'Balance scales were already in use in ancient Egypt and Mesopotamia.',
+    ],
+    realSize: 'A classroom balance is about a foot wide', shownAt: 'Enlarged about 6 times',
+    tryThis: 'Read the weights on the right. What must the block on the left weigh?',
+    answer: 'The weights read 5, 2 and 1 pounds, so the block weighs 8 pounds. It is also how an equation works: both sides are equal.',
+  },
 
   // --- Math & Geometry -----------------------------------------------------------------
   {
@@ -994,6 +1146,48 @@ export const MODELS = [
     realSize: 'A classroom version is a few feet wide', shownAt: 'A large demonstration model',
     tryThis: 'How many twelfths line up with one third? What about with one half?',
     answer: 'Four twelfths equal one third, and six twelfths equal one half.',
+  },
+  {
+    id: 'conic-sections', title: 'Conic Sections', category: 'math', builder: 'math4', scale: 1, pictureElevation: 22,
+    grades: UP6, subjects: ['mathematics', 'geometry'],
+    aliases: ['cone', 'circle', 'ellipse', 'parabola', 'hyperbola', 'apollonius', 'orbit', 'algebra', 'curves'],
+    blurb: 'Four cones on a shelf, each sliced at a different angle to reveal a circle, an ellipse, a parabola and a hyperbola.',
+    facts: [
+      'Slicing a cone at different angles gives four different curves.',
+      'Apollonius of Perga wrote the classic study of them more than 2,000 years ago.',
+      'Planets orbit in ellipses, and a thrown ball follows very nearly a parabola.',
+    ],
+    realSize: 'Any size at all', shownAt: 'A large demonstration set',
+    tryThis: 'Which slice runs exactly parallel to the side of the cone?',
+    answer: 'The parabola.',
+  },
+  {
+    id: 'base-ten-blocks', title: 'Base Ten Blocks', category: 'math', builder: 'math4', scale: 1, pictureElevation: 22,
+    grades: ['K-2', '3-5'], subjects: ['mathematics'],
+    aliases: ['place value', 'hundreds', 'tens', 'ones', 'thousands', 'counting', 'manipulatives', 'flats', 'rods', 'units'],
+    blurb: 'A table showing the number 1,234 in blocks: a thousand cube, hundred flats, ten rods and single ones.',
+    facts: [
+      'Each place is worth ten of the place to its right.',
+      'Ten ones make a rod, ten rods make a flat, and ten flats make a cube.',
+      'This table shows 1,234: 1 thousand, 2 hundreds, 3 tens and 4 ones.',
+    ],
+    realSize: 'A classroom thousand cube is about 4 inches wide', shownAt: 'Enlarged about 10 times',
+    tryThis: 'Without counting every little square, how would you check there are 1,234 here?',
+    answer: 'Count the groups: 1 cube, 2 flats, 3 rods and 4 ones.',
+  },
+  {
+    id: 'tower-of-hanoi', title: 'Tower of Hanoi', category: 'math', builder: 'math4', scale: 1, pictureElevation: 16,
+    grades: UP3, subjects: ['mathematics', 'computer science'],
+    aliases: ['puzzle', 'recursion', 'lucas', 'discs', 'pegs', 'powers of two', 'algorithm', 'brahma'],
+    blurb: 'A wooden puzzle of seven stacked discs on three pegs, with a printed rule and a count of the moves.',
+    facts: [
+      'Move all the discs to another peg, one at a time, and never put a bigger disc on a smaller one.',
+      'Seven discs take at least 127 moves. Each extra disc roughly doubles that, since the minimum is 2 to the power of n, minus 1.',
+      'The French mathematician \u00c9douard Lucas invented it in 1883.',
+    ],
+    realSize: 'A desktop puzzle is about a foot wide', shownAt: 'Enlarged about 9 times',
+    tryThis: 'Work out the fewest moves for three discs, then four. Can you see the pattern?',
+    answer: 'Three discs take 7 moves and four take 15. Each is double the last, plus one.',
   },
 
   // --- Inventions & Transport ---------------------------------------------------------
@@ -1186,6 +1380,48 @@ export const MODELS = [
     ],
     realSize: 'About 20 feet tall', shownAt: 'About life size',
     tryThis: 'Follow the power from the water to the millstone. How do the gears change its direction?',
+  },
+  {
+    id: 'candlestick-telephone', title: 'Candlestick Telephone', category: 'machines', builder: 'heritage4', scale: 1, yaw: -0.4,
+    grades: ALL, subjects: ['history', 'physics', 'technology'],
+    aliases: ['phone', 'alexander graham bell', 'rotary dial', 'receiver', 'mouthpiece', 'operator', 'telecommunication', '1920s'],
+    blurb: 'An upright black and brass telephone with its rotary dial and separate earpiece on a hook.',
+    facts: [
+      'Alexander Graham Bell patented the telephone in 1876.',
+      'You spoke into the top and held the separate earpiece to your ear.',
+      'A microphone turns sound into a changing electric signal, and an earpiece turns it back.',
+    ],
+    realSize: 'About a foot tall', shownAt: 'Enlarged about 4 times',
+    tryThis: 'Why would lifting the earpiece off its hook be how you started a call?',
+  },
+  {
+    id: 'turtle-submarine', title: 'Turtle Submarine', category: 'machines', builder: 'heritage4', scale: 1, yaw: -0.6, pictureElevation: 8,
+    grades: UP3, subjects: ['history', 'physics', 'engineering'],
+    aliases: ['submarine', 'david bushnell', 'american revolution', 'buoyancy', 'hand crank', '1775', 'wooden'],
+    blurb: 'A one-man wooden submarine from the American Revolution, with one side cut open to show its cranks.',
+    facts: [
+      'David Bushnell built the Turtle in 1775, and it is the first submarine known to have been used in combat.',
+      'One person worked it by hand, turning cranks for its propellers and letting water in to sink.',
+      'American accounts say its attack on a British warship in 1776 failed, but British records do not mention it. This model is based on later reconstructions.',
+    ],
+    realSize: 'About 6 to 7 feet tall, going by later reconstructions', shownAt: 'About life size',
+    tryThis: 'How would letting water in, and pumping it out, make it sink and rise?',
+    answer: 'More water makes it heavier than the water it displaces, so it sinks. Pumping out makes it lighter, so it rises.',
+  },
+  {
+    id: 'clipper-ship', title: 'Clipper Ship', category: 'machines', builder: 'heritage4', scale: 0.5, yaw: -0.9,
+    grades: ALL, subjects: ['history', 'geography', 'physics'],
+    aliases: ['sailing ship', 'tall ship', 'gold rush', 'flying cloud', 'cape horn', 'masts', 'rigging', 'tea trade'],
+    blurb: 'A fast 1850s sailing ship with a sharp bow, three tall masts and a great spread of sail.',
+    facts: [
+      'Clipper ships were built for speed, with long narrow hulls and huge areas of sail.',
+      'In 1854 the Flying Cloud sailed from New York to San Francisco in 89 days, a record for sailing ships that lasted over a century.',
+      'They raced to carry goods such as tea, and carried people to the California Gold Rush.',
+    ],
+    realSize: 'The Flying Cloud was about 225 feet long on deck', shownAt: 'About 1/10 of life size, with a rig of a slightly later style',
+    tryThis: 'Why did going from New York to San Francisco by sea mean going around South America?',
+    answer: 'The Panama Canal did not open until 1914.',
+    program: 'shuttle',
   },
 
   // --- Landmarks ----------------------------------------------------------------------
@@ -1385,6 +1621,47 @@ export const MODELS = [
     realSize: 'About 600 feet long', shownAt: 'About 1/20 of life size',
     tryThis: 'What shapes can you see in the shells? They all come from parts of one sphere.',
   },
+  {
+    id: 'angkor-wat', title: 'Angkor Wat', category: 'landmarks', builder: 'world4', scale: 1, yaw: 0.35, pictureElevation: 20,
+    grades: ALL, subjects: ['history', 'world cultures', 'art'],
+    aliases: ['cambodia', 'khmer', 'temple', 'suryavarman', 'towers', 'moat', 'hindu', 'buddhist', 'southeast asia'],
+    blurb: 'The great temple of Cambodia, with its five lotus-bud towers, galleries and surrounding moat.',
+    facts: [
+      'The Khmer king Suryavarman II built it in the early 1100s, first as a Hindu temple.',
+      'It later became a Buddhist site, and it is on Cambodia\u2019s national flag.',
+      'Its moat, wider than a football field is long, surrounds the whole temple.',
+    ],
+    realSize: 'The central tower is over 200 feet tall', shownAt: 'About 1/20 of life size, with the moat and grounds drawn in closer',
+    tryThis: 'Count the towers from the front and then from a corner. Why might they look different?',
+    answer: 'There are five towers. From directly in front, only three can be seen clearly.',
+  },
+  {
+    id: 'great-zimbabwe', title: 'Great Zimbabwe', category: 'landmarks', builder: 'world4', scale: 1, yaw: 0.6, pictureElevation: 26,
+    grades: ALL, subjects: ['history', 'world cultures', 'engineering'],
+    aliases: ['africa', 'zimbabwe', 'shona', 'great enclosure', 'stone walls', 'conical tower', 'trade', 'dry stone'],
+    blurb: 'The Great Enclosure of the medieval African city, with its curved granite walls and conical tower.',
+    facts: [
+      'Ancestors of the Shona people built this stone city from about the 11th to the 15th centuries.',
+      'Its granite walls stand up to about 36 feet tall, and were built with no mortar at all.',
+      'It grew rich on trade in gold and ivory, and the country of Zimbabwe takes its name from it.',
+    ],
+    realSize: 'The wall of the Great Enclosure is about 820 feet around', shownAt: 'About 1/12 of life size, with its doorways and passage widened',
+    tryThis: 'How could a wall this tall stay up with nothing holding the stones together?',
+    answer: 'Carefully fitted stones and the weight of the wall hold it together, and its thick base leans slightly inward.',
+  },
+  {
+    id: 'empire-state-building', title: 'Empire State Building', category: 'landmarks', builder: 'heritage4', scale: 1, yaw: -0.6, pictureElevation: 8,
+    grades: ALL, subjects: ['history', 'engineering', 'art'],
+    aliases: ['new york', 'skyscraper', 'art deco', '1931', 'manhattan', 'steel', 'tower'],
+    blurb: 'The Art Deco skyscraper of New York, stepping back as it rises to its slender mast.',
+    facts: [
+      'It was finished in 1931, after just over a year of construction.',
+      'Its roof is 1,250 feet up, and it was the world\u2019s tallest building for almost 40 years.',
+      'Its setbacks, which step the building in as it rises, let light reach the streets below.',
+    ],
+    realSize: 'About 1,454 feet tall to the tip of its antenna', shownAt: 'About 1/35 of life size',
+    tryThis: 'Why would a city want tall buildings to get narrower as they rise?',
+  },
 
   // --- History & Artifacts ------------------------------------------------------------
   {
@@ -1576,6 +1853,32 @@ export const MODELS = [
     realSize: 'About 1 to 2 feet tall', shownAt: 'Enlarged about 4 times',
     tryThis: 'Why do you think English speakers came to call fine porcelain "china"?',
   },
+  {
+    id: 'brass-astrolabe', title: 'Brass Astrolabe', category: 'artifacts', builder: 'math4', scale: 1, pictureElevation: 8,
+    grades: UP3, subjects: ['history of science', 'astronomy', 'mathematics'],
+    aliases: ['islamic golden age', 'medieval', 'stars', 'navigation', 'instrument', 'rete', 'alidade', 'al-andalus', 'time telling'],
+    blurb: 'A pierced brass star-map instrument hanging on a stand, used for finding the time from the stars.',
+    facts: [
+      'Astrolabes began with the ancient Greeks and were greatly developed in the medieval Islamic world.',
+      'The pierced top plate is a map of bright stars, which turns over a plate engraved for one latitude.',
+      'Sighting a star along the back told its height, and from that its user could work out the time.',
+    ],
+    realSize: 'Usually a hand-sized disc', shownAt: 'Enlarged about 8 times, with its star map computed for Kansas and its ornament representative',
+    tryThis: 'Why would one plate only work at one latitude? Think about which stars you can see from Kansas.',
+  },
+  {
+    id: 'sod-house', title: 'Sod House', category: 'artifacts', builder: 'heritage4', scale: 1, yaw: 0.35, pictureElevation: 10,
+    grades: ALL, subjects: ['history', 'geography', 'science'],
+    aliases: ['soddy', 'kansas', 'nebraska', 'homestead act', 'pioneer', 'prairie', 'great plains', 'settlers', 'frontier'],
+    blurb: 'A Great Plains settler\u2019s home built from blocks of prairie turf, with a small garden and a stovepipe.',
+    facts: [
+      'The Homestead Act of 1862 drew settlers to the Great Plains, where there were very few trees to build with.',
+      'They cut the tough prairie turf into blocks, and stacked them like bricks.',
+      'Thick walls kept these houses cool in summer and warm in winter, though their roofs often leaked.',
+    ],
+    realSize: 'About 16 feet wide', shownAt: 'About life size',
+    tryThis: 'What would be good about living in this house? What would be hard?',
+  },
 
   // --- Arts & Music -------------------------------------------------------------------
   {
@@ -1749,6 +2052,48 @@ export const MODELS = [
     realSize: 'About 6 feet wide', shownAt: 'Life size',
     tryThis: 'Find the biggest and smallest drums. Which plays the deepest note?',
     answer: 'The biggest, the bass drum, plays the deepest note.',
+  },
+  {
+    id: 'marimba', title: 'Marimba', category: 'arts', builder: 'world4', scale: 1, yaw: 0, pictureElevation: 24,
+    grades: ALL, subjects: ['music', 'world cultures', 'physics'],
+    aliases: ['xylophone', 'percussion', 'mallets', 'resonators', 'rosewood', 'guatemala', 'mexico', 'africa', 'instrument'],
+    blurb: 'A concert marimba with rosewood bars laid out like a piano keyboard, tube resonators and a set of mallets.',
+    facts: [
+      'Its ancestors most likely came from Africa, and it became central to the music of Central America.',
+      'Longer bars play lower notes, and a tube under each bar makes its sound louder.',
+      'Its bars are laid out like the keys of a piano.',
+    ],
+    realSize: 'About 7 to 8 feet wide', shownAt: 'Life size',
+    tryThis: 'Compare the bars with the tubes under them. What do you notice about their lengths?',
+    answer: 'Both get longer toward the low notes.',
+  },
+  {
+    id: 'koto', title: 'Koto', category: 'arts', builder: 'world4', scale: 1, yaw: -0.4, pictureElevation: 26,
+    grades: ALL, subjects: ['music', 'world cultures'],
+    aliases: ['japan', 'japanese', 'strings', 'zither', 'instrument', 'bridges', 'paulownia', 'plucked'],
+    blurb: 'A long Japanese zither of paulownia wood, with 13 strings and tall movable bridges.',
+    facts: [
+      'The koto came to Japan from China more than 1,000 years ago.',
+      'Its 13 strings are each raised on a movable bridge, which is shifted to tune it.',
+      'Players pluck it with picks worn on the thumb and two fingers.',
+    ],
+    realSize: 'About 6 feet long', shownAt: 'About life size, with its strings and picks a little enlarged',
+    tryThis: 'How would moving a bridge change a string\u2019s note?',
+    answer: 'Moving it changes the length of string that vibrates. A shorter length plays a higher note.',
+  },
+  {
+    id: 'saxophone', title: 'Saxophone', category: 'arts', builder: 'world4', scale: 1, yaw: -0.5,
+    grades: ALL, subjects: ['music', 'history', 'physics'],
+    aliases: ['adolphe sax', 'jazz', 'woodwind', 'reed', 'brass', 'instrument', 'keys', 'alto sax', 'band'],
+    blurb: 'A polished brass alto saxophone on a stand, with its curved neck, cone-shaped body and many keys.',
+    facts: [
+      'The Belgian instrument maker Adolphe Sax patented it in 1846.',
+      'It is made of brass but counts as a woodwind, because a reed makes the sound.',
+      'Its tube widens steadily along its length, in the shape of a long cone.',
+    ],
+    realSize: 'An alto is about 2 feet tall', shownAt: 'Enlarged about 3 times',
+    tryThis: 'Compare it with the Trumpet. Why would one count as brass and the other as a woodwind?',
+    answer: 'A trumpet player buzzes their lips, and a saxophone player vibrates a reed.',
   },
 ];
 
