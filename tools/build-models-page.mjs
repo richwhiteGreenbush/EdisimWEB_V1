@@ -137,6 +137,10 @@ const page = `<!DOCTYPE html>
       <li><h4>Share it</h4><p>Use <b>Save World</b> to download a file that a classmate can open, models and all.</p></li>
     </ol>
 
+    <h2 class="sec">A bigger project: your own village</h2>
+    <p><a href="village.html">Build a Village</a> is six activities that use the life-size pieces in the
+      🏡 Build a Village group: plan where things go, feed everyone, do the fence maths and program a chain of jobs.</p>
+
     <aside class="fact">
       <h4>For teachers</h4>
       <p>Every card states the real size and how the model differs from it, because an enlargement that is stated teaches and one that is not misleads. Models simplify, and where one simplifies a lot, such as the Bohr atom, its card says so. Placing a model sends no student data anywhere. A very full world can stutter on an older computer, so the panel shows how full the current world is and warns when it gets there, without stopping anyone.</p>

@@ -211,6 +211,15 @@ export class ModelDatabase {
       return;
     }
 
+    const guide = !searching ? MODEL_CATEGORIES.find((c) => c.key === this.category)?.guide : null;
+    if (guide) {
+      const link = this.el('a', 'mdb-guide-link', `${guide.label} ↗`);
+      link.href = guide.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      this.content.appendChild(link);
+    }
+
     const grid = this.el('div', 'mdb-grid');
     for (const model of visible) grid.appendChild(this.card(model));
     this.content.appendChild(grid);
