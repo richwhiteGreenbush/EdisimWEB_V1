@@ -5748,6 +5748,22 @@ start only -- the brand's own faces, since the video is brand material -- with a
 to system fonts. Settings live in localStorage `edusim-studio`, per machine, never in a
 world.
 
+**Tutorials are the fifth kind of video, and `StudioTutorial.js` is the kit for them**: a pointer
+that clicks, numbered coloured steps, confetti, and drawn copies of the Menu, the Model Database
+and the hammer menu (`drawPointer`, `drawTutorialStep`, `drawDatabase`, `drawMenu`, `drawHammer`).
+`museumSpec` is the first script using it, template id `museum`. The panels are drawn because DOM
+is never in the frame, so their wording must match the app's and **nothing fails if it drifts**;
+results come from the real `searchModels()` and the pictures are the panel's own thumbnails. A
+beat works every time out from the `dur` it is handed, because `buildPlan` rescales and snaps it.
+
+**Rendering on Linux differs in two ways.** The snap Chromium falls back to SwiftShader, so `CHROME`
+must be a Playwright Chromium, which reaches the real GPU through `--use-angle=gl-egl`. And Chrome
+on Linux has **no AAC encoder**, so the browser's MP4 is silent: `studio-render.mjs` saves the mix as
+a `.wav` beside it, and with `FFMPEG` set lays it in as AAC. Check a render by contact sheet of
+frames rather than by trusting it: the first museum had every facade in shade, because the default
+theme's sun is at +Z and the avenue faced away from it. A 60s square takes about 5.5 minutes on the
+4-core Haswell laptop with 3GB of RAM.
+
 ### Build detail on the stats page
 
 `worlds/stats.php` opens each day's Built figure into which world, which kind of object and

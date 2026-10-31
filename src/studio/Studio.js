@@ -187,6 +187,7 @@ export class Studio {
 
   firstWorld() {
     const o = this.opts;
+    if (o.template === 'museum') return 'empty';
     if (o.template === 'build') return o.buildWorld;
     if (o.template === 'code') return DEMOS[o.demo]?.world || o.buildWorld;
     if (o.template === 'spotlight') return o.spotlightWorld;
@@ -815,11 +816,34 @@ export class Studio {
     }
   }
 
+  // The mix as a 16-bit WAV in base64, for when the browser could not encode it (see encodeAudio).
+  unencodedMixWav() {
+    const b = this.unencodedMix;
+    if (!b) return null;
+    const channels = [b.getChannelData(0), b.getChannelData(b.numberOfChannels > 1 ? 1 : 0)];
+    const bytes = new DataView(new ArrayBuffer(44 + b.length * 4));
+    const tag = (at, text) => { for (let i = 0; i < text.length; i++) bytes.setUint8(at + i, text.charCodeAt(i)); };
+    tag(0, 'RIFF'); bytes.setUint32(4, 36 + b.length * 4, true); tag(8, 'WAVEfmt ');
+    bytes.setUint32(16, 16, true); bytes.setUint16(20, 1, true); bytes.setUint16(22, 2, true);
+    bytes.setUint32(24, b.sampleRate, true); bytes.setUint32(28, b.sampleRate * 4, true);
+    bytes.setUint16(32, 4, true); bytes.setUint16(34, 16, true); tag(36, 'data'); bytes.setUint32(40, b.length * 4, true);
+    for (let i = 0, at = 44; i < b.length; i++) {
+      for (const ch of channels) { bytes.setInt16(at, Math.max(-1, Math.min(1, ch[i])) * 32767, true); at += 2; }
+    }
+    const raw = new Uint8Array(bytes.buffer);
+    let binary = '';
+    for (let i = 0; i < raw.length; i += 32766) binary += String.fromCharCode(...raw.subarray(i, i + 32766));
+    return btoa(binary);
+  }
+
   async encodeAudio(buffer, seconds, mux) {
     if (typeof AudioEncoder === 'undefined') return;
     const support = await AudioEncoder.isConfigSupported({ codec: 'mp4a.40.2', sampleRate: SAMPLE_RATE, numberOfChannels: 2, bitrate: 160000 }).catch(() => null);
     if (!support?.supported) {
+      // Chrome on Linux has no AAC encoder. The mix is kept, so tools/studio-render.mjs can
+      // lay it into the file with ffmpeg afterward.
       console.warn('AAC encoding is not available here; the video will be silent.');
+      this.unencodedMix = buffer;
       return;
     }
     let error = null;

@@ -9,6 +9,7 @@ import {
   drawHeadline, drawLowerThird, drawBand, drawStep, drawProgramCard, drawEndCard,
   codeLength, clamp01, smooth, outBack, outCubic, life, BRAND,
 } from './StudioOverlay.js';
+import { museumSpec } from './StudioTutorial.js';
 
 // The Social Media Studio's DIRECTOR'S NOTES: which worlds it films and from where, the
 // models it builds, the programs it writes, and the templates that turn a few choices into
@@ -1209,6 +1210,7 @@ export const TEMPLATES = [
   { id: 'build', label: 'Build It', hint: 'A model built piece by piece from shapes, then brought to life' },
   { id: 'code', label: 'Code It', hint: 'A program in blocks, then the same program in real JavaScript' },
   { id: 'spotlight', label: 'Spotlight', hint: 'One world from several angles, with a fact on each shot' },
+  { id: 'museum', label: 'Tutorial: Museum', hint: 'A step-by-step how-to: build a museum from the Model Database' },
 ];
 
 export const LENGTHS = [15, 30, 45, 60];
@@ -1219,6 +1221,7 @@ export const DEFAULT_WORDS = {
   build: { hook: 'Build *anything* from simple shapes', sub: 'Stretch it. Stack it. Program it.', band: '' },
   code: { hook: 'Learn to *code* in 3D', sub: 'Blocks first — then real JavaScript', band: '' },
   spotlight: { hook: 'Step inside *{world}*', sub: 'Free, in any browser, no account', band: '' },
+  museum: { hook: 'Build your own *3D museum*', sub: 'Free ready-made models. Nothing to install.', band: '' },
 };
 
 export const END_WORDS = {
@@ -1256,7 +1259,9 @@ export function buildPlan(opts) {
   const codeWorld = demo.world || buildWorld;
   const spec = [];
 
-  if (opts.template === 'tour') {
+  if (opts.template === 'museum') {
+    spec.push(...museumSpec({ words, makeGizmo, endBeat }));
+  } else if (opts.template === 'tour') {
     const hookW = 3.5;
     const endW = L <= 15 ? 2.5 : 3.5;
     const room = L - hookW - endW;
@@ -1386,6 +1391,7 @@ export function postCopy(opts, plan) {
     build: 'Stretch, stack and turn simple shapes into a model, then program it to move.',
     code: 'Start with drag-and-drop blocks, then flip the very same program into real JavaScript.',
     spotlight: `${worldNames[0] || 'This world'} — one of the ready-made worlds in Edusim.`,
+    museum: 'This one-minute tutorial shows how: open the Model Database, search, click Place, then move, stretch and label each exhibit.',
   }[opts.template] || '';
 
   return {

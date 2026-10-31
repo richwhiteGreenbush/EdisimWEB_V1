@@ -17,9 +17,15 @@
 // through ANGLE/Metal -- the choice book/tools/lib/app.mjs makes, and for the same reason.
 //
 //   APP_URL   default http://localhost:5199/
-//   CHROME    default the macOS Chrome install
+//   CHROME    default the macOS Chrome install. On Linux, point it at a Playwright Chromium:
+//             the snap Chromium falls back to software rendering.
+//   PLAYWRIGHT_CORE  path to a playwright-core index.mjs, if neither the app nor book/ has one
+//   FFMPEG    path to ffmpeg. Chrome on Linux has no AAC encoder, so there the soundtrack is
+//             taken out of the page and laid into the MP4 with this. Without it the video is
+//             silent and the mix is left beside it as a .wav.
 
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, resolve, basename } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -31,6 +37,7 @@ const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/M
 // ever gets one, otherwise borrow the book's rather than making every app install pull it.
 async function loadPlaywright() {
   try {
+    if (process.env.PLAYWRIGHT_CORE) return await import(pathToFileURL(process.env.PLAYWRIGHT_CORE).href);
     return await import('playwright-core');
   } catch {
     try {
@@ -93,7 +100,7 @@ const { chromium } = await loadPlaywright();
 const browser = await chromium.launch({
   executablePath: CHROME,
   headless: true,
-  args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist', '--mute-audio', '--autoplay-policy=no-user-gesture-required'],
+  args: [process.platform === 'darwin' ? '--use-angle=metal' : '--use-angle=gl-egl', '--enable-gpu', '--ignore-gpu-blocklist', '--mute-audio', '--autoplay-policy=no-user-gesture-required'],
 });
 const context = await browser.newContext({ viewport: { width: 1500, height: 940 }, acceptDownloads: true });
 await context.addInitScript((o) => {
@@ -150,6 +157,19 @@ try {
     const [download] = await Promise.all([page.waitForEvent('download'), links[i].click()]);
     const target = resolve(outDir, r.name);
     await download.saveAs(target);
+    const wav = await page.evaluate(() => window.__studio.unencodedMixWav());
+    if (wav) {
+      const mix = target.replace(/\.mp4$/, '.wav');
+      writeFileSync(mix, Buffer.from(wav, 'base64'));
+      if (process.env.FFMPEG) {
+        const muxed = `${target}.muxed.mp4`;
+        execFileSync(process.env.FFMPEG, ['-y', '-loglevel', 'error', '-i', target, '-i', mix, '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-shortest', '-movflags', '+faststart', muxed]);
+        renameSync(muxed, target);
+        rmSync(mix);
+      } else {
+        console.warn(`  This browser cannot encode AAC and FFMPEG is not set: the video is silent, its mix is ${mix}`);
+      }
+    }
     const captions = [
       `INSTAGRAM\n${r.copy.instagram}`,
       `FACEBOOK\n${r.copy.facebook}`,
