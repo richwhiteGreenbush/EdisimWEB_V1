@@ -196,6 +196,47 @@ export const MODELS = [
     realSize: 'Fills a person’s abdomen', shownAt: 'About one and a half times life size, with the small intestine shortened',
     tryThis: 'Start at the top and name each part a bite of food passes through.',
   },
+  {
+    id: 'neuron', title: 'Neuron', category: 'body', builder: 'organic3', scale: 1, yaw: -0.5,
+    grades: UP3, subjects: ['biology', 'human body', 'psychology'],
+    aliases: ['nerve cell', 'axon', 'dendrite', 'myelin', 'synapse', 'nervous system', 'brain cell', 'cell body', 'nerve'],
+    blurb: 'A nerve cell on a long stand, with its branching dendrites, cell body, axon and myelin sheath.',
+    facts: [
+      'Dendrites receive signals, and the long axon carries them away from the cell body.',
+      'A fatty coating called myelin makes signals travel much faster along the axon.',
+      'Neurons do not quite touch: signals cross a tiny gap called a synapse.',
+    ],
+    realSize: 'The cell body is far too small to see, but an axon can be over 3 feet long', shownAt: 'Greatly enlarged, with its axon shortened',
+    tryThis: 'Follow a signal from a dendrite to the far end of the axon. Where would it go next?',
+  },
+  {
+    id: 'human-kidney', title: 'Human Kidney', category: 'body', builder: 'organic3', scale: 1,
+    grades: UP3, subjects: ['biology', 'human body', 'health'],
+    aliases: ['renal', 'nephron', 'ureter', 'urine', 'filter', 'cortex', 'medulla', 'urinary system', 'organ'],
+    blurb: 'A bean-shaped kidney cut in half to show its cortex, pyramids and the ureter that drains it.',
+    facts: [
+      'Most people have two kidneys, each about the size of a fist.',
+      'Each day your kidneys filter about 150 quarts of fluid from your blood, return almost all of it, and make 1 to 2 quarts of urine.',
+      'Each kidney holds about a million tiny filters called nephrons.',
+    ],
+    realSize: 'About 4 or 5 inches long', shownAt: 'Enlarged about 11 times',
+    tryThis: 'Find the red and blue vessels. Which brings blood in to be cleaned?',
+    answer: 'The red artery brings blood in, and the blue vein carries it away.',
+  },
+  {
+    id: 'arm-muscles', title: 'Arm Bones and Muscles', category: 'body', builder: 'organic3', scale: 1,
+    grades: ALL, subjects: ['biology', 'human body', 'physics'],
+    aliases: ['biceps', 'triceps', 'elbow', 'humerus', 'radius', 'ulna', 'tendon', 'joint', 'lever', 'muscle'],
+    blurb: 'An arm on a stand, with the biceps and triceps shown working on the bones of a bent elbow.',
+    facts: [
+      'Muscles can only pull, so they work in pairs: one bends a joint and the other straightens it.',
+      'The biceps bends the elbow, and the triceps straightens it.',
+      'Tendons join muscle to bone, and the forearm works as a lever.',
+    ],
+    realSize: 'About 2 feet long', shownAt: 'About two and a half times life size, with some muscles left out so the bones show',
+    tryThis: 'Bend your own elbow and feel your upper arm. Which muscle got shorter and fatter?',
+    answer: 'The biceps, on the front of the upper arm.',
+  },
 
   // --- Plants & Animals ---------------------------------------------------------------
   {
@@ -399,6 +440,60 @@ export const MODELS = [
     tryThis: 'Stand beside it. Are you taller? Why would big bodies help in the cold?',
     program: 'shuttle',
   },
+  {
+    id: 'venus-flytrap', title: 'Venus Flytrap', category: 'life', builder: 'organic3', scale: 1, pictureElevation: 22,
+    grades: ALL, subjects: ['biology', 'plants', 'ecology'],
+    aliases: ['carnivorous plant', 'insect eating', 'trap', 'trigger hairs', 'north carolina', 'bog', 'botany'],
+    blurb: 'A plant in a boggy pot, with its red-lined traps open and one closing on a fly.',
+    facts: [
+      'It is native to just one small area of North and South Carolina.',
+      'A trap usually closes only when its trigger hairs are touched twice within about 20 seconds.',
+      'It makes its own food from sunlight, and insects give it nutrients its poor soil lacks.',
+    ],
+    realSize: 'A trap is about an inch long', shownAt: 'Enlarged about 15 times',
+    tryThis: 'Why might a trap wait for a second touch before it closes?',
+    answer: 'It avoids wasting energy closing on a raindrop or a falling leaf.',
+  },
+  {
+    id: 'giant-panda', title: 'Giant Panda', category: 'life', builder: 'organic3', scale: 1, yaw: -0.5,
+    grades: ALL, subjects: ['biology', 'ecology', 'geography'],
+    aliases: ['bear', 'china', 'bamboo', 'endangered', 'conservation', 'mammal', 'false thumb'],
+    blurb: 'A panda sitting upright and eating bamboo, with the bone that works like an extra thumb.',
+    facts: [
+      'Wild giant pandas live only in the mountain forests of central China.',
+      'Bamboo makes up almost all of what they eat, and they spend much of each day eating it.',
+      'A long wrist bone works like a thumb, which helps them grip bamboo stems.',
+    ],
+    realSize: 'About 4 to 5 feet long', shownAt: 'About life size',
+    tryThis: 'Why might an animal that eats low-energy food need to eat for so much of the day?',
+  },
+  {
+    id: 'blue-whale', title: 'Blue Whale', category: 'life', builder: 'organic3', scale: 0.25, hover: 3, yaw: -1.2,
+    grades: ALL, subjects: ['biology', 'marine science', 'ecology'],
+    aliases: ['mammal', 'ocean', 'baleen', 'krill', 'largest animal', 'cetacean', 'blowhole'],
+    blurb: 'The largest animal known to have lived, its throat pleats and baleen visible at a quarter of life size.',
+    facts: [
+      'It is the largest animal known ever to have lived, growing to about 100 feet long.',
+      'It has no teeth: plates of baleen strain tiny krill out of huge mouthfuls of water.',
+      'It is a mammal, so it breathes air through blowholes and feeds its young on milk.',
+    ],
+    realSize: 'Up to about 100 feet long', shownAt: 'About 1/4 of life size',
+    tryThis: 'Pace out its length at this size, then multiply by four. How far is that at school?',
+    program: 'swimCircle',
+  },
+  {
+    id: 'ant-colony', title: 'Ant Colony Cutaway', category: 'life', builder: 'math3', scale: 1, pictureElevation: 8,
+    grades: ALL, subjects: ['biology', 'ecology'],
+    aliases: ['ant farm', 'queen', 'nest', 'insects', 'tunnels', 'workers', 'larvae', 'social insects', 'anthill'],
+    blurb: 'A slice through an ant nest, with tunnels and chambers for the queen, the young and the food store.',
+    facts: [
+      'Most ants in a colony are female workers, and the queen lays the eggs.',
+      'Ants follow chemical trails, called pheromones, left by other ants.',
+      'Different chambers do different jobs, such as raising young and storing food.',
+    ],
+    realSize: 'A nest can be far bigger than this slice', shownAt: 'Ants enlarged about 30 times, with the queen and eggs drawn larger still',
+    tryThis: 'Find the queen. Why would her chamber be deep underground?',
+  },
 
   // --- Earth & Space ------------------------------------------------------------------
   {
@@ -580,6 +675,47 @@ export const MODELS = [
     realSize: 'The whole planet', shownAt: 'A small teaching model',
     tryThis: 'Follow one raindrop from the mountain all the way back to the cloud.',
   },
+  {
+    id: 'space-station', title: 'International Space Station', category: 'space', builder: 'science3', scale: 0.1, yaw: -0.5, pictureElevation: 18,
+    grades: ALL, subjects: ['space exploration', 'engineering', 'astronomy'],
+    aliases: ['iss', 'nasa', 'orbit', 'astronauts', 'solar panels', 'cupola', 'roscosmos', 'satellite', 'module'],
+    blurb: 'The orbiting laboratory, with its long truss, huge solar wings and joined modules, on a display mount.',
+    facts: [
+      'It is about as long as a football field, including the end zones.',
+      'It orbits about 250 miles up and circles the Earth about every 90 minutes.',
+      'People have lived on it continuously since November 2000.',
+    ],
+    realSize: 'About 356 feet across', shownAt: 'About 1/10 of life size, with thin parts thickened so they can be seen',
+    tryThis: 'At one orbit about every 90 minutes, how many sunrises do the crew see in a day?',
+    answer: 'About 16.',
+  },
+  {
+    id: 'sputnik-1', title: 'Sputnik 1', category: 'space', builder: 'science3', scale: 1, yaw: -0.95,
+    grades: ALL, subjects: ['space exploration', 'history'],
+    aliases: ['satellite', 'soviet union', 'ussr', 'space race', '1957', 'antenna', 'orbit', 'first satellite'],
+    blurb: 'The first artificial satellite, a polished sphere with four long antennas, on a display stand.',
+    facts: [
+      'The Soviet Union launched it on October 4, 1957, and it was the first artificial satellite.',
+      'It was a polished sphere about 23 inches across, and it transmitted a simple beep.',
+      'Its launch started the space race, and NASA was founded the following year.',
+    ],
+    realSize: 'A sphere about 23 inches across, with antennas up to about 9 feet long', shownAt: 'The sphere is enlarged about 3 times, with its antennas shortened',
+    tryThis: 'Why would a beep from space have mattered so much to people in 1957?',
+  },
+  {
+    id: 'hurricane-model', title: 'Hurricane Cutaway', category: 'space', builder: 'science3', scale: 1, pictureElevation: 30,
+    grades: ALL, subjects: ['earth science', 'weather'],
+    aliases: ['storm', 'cyclone', 'typhoon', 'eye', 'eyewall', 'weather', 'ocean', 'rain bands', 'tropical storm'],
+    blurb: 'A spiralling storm over a warm sea, with a wedge removed to show the calm eye and the towering eyewall.',
+    facts: [
+      'Hurricanes draw their energy from warm ocean water.',
+      'The eye at the centre is calm, and the strongest winds are in the eyewall around it.',
+      'In the Northern Hemisphere, hurricanes spin counterclockwise.',
+    ],
+    realSize: 'Often hundreds of miles across', shownAt: 'A tiny scale model, with height exaggerated',
+    tryThis: 'Why would a hurricane weaken once it moves over land?',
+    answer: 'It loses the warm ocean water that gives it energy.',
+  },
 
   // --- Chemistry & Physics ------------------------------------------------------------
   {
@@ -732,6 +868,33 @@ export const MODELS = [
     tryThis: 'Count the rope sections holding the weight. How much easier does that make the lift?',
     answer: 'Four sections hold the weight, so you pull with about a quarter of the force: about 100 pounds for this 400-pound weight, ignoring friction. The fifth run is the one you pull.',
   },
+  {
+    id: 'periodic-table', title: 'Periodic Table', category: 'lab', builder: 'science3', scale: 1,
+    grades: UP3, subjects: ['chemistry', 'history of science'],
+    aliases: ['elements', 'mendeleev', 'atomic number', 'groups', 'periods', 'noble gases', 'metals', 'chemistry chart'],
+    blurb: 'A freestanding wall of all 118 elements, each a raised tile coloured by its family.',
+    facts: [
+      'There are 118 known elements, arranged in order of atomic number.',
+      'Elements in the same column often behave in similar ways.',
+      'Dmitri Mendeleev published an early version in 1869, and left gaps for elements not yet found.',
+    ],
+    realSize: 'A classroom chart is a few feet wide', shownAt: 'About 16 feet wide',
+    tryThis: 'Find oxygen and carbon. Which column do the noble gases fill?',
+    answer: 'The noble gases fill the far right column, group 18.',
+  },
+  {
+    id: 'galileo-telescope', title: 'Galileo\u2019s Telescope', category: 'lab', builder: 'science3', scale: 1, yaw: -0.7,
+    grades: ALL, subjects: ['astronomy', 'history of science', 'physics'],
+    aliases: ['galileo galilei', 'refractor', 'lens', 'moons of jupiter', 'renaissance', 'optics', 'spyglass'],
+    blurb: 'A long wood and leather refracting telescope on a tripod, of the kind Galileo built.',
+    facts: [
+      'Galileo began building telescopes in 1609, after hearing of the invention.',
+      'His best ones magnified about 20 to 30 times.',
+      'In 1610 he reported four moons orbiting Jupiter, evidence that not everything circles the Earth.',
+    ],
+    realSize: 'About 3 feet long', shownAt: 'Enlarged about 3 times',
+    tryThis: 'Why was seeing moons around Jupiter such an important discovery?',
+  },
 
   // --- Math & Geometry -----------------------------------------------------------------
   {
@@ -789,6 +952,48 @@ export const MODELS = [
     tryThis: 'Make one out of paper, then cut it down the middle. Can you predict what happens?',
     answer: 'It stays in one piece, as a longer loop with two full twists.',
     program: 'spinSlow',
+  },
+  {
+    id: 'sierpinski-pyramid', title: 'Sierpinski Pyramid', category: 'math', builder: 'math3', scale: 1, pictureElevation: 14,
+    grades: UP3, subjects: ['mathematics', 'geometry'],
+    aliases: ['fractal', 'tetrahedron', 'self similar', 'recursion', 'pattern', 'tetrix', 'sierpinski'],
+    blurb: 'A fractal pyramid made of 256 small pyramids, the same pattern repeated at every size.',
+    facts: [
+      'It is a fractal: each part looks like a smaller copy of the whole.',
+      'Each step replaces every pyramid with four half-size copies.',
+      'After four steps, as here, that makes 4 x 4 x 4 x 4 = 256 small pyramids.',
+    ],
+    realSize: 'Any size at all', shownAt: 'A large demonstration model',
+    tryThis: 'How many small pyramids would the next step make?',
+    answer: '1,024, which is 256 x 4.',
+  },
+  {
+    id: 'galton-board', title: 'Galton Board', category: 'math', builder: 'math3', scale: 1,
+    grades: UP3, subjects: ['mathematics', 'statistics'],
+    aliases: ['probability', 'bell curve', 'normal distribution', 'quincunx', 'bean machine', 'francis galton', 'statistics', 'pegs'],
+    blurb: 'An upright board where balls have bounced through rows of pegs and piled up in a bell curve.',
+    facts: [
+      'Each ball goes left or right at every peg, as if by a coin toss.',
+      'Most balls end up near the middle, since there are more paths that lead there.',
+      'The pile makes a bell curve, which also describes many measurements in nature.',
+    ],
+    realSize: 'A desktop model is about a foot tall', shownAt: 'A large demonstration model',
+    tryThis: 'How many different paths lead to the far left slot? How many to the middle?',
+    answer: 'Just one path leads to the far left slot, and the most paths lead to the middle.',
+  },
+  {
+    id: 'fraction-wall', title: 'Fraction Wall', category: 'math', builder: 'math3', scale: 1, pictureElevation: 3,
+    grades: ALL, subjects: ['mathematics'],
+    aliases: ['fractions', 'equivalent fractions', 'halves', 'thirds', 'quarters', 'denominator', 'numerator', 'division'],
+    blurb: 'A wall of coloured bars, each row one whole cut into equal parts, from halves to twelfths.',
+    facts: [
+      'Every row is the same length, because each one is one whole.',
+      'The bigger the bottom number, the smaller each part is.',
+      'Parts that line up are equivalent: two quarters reach exactly as far as one half.',
+    ],
+    realSize: 'A classroom version is a few feet wide', shownAt: 'A large demonstration model',
+    tryThis: 'How many twelfths line up with one third? What about with one half?',
+    answer: 'Four twelfths equal one third, and six twelfths equal one half.',
   },
 
   // --- Inventions & Transport ---------------------------------------------------------
@@ -942,6 +1147,45 @@ export const MODELS = [
     ],
     realSize: 'As big as a building', shownAt: 'A large working-style model, with its pumps left out',
     tryThis: 'Follow the motion from the piston, through the beam, to the flywheel.',
+  },
+  {
+    id: 'typewriter', title: 'Typewriter', category: 'machines', builder: 'heritage3', scale: 1, pictureElevation: 24,
+    grades: ALL, subjects: ['history', 'language arts', 'technology'],
+    aliases: ['qwerty', 'keyboard', 'keys', 'ribbon', 'carriage', 'sholes', 'writing machine', 'office'],
+    blurb: 'A black upright desk typewriter with its round keys, type bars, ribbon and a sheet of paper.',
+    facts: [
+      'The first commercially successful typewriter went on sale in the 1870s.',
+      'It introduced the QWERTY layout that most computer keyboards still use.',
+      'Each key swings a metal letter against an inked ribbon, which prints it on the paper.',
+    ],
+    realSize: 'About a foot wide', shownAt: 'Enlarged about 4 times',
+    tryThis: 'Compare its keys with a computer keyboard. Which letters are in the same place?',
+  },
+  {
+    id: 'wind-turbine', title: 'Wind Turbine', category: 'machines', builder: 'heritage3', scale: 0.1,
+    grades: ALL, subjects: ['engineering', 'physics', 'earth science'],
+    aliases: ['renewable energy', 'wind power', 'generator', 'blades', 'electricity', 'kansas', 'nacelle', 'clean energy'],
+    blurb: 'A three-bladed turbine on a tall white tower, with a cutaway showing the gearbox and generator.',
+    facts: [
+      'Wind pushes the blades, and the turning shaft drives a generator that makes electricity. Many newer turbines drive it directly, with no gearbox.',
+      'Kansas is one of the leading states for wind power.',
+      'Large modern land turbines have towers over 300 feet tall.',
+    ],
+    realSize: 'Over 400 feet tall to the blade tip', shownAt: 'About 1/10 of life size, with the housing enlarged and opened so you can see inside',
+    tryThis: 'Why would engineers put turbines on tall towers? Where is it windier?',
+  },
+  {
+    id: 'water-mill', title: 'Water Mill', category: 'machines', builder: 'heritage3', scale: 1, yaw: -0.55, pictureElevation: 16,
+    grades: ALL, subjects: ['history', 'physics', 'engineering'],
+    aliases: ['water wheel', 'grain', 'flour', 'millstone', 'gears', 'medieval', 'stream', 'overshot', 'renewable energy'],
+    blurb: 'A stone mill with a big wooden water wheel, one wall open to show the gears and millstones.',
+    facts: [
+      'Falling water turns the wheel, and wooden gears carry that power to the millstones.',
+      'The stones grind grain into flour, doing work that would take many people by hand.',
+      'In 1086, England\u2019s Domesday Book recorded about 6,000 water mills.',
+    ],
+    realSize: 'About 20 feet tall', shownAt: 'About life size',
+    tryThis: 'Follow the power from the water to the millstone. How do the gears change its direction?',
   },
 
   // --- Landmarks ----------------------------------------------------------------------
@@ -1101,6 +1345,45 @@ export const MODELS = [
     ],
     realSize: 'About 98 feet tall', shownAt: 'About 1/6 of life size',
     tryThis: 'Why might people who tracked the sky build 365 into a building?',
+  },
+  {
+    id: 'golden-gate-bridge', title: 'Golden Gate Bridge', category: 'landmarks', builder: 'world3', scale: 1, yaw: 0.45, pictureElevation: 14,
+    grades: ALL, subjects: ['history', 'engineering', 'physics'],
+    aliases: ['san francisco', 'california', 'suspension bridge', 'international orange', 'cables', 'towers', 'bay'],
+    blurb: 'The red-orange suspension bridge, with its two towers and sweeping cables, over a slice of bay.',
+    facts: [
+      'It opened in 1937, and its main span was the longest in the world until 1964.',
+      'Its main span is 4,200 feet, and its towers rise 746 feet above the water.',
+      'The two main cables hold up the deck, passing the load to the towers and anchorages.',
+    ],
+    realSize: 'About 1.7 miles long', shownAt: 'About 1/200 of life size, with the towers, deck and cables thickened',
+    tryThis: 'Find where the cables are lowest and highest. Why would they hang in that curve?',
+  },
+  {
+    id: 'petra-treasury', title: 'The Treasury at Petra', category: 'landmarks', builder: 'world3', scale: 1, pictureElevation: 7,
+    grades: ALL, subjects: ['history', 'world cultures', 'art'],
+    aliases: ['jordan', 'al khazneh', 'nabataeans', 'rock cut', 'tomb', 'sandstone', 'ancient', 'desert', 'wonder'],
+    blurb: 'A temple-like front carved straight out of a rose-red cliff in Jordan.',
+    facts: [
+      'The Nabataean people carved it from the sandstone cliff about 2,000 years ago.',
+      'It was not built up from blocks: its carvers cut it down out of the solid rock.',
+      'Despite the name, it was probably a royal tomb and not a treasury.',
+    ],
+    realSize: 'About 130 feet tall', shownAt: 'About 1/6 of life size',
+    tryThis: 'Why would carving from the top down be easier than starting at the bottom?',
+  },
+  {
+    id: 'sydney-opera-house', title: 'Sydney Opera House', category: 'landmarks', builder: 'world3', scale: 1, yaw: 0.5, pictureElevation: 16,
+    grades: ALL, subjects: ['art', 'engineering', 'world cultures'],
+    aliases: ['australia', 'sydney', 'utzon', 'sails', 'shells', 'tiles', 'harbour', 'harbor', 'architecture', 'concert hall'],
+    blurb: 'The white sail-like shells of the concert hall on its point in Sydney Harbour.',
+    facts: [
+      'Danish architect J\u00f8rn Utzon won the design competition in 1957, and it opened in 1973.',
+      'Its shells are covered in more than a million cream and white tiles.',
+      'Working out how to build the curved shells was one of the hardest parts of the project.',
+    ],
+    realSize: 'About 600 feet long', shownAt: 'About 1/20 of life size',
+    tryThis: 'What shapes can you see in the shells? They all come from parts of one sphere.',
   },
 
   // --- History & Artifacts ------------------------------------------------------------
@@ -1267,6 +1550,32 @@ export const MODELS = [
     tryThis: 'Knots near the top count hundreds, then tens, then ones. Read one cord.',
     answer: 'The first cord from the left reads 352: three knots, then five, then two. The groups total 744, 406 and 367.',
   },
+  {
+    id: 'roman-chariot', title: 'Roman Racing Chariot', category: 'artifacts', builder: 'heritage3', scale: 1, yaw: -0.8,
+    grades: ALL, subjects: ['history', 'world cultures', 'physics'],
+    aliases: ['rome', 'circus maximus', 'quadriga', 'horses', 'racing', 'ancient', 'wheels'],
+    blurb: 'A light two-wheeled racing chariot of wood and leather, with its yoke and team colours.',
+    facts: [
+      'Chariot racing was hugely popular in ancient Rome, and teams were known by their colours.',
+      'The Circus Maximus in Rome could hold well over 100,000 spectators.',
+      'Racing chariots were kept very light, so that the horses could run faster. This model has no horses.',
+    ],
+    realSize: 'No real one survives, so its size is estimated from small bronze models and carvings', shownAt: 'About life size, with its painting and details a best guess',
+    tryThis: 'Why would two wheels and light wood matter for a race? What about on a sharp turn?',
+  },
+  {
+    id: 'ming-vase', title: 'Ming Vase', category: 'artifacts', builder: 'heritage3', scale: 1,
+    grades: ALL, subjects: ['art', 'history', 'world cultures'],
+    aliases: ['china', 'porcelain', 'blue and white', 'dynasty', 'pottery', 'cobalt', 'jingdezhen', 'dragon', 'ceramic'],
+    blurb: 'A blue and white Chinese porcelain jar, painted with a dragon among clouds and waves.',
+    facts: [
+      'The Ming dynasty ruled China from 1368 to 1644, and its blue and white porcelain became famous worldwide.',
+      'The blue comes from cobalt, painted on before the glaze and the firing.',
+      'Porcelain is fired so hot that it becomes hard, white and slightly see-through when thin.',
+    ],
+    realSize: 'About 1 to 2 feet tall', shownAt: 'Enlarged about 4 times',
+    tryThis: 'Why do you think English speakers came to call fine porcelain "china"?',
+  },
 
   // --- Arts & Music -------------------------------------------------------------------
   {
@@ -1413,6 +1722,33 @@ export const MODELS = [
     ],
     realSize: 'A page about a foot tall', shownAt: 'Enlarged about 4 times',
     tryThis: 'Place a Gutenberg Printing Press beside it. What changed for people who wanted a book?',
+  },
+  {
+    id: 'potters-wheel', title: 'Potter\u2019s Wheel', category: 'arts', builder: 'world3', scale: 1, pictureElevation: 22,
+    grades: ALL, subjects: ['art', 'history', 'physics'],
+    aliases: ['pottery', 'clay', 'ceramics', 'kick wheel', 'throwing', 'kiln', 'vase', 'craft'],
+    blurb: 'A wooden kick wheel with a half-formed pot on it, beside a stool and finished pots.',
+    facts: [
+      'Potter\u2019s wheels were in use in the ancient Near East more than 5,000 years ago.',
+      'The spinning wheel lets a potter shape even, round pots quickly.',
+      'A heavy flywheel at the bottom keeps it turning between kicks.',
+    ],
+    realSize: 'About 3.5 feet tall with the pot', shownAt: 'Life size',
+    tryThis: 'Why would a heavy wheel keep spinning longer than a light one?',
+  },
+  {
+    id: 'drum-kit', title: 'Drum Kit', category: 'arts', builder: 'world3', scale: 1, yaw: -0.5, pictureElevation: 18,
+    grades: ALL, subjects: ['music', 'physics'],
+    aliases: ['drums', 'snare', 'bass drum', 'cymbals', 'hi hat', 'toms', 'percussion', 'instrument', 'jazz', 'rock'],
+    blurb: 'A five-piece drum kit with a bass drum, snare, toms, hi-hat and cymbals, set up to play.',
+    facts: [
+      'A kit lets one person play many drums, using both hands and both feet.',
+      'The kit grew up in American theatre, ragtime and jazz bands, helped by a reliable bass drum pedal patented in 1909.',
+      'Wires under the snare drum rattle against it, which gives its sharp sound.',
+    ],
+    realSize: 'About 6 feet wide', shownAt: 'Life size',
+    tryThis: 'Find the biggest and smallest drums. Which plays the deepest note?',
+    answer: 'The biggest, the bass drum, plays the deepest note.',
   },
 ];
 

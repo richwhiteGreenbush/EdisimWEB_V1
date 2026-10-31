@@ -4576,10 +4576,10 @@ re-import.
 
 ### The Model Database, and a model a student can pull out of shape
 
-Menu ▸ **Model Database**: a hundred ready-made educational models in nine types, searchable,
+Menu ▸ **Model Database**: 125 ready-made educational models in nine types, searchable,
 placeable in every world in both editions, and shapeable with the same hammer tools as a cube.
 `src/models/catalog.js` is the one table, `src/ModelDatabase.js` the panel, `src/models/index.js`
-the placing, and `src/models/builders/` holds the 83 built for it, one lazy chunk per family. The
+the placing, and `src/models/builders/` holds the 108 built for it, one lazy chunk per family. The
 other 17 are `PROP_BUILDERS` entries from worlds. **`src/models/ModelKit.js` is the shared kit:** the
 signed-distance `Sculpt`, plus a closed `tube`, a correct `lathe`, `outward` and `alongMatrix`. It came
 out of `builders/Life.js`, proven byte-identical by hashing all six models before and after. `docs/guide/models.html` is GENERATED from the
@@ -4648,9 +4648,9 @@ until a student asks, and `go back to start` means where they put it.
 `realSize` must be one a reference would back, and when a model departs from the subject the card
 says so. That is why the Parthenon says all 46 columns stand so they can be counted, the Rosetta
 Stone that its writing is representative, the printing press that none of Gutenberg's survives, and
-the orrery that it turns as one piece. **All 100 cards have been fact-checked against published
-sources, by an agent with web search rather than by a person.** It reviewed about 460 claims and
-corrected 16 of them, and the kinds worth remembering are a wrong term (the prism's "refraction"
+the orrery that it turns as one piece. **All 125 cards have been fact-checked against published
+sources, by an agent with web search rather than by a person.** It reviewed about 540 claims and
+corrected 22 of them, and the kinds worth remembering are a wrong term (the prism's "refraction"
 for dispersion) and a popular factoid (the monarch's great-grandchild). Most checks read a search
 summary rather than the page, and it did not cover a model's own details, such as which Stonehenge
 lintels survive, which came from memory: **a teacher or subject expert should still read them before
@@ -4666,8 +4666,8 @@ edition, against a dev server on 5199, or `APP_URL=http://localhost:5183/` for H
 **Performance, measured on the development Mac in headless Chrome at 1366x768**: the Park alone is
 757 calls / 544k drawn. The Park plus twelve of the heaviest models is 855 calls / **1.84M drawn**,
 at 60fps there, which is OVER the 1.5M working target and is why the panel carries a fullness meter
-(750k of geometry, half of what is drawn) and warns without blocking. One of each of the hundred is
-about 4.1M triangles of geometry. Builders take up to about 300ms on the main thread once loaded and
+(750k of geometry, half of what is drawn) and warns without blocking. One of each of the 125 is
+about 5.2M triangles of geometry. Builders take up to about 300ms on the main thread once loaded and
 about 1s on a first build; the signed-distance models in `builders/Life.js` are the slowest. **NOT YET MEASURED ON AN
 i5/i7 CHROMEBOOK**, and several models carry 2048px canvases, which is the first place to look if
 shared memory runs short.
