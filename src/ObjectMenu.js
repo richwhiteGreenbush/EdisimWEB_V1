@@ -8,7 +8,7 @@ const CLICK_MOVE_THRESHOLD = 6; // px -- beyond this, a mousedown->mouseup is a 
 const CLICK_TIME_THRESHOLD = 500; // ms
 
 export class ObjectMenu {
-  constructor({ scene, camera, domElement, registry, menu, worldStore, programEditor, cinema, onPortalClick }) {
+  constructor({ scene, camera, domElement, registry, menu, worldStore, programEditor, cinema, modelDatabase, onPortalClick }) {
     this.scene = scene;
     this.camera = camera;
     this.domElement = domElement;
@@ -25,6 +25,7 @@ export class ObjectMenu {
     this.downTime = 0;
     this.activeId = null;
 
+    this.modelDatabase = modelDatabase;
     this.panel = document.createElement('div');
     this.panel.id = 'object-menu';
     this.panel.hidden = true;
@@ -192,6 +193,12 @@ export class ObjectMenu {
     // and it made the programming tool look like the long way round rather than the point.
     if (item?.record?.kind === 'light-orb') {
       this.panel.appendChild(this.button('Color', () => this.renderColor()));
+    }
+    if (item?.record?.kind === 'catalog-model' && this.modelDatabase) {
+      this.panel.appendChild(this.button('About this model', () => {
+        this.panel.innerHTML = '';
+        this.modelDatabase.renderAbout(this.panel, item.record, { onBack: () => this.renderRoot() });
+      }));
     }
     // Two sub-pages rather than eight buttons. This panel is read by an eight-year-old,
     // and the fastest way to make it unreadable is to keep adding rows to it -- so

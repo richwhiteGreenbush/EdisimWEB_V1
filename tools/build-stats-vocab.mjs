@@ -17,6 +17,7 @@ const { JS_RUNTIME_NAMES } = await import('../src/JsProgram.js');
 const { PRIMITIVE_SHAPES } = await import('../src/Primitives.js');
 const { PROP_BUILDERS } = await import('../src/props/index.js');
 const { PRESET_WORLDS } = await import('../src/WorldPresets.js');
+const { MODELS } = await import('../src/models/catalog.js');
 
 const php = (value) => `'${String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 const list = (values) => `[${[...values].sort().map(php).join(', ')}]`;
@@ -32,6 +33,7 @@ return [
     'words' => ${list(new Set([...Object.keys(BLOCK_DEFS), ...JS_RUNTIME_NAMES]))},
     'shapes' => ${list(PRIMITIVE_SHAPES)},
     'props' => ${list(Object.keys(PROP_BUILDERS))},
+    'catalog' => ${list(MODELS.map((model) => model.id))},
     'presets' => ${map(presets)},
 ];
 `;
@@ -39,4 +41,4 @@ return [
 const target = fileURLToPath(new URL('../EdusimWorldDatabase/lib/stats-vocab.php', import.meta.url));
 writeFileSync(target, out);
 console.log(`${target}: ${Object.keys(BLOCK_DEFS).length} blocks, ${JS_RUNTIME_NAMES.length} js names, `
-  + `${PRIMITIVE_SHAPES.length} shapes, ${Object.keys(PROP_BUILDERS).length} props, ${presets.length} presets`);
+  + `${PRIMITIVE_SHAPES.length} shapes, ${Object.keys(PROP_BUILDERS).length} props, ${MODELS.length} catalogue models, ${presets.length} presets`);

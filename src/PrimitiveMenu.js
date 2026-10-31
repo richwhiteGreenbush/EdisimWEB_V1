@@ -7,6 +7,7 @@ import {
   clusterIds,
   pieceLabel,
 } from './Primitives.js';
+import { resetCatalogModel } from './models/index.js';
 import {
   PALETTE_SWATCHES,
   PRIMITIVE_DEFAULT_COLOR,
@@ -21,7 +22,9 @@ const TEXTURE_EXTENSIONS = ['png', 'jpg', 'jpeg'];
 // button, same synchronous edge clamp -- but a different set of actions, because a piece
 // under construction is a part rather than a finished object.
 export class PrimitiveMenu {
-  constructor({ registry, menu, worldStore, buildGizmo }) {
+  constructor({ registry, menu, worldStore, buildGizmo, modelDatabase, groundHeightAt }) {
+    this.modelDatabase = modelDatabase;
+    this.groundHeightAt = groundHeightAt;
     this.registry = registry;
     this.menu = menu;
     this.worldStore = worldStore;
@@ -137,10 +140,30 @@ export class PrimitiveMenu {
         );
       })
     );
+    // Stretching is one-way in an app with no undo, and a model that has been pulled out of
+    // shape has a right shape to go back to, which a plain cube does not.
+    if (item.record.kind === 'catalog-model') {
+      this.panel.appendChild(this.button('Reset Shape', () => this.resetShape()));
+    }
     this.panel.appendChild(this.button('Connect to Primitive', () => this.renderConnect()));
     this.panel.appendChild(this.button('Remove Shape', () => this.removeShape(), 'pm-remove'));
     this.panel.appendChild(this.button('Render Model', () => this.renderModel(), 'pm-render'));
+    if (item.record.kind === 'catalog-model' && this.modelDatabase) {
+      this.panel.appendChild(this.button('About this Model', () => {
+        this.panel.innerHTML = '';
+        this.modelDatabase.renderAbout(this.panel, item.record, { onBack: () => this.renderRoot() });
+      }));
+    }
     this.panel.appendChild(this.button('Close Menu', () => this.close(), 'om-close'));
+  }
+
+  resetShape() {
+    const item = this.activeItem();
+    if (!item) return;
+    this.close();
+    if (this.buildGizmo?.activeId === item.record.id) this.buildGizmo.deactivate();
+    resetCatalogModel({ item, groundHeightAt: this.groundHeightAt, worldStore: this.worldStore });
+    this.menu?.toast(`${pieceLabel(item.record)} is back to its own shape.`, { tone: 'success' });
   }
 
   // --- Apply Texture -------------------------------------------------------------

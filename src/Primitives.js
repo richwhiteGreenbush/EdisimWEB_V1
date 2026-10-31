@@ -3,6 +3,8 @@ import { restTransform } from './RootMotion.js';
 import { nextPlacementXZ } from './Placement.js';
 import { loadImageElement } from './MediaLoader.js';
 import { buildBatchLoadingManager, loadModelFile } from './ModelLoader.js';
+import { buildCatalogModel } from './models/index.js';
+import { MODEL_BY_ID } from './models/catalog.js';
 import {
   PRIMITIVE_SIZE,
   PRIMITIVE_DEFAULT_COLOR,
@@ -31,8 +33,9 @@ export const PRIMITIVE_SHAPES = ['cube', 'sphere', 'cylinder', 'tetrahedron'];
 // out of the dinosaur they just imported has been given the wrong half of the toy.
 // Imports KEEP their ordinary click-to-edit menu as well -- unlike a primitive, an
 // import is a finished object in its own right, so Size/Move/Program stay reachable and
-// the hammer is additive.
-export const BUILD_PIECE_KINDS = ['primitive', 'gltf', 'obj'];
+// the hammer is additive. A model from the Model Database is the same deal: a finished object
+// that is also something to build with, and being stretchable is half of why it is there.
+export const BUILD_PIECE_KINDS = ['primitive', 'gltf', 'obj', 'catalog-model'];
 
 export function isBuildPiece(record) {
   return !!record && BUILD_PIECE_KINDS.includes(record.kind);
@@ -43,6 +46,7 @@ export function isBuildPiece(record) {
 export function pieceLabel(record) {
   if (!record) return 'Shape';
   if (record.kind === 'primitive') return SHAPE_LABELS[record.shape] || 'Shape';
+  if (record.kind === 'catalog-model') return MODEL_BY_ID.get(record.model)?.title || 'Model';
   const name = record.primaryFileName || record.files?.[0]?.name || '';
   const base = name.replace(/\.[^.]+$/, '');
   if (!base) return 'Imported Model';
@@ -137,7 +141,9 @@ export async function buildBuiltModel(record) {
   const group = new THREE.Group();
   for (const part of record.parts || []) {
     let child;
-    if (part.kind === 'gltf' || part.kind === 'obj') {
+    if (part.kind === 'catalog-model') {
+      child = await buildCatalogModel(part.model);
+    } else if (part.kind === 'gltf' || part.kind === 'obj') {
       // An imported part: rebuilt through the exact loader path WorldStore uses for a
       // standalone gltf/obj record, against the slice of files this part brought in.
       const fileRecords = (record.files || []).slice(part.fileStart, part.fileStart + part.fileCount);
@@ -312,6 +318,14 @@ export async function renderModelFromCluster({ rootId, registry, worldStore, men
         fileIndex = files.length - 1;
       }
       parts.push({ shape: record.shape, color: record.color, fileIndex, ...placement });
+      continue;
+    }
+
+    // A catalogue model has no files to hoist, only its id. This branch is load-bearing: left
+    // to the import path below, the part has neither files nor a shape, buildBuiltModel falls
+    // through to createShapeMesh, and the model comes back as a 2ft yellow cube with no error.
+    if (record.kind === 'catalog-model') {
+      parts.push({ kind: record.kind, model: record.model, ...placement });
       continue;
     }
 

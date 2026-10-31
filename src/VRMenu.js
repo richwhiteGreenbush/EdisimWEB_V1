@@ -155,6 +155,9 @@ export class VRMenu {
     // may genuinely want to save what they have just built before taking the headset off.
     rows.push({ id: 'saveWorld', label: 'Save World', leavesVR: true });
     rows.push({ id: 'loadWorldFile', label: 'Load World File', leavesVR: true });
+    // Out of VR first, like Import: fifty picture cards and a search box are flat-screen DOM,
+    // and so is the hammer panel a model is shaped with once it lands.
+    rows.push({ id: 'modelDatabase', label: 'Model Database', leavesVR: true });
 
     // Load Object stays TOP-LEVEL here, where the flat menu has since moved it inside
     // Create Model. That is not an oversight: Create Model does not exist in VR at all

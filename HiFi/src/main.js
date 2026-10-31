@@ -42,6 +42,7 @@ import { askForUrl } from '../../src/UrlPrompt.js';
 import { buildPresetWorldRecords, PRESET_WORLDS } from '../../src/WorldPresets.js';
 import { duplicatePlacedObject } from '../../src/Duplicator.js';
 import { placePrimitive } from '../../src/Primitives.js';
+import { ModelDatabase } from '../../src/ModelDatabase.js';
 import { ConstructionManager } from '../../src/ConstructionManager.js';
 import { PrimitiveMenu } from '../../src/PrimitiveMenu.js';
 import { BuildGizmo } from '../../src/BuildGizmo.js';
@@ -215,6 +216,7 @@ const menuActions = {
       menu.toast('Could not add that shape.', { tone: 'error' });
     }
   },
+  modelDatabase: () => { menu.setCollapsed(true); modelDatabase.open(); },
   saveWorld: async () => {
     if (registry.count === 0) { menu.toast('Nothing to save yet.'); return; }
     try {
@@ -285,6 +287,7 @@ const menu = new Menu({
   onWebBrowserClick: menuActions.webBrowser,
   onYouTubeClick: menuActions.youTube,
   onCreatePrimitiveClick: menuActions.createPrimitive,
+  onModelDatabaseClick: menuActions.modelDatabase,
   onSaveWorldClick: menuActions.saveWorld,
   onLoadWorldClick: menuActions.loadWorldFile,
   onLoadPresetClick: menuActions.loadPreset,
@@ -312,6 +315,8 @@ programManager.marker = markerTrail;
 const playIconManager = new PlayIconManager({ scene, camera, domElement: canvas, registry, programManager, menu });
 const speechBubbles = new SpeechBubbleManager({ scene, registry });
 const worldStore = new WorldStore({ scene, registry, menu, programManager, playIconManager, webBrowserManager, speechBubbles, markerTrail });
+// Ten times the main app's triangle allowance, the same ratio as HiFi's other budgets.
+const modelDatabase = new ModelDatabase({ scene, camera, registry, worldStore, menu, groundHeightAt, triangleLimit: 7500000 });
 // PhotoMode only ever asks its renderer for the canvas it drew to.
 const photoMode = new PhotoMode({ scene, camera, renderer: { domElement: canvas }, registry, worldStore, menu, player, groundHeightAt, cinema });
 const settingsPanel = new SettingsPanel({ onChange: (name) => { if (name === 'motion') motion.clear(); } });
@@ -319,11 +324,11 @@ const importManager = new ImportManager({ scene, camera, groundHeightAt, menu, r
 const drawTool = new DrawTool({ scene, camera, groundHeightAt, menu, registry, onPlaced: (record) => worldStore.saveObject(record) });
 const programEditor = new ProgramEditor({ registry, worldStore, programManager, menu, playIconManager });
 const objectMenu = new ObjectMenu({
-  scene, camera, domElement: canvas, registry, menu, worldStore, programEditor, cinema,
+  scene, camera, domElement: canvas, registry, menu, worldStore, programEditor, cinema, modelDatabase,
   onPortalClick: (name) => menuActions.loadPreset(name),
 });
 const buildGizmo = new BuildGizmo({ scene, camera, canvas, registry, worldStore, groundHeightAt, constructionManager });
-const primitiveMenu = new PrimitiveMenu({ registry, menu, worldStore, buildGizmo });
+const primitiveMenu = new PrimitiveMenu({ registry, menu, worldStore, buildGizmo, modelDatabase, groundHeightAt });
 motion.attach({ buildGizmo });
 
 programManager.onDuplicate = (id, offset) => duplicatePlacedObject({ id, offset, registry, worldStore, menu });
@@ -506,7 +511,7 @@ engine.runRenderLoop(() => {
 
 if (import.meta.env.DEV) {
   window.__debug = {
-    THREE, scene, camera, player, registry, worldStore, menu, menuActions, programManager, programEditor, objectMenu,
+    THREE, scene, camera, player, registry, worldStore, menu, menuActions, modelDatabase, playIconManager, programManager, programEditor, objectMenu,
     constructionManager, primitiveMenu, buildGizmo, drawTool, importManager, webBrowserManager, markerTrail, cinema, vrView,
     engine, bscene, bcamera, environment, terrain, pipeline, grass, water, lights, kit, natives, bridge, refreshGround, touchNav,
   };

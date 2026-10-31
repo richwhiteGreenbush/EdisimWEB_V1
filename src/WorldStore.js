@@ -6,6 +6,7 @@ import { inflateFromCanvas } from './BalloonInflator.js';
 import { loadLibraryModel, loadTreeModel, loadBillboardImage, loadLlamaModel } from './StartupAssets.js';
 import { createLightOrb } from './LightOrb.js';
 import { createPrimitiveMesh, buildBuiltModel } from './Primitives.js';
+import { buildCatalogModel } from './models/index.js';
 import { applyWorldTheme, createThemeMarker, createSpawnMarker } from './SceneSetup.js';
 import { buildProp } from './props/index.js';
 import { DEFAULT_THEME } from './config.js';
@@ -280,6 +281,17 @@ export class WorldStore {
       // stamping `group.userData.tick = { update(dt, camera), dispose() }` -- the same
       // shape the GIF tick already uses, read off userData because buildProp() already
       // stamps `presetProp` on the same object.
+      this.addAndRun(record, object3D, { tick: object3D.userData.tick });
+      return;
+    }
+
+    // A model from the Model Database. Same idea as a preset prop, but it awaits, because most
+    // of the catalogue's builders are in lazy chunks. A world file naming an id this copy of
+    // the app has never heard of throws here and is caught per record, like an unknown prop.
+    if (record.kind === 'catalog-model') {
+      const object3D = await buildCatalogModel(record.model);
+      applyTransform(object3D, record.transform);
+      this.scene.add(object3D);
       this.addAndRun(record, object3D, { tick: object3D.userData.tick });
       return;
     }
