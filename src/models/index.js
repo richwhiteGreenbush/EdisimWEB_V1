@@ -49,6 +49,11 @@ const BUILDER_CHUNKS = {
   math5: () => import('./builders/Math5.js'),
   heritage5: () => import('./builders/Heritage5.js'),
   world5: () => import('./builders/World5.js'),
+  villagehomes: () => import('./builders/VillageHomes.js'),
+  villagecraft: () => import('./builders/VillageCraft.js'),
+  villageworks: () => import('./builders/VillageWorks.js'),
+  villagelivestock: () => import('./builders/VillageLivestock.js'),
+  villagecrops: () => import('./builders/VillageCrops.js'),
 };
 
 export async function buildCatalogModel(id) {
@@ -243,7 +248,9 @@ export async function placeCatalogModel({ id, scene, camera, registry, groundHei
   // seating it. Parts below the origin are meant to be there: an ankle in the dirt, a skirt of
   // rock that hides the join with uneven ground.
   object3D.position.set(x, groundHeightAt(x, z) + (entry.hover ?? 0), z);
-  object3D.rotation.y = Math.atan2(camera.position.x - x, camera.position.z - z) + yawOff;
+  const facing = Math.atan2(camera.position.x - x, camera.position.z - z);
+  const snap = entry.grid === 'row' ? Math.PI : Math.PI / 2;
+  object3D.rotation.y = (entry.grid ? Math.round(facing / snap) * snap : facing) + yawOff;
   scene.add(object3D);
 
   const record = {

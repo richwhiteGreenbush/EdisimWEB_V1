@@ -1343,6 +1343,23 @@ body.vr-active #toast-host {
   background-repeat: no-repeat;
 }
 
+.mdb-guide-link {
+  display: block;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(200, 118, 59, 0.2);
+  border: 1px solid rgba(200, 118, 59, 0.6);
+  color: #ffd9b8;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mdb-guide-link:hover,
+.mdb-guide-link:focus-visible {
+  background: rgba(200, 118, 59, 0.34);
+}
+
 .mdb-eyebrow {
   font-size: 13px;
   font-weight: 650;
