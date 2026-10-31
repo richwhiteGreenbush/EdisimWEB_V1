@@ -15,8 +15,8 @@ import { STARTER_PROGRAMS } from './programs.js';
 // than a flag on `preset-prop` because a kind is what ConstructionManager hangs a hammer on,
 // and every preset prop in every world having one would be several hundred hammers.
 
-// One chunk per family, so the twenty-nine models that are not already world props cost a
-// normal boot nothing at all. HiFi imports this file too, and Vite splits both the same way.
+// One chunk per family, so the models that are not already world props cost a normal boot
+// nothing at all. HiFi imports this file too, and Vite splits both the same way.
 const BUILDER_CHUNKS = {
   life: () => import('./builders/Life.js'),
   space: () => import('./builders/Space.js'),
@@ -25,6 +25,15 @@ const BUILDER_CHUNKS = {
   landmarks: () => import('./builders/Landmarks.js'),
   artifacts: () => import('./builders/Artifacts.js'),
   arts: () => import('./builders/Arts.js'),
+  body2: () => import('./builders/Body2.js'),
+  life2: () => import('./builders/Life2.js'),
+  space2: () => import('./builders/Space2.js'),
+  lab2: () => import('./builders/Lab2.js'),
+  math: () => import('./builders/MathModels.js'),
+  machines2: () => import('./builders/Machines2.js'),
+  landmarks2: () => import('./builders/Landmarks2.js'),
+  artifacts2: () => import('./builders/Artifacts2.js'),
+  arts2: () => import('./builders/Arts2.js'),
 };
 
 export async function buildCatalogModel(id) {

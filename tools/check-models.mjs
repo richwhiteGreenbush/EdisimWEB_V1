@@ -108,6 +108,56 @@ const OPEN_EDGES = {
   'violin': 41,
   'djembe': 10,
   'artists-easel': 92,
+  'human-eye': 2542,
+  'human-ear': 2939,
+  'tooth-section': 4999,
+  'skin-section': 1263,
+  'digestive-system': 20,
+  'plant-cell': 210,
+  'flower-anatomy': 0,
+  'tree-trunk-section': 824,
+  'woolly-mammoth': 0,
+  'stegosaurus': 0,
+  'bald-eagle': 0,
+  'emperor-penguin': 0,
+  'saturn-planet': 144,
+  'hubble-telescope': 552,
+  'voyager-probe': 96,
+  'rock-strata-block': 1044,
+  'plate-boundary-block': 1241,
+  'water-cycle-diorama': 1534,
+  'lab-glassware': 1077,
+  'simple-circuit': 44,
+  'bar-magnet-field': 796,
+  'glass-prism': 0,
+  'pulley-system': 124,
+  'platonic-solids': 24,
+  'pythagorean-theorem': 11,
+  'nautilus-shell': 5184,
+  'mobius-strip': 4,
+  'model-t-ford': 298,
+  'penny-farthing': 0,
+  'montgolfier-balloon': 0,
+  'edison-phonograph': 96,
+  'watt-steam-engine': 0,
+  'eiffel-tower': 38280,
+  'great-wall': 5166,
+  'leaning-tower-of-pisa': 19042,
+  'stonehenge': 1610,
+  'el-castillo': 6024,
+  'trebuchet': 0,
+  'liberty-bell': 0,
+  'knight-armor': 356,
+  'samurai-armor': 482,
+  'cuneiform-tablet': 0,
+  'inca-quipu': 0,
+  'acoustic-guitar': 286,
+  'concert-harp': 0,
+  'trumpet': 16,
+  'sitar': 0,
+  'theatre-masks': 1328,
+  'globe-theatre': 28,
+  'illuminated-manuscript': 566,
 };
 // Reused models keep what their own world established; these rules bind what is built for here.
 const REUSED_SKIP = new Set(['outside', 'origin']);
@@ -136,7 +186,7 @@ for (const m of MODELS) {
 for (const category of MODEL_CATEGORIES) {
   if (!MODELS.some((m) => m.category === category.key)) fail(category.key, 'an empty category');
 }
-for (const [query, id] of [['mitochondria', 'animal-cell'], ['t rex', 'tyrannosaurus-rex'], ['rex', 'tyrannosaurus-rex'], ['oregon trail', 'covered-wagon'], ['h2o', 'water-molecule'], ['hieroglyphs', 'rosetta-stone']]) {
+for (const [query, id] of [['mitochondria', 'animal-cell'], ['t rex', 'tyrannosaurus-rex'], ['rex', 'tyrannosaurus-rex'], ['oregon trail', 'covered-wagon'], ['h2o', 'water-molecule'], ['hieroglyphs', 'rosetta-stone'], ['cochlea', 'human-ear'], ['ice age', 'woolly-mammoth'], ['euler', 'platonic-solids'], ['khipu', 'inca-quipu'], ['shakespeare', 'globe-theatre']]) {
   if (searchModels(query)[0]?.id !== id) fail(`search "${query}"`, `first result is ${searchModels(query)[0]?.id}`);
 }
 if (searchModels('xyzzy').length) fail('search "xyzzy"', 'should find nothing');
