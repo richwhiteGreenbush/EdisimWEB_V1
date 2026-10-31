@@ -66,6 +66,7 @@ export function objectLabel(record) {
   switch (record?.kind) {
     case 'primitive': return `shape:${record.shape}`;
     case 'preset-prop': return `prop:${record.prop}`;
+    case 'catalog-model': return `catalog:${record.model}`;
     case 'gltf':
     case 'obj': return 'model';
     case 'built-model':

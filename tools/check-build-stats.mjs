@@ -39,6 +39,7 @@ check('a model never gives its file name', objectLabel({ kind: 'gltf', files: [{
 check('a panel never gives its address', objectLabel({ kind: 'web-browser', url: 'https://example.com/?q=secret' }), 'web-browser');
 check('a shape names itself', objectLabel({ kind: 'primitive', shape: 'cube' }), 'shape:cube');
 check('a world object names its builder', objectLabel({ kind: 'preset-prop', prop: 'sc-pay-stub' }), 'prop:sc-pay-stub');
+check('a database model names its catalogue id', objectLabel({ kind: 'catalog-model', model: 'human-heart' }), 'catalog:human-heart');
 
 console.log(failed ? `\n${failed} FAILED` : '\nall passed');
 process.exit(failed ? 1 : 0);

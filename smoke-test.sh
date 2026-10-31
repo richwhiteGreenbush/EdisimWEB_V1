@@ -70,6 +70,8 @@ section "Marketing site"
 check "home page"            "$SITE/"                    200
 check "stylesheet"           "$SITE/styles.css"          200
 check "hands-on guide"       "$SITE/guide/"              200
+check "model database guide" "$SITE/guide/models.html"   200
+check "its pictures"         "$SITE/assets/models/human-heart.webp" 200
 check "logo wordmark"        "$SITE/assets/edusim-wordmark.jpg" 200
 
 # The 2026 marketing pass. Every one of these is a page some document, brief or link
@@ -189,6 +191,8 @@ fi
 rm -f "$app_html"
 # Fetched by url at runtime, so it has to resolve relative to /app/ too.
 check "a runtime asset under /app/"   "$SITE/app/tree/MapleTree.obj" 200
+check "a model card picture under /app/" "$SITE/app/models/thumbs/human-heart.webp" 200
+check "a model turntable under /app/"    "$SITE/app/models/spin/human-heart.webp" 200
 
 # The button itself, on a real world page, and the file it will fetch.
 first_world=$(echo "$ids" | head -1)

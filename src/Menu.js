@@ -9,6 +9,7 @@ export class Menu {
     onWebBrowserClick,
     onYouTubeClick,
     onCreatePrimitiveClick,
+    onModelDatabaseClick,
     onClearClick,
     onSaveWorldClick,
     onLoadWorldClick,
@@ -109,6 +110,19 @@ export class Menu {
       'Build your own model out of simple shapes, then render it into one object',
       [...shapeButtons, loadObject.toggle, loadObject.panel]
     );
+
+    // Above Create Model, because it answers the same question with less work: "I need a
+    // heart in this world" is a search away, where building one is an afternoon. It opens a
+    // panel, not a dropdown, because fifty pictures do not fit in this column.
+    const modelDatabaseBtn = this._button(
+      'Model Database',
+      'Browse and search ready-made educational models, and place them in this world'
+    );
+    modelDatabaseBtn.classList.add('menu-btn-models');
+    modelDatabaseBtn.addEventListener('click', () => {
+      this.closeGroups();
+      onModelDatabaseClick?.();
+    });
 
     // THE LOAD WORLD DROPDOWN IS GONE, and with it the short list of presets it held.
     //
@@ -271,6 +285,7 @@ export class Menu {
       moreWorldsBtn,
       saveWorldBtn,
       loadWorldFileBtn,
+      modelDatabaseBtn,
       createModel.toggle,
       createModel.panel,
       lookAround.toggle,

@@ -24,6 +24,7 @@ import { VRView } from './VRView.js';
 import { placePrimitive } from './Primitives.js';
 import { ConstructionManager } from './ConstructionManager.js';
 import { PrimitiveMenu } from './PrimitiveMenu.js';
+import { ModelDatabase } from './ModelDatabase.js';
 import { BuildGizmo } from './BuildGizmo.js';
 import { Motion } from './Motion.js';
 import { tickWind, uniforms as windUniforms, setWind } from './Wind.js';
@@ -203,6 +204,10 @@ const menuActions = {
       menu.toast('Could not add that shape.', { tone: 'error' });
     }
   },
+  modelDatabase: () => {
+    menu.setCollapsed(true);
+    modelDatabase.open();
+  },
   saveWorld: async () => {
     if (registry.count === 0) {
       menu.toast('Nothing to save yet.');
@@ -309,6 +314,7 @@ const menu = new Menu({
   onWebBrowserClick: menuActions.webBrowser,
   onYouTubeClick: menuActions.youTube,
   onCreatePrimitiveClick: menuActions.createPrimitive,
+  onModelDatabaseClick: menuActions.modelDatabase,
   onSaveWorldClick: menuActions.saveWorld,
   onLoadWorldClick: menuActions.loadWorldFile,
   onLoadPresetClick: menuActions.loadPreset,
@@ -356,6 +362,8 @@ const worldStore = new WorldStore({ scene, registry, menu, programManager, playI
 // this browser has saved. See WorldStore.persistent.
 if (studioMode) worldStore.persistent = false;
 
+const modelDatabase = new ModelDatabase({ scene, camera, registry, worldStore, menu, groundHeightAt });
+
 const photoMode = new PhotoMode({
   scene, camera, renderer, registry, worldStore, menu, player, groundHeightAt, cinema,
 });
@@ -397,6 +405,7 @@ const objectMenu = new ObjectMenu({
   worldStore,
   programEditor,
   cinema,
+  modelDatabase,
   // Clicking a world-portal billboard runs the same action Load World does. It is the
   // only way to reach a preset marked `hidden` -- 1940's New York is reachable from the
   // billboard behind the Library and from nowhere else.
@@ -413,7 +422,7 @@ const buildGizmo = new BuildGizmo({
   constructionManager,
 });
 
-const primitiveMenu = new PrimitiveMenu({ registry, menu, worldStore, buildGizmo });
+const primitiveMenu = new PrimitiveMenu({ registry, menu, worldStore, buildGizmo, modelDatabase, groundHeightAt });
 
 // The gizmo is the other thing that can own an object's transform, and Motion must never
 // fight it -- a spring running on a piece the student has under their thumb is a stutter
@@ -566,7 +575,7 @@ if (import.meta.env.DEV) {
     camera, player, renderer, scene, THREE, menu, registry, importManager, drawTool,
     worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager, speechBubbles,
     webBrowserManager, vrView, constructionManager, primitiveMenu, markerTrail, buildGizmo,
-    motion, cinema, photoMode, settingsPanel, windUniforms, setWind,
+    motion, cinema, photoMode, settingsPanel, windUniforms, setWind, modelDatabase,
     // Every menu row, callable. `loadPreset` is the one that cannot be reached any other
     // way now that the menu lists no worlds at all: a preset is opened by a ?world= link
     // against the live gallery, which a checkout under development is not. Building the

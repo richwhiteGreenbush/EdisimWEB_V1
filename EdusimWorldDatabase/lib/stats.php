@@ -205,6 +205,7 @@ function ewd_stats_vocab(): array
             'words'   => array_flip($raw['words']),
             'shapes'  => array_flip($raw['shapes']),
             'props'   => array_flip($raw['props']),
+            'catalog' => array_flip($raw['catalog'] ?? []),
             'presets' => $raw['presets'],
         ];
     }
@@ -237,6 +238,9 @@ function ewd_stats_clean_object(string $raw): string
         return $raw;
     }
     if (str_starts_with($raw, 'prop:') && isset($vocab['props'][substr($raw, 5)])) {
+        return $raw;
+    }
+    if (str_starts_with($raw, 'catalog:') && isset($vocab['catalog'][substr($raw, 8)])) {
         return $raw;
     }
     return 'other';
@@ -358,6 +362,9 @@ function ewd_stats_object_label(string $object): string
     }
     if (str_starts_with($object, 'prop:')) {
         return 'World object: ' . substr($object, 5);
+    }
+    if (str_starts_with($object, 'catalog:')) {
+        return 'Model Database: ' . substr($object, 8);
     }
     return [
         'model'             => 'Imported 3D model',

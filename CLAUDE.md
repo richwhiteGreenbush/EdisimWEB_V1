@@ -457,6 +457,9 @@ storing it. Create Model's `primitive`/`built-model` sit in between: they rebuil
 geometry from named parameters like the above, and carry `files` **only** when the student
 has applied an uploaded image to a surface.
 
+A `catalog-model` record (`{ model, connections, transform, program?, programIdle?,
+homeFromRecord? }`) is the Model Database's kind and joins this dispatch; see that section.
+
 `loadFromRecords()` settles the theme up front from
 `records.find(r => r.kind === 'world-theme')?.theme || DEFAULT_THEME` **before**
 rehydrating anything, so a world file with no theme of its own resets a leftover moon
@@ -464,9 +467,9 @@ sky back to daylight instead of inheriting it.
 
 ### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / the curriculum set / My World / (New York, Under the Sea)
 
-The menu reads **Get More Worlds → Save World → Load World File → Create Model → Look
-Around → Clear World → VR Headset View → Settings**, in that order: get a world, keep this
-one, open a file, then what am I building, then how am I looking at it, then the
+The menu reads **Get More Worlds → Save World → Load World File → Model Database → Create
+Model → Look Around → Clear World → VR Headset View → Settings**, in that order: get a world,
+keep this one, open a file, then what am I building, then how am I looking at it, then the
 whole-session actions. **Load Object** (Import / Draw / Light Orb / Web Browser) is not
 top-level — it is a dropdown *inside* Create Model, because bringing in a model, painting
 a balloon, dropping an orb and hanging a browser panel are the same job as adding a
@@ -4570,6 +4573,92 @@ dynamic `import()` from the console under Vite gives a SEPARATE MODULE INSTANCE,
 `setSunPhase()` called that way writes to a `state` whose `scene` is null and silently does
 nothing — drive the app through `window.__debug` or the real DOM, never through a
 re-import.
+
+### The Model Database, and a model a student can pull out of shape
+
+Menu ▸ **Model Database**: fifty ready-made educational models in eight types, searchable,
+placeable in every world in both editions, and shapeable with the same hammer tools as a cube.
+`src/models/catalog.js` is the one table, `src/ModelDatabase.js` the panel, `src/models/index.js`
+the placing, and `src/models/builders/` holds the 33 built for it, one lazy chunk per family. The
+other 17 are `PROP_BUILDERS` entries from worlds. `docs/guide/models.html` is GENERATED from the
+table by `tools/build-models-page.mjs`, and stays linked from `#resources` and the footer.
+
+**IT IS A TABLE IN THE BUNDLE, NOT A SERVER DATABASE**, on purpose: no query means nothing a school
+filter can block, nothing to go down, and nothing HiFi has to do differently. A server only earns
+its place if students start contributing models.
+
+**A RECORD IS AN ID.** `{ kind: 'catalog-model', model: 'human-heart', transform }` is about 280
+bytes, so one costs a world file nothing and `WorldFile` never sees a blob. Therefore **every `id`
+in the table is persisted and the table is add-only**, the `PROP_BUILDERS` rule. It is its own
+kind rather than a flag on `preset-prop` because `BUILD_PIECE_KINDS` is what earns a hammer, and
+every prop in every world having one would be several hundred hammers. A saved rebuild changes every
+saved copy, so a builder must keep its origin and roughly its bounds, or stretched models shift.
+
+**A NEW KIND HAS TO BE TAUGHT TO THE RENDER PATH, AND FORGETTING DOES NOT ERROR.** The import branch
+of `renderModelFromCluster` hoists files and writes no shape, so a part with no files reaches
+`createShapeMesh` with `shape` undefined and comes back as a 2ft yellow cube. Hence its own branch
+in both directions, and an assertion in `tools/check-models-app.mjs`. It also joined `pieceLabel`,
+`objectLabel` (`catalog:<id>`), `ewd_known_kinds` in BOTH galleries, and `stats.php`'s vocabulary.
+
+**BEING IN A WORLD DOES NOT MAKE A PROP GOOD ENOUGH, AND A TRIANGLE COUNT CANNOT SAY SO.** The first
+plan called 21 world props ready on their measured counts. Rendered at six feet, Fantastic Voyage's
+heart, lungs and brain and Egypt's Sphinx did not hold up, so those four were built afresh. Those
+organs point at a bug still live in that world: **measured, `lungs-model` and `kidney-model` have
+NEGATIVE signed volume and `brain-model` is near zero, and the likely cause is `BodyProps.organLoft`'s
+winding depending on the handedness of its transport frames** (`heart-model` totals positive but
+shows the same torn shells). The cause is unconfirmed, and it reads as torn shells rather than as
+missing surfaces. Those props were deliberately left alone, since changing them needs that world
+re-verified. `tools/check-models.mjs` now fails any built model with a negative signed volume.
+**`LoftKit.sweepProfile` is wound inward too**, the same fault already recorded for `LoftKit.tube()`,
+measured at -6.3 on a test sweep. The builders correct it locally; nothing shared was changed.
+
+**The weakest left are all reused**: Tyrannosaurus and Triceratops (balloon-like muscle at this
+range, and Triceratops' scutes read as mushrooms), the octopus and the perched monarch, whose legs
+are spidery. They identify at once and are the first candidates when this table is next improved.
+
+**Placement is not the golden-angle spiral.** `findPlacementSpot()` searches rings in FRONT of the
+student for the nearest spot clear of everything, then the nearest clear of their own models, then
+straight ahead. The Park left nowhere clear of its scenery, so the first version's single fallback
+piled twelve models into one: **24 of 66 pairs overlapped, and now none do.** `framingDistance()`
+solves height and width separately because `fov 70` is vertical. A record's `y` is ground plus
+`hover`, never a bounding-box seat, since parts below a prop's origin are meant to be there.
+
+**The panel never draws 3D**, because a second `WebGLRenderer` does not exist in HiFi. Its turntable
+is a strip of twelve pictures from `tools/model-pictures.mjs`, which writes `public/models/` AND
+`HiFi/public/models/` (HiFi has its own public folder) and `docs/assets/models/`. 2.7MB in total,
+fetched only when the panel opens, and a missing picture degrades to the category's icon. **The tool
+must measure a model after turning it**, or a long one placed broadside overflows the picture.
+
+**A model carries no text a stretch would ruin that the student needs**, so **Place an Info Sign**
+drops an ordinary `info-placard` beside it. **Reset Shape** exists because this app has no undo.
+Starter programs (`src/models/programs.js`) ship `programIdle` plus `homeFromRecord`: nothing moves
+until a student asks, and `go back to start` means where they put it.
+
+**Rules a card keeps**, the research library's honesty line again: every figure in `facts` and
+`realSize` must be one a reference would back, and when a model departs from the subject the card
+says so. That is why the Parthenon says all 46 columns stand so they can be counted, the Rosetta
+Stone that its writing is representative, the printing press that none of Gutenberg's survives, and
+the orrery that it turns as one piece. **Facts on the new models came from memory and from no
+reviewer: a teacher or subject expert should read the cards before they are relied on.** Excluded
+by rule: mummies and Pompeii's body casts, sacred objects, and real people's likenesses, since
+students can squash and spin anything they place.
+
+**How to check it**: `node tools/check-models.mjs` (the table, budget, inside-out, origin, sharing,
+determinism, open-edge baselines), `node tools/model-pictures.mjs --shot <id>` (nine views; LOOK at
+them), `node tools/check-models-app.mjs` (the whole student path through the real DOM, in either
+edition, against a dev server on 5199, or `APP_URL=http://localhost:5183/` for HiFi).
+
+**Performance, measured on the development Mac in headless Chrome at 1366x768**: the Park alone is
+757 calls / 544k drawn. The Park plus twelve of the heaviest models is 855 calls / **1.84M drawn**,
+at 60fps there, which is OVER the 1.5M working target and is why the panel carries a fullness meter
+(750k of geometry, half of what is drawn) and warns without blocking. One of each of the fifty is
+about 2.0M triangles of geometry. Builders take up to about 300ms on the main thread once loaded and
+about 1s on a first build; the signed-distance models in `builders/Life.js` are the slowest. **NOT YET MEASURED ON AN
+i5/i7 CHROMEBOOK**, and several models carry 2048px canvases, which is the first place to look if
+shared memory runs short.
+
+**Adding a model**: an entry in the table, a builder (or a `prop`), then `check-models`,
+`model-pictures --only <id>`, `build-models-page`, and `build-stats-vocab`.
 
 ### The marker: an in-world 3D pen
 

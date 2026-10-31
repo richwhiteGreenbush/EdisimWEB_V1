@@ -69,6 +69,8 @@ What follows from it, and must not be broken:
   edition would overwrite the other's saved world. `main.js` redirects that one name to
   `edusim-hifi-world` by wrapping `indexedDB.open`, rather than touching a constant the main
   app documents as never-to-change.
+- **The Model Database runs here too**, from `../../src/ModelDatabase.js`, with a 7.5M triangle
+  meter. Its pictures live in `public/models/`, this folder's own copy.
 - **The one edit made to the main app** is additive: `Menu` takes an optional `galleryUrl`
   (default unchanged), so Get More Worlds can open the HiFi gallery.
 

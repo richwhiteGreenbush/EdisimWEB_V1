@@ -27,7 +27,7 @@ function ewd_known_kinds(): array
 {
     return [
         'gltf', 'obj', 'image', 'gif', 'balloon', 'light-orb', 'web-browser',
-        'preset-prop', 'primitive', 'built-model', 'world-theme',
+        'preset-prop', 'primitive', 'built-model', 'catalog-model', 'world-theme',
         'startup-library', 'startup-tree', 'startup-billboard',
     ];
 }
