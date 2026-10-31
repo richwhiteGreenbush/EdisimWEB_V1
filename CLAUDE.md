@@ -4616,11 +4616,19 @@ measured at -6.3 on a test sweep. The builders correct it locally; nothing share
 range, and Triceratops' scutes read as mushrooms), the octopus and the perched monarch, whose legs
 are spidery. They identify at once and are the first candidates when this table is next improved.
 
-**Placement is not the golden-angle spiral.** `findPlacementSpot()` searches rings in FRONT of the
-student for the nearest spot clear of everything, then the nearest clear of their own models, then
-straight ahead. The Park left nowhere clear of its scenery, so the first version's single fallback
-piled twelve models into one: **24 of 66 pairs overlapped, and now none do.** `framingDistance()`
-solves height and width separately because `fov 70` is vertical. A record's `y` is ground plus
+**Placement is not the golden-angle spiral, and THE RULE IS THAT THE STUDENT CAN SEE IT.**
+`findPlacementSpot()` scores spots in FRONT of the student by what is wrong with each, worst first:
+hidden (real rays against real meshes, since a tree's box reaches the ground and its canopy does
+not), outside the frame, inside their own models, on top of scenery. **This shipped wrong once and
+was caught on the live site:** the first version took the nearest EMPTY ground, which for anything
+big in a populated world was 120ft off behind a building, so the Parthenon arrived out of sight
+while the toast said "placed". Every test had used the small heart, which always fits. Measured now
+with nine sample points per model, at least five seen, each model placed alone: the Park and The
+Neighborhood 50 of 50, Dinosaur Island 48, where the forest really is in the way, and My World 46,
+where a big model sits behind the three boards. **Known limit:** the rule puts visible above tidy,
+so twelve heavy models placed in the Park without moving overlap in 12 of 66 pairs, and a second
+very wide model can still land mostly behind a first one in a narrow view. `framingDistance()` solves
+height and width separately because `fov 70` is vertical. A record's `y` is ground plus
 `hover`, never a bounding-box seat, since parts below a prop's origin are meant to be there.
 
 **The panel never draws 3D**, because a second `WebGLRenderer` does not exist in HiFi. Its turntable

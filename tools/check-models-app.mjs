@@ -150,6 +150,49 @@ const inFrame = await page.evaluate((p) => {
 check('it arrives in the frame', inFrame);
 await screen('03-placed');
 
+// --- a big model must land where it can be seen ---------------------------------------
+//
+// A toast saying "placed" over a view with nothing new in it is the failure here, and it reached
+// the live site: the small heart above always fits, while in a populated world the nearest empty
+// ground for anything big was 120ft off behind a building. Nine sample points on each model, in
+// the frame and with a clear ray from the eye, and at least five must be seen.
+const hidden = await page.evaluate(async () => {
+  const d = window.__debug;
+  const T = d.THREE;
+  const ray = new T.Raycaster();
+  const problems = [];
+  d.camera.updateMatrixWorld();
+  for (const id of ['parthenon', 'medieval-castle', 'lunar-module', 'cutaway-volcano', 'taj-mahal', 'viking-longship', 'pyramid-of-giza', 'statue-of-liberty']) {
+    await d.modelDatabase.place(id);
+    await new Promise((r) => setTimeout(r, 40));
+    const item = [...d.registry.items.values()].filter((i) => i.record?.model === id).pop();
+    item.object3D.updateMatrixWorld(true);
+    const box = new T.Box3().setFromObject(item.object3D);
+    const c = box.getCenter(new T.Vector3());
+    const size = box.getSize(new T.Vector3());
+    const others = [...d.registry.items.values()].filter((i) => i !== item && i.object3D && !['world-theme', 'world-spawn'].includes(i.record?.kind)).map((i) => i.object3D);
+    ray.camera = d.camera;
+    let seen = 0;
+    for (const fy of [0.2, 0.5, 0.8]) {
+      for (const fx of [-0.35, 0, 0.35]) {
+        const point = new T.Vector3(c.x + size.x * fx, box.min.y + size.y * fy, c.z + size.z * fx * 0.3);
+        const v = point.clone().project(d.camera);
+        if (Math.abs(v.x) > 1 || Math.abs(v.y) > 1 || v.z >= 1) continue;
+        const dir = point.clone().sub(d.camera.position);
+        ray.far = dir.length();
+        ray.set(d.camera.position, dir.normalize());
+        const near = others.filter((o) => ray.ray.intersectsBox(new T.Box3().setFromObject(o)));
+        if (!ray.intersectObjects(near, true).some((h) => h.object.isMesh)) seen += 1;
+      }
+    }
+    if (seen < 5) problems.push(`${id} ${seen}/9`);
+    d.registry.remove(item.record.id);
+    await d.worldStore.deleteObject(item.record.id);
+  }
+  return problems;
+});
+check('big models land where the student can see them', hidden.length === 0, hidden.join(', '));
+
 // --- the hammer tools -----------------------------------------------------------------
 await clickHammer(heart.id);
 check('its hammer opens the build menu', await page.locator('#primitive-menu').isVisible());

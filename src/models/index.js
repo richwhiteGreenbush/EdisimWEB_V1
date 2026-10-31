@@ -73,11 +73,12 @@ function framingDistance({ width, height, depth, eye, aspect }) {
 
 // What a new model should not land inside. Very wide or very low props are left out, since a
 // street, a lawn or a path is somewhere you can legitimately put a thing. The student's own
-// pieces are listed separately, because a populated world can leave nowhere clear of its trees
-// and benches, and landing in a tree is still better than landing inside their last model.
+// models are always listed, and separately, because landing inside their last model is worse
+// than landing on a bench.
 function obstacles(registry) {
   const scenery = [];
   const own = [];
+  const blockers = [];
   const box = new THREE.Box3();
   const size = new THREE.Vector3();
   for (const item of registry.items.values()) {
@@ -85,56 +86,118 @@ function obstacles(registry) {
     if (!item.object3D || kind === 'world-theme' || kind === 'world-spawn') continue;
     box.setFromObject(item.object3D);
     if (box.isEmpty()) continue;
+    blockers.push({ object3D: item.object3D, box: box.clone() });
     box.getSize(size);
-    if (size.x > 70 || size.z > 70 || size.y < 1) {
-      if (kind !== 'catalog-model') continue;
-    }
-    (kind === 'catalog-model' || kind === 'primitive' ? own : scenery).push(box.clone());
+    const mine = kind === 'catalog-model' || kind === 'primitive';
+    if (mine) own.push(box.clone());
+    else if (size.x <= 70 && size.z <= 70 && size.y >= 1) scenery.push(box.clone());
   }
-  return { scenery, own };
+  return { scenery, own, blockers };
 }
 
-function clearOf(boxes, x, z, radius) {
-  return !boxes.some((b) => {
+function overlapCount(boxes, x, z, radius) {
+  let count = 0;
+  for (const b of boxes) {
     const dx = Math.max(b.min.x - x, 0, x - b.max.x);
     const dz = Math.max(b.min.z - z, 0, z - b.max.z);
-    return dx * dx + dz * dz < radius * radius;
-  });
+    if (dx * dx + dz * dz < radius * radius) count += 1;
+  }
+  return count;
+}
+
+// Whether the student could see a model standing here, by real rays against real meshes rather
+// than bounding boxes: a tree's box reaches the ground and its canopy does not, and a gate's box
+// is solid where its arch is open. Five rays: three across the model's middle, two higher up.
+const sightRay = new THREE.Raycaster();
+function openSightlines({ camera, blockers, x, z, ground, height, radius }) {
+  const eye = camera.position;
+  const toward = new THREE.Vector3(x - eye.x, 0, z - eye.z).normalize();
+  const across = new THREE.Vector3(toward.z, 0, -toward.x);
+  const low = ground + Math.min(height / 2, eye.y - ground);
+  const high = ground + height * 0.75;
+  const target = new THREE.Vector3();
+  const direction = new THREE.Vector3();
+  let open = 0;
+  sightRay.camera = camera;
+  for (const [side, y] of [[0, low], [-0.7, low], [0.7, low], [-0.35, high], [0.35, high]]) {
+    target.set(x + across.x * radius * side, y, z + across.z * radius * side);
+    direction.subVectors(target, eye);
+    sightRay.far = Math.max(0.1, direction.length() - radius * 0.6);
+    sightRay.set(eye, direction.normalize());
+    const near = [];
+    for (const blocker of blockers) {
+      if (sightRay.ray.intersectsBox(blocker.box)) near.push(blocker.object3D);
+    }
+    const hit = near.length && sightRay.intersectObjects(near, true).some((h) => h.object.isMesh);
+    if (!hit) open += 1;
+  }
+  return open;
 }
 
 // NOT the golden-angle spiral. That is tuned to a small n, and past SPAWN_SPACING*sqrt(n) =
-// distance it wraps behind the student, who then reads "placed" over an empty view. A student
-// filling a world with models reaches that quickly, and these are much bigger than a 2ft cube.
-// So this searches rings in FRONT of the student for the nearest spot that is clear of
-// everything, then for the nearest clear of their own models, and if a very full world has
-// neither it takes the spot straight ahead: a model overlapping something is fixable with the
-// gizmo, and a model out of sight is not.
-export function findPlacementSpot({ camera, registry, distance, radius }) {
+// distance it wraps behind the student, who then reads "placed" over an empty view.
+//
+// THE RULE IS THAT THE STUDENT CAN SEE IT, ahead of everything else. The first version looked
+// for the nearest EMPTY ground, and a populated world's nearest empty ground for anything big was
+// 120ft off behind a building: in the Park the Parthenon, the castle and five others all landed
+// out of sight while the toast said "placed". So each spot is scored by what is wrong with it,
+// worst first: hidden, then outside the frame, then inside the student's own models, then on top
+// of scenery. A model overlapping a bench is fixed with the gizmo; a model nobody can find is not.
+//
+// The cheap scores are worked out first and the rays are only cast in that order, because a good
+// spot is usually among the first few and a raycast against merged props is not free.
+export function findPlacementSpot({ camera, registry, distance, radius, height = 0, groundHeightAt }) {
   const dir = new THREE.Vector3();
   camera.getWorldDirection(dir);
   dir.y = 0;
   if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
   dir.normalize();
-  const heading = Math.atan2(dir.x, dir.z);
-  const { scenery, own } = obstacles(registry);
+  let heading = Math.atan2(dir.x, dir.z);
+  const { scenery, own, blockers } = obstacles(registry);
   const bound = WORLD_BOUND_RADIUS - radius;
-  let straightAhead = null;
-  let clearOfOwn = null;
-  for (const ring of [1, 1.3, 1.65, 2.05, 2.6, 3.2, 4, 5]) {
-    for (const off of [0, 16, -16, 32, -32, 46, -46]) {
-      const bearing = heading + THREE.MathUtils.degToRad(off);
-      const x = camera.position.x + Math.sin(bearing) * distance * ring;
-      const z = camera.position.z + Math.cos(bearing) * distance * ring;
-      if (Math.hypot(x, z) > bound) continue;
-      straightAhead ??= { x, z };
-      if (!clearOf(own, x, z, radius)) continue;
-      clearOfOwn ??= { x, z };
-      if (clearOf(scenery, x, z, radius)) return { x, z };
+  const halfView = Math.atan(Math.tan(THREE.MathUtils.degToRad(35)) * Math.max(camera.aspect, 0.5));
+
+  const candidates = (bearingFrom) => {
+    const list = [];
+    for (const [ringIndex, ring] of [1, 1.2, 1.45, 1.75, 2.1, 2.5].entries()) {
+      for (const off of [0, 12, -12, 24, -24, 36, -36]) {
+        const reach = distance * ring;
+        const bearing = bearingFrom + THREE.MathUtils.degToRad(off);
+        const x = camera.position.x + Math.sin(bearing) * reach;
+        const z = camera.position.z + Math.cos(bearing) * reach;
+        if (Math.hypot(x, z) > bound) continue;
+        const outside = THREE.MathUtils.degToRad(Math.abs(off)) + Math.atan(radius / reach) > halfView;
+        const cost = (outside ? 200 : 0)
+          + overlapCount(own, x, z, radius) * 300
+          + Math.min(overlapCount(scenery, x, z, radius), 4) * 30
+          + ringIndex * 30
+          + Math.abs(off) / 2;
+        list.push({ x, z, cost });
+      }
     }
+    return list;
+  };
+
+  let list = candidates(heading);
+  if (!list.length) {
+    // Standing at the edge of the world looking out, every spot ahead is out of bounds, so the
+    // model goes back toward the middle, where the student can walk to it.
+    heading = Math.atan2(-camera.position.x, -camera.position.z);
+    list = candidates(heading);
   }
-  // Standing at the edge of the world looking out, every spot ahead is out of bounds, so the
-  // model comes to the student instead of being placed where they could not walk to it.
-  return clearOfOwn ?? straightAhead ?? { x: camera.position.x, z: camera.position.z };
+  if (!list.length) return { x: camera.position.x, z: camera.position.z };
+
+  list.sort((a, b) => a.cost - b.cost);
+  let best = null;
+  for (const spot of list) {
+    if (best && spot.cost >= best.score) break;
+    const ground = groundHeightAt ? groundHeightAt(spot.x, spot.z) : 0;
+    const open = openSightlines({ camera, blockers, x: spot.x, z: spot.z, ground, height, radius });
+    const score = spot.cost + (5 - open) * 200;
+    if (!best || score < best.score) best = { x: spot.x, z: spot.z, score };
+    if (open === 5) break;
+  }
+  return { x: best.x, z: best.z };
 }
 
 export async function placeCatalogModel({ id, scene, camera, registry, groundHeightAt }) {
@@ -150,7 +213,7 @@ export async function placeCatalogModel({ id, scene, camera, registry, groundHei
   const eye = camera.position.y - groundHeightAt(camera.position.x, camera.position.z);
   const distance = framingDistance({ width: wide, height: size.y, depth: deep, eye, aspect: camera.aspect });
   const radius = Math.max(wide, deep) / 2 + 1;
-  const { x, z } = findPlacementSpot({ camera, registry, distance, radius });
+  const { x, z } = findPlacementSpot({ camera, registry, distance, radius, height: size.y, groundHeightAt });
 
   // A prop's origin is its base centre, so ground height plus any hover is the whole of
   // seating it. Parts below the origin are meant to be there: an ankle in the dirt, a skirt of
