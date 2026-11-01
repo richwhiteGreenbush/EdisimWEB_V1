@@ -54,6 +54,11 @@ const BUILDER_CHUNKS = {
   villageworks: () => import('./builders/VillageWorks.js'),
   villagelivestock: () => import('./builders/VillageLivestock.js'),
   villagecrops: () => import('./builders/VillageCrops.js'),
+  physicslab: () => import('./builders/PhysicsLab.js'),
+  chemlab: () => import('./builders/ChemLab.js'),
+  earthlab: () => import('./builders/EarthLab.js'),
+  skylab: () => import('./builders/SkyLab.js'),
+  biolab: () => import('./builders/BioLab.js'),
 };
 
 export async function buildCatalogModel(id) {

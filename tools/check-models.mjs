@@ -248,6 +248,19 @@ const OPEN_EDGES = {
   'vegetable-garden': 5991,
   'rice-paddy': 14952,
   'apple-tree': 438,
+  'electron-orbitals': 72,
+  'states-of-matter': 752,
+  'distillation-still': 304,
+  'weather-station': 22604,
+  'soil-profile': 1690,
+  'ocean-zones': 188,
+  'fossil-formation': 3152,
+  'black-hole': 144,
+  'comet': 872,
+  'solar-eclipse': 216,
+  'earth-magnetosphere': 444,
+  'darwins-finches': 663,
+  'mushroom-mycelium': 196,
 };
 // Reused models keep what their own world established; these rules bind what is built for here.
 const REUSED_SKIP = new Set(['outside', 'origin']);
