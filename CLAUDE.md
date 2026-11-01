@@ -4576,10 +4576,10 @@ re-import.
 
 ### The Model Database, and a model a student can pull out of shape
 
-Menu ▸ **Model Database**: 200 ready-made educational models in ten types, searchable,
+Menu ▸ **Model Database**: 225 ready-made educational models in ten types, searchable,
 placeable in every world in both editions, and shapeable with the same hammer tools as a cube.
 `src/models/catalog.js` is the one table, `src/ModelDatabase.js` the panel, `src/models/index.js`
-the placing, and `src/models/builders/` holds the 183 built for it, one lazy chunk per family. The
+the placing, and `src/models/builders/` holds the 208 built for it, one lazy chunk per family. The
 other 17 are `PROP_BUILDERS` entries from worlds. **`src/models/ModelKit.js` is the shared kit:** the
 signed-distance `Sculpt`, plus a closed `tube`, a correct `lathe`, `outward` and `alongMatrix`. It came
 out of `builders/Life.js`, proven byte-identical by hashing all six models before and after. `docs/guide/models.html` is GENERATED from the
@@ -4648,15 +4648,22 @@ until a student asks, and `go back to start` means where they put it.
 `realSize` must be one a reference would back, and when a model departs from the subject the card
 says so. That is why the Parthenon says all 46 columns stand so they can be counted, the Rosetta
 Stone that its writing is representative, the printing press that none of Gutenberg's survives, and
-the orrery that it turns as one piece. **All 200 cards have been fact-checked against published
-sources, by an agent with web search rather than by a person.** It reviewed about 780 claims and
-corrected 48 of them, and the kinds worth remembering are a wrong term (the prism's "refraction"
+the orrery that it turns as one piece. **All 225 cards have been fact-checked against published
+sources, by an agent with web search rather than by a person.** It reviewed about 860 claims and
+corrected 64 of them, and the kinds worth remembering are a wrong term (the prism's "refraction"
 for dispersion) and a popular factoid (the monarch's great-grandchild). Most checks read a search
 summary rather than the page, and it did not cover a model's own details, such as which Stonehenge
 lintels survive, which came from memory: **a teacher or subject expert should still read them before
 they are relied on.** Excluded
 by rule: mummies and Pompeii's body casts, sacred objects, and real people's likenesses, since
 students can squash and spin anything they place.
+
+**LOOK AT A MODEL FROM WHERE A STUDENT STANDS.** `tools/model-arrival.mjs id,id` places each one through the
+panel in My World and photographs the first view from a 5ft eye under a bright sky. The shipped pictures come
+from a raised camera against a dark backdrop, and four science models passed every check and looked fine in
+those while failing in the app: the Archimedes screw's water could not be seen at all from below about 25
+degrees, the magnetosphere's pale lines vanished against the sky, the black hole's disk was an edge-on stripe,
+and the comet was a smudge over an empty plate.
 
 **How to check it**: `node tools/check-models.mjs` (the table, budget, inside-out, origin, sharing,
 determinism, open-edge baselines), `node tools/model-pictures.mjs --shot <id>` (nine views; LOOK at
@@ -4666,8 +4673,8 @@ edition, against a dev server on 5199, or `APP_URL=http://localhost:5183/` for H
 **Performance, measured on the development Mac in headless Chrome at 1366x768**: the Park alone is
 757 calls / 544k drawn. The Park plus twelve of the heaviest models is 855 calls / **1.84M drawn**,
 at 60fps there, which is OVER the 1.5M working target and is why the panel carries a fullness meter
-(750k of geometry, half of what is drawn) and warns without blocking. One of each of the 200 is
-about 7.6M triangles of geometry. Builders take up to about 300ms on the main thread once loaded and
+(750k of geometry, half of what is drawn) and warns without blocking. One of each of the 225 is
+about 8.6M triangles of geometry. Builders take up to about 300ms on the main thread once loaded and
 about 1s on a first build; the signed-distance models in `builders/Life.js` are the slowest. **NOT YET MEASURED ON AN
 i5/i7 CHROMEBOOK**, and several models carry 2048px canvases, which is the first place to look if
 shared memory runs short.
@@ -4676,6 +4683,15 @@ shared memory runs short.
 Run Vite with `server.hmr: false`, or one agent's save reloads the page out from under another's
 render. A 5-hour usage limit stopped all nine partway; their work was saved and they resumed cleanly.
 `model-pictures --shot <id> --look ex,ey,ez,tx,ty,tz --name detail` is the close-up camera.
+
+**A MODEL CAN MOVE ITS OWN PARTS, under an inner group with `userData.tick`**, and the root must never move.
+Seven do: the Foucault pendulum, the Archimedes screw, Galileo's ramp, the seismograph's drum, the weather
+station's cups, the black hole's disk and the windmill's sails. A motion is held to the physics it teaches, and
+each has a reason to be built the way it is: **a rotating helix is the same set of points as that helix sliding
+along its axis**, so the screw's water pockets keep their heading and only slide up the shaft. Parented to the
+turning blades, the water would orbit the shaft and teach something false. The black hole's bright side is
+vertex colour repainted against the viewer, not painted into the turning texture, or it would ride round with
+the gas. Every one honours `reducedMotion()`.
 
 **Adding a model**: an entry in the table, a builder (or a `prop`), then `check-models`,
 `model-pictures --only <id>`, `build-models-page`, and `build-stats-vocab`.
