@@ -13,13 +13,12 @@ npm run dev                 # :5183
 npm run build
 ```
 
-**`npm run dev` and `vite preview` serve the app ALONE; `../serve-local.sh` serves it WITH its
-gallery** (`http://localhost:8080/hifi/` beside `/hifiworlds/`, Apache + PHP-FPM, the production
-layout). Get More Worlds is the relative link `../hifiworlds/` and a `?hifiworld=` link fetches
-`/hifiworlds/download.php` same-origin, so neither can work on a Vite server: Vite answers the
-unknown path with the app's own `index.html`, and the symptom is an unstyled "Starting the
-renderer…" page at `/hifiworlds/`. That is a hosting fact, not a bug in the link — the same one
-the main app records about `/app/` and `/worlds/`.
+**`vite preview` serves the app ALONE; `../serve-local.sh` serves it WITH its gallery**
+(`http://localhost:8080/hifi/` beside `/hifiworlds/`, Apache + PHP-FPM, the production layout).
+`npm run dev` proxies `/hifiworlds/` to that mirror. The World Database panel fetches
+`/hifiworlds/catalog.php` and a `?hifiworld=` link fetches `/hifiworlds/download.php`, both
+same-origin, so neither can work with no gallery behind them. A server with none answers with the
+app's own `index.html`, which the panel reports as a failure instead of reading it as a list.
 
 No lint, no tests. Verification is by LOOKING: `?ui=0&still=1&preset=<key>&x=&z=&yaw=&pitch=`
 puts the camera anywhere in any world, and the render loop sets `window.__ready = true` once
@@ -71,8 +70,9 @@ What follows from it, and must not be broken:
   app documents as never-to-change.
 - **The Model Database runs here too**, from `../../src/ModelDatabase.js`, with a 7.5M triangle
   meter. Its pictures live in `public/models/`, this folder's own copy.
-- **The one edit made to the main app** is additive: `Menu` takes an optional `galleryUrl`
-  (default unchanged), so Get More Worlds can open the HiFi gallery.
+- **The World Database runs here too**, from `../../src/WorldDatabase.js`, against
+  `HIFI_GALLERY_URL` and this edition's `openGalleryWorld`. Its "changed" flag has its own
+  localStorage key, because `/app/` and `/hifi/` share an origin.
 
 ### The bridge (`bridge/ThreeBridge.js`)
 

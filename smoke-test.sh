@@ -213,6 +213,25 @@ if [ -n "$first_world" ]; then
   rm -f "$wp"
 fi
 
+section "The list behind the app's World Database panel"
+# It is built field by field because ewd_list_worlds() selects w.*, so a hash appearing here
+# means a private column has started being passed through. Fetch to a file; see above.
+for base in worlds hifiworlds; do
+  cat_json="$(mktemp)"
+  got="$(curl -s --max-time "$TIMEOUT" -o "$cat_json" -w '%{http_code}' "$SITE/$base/catalog.php")"
+  if [ "$got" = "200" ] && grep -q '"worlds":\[{' "$cat_json"; then
+    printf '  \033[32mok\033[0m   %-46s %s\n' "$base/catalog.php lists worlds" "$got"; pass=$((pass+1))
+  else
+    printf '  \033[31mFAIL\033[0m %-46s got %s\n' "$base/catalog.php lists worlds" "$got"; fail=$((fail+1))
+  fi
+  if grep -qE 'manage_key|ip_hash|world_path|sha256' "$cat_json"; then
+    printf '  \033[31mFAIL\033[0m %-46s a private column is in the list\n' "$base/catalog.php"; fail=$((fail+1))
+  else
+    printf '  \033[32mok\033[0m   %-46s no private columns\n' "$base/catalog.php"; pass=$((pass+1))
+  fi
+  rm -f "$cat_json"
+done
+
 section "Things that must NOT be reachable"
 # These are the .htaccess rules. A 200 here is a security bug, not a cosmetic one.
 check "lib/ config"          "$SITE/worlds/lib/config.php"        403 404

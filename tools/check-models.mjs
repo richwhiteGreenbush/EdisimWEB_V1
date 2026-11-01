@@ -261,6 +261,23 @@ const OPEN_EDGES = {
   'earth-magnetosphere': 444,
   'darwins-finches': 663,
   'mushroom-mycelium': 196,
+  // World Geography. A landscape block's ground, cut faces and water are three meshes that share an
+  // edge by construction, and the terraces are strips laid side by side, so each counts as open.
+  'world-globe': 0,
+  'latitude-longitude-globe': 0,
+  'map-projection': 296,
+  'climate-zones-globe': 8,
+  'compass-rose': 160,
+  'contour-map-hill': 1836,
+  'river-delta': 1774,
+  'river-meanders': 1780,
+  'himalaya-relief': 1858,
+  'grand-canyon': 1922,
+  'sahara-oasis': 1662,
+  'norway-fjord': 1922,
+  'coral-atoll': 1620,
+  'rainforest-layers': 892,
+  'rice-terraces': 10116,
 };
 // Reused models keep what their own world established; these rules bind what is built for here.
 const REUSED_SKIP = new Set(['outside', 'origin']);
@@ -289,7 +306,7 @@ for (const m of MODELS) {
 for (const category of MODEL_CATEGORIES) {
   if (!MODELS.some((m) => m.category === category.key)) fail(category.key, 'an empty category');
 }
-for (const [query, id] of [['mitochondria', 'animal-cell'], ['t rex', 'tyrannosaurus-rex'], ['rex', 'tyrannosaurus-rex'], ['oregon trail', 'covered-wagon'], ['h2o', 'water-molecule'], ['hieroglyphs', 'rosetta-stone'], ['cochlea', 'human-ear'], ['ice age', 'woolly-mammoth'], ['euler', 'platonic-solids'], ['khipu', 'inca-quipu'], ['shakespeare', 'globe-theatre']]) {
+for (const [query, id] of [['nile', 'river-delta'], ['mercator', 'map-projection'], ['everest', 'himalaya-relief'], ['mitochondria', 'animal-cell'], ['t rex', 'tyrannosaurus-rex'], ['rex', 'tyrannosaurus-rex'], ['oregon trail', 'covered-wagon'], ['h2o', 'water-molecule'], ['hieroglyphs', 'rosetta-stone'], ['cochlea', 'human-ear'], ['ice age', 'woolly-mammoth'], ['euler', 'platonic-solids'], ['khipu', 'inca-quipu'], ['shakespeare', 'globe-theatre']]) {
   if (searchModels(query)[0]?.id !== id) fail(`search "${query}"`, `first result is ${searchModels(query)[0]?.id}`);
 }
 if (searchModels('xyzzy').length) fail('search "xyzzy"', 'should find nothing');

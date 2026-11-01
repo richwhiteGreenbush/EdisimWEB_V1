@@ -62,7 +62,7 @@ function applyTransform(object3D, transform) {
 }
 
 export class WorldStore {
-  constructor({ scene, registry, menu, programManager, playIconManager, webBrowserManager, speechBubbles, markerTrail }) {
+  constructor({ scene, registry, menu, programManager, playIconManager, webBrowserManager, speechBubbles, markerTrail, changesKey = 'edusim-world-changed' }) {
     this.scene = scene;
     this.registry = registry;
     this.menu = menu;
@@ -76,6 +76,16 @@ export class WorldStore {
     // re-persists every record, so a studio that filmed six worlds would leave the
     // student's own saved world replaced by whichever one it filmed last.
     this.persistent = true;
+
+    // Whether the student has changed this world since it arrived, which is what decides if
+    // the World Database has to ask before replacing it. In localStorage because it has to
+    // survive a refresh along with the work it describes. HiFi passes its own key: /app/ and
+    // /hifi/ share one origin, so one key would let a change in one edition speak for the other.
+    this.changesKey = changesKey;
+    this.bulkLoading = false;
+    // Used only where localStorage throws. True, because the safe mistake is asking once too
+    // often: this is the one question standing between a student and losing their work.
+    this.changedFallback = true;
 
     // Best-effort: reduces the odds the browser evicts this data under storage pressure.
     navigator.storage?.persist?.().catch(() => {});
@@ -103,8 +113,28 @@ export class WorldStore {
     this.playIconManager?.refresh(record.id, record, object3D);
   }
 
+  // Every edit that lasts goes through saveObject() or deleteObject(), which makes this the one
+  // place to notice one. No record of it counts as changed: that is everyone with work saved
+  // from before this existed, who gets asked once rather than losing it.
+  get hasChanges() {
+    if (this.registry.count === 0) return false;
+    let stored = null;
+    try {
+      stored = window.localStorage.getItem(this.changesKey);
+    } catch { /* blocked site data */ }
+    return stored === null ? this.changedFallback : stored !== '0';
+  }
+
+  setChanged(changed) {
+    this.changedFallback = changed;
+    try {
+      window.localStorage.setItem(this.changesKey, changed ? '1' : '0');
+    } catch { /* the fallback above carries it for this session */ }
+  }
+
   async saveObject(record) {
     if (!this.persistent) return;
+    if (!this.bulkLoading) this.setChanged(true);
     try {
       const db = await this.dbPromise;
       await runTx(db, 'readwrite', (store) => store.put(record));
@@ -119,6 +149,7 @@ export class WorldStore {
 
   async clearAll() {
     if (!this.persistent) return;
+    this.setChanged(false);
     const db = await this.dbPromise;
     await runTx(db, 'readwrite', (store) => store.clear());
   }
@@ -128,6 +159,7 @@ export class WorldStore {
   // the next refresh, or the student gets their model AND a ghost copy of its parts.
   async deleteObject(id) {
     if (!this.persistent) return;
+    this.setChanged(true);
     try {
       const db = await this.dbPromise;
       await runTx(db, 'readwrite', (store) => store.delete(id));
@@ -161,6 +193,7 @@ export class WorldStore {
     // try/finally, because a record that throws must not leave the flag stuck on and
     // silently kill the pop for the rest of the session.
     this.registry.bulkLoading = true;
+    this.bulkLoading = true;
     try {
       for (const record of records) {
         try {
@@ -172,7 +205,9 @@ export class WorldStore {
       }
     } finally {
       this.registry.bulkLoading = false;
+      this.bulkLoading = false;
     }
+    if (this.persistent) this.setChanged(false);
 
     // Hand back where this world wants the player, or null if it does not say.
     //

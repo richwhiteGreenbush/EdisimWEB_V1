@@ -43,7 +43,7 @@ const PORTRAIT = new Set(['opener-1', 'opener-2', 'opener-3', 'opener-4', 'cover
 
 // Scenes that show the app's own panels are captured in a narrower window, so the panels
 // are big enough to read on a 6 in page: 1000 x 625 CSS pixels = 2000 x 1250 at 2x.
-const UI = new Set(['app-ui', 'look-around-menu', 'photo-result', 'object-menu', 'life-menu', 'orb-dusk',
+const UI = new Set(['app-ui', 'worlddb-panel', 'worlddb-detail', 'look-around-menu', 'photo-result', 'object-menu', 'life-menu', 'orb-dusk',
   'draw-pad', 'create-model-menu', 'hammer-menu', 'texture-panel', 'snowman-connect', 'station-sign',
   'program-empty', 'program-hello', 'program-loop', 'program-glide', 'program-square', 'program-wander',
   'program-hat', 'program-sunset', 'program-street', 'program-timetable', 'program-say']);
@@ -110,6 +110,25 @@ const PARK = {
   'app-ui': async (page) => {
     await look(page, { x: 0, z: 16, at: [0, 5.6, -20] });
     await openMenu(page);
+  },
+  // The World Database needs a gallery behind the dev server: ./serve-local.sh running, which
+  // vite proxies /worlds/ to.
+  'worlddb-panel': async (page) => {
+    await look(page, { x: 0, z: 16, at: [0, 5.6, -20] });
+    await page.evaluate(() => window.__debug.worldDatabase.open());
+    await page.waitForSelector('#worlddb-panel .mdb-card');
+    await page.locator('#worlddb-panel .mdb-search').blur();
+    await page.waitForFunction(() => [...document.querySelectorAll('#worlddb-panel img')].slice(0, 6).every((i) => i.complete));
+    await sleep(500);
+  },
+  'worlddb-detail': async (page) => {
+    await look(page, { x: 0, z: 16, at: [0, 5.6, -20] });
+    await page.evaluate(() => window.__debug.worldDatabase.open());
+    await page.waitForSelector('#worlddb-panel .mdb-card');
+    await page.locator('#worlddb-panel .mdb-card-open', { hasText: 'Dinosaur Island' }).click();
+    await page.waitForFunction(() => document.querySelector('#worlddb-panel .wdb-shot img')?.complete);
+    await page.evaluate(() => document.activeElement?.blur());
+    await sleep(500);
   },
   'look-around-menu': async (page) => {
     await look(page, { x: 0, z: -48, at: [0, 4, -70] });

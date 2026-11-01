@@ -41,6 +41,7 @@ export const MODEL_CATEGORIES = [
   { key: 'lab', label: 'Chemistry & Physics', icon: '⚛️', accent: '#9c6ade' },
   { key: 'math', label: 'Math & Geometry', icon: '📐', accent: '#2aa58f' },
   { key: 'machines', label: 'Inventions & Transport', icon: '⚙️', accent: '#e39a33' },
+  { key: 'geography', label: 'World Geography', icon: '🗺️', accent: '#2f9fb0' },
   { key: 'landmarks', label: 'Landmarks', icon: '🏛️', accent: '#c9a24d' },
   { key: 'artifacts', label: 'History & Artifacts', icon: '🏺', accent: '#b9734a' },
   { key: 'arts', label: 'Arts & Music', icon: '🎻', accent: '#d35fb7' },
@@ -1999,6 +2000,211 @@ export const MODELS = [
     tryThis: 'Compare it with the Saturn V, which first flew only 41 years later. What changed most?',
   },
 
+  // --- World Geography ---------------------------------------------------------------
+  {
+    id: 'world-globe', title: 'World Globe', category: 'geography', builder: 'geoearth', scale: 1, yaw: 0, pictureElevation: 10,
+    grades: ALL, subjects: ['geography', 'earth science'],
+    aliases: ['earth', 'map', 'continents', 'oceans', 'africa', 'asia', 'europe', 'antarctica', 'australia', 'north america', 'south america', 'pacific', 'atlantic', 'world'],
+    blurb: 'A classroom globe tilted on its stand, with all seven continents and five oceans named.',
+    facts: [
+      'Earth has seven continents and five oceans, and oceans cover about 71% of its surface.',
+      'The distance round the equator is about 24,900 miles.',
+      'Earth’s axis tilts about 23.4 degrees, which is why the stand holds the globe at an angle.',
+    ],
+    realSize: 'The real Earth is about 7,900 miles across', shownAt: 'A very small model, with no country borders so it does not go out of date',
+    tryThis: 'Walk round it and find the continent you live on. Which ocean is closest to you?',
+    answer: 'Asia is the largest continent and the Pacific the largest ocean.',
+  },
+  {
+    id: 'latitude-longitude-globe', title: 'Latitude and Longitude', category: 'geography', builder: 'geoearth', scale: 1, yaw: 0, pictureElevation: 12,
+    grades: UP3, subjects: ['geography', 'math'],
+    aliases: ['equator', 'prime meridian', 'tropic of cancer', 'tropic of capricorn', 'arctic circle', 'antarctic circle', 'coordinates', 'grid', 'meridian', 'parallel', 'greenwich', 'hemisphere'],
+    blurb: 'A globe wrapped in the imaginary grid that gives every place on Earth an address, with a pin to find.',
+    facts: [
+      'Latitude measures how far a place is north or south of the equator, from 0 to 90 degrees.',
+      'Longitude measures how far east or west it is of the prime meridian, which runs through Greenwich in England.',
+      'One degree of latitude is about 69 miles anywhere on Earth, but degrees of longitude shrink toward the poles.',
+    ],
+    realSize: 'The lines are imaginary and go all the way round the Earth', shownAt: 'A very small model, with a line every 15 degrees',
+    tryThis: 'Find the red pin. Read its latitude and longitude from the grid, then work out which US state it is in.',
+    answer: 'The pin is at about 38 degrees north, 97 degrees west, in Kansas.',
+  },
+  {
+    id: 'map-projection', title: 'Why Maps Stretch', category: 'geography', builder: 'geoearth', scale: 1, yaw: 0, pictureElevation: 14,
+    grades: UP3, subjects: ['geography', 'math'],
+    aliases: ['mercator', 'projection', 'map', 'distortion', 'cylinder', 'greenland', 'africa', 'navigation', 'cartography', 'flat map'],
+    blurb: 'A paper map unrolling from around a globe, with Greenland and Africa marked in the same colours on both.',
+    facts: [
+      'A curved surface cannot be flattened without stretching it, so every flat world map distorts something.',
+      'Gerardus Mercator published this projection in 1569 because it keeps compass bearings as straight lines for sailors.',
+      'Africa is about 14 times the area of Greenland, though on this kind of map they look much closer in size.',
+    ],
+    realSize: 'A wall map is usually a few feet wide', shownAt: 'A Mercator map to true proportion, stopped short of the poles, which it can never reach',
+    tryThis: 'Compare Greenland and Africa on the globe, then on the map. Where on the map is the stretching worst?',
+    answer: 'Near the top and bottom: the stretching grows with distance from the equator.',
+  },
+  {
+    id: 'climate-zones-globe', title: 'World Climate Zones', category: 'geography', builder: 'geoearth', scale: 1, yaw: 0, pictureElevation: 10,
+    grades: UP3, subjects: ['geography', 'earth science', 'climate'],
+    aliases: ['koppen', 'climate', 'biome', 'tropical', 'desert', 'temperate', 'polar', 'continental', 'arid', 'weather', 'tundra', 'zones'],
+    blurb: 'A globe coloured by the five main climate groups, with a key on its base.',
+    facts: [
+      'Wladimir Köppen’s climate system sorts places by temperature, rainfall and the plants that grow there.',
+      'Its five main groups are tropical, dry, temperate, continental and polar.',
+      'Great deserts cluster near 30 degrees north and south, where dry air sinks back toward the ground.',
+    ],
+    realSize: 'The real Earth is about 7,900 miles across', shownAt: 'A very small model. The zones are simplified, and high mountains are not shown as their own group',
+    tryThis: 'Find where you live. Then find somewhere on another continent with the same colour.',
+  },
+  {
+    id: 'compass-rose', title: 'Compass Rose', category: 'geography', builder: 'geoearth', scale: 1, yaw: 0, pictureElevation: 40,
+    grades: ALL, subjects: ['geography', 'navigation'],
+    aliases: ['compass', 'north', 'south', 'east', 'west', 'cardinal directions', 'intercardinal', 'bearing', 'direction', 'navigation', 'needle', 'magnetic north'],
+    blurb: 'A big brass compass with a steady needle and all sixteen named directions on its rose.',
+    facts: [
+      'North, east, south and west are the four cardinal directions. Northeast, southeast, southwest and northwest fall between them.',
+      'A compass needle is a magnet that lines up with Earth’s magnetic field, so it points to magnetic north, which is not quite the North Pole.',
+      'Bearings are measured clockwise from north, so east is 90 degrees and south is 180.',
+    ],
+    realSize: 'A hand compass fits in a palm', shownAt: 'Greatly enlarged',
+    tryThis: 'Stand at the south side of the compass and face north. Which way is west: left or right?',
+    answer: 'Left. Facing north, east is on your right and west on your left.',
+  },
+  {
+    id: 'contour-map-hill', title: 'Contour Lines and a Hill', category: 'geography', builder: 'geoearth', scale: 1, yaw: 0, pictureElevation: 34,
+    grades: UP3, subjects: ['geography', 'math'],
+    aliases: ['topographic map', 'topo map', 'contour', 'elevation', 'relief', 'hiking', 'slope', 'saddle', 'summit', 'cartography'],
+    blurb: 'Two peaks and the flat map of the same land side by side, so each line on paper can be followed on the ground.',
+    facts: [
+      'A contour line joins points at the same height above sea level.',
+      'Lines close together mean steep ground, and lines far apart mean a gentle slope.',
+      'A saddle is the low point on a ridge between two peaks, and on a map it sits between two sets of closed loops.',
+    ],
+    realSize: 'A hill like this might be a mile or two across', shownAt: 'A small teaching model. The land and the map are drawn from the same heights',
+    tryThis: 'Find the steepest side of the big peak on the map, then walk round and check it on the hill.',
+  },
+  {
+    id: 'river-delta', title: 'River Delta', category: 'geography', builder: 'geoland', scale: 1, yaw: 0, pictureElevation: 34,
+    grades: UP3, subjects: ['geography', 'earth science'],
+    aliases: ['nile', 'egypt', 'silt', 'sediment', 'distributary', 'mediterranean', 'mouth', 'farming', 'alluvial', 'cairo', 'mississippi'],
+    blurb: 'A river fanning out to the sea, modelled on the Nile: a green triangle of farmland laid across desert.',
+    facts: [
+      'A delta forms where a river slows at the sea and drops the silt it has been carrying.',
+      'The word comes from the Greek letter Δ, because the Nile Delta is roughly that shape.',
+      'Most Egyptians live along the Nile and in its delta, on a small part of the country’s land.',
+    ],
+    realSize: 'The Nile Delta is about 100 miles long and 150 miles wide along the coast', shownAt: 'A small teaching model with the height exaggerated and only a few of its channels',
+    tryThis: 'Follow the river from the back of the block. How many times does it divide before it reaches the sea?',
+  },
+  {
+    id: 'river-meanders', title: 'River Meanders and an Oxbow Lake', category: 'geography', builder: 'geoland', scale: 1, yaw: 0, pictureElevation: 36,
+    grades: UP3, subjects: ['geography', 'earth science'],
+    aliases: ['oxbow', 'meander', 'floodplain', 'cut bank', 'point bar', 'erosion', 'deposition', 'river bend', 'mississippi', 'levee'],
+    blurb: 'A river looping across its floodplain, wearing away one bank, building up the other, and leaving a cut-off lake behind.',
+    facts: [
+      'Water runs fastest round the outside of a bend, where it wears the bank away. It slows on the inside, where it drops sand.',
+      'That makes each bend grow until the river cuts across the narrow neck and takes the shorter way.',
+      'The abandoned loop becomes an oxbow lake. The word meander comes from the winding Maeander River in Turkey.',
+    ],
+    realSize: 'Real meanders can be many miles across', shownAt: 'A small teaching model with the height exaggerated',
+    tryThis: 'Find the narrowest neck of land between two bends. What will happen to the river there?',
+    answer: 'It will break through, and the loop will be cut off as a new oxbow lake.',
+  },
+  {
+    id: 'himalaya-relief', title: 'The Himalaya and Mount Everest', category: 'geography', builder: 'geoland', scale: 1, yaw: 0, pictureElevation: 26,
+    grades: UP3, subjects: ['geography', 'earth science'],
+    aliases: ['everest', 'mountains', 'nepal', 'tibet', 'india', 'china', 'rain shadow', 'monsoon', 'snow line', 'plate tectonics', 'relief map', 'highest'],
+    blurb: 'The highest mountains on Earth, wet and green to the south and a dry plateau to the north.',
+    facts: [
+      'Mount Everest is the world’s highest mountain above sea level, measured in 2020 at 29,032 feet.',
+      'The Himalaya began rising about 40 to 50 million years ago, when India collided with Asia, and they are still rising.',
+      'Monsoon winds drop their rain on the southern slopes, which leaves the Tibetan Plateau to the north in a dry rain shadow.',
+    ],
+    realSize: 'The range is about 1,500 miles long', shownAt: 'A relief model with the height greatly exaggerated and the peaks simplified',
+    tryThis: 'Compare the south side of the range with the north side. What would you pack for each?',
+  },
+  {
+    id: 'grand-canyon', title: 'The Grand Canyon', category: 'geography', builder: 'geoland2', scale: 0.85, yaw: 0, pictureElevation: 32,
+    grades: UP3, subjects: ['geography', 'earth science', 'geology'],
+    aliases: ['arizona', 'colorado river', 'erosion', 'strata', 'rock layers', 'national park', 'kaibab', 'redwall', 'vishnu', 'sedimentary', 'canyon'],
+    blurb: 'A slice through the Grand Canyon, with its real rock layers named from the rim down to the river.',
+    facts: [
+      'The Grand Canyon is 277 river miles long, up to 18 miles wide and about a mile deep.',
+      'The Colorado River cut most of the canyon in the last several million years, but the rocks it cut through are far older.',
+      'The dark Vishnu rocks at the bottom are about 1.7 billion years old, and the pale Kaibab Limestone on the rim is about 270 million.',
+    ],
+    realSize: 'About a mile deep and up to 18 miles wide', shownAt: 'A small teaching model. Each layer’s thickness and the width of the canyon are simplified',
+    tryThis: 'Walk down the layers from the rim to the river. Which layers make cliffs and which make slopes?',
+    answer: 'Hard limestone and sandstone make cliffs, and soft shale wears back into slopes.',
+  },
+  {
+    id: 'sahara-oasis', title: 'Sahara Dunes and an Oasis', category: 'geography', builder: 'geoland2', scale: 1, yaw: 0, pictureElevation: 30,
+    grades: ALL, subjects: ['geography', 'earth science'],
+    aliases: ['desert', 'sand', 'dune', 'africa', 'camel', 'caravan', 'date palm', 'groundwater', 'aquifer', 'hot desert', 'barchan'],
+    blurb: 'Sand dunes around an oasis, cut open to show the buried water that keeps the palms alive.',
+    facts: [
+      'The Sahara is the largest hot desert in the world, more than 3 million square miles.',
+      'Only about a quarter of it, or less, is sand. Most of the rest is bare rock and gravel.',
+      'An oasis forms where underground water comes close enough to the surface for plants and wells to reach it.',
+    ],
+    realSize: 'The largest dunes stand hundreds of feet tall', shownAt: 'A small teaching model with the height exaggerated',
+    tryThis: 'Look at the front of the block. Why does the water come up here and not everywhere else?',
+    answer: 'The ground dips low enough here to reach the water-bearing rock underneath.',
+  },
+  {
+    id: 'norway-fjord', title: 'Norwegian Fjord', category: 'geography', builder: 'geoland2', scale: 1, yaw: 0, pictureElevation: 30,
+    grades: UP3, subjects: ['geography', 'earth science'],
+    aliases: ['fjord', 'norway', 'glacier', 'sognefjord', 'u-shaped valley', 'sea', 'waterfall', 'scandinavia', 'ice age', 'sill'],
+    blurb: 'A valley carved by ice and drowned by the sea, cut open to show how deep it goes.',
+    facts: [
+      'A fjord is a valley carved by a glacier and then flooded by the sea when the ice melted.',
+      'Norway’s Sognefjord runs about 127 miles inland and is more than 4,000 feet deep.',
+      'Many fjords are shallower at the mouth than further in, where a ridge of rock called a sill stands across the entrance.',
+    ],
+    realSize: 'The longest fjords run more than 100 miles', shownAt: 'A small teaching model with the height exaggerated',
+    tryThis: 'Look at the cut face at the front. What shape is the valley under the water, and what made that shape?',
+    answer: 'A U shape, carved by a glacier. A river would have cut a V.',
+  },
+  {
+    id: 'coral-atoll', title: 'Coral Atoll', category: 'geography', builder: 'geoland2', scale: 1, yaw: 0, pictureElevation: 34,
+    grades: UP3, subjects: ['geography', 'earth science', 'biology'],
+    aliases: ['reef', 'coral', 'lagoon', 'island', 'pacific', 'maldives', 'darwin', 'volcano', 'ocean', 'palm', 'tropical'],
+    blurb: 'A ring of coral islands round a lagoon, cut open to show the sunken volcano underneath.',
+    facts: [
+      'An atoll is a ring of coral reef and low islands round a central lagoon.',
+      'Charles Darwin proposed that atolls begin as reefs round a volcano, which keep growing upward as the volcano slowly sinks.',
+      'Drilling at Enewetak Atoll in 1952 passed through more than 4,000 feet of coral rock and reached the volcanic rock below, as he predicted.',
+    ],
+    realSize: 'Many atolls are a few miles to tens of miles across', shownAt: 'A small teaching model with the depth greatly compressed',
+    tryThis: 'Look at the cut face at the front. Why would coral, which needs sunlight, be built on so much old coral rock?',
+    answer: 'The volcano sank slowly, and the coral kept growing upward toward the light.',
+  },
+  {
+    id: 'rainforest-layers', title: 'Amazon Rainforest Layers', category: 'geography', builder: 'geoland2', scale: 1, yaw: 0, pictureElevation: 16,
+    grades: ALL, subjects: ['geography', 'biology', 'ecology'],
+    aliases: ['amazon', 'jungle', 'canopy', 'emergent', 'understory', 'forest floor', 'brazil', 'macaw', 'tropical', 'biome', 'south america'],
+    blurb: 'A slice of the Amazon, from the river bank up through the forest’s four layers.',
+    facts: [
+      'A rainforest has four layers: the emergent trees, the canopy, the understory and the forest floor.',
+      'The canopy is so dense that only about 2 to 5% of the sunlight reaches the forest floor.',
+      'The Amazon is the largest tropical rainforest in the world, covering more than 2 million square miles.',
+    ],
+    realSize: 'Emergent trees can reach about 200 feet or more', shownAt: 'A small teaching model, with far fewer trees than a real forest so the layers can be seen',
+    tryThis: 'Find a macaw. Which layer does it live in, and why might that be a good place for it?',
+  },
+  {
+    id: 'rice-terraces', title: 'Rice Terraces', category: 'geography', builder: 'geoland2', scale: 1, yaw: 0, pictureElevation: 28,
+    grades: UP3, subjects: ['geography', 'history', 'agriculture'],
+    aliases: ['philippines', 'banaue', 'ifugao', 'farming', 'rice', 'paddy', 'irrigation', 'asia', 'unesco', 'mountain farming', 'terrace'],
+    blurb: 'A steep hillside turned into flooded steps, after the terraces of the Philippine Cordilleras.',
+    facts: [
+      'Terraces turn a slope too steep to plough into level fields that hold water.',
+      'Water is led from the forest above and passes down from one field to the next.',
+      'The Rice Terraces of the Philippine Cordilleras, built by the Ifugao people, became a UNESCO World Heritage Site in 1995.',
+    ],
+    realSize: 'Some of the real terraces climb thousands of feet up a mountain', shownAt: 'A small teaching model with far fewer steps than a real hillside',
+    tryThis: 'Follow a drop of water from the forest to the bottom. How many fields does it pass through?',
+  },
   // --- Landmarks ----------------------------------------------------------------------
   {
     id: 'great-sphinx', title: 'Great Sphinx of Giza', category: 'landmarks', builder: 'landmarks', scale: 1, yaw: 0.6, pictureElevation: 12,
@@ -3163,9 +3369,9 @@ export function modelCategory(key) {
 // matching on purpose: a search that finds the Parthenon for "panther" is harder to trust
 // than one that says it found nothing.
 const normalise = (text) => String(text).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’']/g, '');
-const wordsOf = (text) => normalise(text).split(/[^a-z0-9]+/).filter(Boolean);
+export const wordsOf = (text) => normalise(text).split(/[^a-z0-9]+/).filter(Boolean);
 
-function fieldScore(word, words, weight) {
+export function fieldScore(word, words, weight) {
   return words.some((candidate) => candidate.startsWith(word)) ? weight : 0;
 }
 

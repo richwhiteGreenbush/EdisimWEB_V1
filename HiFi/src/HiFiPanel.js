@@ -1,5 +1,5 @@
 // The HiFi corner panel: the controls that only exist in this edition. Everything a student
-// already knows -- Get More Worlds, Save, Create Model, Look Around, Settings -- is the main
+// already knows -- World Database, Save, Create Model, Look Around, Settings -- is the main
 // app's own menu, running unchanged. This adds the renderer's settings beside it, plus a list
 // of every built-in world, since this edition has no reason to ration them.
 

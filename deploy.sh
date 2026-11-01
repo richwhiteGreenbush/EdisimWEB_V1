@@ -30,9 +30,9 @@ REMOTE_SITE="${REMOTE_SITE:-/usr/home/richwhite/public_html/edusim3d.me}"
 REMOTE_DB="${REMOTE_DB:-/usr/home/richwhite/public_html/edusim3d.me/worlds}"
 REMOTE_APP="${REMOTE_APP:-/usr/home/richwhite/public_html/edusim3d.me/app}"
 # Edusim HiFi (the Babylon.js edition) and ITS gallery. They deploy as SIBLINGS in the same
-# docroot for the reason /app/ sits beside /worlds/: the HiFi app's Get More Worlds button is
-# the relative link ../hifiworlds/, and "Open this world in Edusim HiFi" hands the app an id
-# that it fetches back from /hifiworlds/download.php -- which has to be same-origin.
+# docroot for the reason /app/ sits beside /worlds/: the HiFi app's World Database panel fetches
+# /hifiworlds/catalog.php, and "Open this world in Edusim HiFi" hands the app an id that it
+# fetches back from /hifiworlds/download.php -- which has to be same-origin.
 REMOTE_HIFI="${REMOTE_HIFI:-/usr/home/richwhite/public_html/edusim3d.me/hifi}"
 REMOTE_HIFIDB="${REMOTE_HIFIDB:-/usr/home/richwhite/public_html/edusim3d.me/hifiworlds}"
 
@@ -78,6 +78,9 @@ EOF
 fi
 
 # --- The marketing site ----------------------------------------------------------
+# '* 2.*' in every rsync below is macOS's own duplicate naming ("black-hole 2.webp"). Those files
+# turn up untracked in the working tree and nothing links to them, so they must not ship.
+#
 # Static files with no server-side state, so --delete is safe: anything on the server
 # that is not in docs/ is a leftover from an older deploy and should go.
 #
@@ -92,6 +95,7 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "site" ]; then
   rsync -az --human-readable --itemize-changes $DRY \
     --delete \
     --exclude '.DS_Store' \
+    --exclude '* 2.*' \
     --exclude '_preview-check.html' \
     --exclude 'worlds/' \
     --exclude 'app/' \
@@ -129,6 +133,7 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "app" ]; then
   rsync -az --human-readable --itemize-changes $DRY \
     --delete \
     --exclude '.DS_Store' \
+    --exclude '* 2.*' \
     --exclude 'dev/' \
     -e "ssh $SSH_OPTS" \
     "$HERE/dist/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_APP/"
@@ -151,6 +156,7 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "db" ]; then
   rsync -az --human-readable --itemize-changes $DRY \
     --delete \
     --exclude '.DS_Store' \
+    --exclude '* 2.*' \
     --exclude 'data/worlds.sqlite*' \
     --exclude 'data/stats.sqlite*' \
     --exclude 'data/worlds/*.json' \
@@ -180,6 +186,7 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "hifi" ]; then
   rsync -az --human-readable --itemize-changes $DRY \
     --delete \
     --exclude '.DS_Store' \
+    --exclude '* 2.*' \
     -e "ssh $SSH_OPTS" \
     "$HERE/HiFi/dist/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_HIFI/"
 fi
@@ -192,6 +199,7 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "hifidb" ]; then
   rsync -az --human-readable --itemize-changes $DRY \
     --delete \
     --exclude '.DS_Store' \
+    --exclude '* 2.*' \
     --exclude 'data/worlds.sqlite*' \
     --exclude 'data/stats.sqlite*' \
     --exclude 'data/worlds/*.json' \
