@@ -4620,10 +4620,10 @@ says "this used to be Get More Worlds". The sources now describe the panel, so a
 
 ### The Model Database, and a model a student can pull out of shape
 
-Menu ▸ **Model Database**: 240 ready-made educational models in eleven types, searchable,
+Menu ▸ **Model Database**: 245 ready-made educational models in twelve types, searchable,
 placeable in every world in both editions, and shapeable with the same hammer tools as a cube.
 `src/models/catalog.js` is the one table, `src/ModelDatabase.js` the panel, `src/models/index.js`
-the placing, and `src/models/builders/` holds the 223 built for it, one lazy chunk per family. The
+the placing, and `src/models/builders/` holds the 228 built for it, one lazy chunk per family. The
 other 17 are `PROP_BUILDERS` entries from worlds. **`src/models/ModelKit.js` is the shared kit:** the
 signed-distance `Sculpt`, plus a closed `tube`, a correct `lathe`, `outward` and `alongMatrix`. It came
 out of `builders/Life.js`, proven byte-identical by hashing all six models before and after. `docs/guide/models.html` is GENERATED from the
@@ -4790,6 +4790,68 @@ teacher or subject expert should still read them.**
 **Performance, measured in node**: 19k to 60k triangles each, 2 to 6 meshes, no transparency, no point
 lights. Landscapes each carry two canvases of about 1400px and take up to about a second to paint on
 the main thread. **NOT YET MEASURED ON AN i5/i7 CHROMEBOOK.**
+
+### City Dioramas, and a whole city as one record
+
+The Model Database's twelfth type (`category: 'cities'`), per Rich, who called these the first five:
+New York City, Boston, London, Paris and Moscow, on a walnut base about 17ft across. `src/models/city/CityKit.js`
+is the kit, and `builders/CitiesAmerica.js` and `builders/CitiesEurope.js` hold the cities. **Adding a
+sixth is a new function using the kit, a card, and a chunk entry if it needs a new file.**
+
+**EVERY CITY IS BUILT ROUND ONE IDEA ABOUT WHY IT HAS ITS SHAPE**, and that is what makes them learning
+models rather than souvenirs: New York's grid against the older Broadway, Boston's landfill (warm ground was
+land in 1630, pale ground was water), London's two centers and no plan (the Roman wall is painted on it),
+Paris's boulevards cut through an old city, Moscow's rings round a fortress. Compare two of them and the
+question asks itself. A new city needs its own idea before it needs any buildings.
+
+**THE PLAN IS REAL AND THE HEIGHTS ARE NOT, AND THE BASE SAYS SO.** Everything is placed from a true latitude
+and longitude through `City.at(lat, lon)`, at one horizontal scale per city, north at the back of every one.
+Buildings and landmarks are far bigger and taller than that scale, because to scale a skyscraper on this map
+is about six inches. Each landmark's own footprint is enlarged too, and a few are nudged to fit (the Eiffel
+Tower stands a little further from the river than it does in life, because its legs would otherwise stand in
+it). The scale and that warning are printed on the front of the base as well as on the card. **Only main roads
+are drawn; the buildings between them are filler, not real blocks.** Coastlines and roads were traced by hand
+from approximate coordinates, not from map data.
+
+**ONE DESCRIPTION USED THREE TIMES.** A coast, a road or a park is declared once in feet. It gets painted on
+the map, stamped into a 0.04ft occupancy mask, and (for land) built as a solid slab with quay walls. `fill()`
+then places buildings on whatever the mask leaves free, so landmarks and roads go FIRST and a diagonal avenue
+cuts a grid exactly as Broadway does, with no keep-out list to maintain.
+
+**SIX MESHES AND NO MORE, WHATEVER THE CITY**: base plus landmarks, land, water, facades, labels, the one thing
+that moves. A building is about twelve triangles in one merged mesh. Facades are one near-white window tile
+multiplied by vertex colour, with UVs in feet, so a tile serves every stone in the city; a constant UV on a
+roof has no derivative, so it samples the top mip and stays clean at any distance.
+
+**Things it hit, worth keeping:**
+
+- **The filler drowns the heroes unless it is kept low.** The first Moscow and Paris were a sea of buildings
+  with landmarks you could not find. Filler is about a quarter of a foot tall now, and the plans were cropped
+  so the hero stands nearer the front edge. In a landmark's terms, a low city is what makes a tall thing tall.
+- **Windows make a cathedral an office block.** Anything not a modern building takes `windows: false`, with
+  its openings built forward of the wall.
+- **Everything outside the plan has to be checked.** Gorky Park's trees rolled off the base and hung in the air
+  in front of it, a London bridge floated past the rim, and a Moscow boat sat on the base's front face. `park()`
+  and `bridge()` check now; `check-models` printing a depth larger than the plan plus base is how to catch the rest.
+- **A detail-0 blob is a hexagon up close.** Park trees are detail 1; only the long avenue rows stay at detail 0.
+- **The Seine's width has to swell round the islands**, or the islands fill it and the river stops.
+- **Labels fight the view.** 0.2ft plates read at arrival and are large up close. That is the trade, and it is
+  why a card lists about ten rather than every landmark.
+- **`bank()`'s side depends on the direction of travel.** Heading west, side 1 is north; heading east, it is south.
+
+**Facts**: an agent with web search checked every card and corrected about a dozen claims. The one worth
+remembering: New York's answer first replaced the bedrock myth with a rail-terminal claim the leading researcher
+also rejects. Several sites would not load, and most pages were read through a summarising fetch tool, so **a
+teacher or subject expert should still read them.**
+
+**Each carries one moving thing** through `mover()` (a ferry, a sailboat, a river boat) or `rotor()` (the London
+Eye), an inner group with `userData.tick` that honours `reducedMotion()`. Each also ships an idle `spinSlow`, so a
+student's first program can turn the whole table.
+
+**Performance, measured in node, not in a frame**: New York 37.5k triangles, Boston 25.9k, London 37k, Paris 55.5k
+(the budget is 60k), Moscow 42.5k, each 6 meshes, 0 transparent, 0 point lights. Each carries a land canvas at
+128 pixels per foot, about 2048px, plus a water canvas, which is the first thing to watch for memory. Rendered in
+both editions on the development Mac with no page errors. **NOT YET MEASURED ON AN i5/i7 CHROMEBOOK.**
 
 ### Build a Village, a kit rather than twenty-five models
 
