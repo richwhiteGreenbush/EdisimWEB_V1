@@ -25,13 +25,14 @@ import { placePrimitive } from './Primitives.js';
 import { ConstructionManager } from './ConstructionManager.js';
 import { PrimitiveMenu } from './PrimitiveMenu.js';
 import { ModelDatabase } from './ModelDatabase.js';
+import { WorldDatabase } from './WorldDatabase.js';
 import { BuildGizmo } from './BuildGizmo.js';
 import { Motion } from './Motion.js';
 import { tickWind, uniforms as windUniforms, setWind } from './Wind.js';
 import { Cinema, arrivalRig, flyRig } from './Cinema.js';
 import { PhotoMode } from './PhotoMode.js';
 import { SettingsPanel } from './SettingsPanel.js';
-import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD } from './config.js';
+import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD, WORLD_GALLERY_URL } from './config.js';
 import { takeLinkedWorldId, fetchLinkedWorld } from './WorldLink.js';
 import { enableBuildStats, setStatsWorld } from './BuildStats.js';
 
@@ -107,6 +108,34 @@ async function loadPresetWorld(name) {
   programManager.broadcast('start');
   lastSunPhase = null;
   return label;
+}
+
+// Opening a world out of the gallery, from the World Database or a ?world= link. Everything that
+// can fail happens before loadFromRecords wipes anything, so a failure throws with the student's
+// world untouched.
+//
+// The rest is what it takes to arrive in the middle of a session rather than at boot, and it
+// matches loadPresetWorld: nothing from the old world (a rig on an object about to stop existing,
+// a build gizmo, a floating menu, a sun dragged to dusk, an ant's-eye view) carries across.
+async function openGalleryWorld(id) {
+  const records = await fetchLinkedWorld(id);
+  cinema.release();
+  buildGizmo.deactivate();
+  objectMenu.close();
+  primitiveMenu.close();
+  const spawn = await worldStore.loadFromRecords(records);
+  setStatsWorld(`gallery:${id}`);
+  setSunPhase(null);
+  lastSunPhase = null;
+  menu.resetSunSlider();
+  player.setEyeHeight(EYE_HEIGHT);
+  // Stand them where the world says, and at the app's own default spot if it does not say --
+  // which is every world file exported before spawns existed. Moving them at all is not
+  // optional: they may be standing 150ft out in the fog of a world that no longer exists.
+  player.resetTo(spawn || undefined);
+  const swoop = arrivalRig(cinema, spawn || undefined);
+  if (swoop) cinema.take('Arrival', swoop);
+  programManager.broadcast('start');
 }
 
 // Where the day's named moments sit on the 0..1 scrub, and the phase we were last at, so
@@ -208,18 +237,25 @@ const menuActions = {
     menu.setCollapsed(true);
     modelDatabase.open();
   },
+  worldDatabase: () => {
+    menu.setCollapsed(true);
+    worldDatabase.open();
+  },
   saveWorld: async () => {
     if (registry.count === 0) {
       menu.toast('Nothing to save yet.');
-      return;
+      return false;
     }
     try {
       const records = [...registry.items.values()].map((item) => item.record).filter(Boolean);
       await exportWorldToFile(records);
+      worldStore.setChanged(false);
       menu.toast('World saved — check your downloads.', { tone: 'success' });
+      return true;
     } catch (err) {
       console.error('Failed to save world:', err);
       menu.toast('Could not save the world.', { tone: 'error' });
+      return false;
     }
   },
   loadWorldFile: () => loadWorldInput.click(),
@@ -315,6 +351,7 @@ const menu = new Menu({
   onYouTubeClick: menuActions.youTube,
   onCreatePrimitiveClick: menuActions.createPrimitive,
   onModelDatabaseClick: menuActions.modelDatabase,
+  onWorldDatabaseClick: menuActions.worldDatabase,
   onSaveWorldClick: menuActions.saveWorld,
   onLoadWorldClick: menuActions.loadWorldFile,
   onLoadPresetClick: menuActions.loadPreset,
@@ -363,6 +400,14 @@ const worldStore = new WorldStore({ scene, registry, menu, programManager, playI
 if (studioMode) worldStore.persistent = false;
 
 const modelDatabase = new ModelDatabase({ scene, camera, registry, worldStore, menu, groundHeightAt });
+const worldDatabase = new WorldDatabase({
+  menu,
+  worldStore,
+  galleryUrl: WORLD_GALLERY_URL,
+  openWorld: openGalleryWorld,
+  saveWorld: menuActions.saveWorld,
+  loadWorldFile: menuActions.loadWorldFile,
+});
 
 const photoMode = new PhotoMode({
   scene, camera, renderer, registry, worldStore, menu, player, groundHeightAt, cinema,
@@ -487,18 +532,7 @@ if (!studioMode) worldStore
   .then(async () => {
     if (linkedWorldId) {
       menu.toast('Opening the shared world…');
-      const records = await fetchLinkedWorld(linkedWorldId);
-      const spawn = await worldStore.loadFromRecords(records);
-      setStatsWorld(`gallery:${linkedWorldId}`);
-      // Stand them where the world says, and at the app's own default spot if it does not
-      // say -- which is every world file exported before spawns existed.
-      //
-      // Moving them at all is not optional here: they may have arrived from another world
-      // entirely and be standing 150ft out in the fog of a world that no longer exists.
-      // Before the spawn record this could only ever be the default spot, which in a world
-      // composed around one particular view meant arriving in an empty corner with the
-      // thing they came to see behind them.
-      player.resetTo(spawn || undefined);
+      await openGalleryWorld(linkedWorldId);
       menu.toast('Shared world opened — this replaced what was here before.', { tone: 'success' });
       return;
     }
@@ -575,7 +609,7 @@ if (import.meta.env.DEV) {
     camera, player, renderer, scene, THREE, menu, registry, importManager, drawTool,
     worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager, speechBubbles,
     webBrowserManager, vrView, constructionManager, primitiveMenu, markerTrail, buildGizmo,
-    motion, cinema, photoMode, settingsPanel, windUniforms, setWind, modelDatabase,
+    motion, cinema, photoMode, settingsPanel, windUniforms, setWind, modelDatabase, worldDatabase,
     // Every menu row, callable. `loadPreset` is the one that cannot be reached any other
     // way now that the menu lists no worlds at all: a preset is opened by a ?world= link
     // against the live gallery, which a checkout under development is not. Building the

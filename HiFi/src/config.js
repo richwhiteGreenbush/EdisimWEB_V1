@@ -62,10 +62,9 @@ export const DEFAULT_THEME = 'default';
 // ---- the HiFi edition's own places ------------------------------------------------------------
 // Its own IndexedDB database (see main.js for why it cannot share the main app's), and its own
 // gallery: the Edusim HiFi Worlds Database, served from /hifiworlds/ in the same docroot as
-// this app's /hifi/. The link BASE is root-relative for the main app's reason -- the fetch has
-// to be same-origin whatever scheme the site is on -- and the gallery URL is relative for the
-// same reason every other link in that docroot is.
+// this app's /hifi/. Both addresses are root-relative for the main app's reason -- the fetch
+// has to be same-origin whatever scheme the site is on.
 export const HIFI_DB_NAME = 'edusim-hifi-world';
-export const HIFI_GALLERY_URL = '../hifiworlds/';
+export const HIFI_GALLERY_URL = '/hifiworlds/';
 export const HIFI_WORLD_LINK_PARAM = 'hifiworld';
 export const HIFI_WORLD_LINK_BASE = '/hifiworlds/download.php?id=';

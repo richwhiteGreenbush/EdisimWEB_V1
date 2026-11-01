@@ -16,7 +16,9 @@ export default defineConfig({
     alias: [{ find: /^three$/, replacement: resolve(root, 'node_modules/three') }, { find: /^three\//, replacement: `${resolve(root, 'node_modules/three')}/` }],
     dedupe: ['three'],
   },
-  server: { port: 5183, fs: { allow: [root] } },
+  // /hifiworlds/ goes to the local mirror (../serve-local.sh) for the reason the main app's
+  // vite.config.js gives. Dev only.
+  server: { port: 5183, fs: { allow: [root] }, proxy: { '/hifiworlds/': 'http://localhost:8080' } },
   optimizeDeps: {
     include: [
       'three',

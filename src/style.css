@@ -1019,21 +1019,18 @@ body.vr-active #toast-host {
   text-align: center;
 }
 
-/* Get More Worlds, now top-level and the first thing in the menu. Green against the file
-   pair's amber, because it is a different kind of thing again: the only button in this menu
-   that leaves the app. With the Load World dropdown gone it is also the ONLY way into a
-   ready-made world from inside the app, which is why it leads. */
-.menu-btn-gallery {
+/* World Database, directly above the Model Database. Green beside its teal, so the two read as
+   a pair of doors rather than one row printed twice. */
+.menu-btn-worlds {
   background: rgba(63, 179, 127, 0.16);
   border-color: rgba(63, 179, 127, 0.5);
   color: #a6ecc9;
 }
 
-.menu-btn-gallery:hover {
+.menu-btn-worlds:hover {
   background: rgba(63, 179, 127, 0.3);
 }
 
-/* Model Database row: its own teal, between the amber file pair and Create Model. */
 .menu-btn-models {
   background: rgba(45, 178, 196, 0.16);
   border-color: rgba(45, 178, 196, 0.55);
@@ -1046,7 +1043,8 @@ body.vr-active #toast-host {
 
 /* The Model Database panel. z-index 35 with the Program panel, so the toast host at 50 still
    lands in front of it. */
-#modeldb-overlay {
+#modeldb-overlay,
+#worlddb-overlay {
   position: fixed;
   inset: 0;
   z-index: 35;
@@ -1056,11 +1054,13 @@ body.vr-active #toast-host {
   background: rgba(10, 14, 18, 0.6);
 }
 
-#modeldb-overlay[hidden] {
+#modeldb-overlay[hidden],
+#worlddb-overlay[hidden] {
   display: none;
 }
 
-#modeldb-panel {
+#modeldb-panel,
+#worlddb-panel {
   width: min(1040px, 96vw);
   height: min(720px, 92vh);
   height: min(720px, 92dvh);
@@ -1548,6 +1548,252 @@ body.vr-active #toast-host {
   }
 
   .mdb-meter-label {
+    display: none;
+  }
+}
+
+/* The World Database. It wears everything above and changes only what differs: green rather
+   than teal, and landscape screenshots rather than square turntables. */
+#worlddb-panel {
+  position: relative;
+}
+
+#worlddb-panel .mdb-search:focus,
+#worlddb-panel .mdb-grade select:focus {
+  outline-color: #63d5a0;
+}
+
+#worlddb-panel .mdb-rail-btn.is-on {
+  background: rgba(63, 179, 127, 0.26);
+}
+
+#worlddb-panel .mdb-rail-btn:focus-visible,
+#worlddb-panel .mdb-card-open:focus-visible,
+#worlddb-panel .mdb-card-place:focus-visible,
+#worlddb-panel .mdb-place-big:focus-visible,
+#worlddb-panel .wdb-foot-btn:focus-visible,
+#worlddb-panel .wdb-foot-link:focus-visible,
+#worlddb-panel .wdb-link:focus-visible {
+  outline: 2px solid #63d5a0;
+  outline-offset: 2px;
+}
+
+#worlddb-panel .mdb-grid {
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+}
+
+#worlddb-panel .mdb-card {
+  --mdb-accent: #63d5a0;
+}
+
+#worlddb-panel .mdb-thumb {
+  aspect-ratio: 16 / 10;
+}
+
+#worlddb-panel .mdb-card-place,
+#worlddb-panel .mdb-place-big {
+  color: #0d2b1e;
+  background: #63d5a0;
+}
+
+#worlddb-panel .mdb-card-place:hover,
+#worlddb-panel .mdb-place-big:hover {
+  background: #8be4bb;
+}
+
+#worlddb-panel .mdb-detail {
+  --mdb-accent: #63d5a0;
+}
+
+#worlddb-panel .mdb-place-big {
+  margin-bottom: 2px;
+}
+
+#worlddb-panel .mdb-note {
+  margin-bottom: 12px;
+}
+
+#worlddb-panel.is-opening .mdb-body,
+#worlddb-panel.is-opening .mdb-head,
+#worlddb-panel.is-opening .wdb-foot-actions {
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.wdb-shot {
+  aspect-ratio: 16 / 10;
+  align-self: start;
+  background: #39424c;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.wdb-shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wdb-by {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  color: #b7c2cc;
+}
+
+.wdb-description {
+  white-space: pre-line;
+}
+
+.wdb-links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.wdb-link,
+.wdb-foot-link {
+  color: #a6ecc9;
+}
+
+.wdb-link {
+  font-size: 13.5px;
+}
+
+.wdb-foot-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px 14px;
+  min-width: 0;
+}
+
+.wdb-foot-btn,
+.wdb-confirm-save,
+.wdb-confirm-go {
+  min-height: 30px;
+  padding: 4px 12px;
+  font: inherit;
+  font-weight: 650;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.wdb-foot-btn {
+  color: #ffdf9e;
+  background: rgba(242, 165, 65, 0.14);
+  border: 1px solid rgba(242, 165, 65, 0.5);
+}
+
+.wdb-foot-btn:hover {
+  background: rgba(242, 165, 65, 0.28);
+}
+
+.wdb-message-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.wdb-message-btn {
+  min-height: 38px;
+  margin: 0;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+.wdb-confirm {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(10, 14, 18, 0.72);
+}
+
+.wdb-confirm-card {
+  width: min(580px, 100%);
+  padding: 18px 20px;
+  background: #242a31;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+}
+
+.wdb-confirm-card p {
+  margin: 0 0 16px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.wdb-confirm-title {
+  margin: 0 0 8px;
+  font-size: 19px;
+}
+
+.wdb-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.wdb-confirm-save {
+  color: #0d2b1e;
+  background: #63d5a0;
+  border: 0;
+}
+
+.wdb-confirm-save:hover {
+  background: #8be4bb;
+}
+
+.wdb-confirm-go {
+  color: #ffc9bd;
+  background: rgba(230, 90, 70, 0.14);
+  border: 1px solid rgba(230, 90, 70, 0.55);
+}
+
+.wdb-confirm-go:hover {
+  background: rgba(230, 90, 70, 0.28);
+}
+
+@media (max-width: 720px) {
+  #worlddb-panel .mdb-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  /* One row, so the footer does not eat the cards: the count is on the screen already, and
+     sharing a world is a job for the gallery's own page on a phone. The status stays in the
+     accessibility tree because it is what announces "Opening…". */
+  #worlddb-panel .mdb-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  #worlddb-panel.is-opening .mdb-status {
+    position: static;
+    width: auto;
+    height: auto;
+    clip-path: none;
+  }
+
+  .wdb-foot-actions {
+    flex: 1;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+
+  .wdb-foot-link:last-child {
     display: none;
   }
 }

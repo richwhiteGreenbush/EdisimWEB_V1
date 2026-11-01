@@ -107,11 +107,11 @@ sync_all() {
   fi
 
   # Edusim HiFi and ITS gallery, mounted the way production mounts them: /hifi/ beside
-  # /hifiworlds/ in the same docroot. That adjacency is the feature -- the app's Get More
-  # Worlds button is the RELATIVE link ../hifiworlds/, and "Open this world in Edusim HiFi"
-  # hands the app an id it fetches back from /hifiworlds/download.php, same-origin. Neither
-  # can work from `vite preview`, which serves the app alone at a root: there, ../hifiworlds/
-  # is a path Vite does not have, so it answers with the app's own index.html.
+  # /hifiworlds/ in the same docroot. That adjacency is the feature -- the app's World Database
+  # panel fetches its list from /hifiworlds/catalog.php, and "Open this world in Edusim HiFi"
+  # hands the app an id it fetches back from /hifiworlds/download.php, both same-origin. Neither
+  # can work from `vite preview`, which serves the app alone at a root and answers with its own
+  # index.html. (`vite` dev proxies the gallery here, so it works there while this is running.)
   if [ -d "$HERE/EdusimHiFiWorldDatabase" ]; then
     rsync -a --delete --exclude '.DS_Store' \
       --exclude 'data/worlds.sqlite*' --exclude 'data/stats.sqlite*' \

@@ -833,7 +833,7 @@ section[id], .res-group, .anchor-alias { scroll-margin-top: calc(var(--nav-h) + 
 }
 
 /* The two world databases: big, side by side, straight under the launch button. Green
-   for the main gallery (the app's own Get More Worlds colour), night-blue and gold for
+   for the main gallery (the colour of the app's own World Database button), night-blue and gold for
    HiFi (its own band's colours further down). */
 .hero-dbs {
   display: grid;

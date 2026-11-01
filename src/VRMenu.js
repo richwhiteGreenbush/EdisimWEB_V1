@@ -149,14 +149,13 @@ export class VRMenu {
     // The world file pair, top-level and first, matching the flat menu. The Load World
     // dropdown is gone from both -- see Menu.js for why -- so there is no group here either.
     //
-    // Get More Worlds is deliberately NOT offered in VR: it opens a browser tab, which a
-    // headset cannot show, and unlike Import or Draw there is nothing useful left once you
-    // have been dropped out of VR to look at it. The two file buttons stay because a student
-    // may genuinely want to save what they have just built before taking the headset off.
+    // The two file buttons are here because a student may genuinely want to save what they
+    // have just built before taking the headset off.
     rows.push({ id: 'saveWorld', label: 'Save World', leavesVR: true });
     rows.push({ id: 'loadWorldFile', label: 'Load World File', leavesVR: true });
     // Out of VR first, like Import: a hundred picture cards and a search box are flat-screen DOM,
     // and so is the hammer panel a model is shaped with once it lands.
+    rows.push({ id: 'worldDatabase', label: 'World Database', leavesVR: true });
     rows.push({ id: 'modelDatabase', label: 'Model Database', leavesVR: true });
 
     // Load Object stays TOP-LEVEL here, where the flat menu has since moved it inside

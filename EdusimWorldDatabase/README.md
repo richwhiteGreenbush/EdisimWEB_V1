@@ -14,6 +14,7 @@ EdusimWorldDatabase/
 ├── share.php          The share form (screenshot + description + world file)
 ├── world.php          One world: full screenshot, description, contents, download
 ├── download.php       Serves the .json, counts the download, names the file
+├── catalog.php        The list behind the app's World Database panel, as JSON
 ├── admin.php          Teacher tools: approve / hide / delete
 ├── schema.sql         Readable copy of the schema (lib/db.php is authoritative)
 ├── assets/            database.css + the logo crops taken from docs/assets/

@@ -3163,9 +3163,9 @@ export function modelCategory(key) {
 // matching on purpose: a search that finds the Parthenon for "panther" is harder to trust
 // than one that says it found nothing.
 const normalise = (text) => String(text).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’']/g, '');
-const wordsOf = (text) => normalise(text).split(/[^a-z0-9]+/).filter(Boolean);
+export const wordsOf = (text) => normalise(text).split(/[^a-z0-9]+/).filter(Boolean);
 
-function fieldScore(word, words, weight) {
+export function fieldScore(word, words, weight) {
   return words.some((candidate) => candidate.startsWith(word)) ? weight : 0;
 }
 

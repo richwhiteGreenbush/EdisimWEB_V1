@@ -27,7 +27,8 @@ into Babylon every frame. So every world, prop, block and record kind here exist
 - Anything visual has to be expressible as scene-graph state the bridge can read: geometry,
   standard/basic materials, textures with a `version`, sprites, points, lines, point lights.
   A custom `ShaderMaterial` or an `onBeforeCompile` effect (the wind) does NOT cross.
-- `Menu` takes an optional `galleryUrl`; that is the one change made here for HiFi's sake.
+- `WorldStore` takes an optional `changesKey` and `WorldDatabase` takes its gallery by injection,
+  because `/app/` and `/hifi/` share an origin and have separate galleries.
 
 Its gallery is `EdusimHiFiWorldDatabase/` (served at `/hifiworlds/`, link parameter
 `?hifiworld=`). See `HiFi/CLAUDE.md` before working there.
@@ -433,7 +434,7 @@ and every world anyone has built disappears. The same goes for the `startup-*` a
   placement or edit calls `onPlaced`/`persistTransform` → `worldStore.saveObject()`.
   `rehydrateAll()` runs once at boot.
 - **`WorldFile`** (`WorldFile.js`) — explicit, user-triggered, portable `.json`
-  export/import, reached from Load World ▸ **Save World** / **Load World File**.
+  export/import, reached from the menu's **Save World** / **Load World File**.
   Base64-encodes any Blob file data for JSON transport.
   `WorldStore.loadFromRecords()` wipes the live world + IndexedDB and rehydrates +
   re-persists from a given record set — this is what Load World File ultimately calls.
@@ -467,10 +468,10 @@ sky back to daylight instead of inheriting it.
 
 ### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / the curriculum set / My World / (New York, Under the Sea)
 
-The menu reads **Get More Worlds → Save World → Load World File → Model Database → Create
-Model → Look Around → Clear World → VR Headset View → Settings**, in that order: get a world,
-keep this one, open a file, then what am I building, then how am I looking at it, then the
-whole-session actions. **Load Object** (Import / Draw / Light Orb / Web Browser) is not
+The menu reads **Save World → Load World File → World Database → Model Database → Create
+Model → Look Around → Clear World → VR Headset View → Settings**, in that order: keep this
+world, open a file, the two databases side by side (per Rich), then how am I building, how am
+I looking at it, and the whole-session actions. **Load Object** (Import / Draw / Light Orb / Web Browser) is not
 top-level — it is a dropdown *inside* Create Model, because bringing in a model, painting
 a balloon, dropping an orb and hanging a browser panel are the same job as adding a
 shape: putting something of your own into the world.
@@ -515,15 +516,13 @@ in order to hand work in were the two that looked switched off.
 file pair underneath. Both the list and the predicate are gone, and the three buttons that
 lived at the bottom of that dropdown are now top-level.
 
-The reason is arithmetic: the gallery holds thirty-six worlds, every one openable by a
-`?world=` link, against the four a dropdown could reasonably show. `Get More Worlds` is a
-better answer than any list, so it leads the menu.
+The reason is arithmetic: the gallery holds more than forty worlds, every one openable by a
+`?world=` link, against the four a dropdown could reasonably show. The World Database panel is
+a better answer than any list.
 
-**What this costs, stated because it is easy to rediscover as a bug: `BOOT_WORLD` is no
-longer reachable from inside the app.** A first visit still builds the Park and a refresh
-still restores whatever the student did to it, but "give me a fresh Park" now means going
-out through the gallery. That used to be the reason `BOOT_WORLD` had to stay on the
-allowlist; with no allowlist the constraint is simply gone rather than violated.
+**What this costs, stated because it is easy to rediscover as a bug: `BOOT_WORLD` has no button
+of its own.** A first visit still builds the Park and a refresh still restores whatever the
+student did to it, but "give me a fresh Park" now means finding The Park in the World Database.
 
 **`loadPreset` stays wired up regardless, and must.** World portals call it — the billboard
 behind the Library into 1940's New York, the one behind the Park's nature centre into Under
@@ -531,36 +530,30 @@ the Sea — and so does the `?world=` link path in `main.js`. Only the *menu* st
 it. `VRView`'s `preset:` dispatch branch is now unreachable and is deliberately left in
 place: re-adding preset rows to `VRMenu` should work rather than silently do nothing.
 
-**`hidden: true` survives on the two portal worlds as documentation.** Nothing reads it any
-more. It still records the one fact worth keeping — those two have no door except a
-billboard inside another world, which is what makes finding them worth anything — and
-anything that ever lists worlds again should read it.
+**`hidden: true` survives on the two portal worlds as documentation**, and `catalog.php` keeps
+the same fact by slug: those two have no door except a billboard inside another world, so the
+panel does not list them. See the World Database section.
 
-**The three promoted buttons keep their colours and lose their `subitem` class names**
-(`.menu-btn-gallery`, `.menu-btn-file`), because the names were describing a nesting that
-no longer exists. Green for the gallery, amber for the file pair: one leaves the app, the
-other two move a world between people, and one of those is the only button in the menu that
-does not change what is on screen at all. Both halves of the pair have to be there — a
-student who can only load a file can receive someone else's world but never send their own.
+**The file pair wears amber and the World Database green** (`.menu-btn-file`,
+`.menu-btn-worlds`). The pair moves a world between people, and one of them is the only button in
+the menu that does not change what is on screen. Both halves have to be there: a student who can
+only load a file can receive someone else's world but never send their own.
 
-**`VRMenu` carries only the file pair**, both `leavesVR`. Get More Worlds is deliberately
-absent from VR: it opens a browser tab, which a headset cannot show, and unlike Import or
-Draw there is nothing useful left once the student has been dropped out of VR to look at it.
+**`VRMenu` carries the file pair and both databases**, all `leavesVR`, since all four need the flat
+screen.
 
-Two things about that URL. It is `window.open(..., 'noopener,noreferrer')`: a cross-origin
-page opened without `noopener` can reach back through `window.opener` and navigate the app
-out from under the student. And **the mixed-content limitation on
-`WEB_BROWSER_DEFAULT_URL` does not apply to it** — that one is an `http:` *iframe* inside an
-`https:` page, which browsers block; this is a top-level navigation into a new tab, which
-they do not. That distinction is why this link kept working through the whole period the
-in-world browser panel pointed at the same host was blank — and it is also why every
-`https://edusim3dweb.com/app/` link in `docs/` is fine on the **https** GitHub Pages mirror.
+**There is no link out of the app in this menu any more.** The panel's own links are
+`noopener,noreferrer`, because a page opened without it can reach back through `window.opener`
+and navigate the app out from under the student. Those are top-level navigations, so the
+mixed-content limitation on `WEB_BROWSER_DEFAULT_URL` (an `http:` iframe in an `https:` page)
+does not apply to them, and it is also why every `https://edusim3dweb.com/app/` link in `docs/`
+is fine on the **https** GitHub Pages mirror.
 
 **The Park is the boot world** (`config.js`'s `BOOT_WORLD`). A first visit — or any
 visit where `rehydrateAll()` comes back with an empty registry — builds it via the same
 `loadPresetWorld()` helper the menu uses. It then persists like any other world, so a
 plain page refresh restores whatever the student actually did to it rather than
-resetting their work; Load World ▸ The Park is the deliberate way back to a fresh copy.
+resetting their work; The Park in the World Database is the deliberate way back to a fresh copy.
 This replaced `placeStartupAssets()`, which no longer exists — `StartupAssets.js` is now
 just the three loaders, and the Park places two of those assets as records (the maple as
 specimen trees, the Edusim image as the welcome banner).
@@ -4573,6 +4566,57 @@ dynamic `import()` from the console under Vite gives a SEPARATE MODULE INSTANCE,
 `setSunPhase()` called that way writes to a `state` whose `scene` is null and silently does
 nothing — drive the app through `window.__debug` or the real DOM, never through a
 re-import.
+
+### The World Database, and a list that lives on the server
+
+Menu ▸ **World Database** (`src/WorldDatabase.js`, `src/WorldCatalog.js`, `catalog.php` in both
+galleries) browses, searches and opens the gallery's worlds from inside the app, with the Model
+Database's layout and `.mdb-*` styles. It replaced Get More Worlds, per Rich, which left for a new
+tab. The gallery is still there and the panel links to it. `tools/check-world-database.mjs` is the
+whole student path in either edition.
+
+**THE LIST IS FETCHED, unlike the models.** A model has a builder in the bundle; a world is a file
+in the gallery, and ids differ between databases. So it can be slow or fail, and the panel says
+so, with Try Again and Load World File. A 200 that is not JSON is a failure: a filter's block page
+sends one and so does a Vite server with no gallery. **`vite dev` proxies `/worlds/` and
+`/hifiworlds/` to `serve-local.sh`'s mirror**, which is what keeps `window.__debug` usable here.
+
+**`catalog.php` NAMES EVERY FIELD.** `ewd_list_worlds()` selects `w.*`, which includes
+`manage_key_hash` and `submitter_ip_hash`, and `smoke-test.sh` greps the live list for them.
+
+**OFFICIAL WORLDS ONLY, per Rich, and the filter is on the server.** The gallery checks that an
+upload is shaped like a world and not what it does, and a shared world can carry JavaScript that
+runs inside the app, whose shadow list is accident prevention and not a security boundary. A
+gallery page is somewhere a student chose to go; this list sits inside the app in front of a class.
+**Lift it once uploads go through approval** (`EWD_REQUIRE_APPROVAL` is false in the repo's config).
+So a student does not see their own shared world in the panel, only in the gallery.
+
+**OPENING REPLACES AND THERE IS NO UNDO, so Open asks if anything changed.**
+`WorldStore.hasChanges` is the one place that knows: every edit that lasts goes through
+`saveObject()` or `deleteObject()`, a load clears it, and so does Save World. It is in localStorage
+because it must survive a refresh with the work it describes, with a key per edition because
+`/app/` and `/hifi/` share an origin. **No record of it counts as changed**, so anyone with work from
+before this was added gets asked once. A student who has only walked around goes straight through.
+The question is inside the panel, with focus on Keep. World portals and Load World File still
+replace without asking, as they always did.
+
+**`openGalleryWorld()` is the one way a gallery world arrives**, from the panel or a `?world=` link.
+It fetches and parses before anything is wiped, so a failure throws with the world untouched. It
+then does what arriving mid-session needs: releases a camera rig, the gizmo and any floating menu,
+resets the sun and the student's size, and gives the arrival swoop and `broadcast('start')`. Linked
+worlds used to get neither of those last two, so a `when this world opens` program never fired on
+one, which is a behaviour change for every `?world=` link.
+
+**SECRET WORLDS**: browsing does not list 1940's New York or Under the Sea. Two words that are both
+in the title find them, so "new york" does and "sea" does not. The gallery itself still lists both.
+
+**Sorted most opened first**, by `downloads`, which is what `download.php` counts. Sunflower has no
+entry in `lib/teaching.php` (nor does HiFi's Turkle Street), so each shows under All and leaves the
+grade filter rather than carrying an invented grade band.
+
+**The print book says Get More Worlds in copies already sold**, which is why the button's tooltip
+says "this used to be Get More Worlds". The sources now describe the panel, so a new printing needs
+`npm run build` and a KDP upload.
 
 ### The Model Database, and a model a student can pull out of shape
 

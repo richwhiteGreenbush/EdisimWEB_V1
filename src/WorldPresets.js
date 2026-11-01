@@ -12196,7 +12196,7 @@ export const PRESET_WORLDS = {
 //
 // `MENU_WORLDS` was a short list of four presets the Load World dropdown offered, and
 // `isMenuWorld()` folded it together with the `hidden` flag so the DOM menu and the VR menu
-// could never drift apart. Both menus now offer Get More Worlds instead: the gallery holds
+// could never drift apart. Both menus now offer the World Database panel instead: the gallery holds
 // thirty-six worlds, every one of them openable by link, which is a better answer than any
 // list this dropdown could have shown.
 //

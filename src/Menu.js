@@ -1,4 +1,3 @@
-import { WORLD_GALLERY_URL } from './config.js';
 import { PRIMITIVE_SHAPES, SHAPE_LABELS } from './Primitives.js';
 
 export class Menu {
@@ -10,6 +9,7 @@ export class Menu {
     onYouTubeClick,
     onCreatePrimitiveClick,
     onModelDatabaseClick,
+    onWorldDatabaseClick,
     onClearClick,
     onSaveWorldClick,
     onLoadWorldClick,
@@ -20,9 +20,6 @@ export class Menu {
     onEyeHeightClick,
     onSunPhaseChange,
     onSettingsClick,
-    // Where Get More Worlds goes. The default is this app's own gallery; Edusim HiFi runs
-    // this same menu against its own worlds database and passes that in instead.
-    galleryUrl = WORLD_GALLERY_URL,
   }) {
     this.root = document.createElement('div');
     this.root.id = 'menu';
@@ -124,29 +121,26 @@ export class Menu {
       onModelDatabaseClick?.();
     });
 
-    // THE LOAD WORLD DROPDOWN IS GONE, and with it the short list of presets it held.
+    // THE LOAD WORLD DROPDOWN IS GONE, and with it the short list of presets it held. The
+    // World Database is the way into a world now: every published one, searchable, against
+    // the four this menu could ever show. It opens a panel for the same reason the Model
+    // Database beneath it does, and it replaced Get More Worlds, which left the app for a
+    // new tab to do the same job.
     //
-    // The gallery is the way into a world now: thirty-six of them, every one openable by
-    // link, against the four this menu could ever show. So the three buttons that used to
-    // live at the bottom of that dropdown are the whole story and they are top-level -- get
-    // a world, save this one, open a file. Nothing is nested behind a door any more.
+    // WHAT THE DROPDOWN COST, stated because it is easy to rediscover as a bug: there is no
+    // "fresh copy of the boot world" button here. The Park in the World Database is that.
+    // `loadPreset` stays wired up regardless, because world portals call it.
     //
-    // WHAT THIS COSTS, stated because it is easy to rediscover as a bug: the boot world is
-    // no longer reachable from inside the app. A first visit still builds the Park, and a
-    // refresh still restores whatever the student did to it, but "give me a fresh Park" now
-    // means going through Get More Worlds. `loadPreset` itself stays wired up regardless --
-    // world portals (the billboard behind the Library, the one behind the Park's nature
-    // centre) call it, and so does the ?world= link.
-    const moreWorldsBtn = this._button(
-      'Get More Worlds',
-      'Open the shared world gallery in a new tab — open a world straight from a link, or download one and load it here'
+    // The tooltip names the old button on purpose. The print book says Get More Worlds, and
+    // copies already sold cannot be changed.
+    const worldDatabaseBtn = this._button(
+      'World Database',
+      'Browse and search ready-made worlds, and open one here (this used to be Get More Worlds)'
     );
-    moreWorldsBtn.classList.add('menu-btn-gallery');
-    moreWorldsBtn.addEventListener('click', () => {
+    worldDatabaseBtn.classList.add('menu-btn-worlds');
+    worldDatabaseBtn.addEventListener('click', () => {
       this.closeGroups();
-      // noopener: the gallery is a different origin, and a page opened without it can
-      // reach back through window.opener and navigate the app out from under the student.
-      window.open(galleryUrl, '_blank', 'noopener,noreferrer');
+      onWorldDatabaseClick?.();
     });
 
     // The .json file pair, save above load. They wear their own COLOUR rather than a
@@ -278,13 +272,13 @@ export class Menu {
     hint.className = 'menu-hint';
     hint.textContent = 'Arrow keys to walk & turn · drag to look';
 
-    // Worlds first -- where am I going to build this -- then Create Model carrying Load
-    // Object inside it, then the two whole-session actions. loadObject's own toggle and
-    // panel are NOT appended here; they are already inside createModel's panel.
+    // The file pair, then the two databases side by side, then Create Model carrying Load
+    // Object inside it, then the whole-session actions. loadObject's own toggle and panel are
+    // NOT appended here; they are already inside createModel's panel.
     this.panel.append(
-      moreWorldsBtn,
       saveWorldBtn,
       loadWorldFileBtn,
+      worldDatabaseBtn,
       modelDatabaseBtn,
       createModel.toggle,
       createModel.panel,
@@ -379,6 +373,11 @@ export class Menu {
 
   toggle() {
     this.setCollapsed(!this.panel.hidden);
+  }
+
+  // A new world starts at its own hour, so the slider has to stop claiming otherwise.
+  resetSunSlider() {
+    this.sunSlider.value = '0.5';
   }
 
   setImportEnabled(enabled) {

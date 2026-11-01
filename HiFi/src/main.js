@@ -43,6 +43,7 @@ import { buildPresetWorldRecords, PRESET_WORLDS } from '../../src/WorldPresets.j
 import { duplicatePlacedObject } from '../../src/Duplicator.js';
 import { placePrimitive } from '../../src/Primitives.js';
 import { ModelDatabase } from '../../src/ModelDatabase.js';
+import { WorldDatabase } from '../../src/WorldDatabase.js';
 import { ConstructionManager } from '../../src/ConstructionManager.js';
 import { PrimitiveMenu } from '../../src/PrimitiveMenu.js';
 import { BuildGizmo } from '../../src/BuildGizmo.js';
@@ -153,6 +154,26 @@ async function loadPresetWorld(name) {
   return label;
 }
 
+// The main app's openGalleryWorld, against this edition's gallery. See the notes there. A
+// ?still=1 screenshot wants the arrival frame, not the flight to it, as with a preset.
+async function openGalleryWorld(id) {
+  const records = await fetchLinkedWorld(id);
+  cinema.release();
+  buildGizmo.deactivate();
+  objectMenu.close();
+  primitiveMenu.close();
+  const spawn = await worldStore.loadFromRecords(records);
+  setSunPhase(null);
+  environment.setPhase(null);
+  lastSunPhase = null;
+  menu.resetSunSlider();
+  player.setEyeHeight(EYE_HEIGHT);
+  player.resetTo(spawn || undefined);
+  const swoop = params.has('still') ? null : arrivalRig(cinema, spawn || undefined);
+  if (swoop) cinema.take('Arrival', swoop);
+  programManager.broadcast('start');
+}
+
 const SUN_EVENTS = [[0.2, 'sunrise'], [0.5, 'noon'], [0.72, 'sunset'], [0.92, 'night']];
 let lastSunPhase = null;
 
@@ -217,15 +238,19 @@ const menuActions = {
     }
   },
   modelDatabase: () => { menu.setCollapsed(true); modelDatabase.open(); },
+  worldDatabase: () => { menu.setCollapsed(true); worldDatabase.open(); },
   saveWorld: async () => {
-    if (registry.count === 0) { menu.toast('Nothing to save yet.'); return; }
+    if (registry.count === 0) { menu.toast('Nothing to save yet.'); return false; }
     try {
       const records = [...registry.items.values()].map((item) => item.record).filter(Boolean);
       await exportWorldToFile(records);
+      worldStore.setChanged(false);
       menu.toast('World saved — check your downloads.', { tone: 'success' });
+      return true;
     } catch (err) {
       console.error('Failed to save world:', err);
       menu.toast('Could not save the world.', { tone: 'error' });
+      return false;
     }
   },
   loadWorldFile: () => loadWorldInput.click(),
@@ -288,6 +313,7 @@ const menu = new Menu({
   onYouTubeClick: menuActions.youTube,
   onCreatePrimitiveClick: menuActions.createPrimitive,
   onModelDatabaseClick: menuActions.modelDatabase,
+  onWorldDatabaseClick: menuActions.worldDatabase,
   onSaveWorldClick: menuActions.saveWorld,
   onLoadWorldClick: menuActions.loadWorldFile,
   onLoadPresetClick: menuActions.loadPreset,
@@ -297,7 +323,6 @@ const menu = new Menu({
   onSunPhaseChange: menuActions.sunPhase,
   onSettingsClick: menuActions.settings,
   onClearClick: menuActions.clear,
-  galleryUrl: HIFI_GALLERY_URL,
   onVRClick: async () => {
     menu.setCollapsed(true);
     buildGizmo.deactivate();
@@ -314,9 +339,17 @@ const markerTrail = new MarkerTrail({ scene, onNotice: (message) => menu.toast(m
 programManager.marker = markerTrail;
 const playIconManager = new PlayIconManager({ scene, camera, domElement: canvas, registry, programManager, menu });
 const speechBubbles = new SpeechBubbleManager({ scene, registry });
-const worldStore = new WorldStore({ scene, registry, menu, programManager, playIconManager, webBrowserManager, speechBubbles, markerTrail });
+const worldStore = new WorldStore({ scene, registry, menu, programManager, playIconManager, webBrowserManager, speechBubbles, markerTrail, changesKey: 'edusim-hifi-world-changed' });
 // Ten times the main app's triangle allowance, the same ratio as HiFi's other budgets.
 const modelDatabase = new ModelDatabase({ scene, camera, registry, worldStore, menu, groundHeightAt, triangleLimit: 7500000 });
+const worldDatabase = new WorldDatabase({
+  menu,
+  worldStore,
+  galleryUrl: HIFI_GALLERY_URL,
+  openWorld: openGalleryWorld,
+  saveWorld: menuActions.saveWorld,
+  loadWorldFile: menuActions.loadWorldFile,
+});
 // PhotoMode only ever asks its renderer for the canvas it drew to.
 const photoMode = new PhotoMode({ scene, camera, renderer: { domElement: canvas }, registry, worldStore, menu, player, groundHeightAt, cinema });
 const settingsPanel = new SettingsPanel({ onChange: (name) => { if (name === 'motion') motion.clear(); } });
@@ -367,7 +400,12 @@ function takeLinkedWorldId() {
   return /^\d{1,9}$/.test(id) ? id : null;
 }
 async function fetchLinkedWorld(id) {
-  const res = await fetch(`${HIFI_WORLD_LINK_BASE}${encodeURIComponent(id)}`, { credentials: 'omit' });
+  let res;
+  try {
+    res = await fetch(`${HIFI_WORLD_LINK_BASE}${encodeURIComponent(id)}`, { credentials: 'omit' });
+  } catch {
+    throw new Error('Could not reach the HiFi gallery.');
+  }
   if (!res.ok) throw new Error(res.status === 404 ? 'That world is not in the HiFi gallery any more.' : 'The HiFi gallery could not be reached.');
   return parseWorldPayload(await res.text());
 }
@@ -411,9 +449,7 @@ worldStore.rehydrateAll()
   .then(async () => {
     if (linkedWorldId) {
       menu.toast('Opening the shared world…');
-      const records = await fetchLinkedWorld(linkedWorldId);
-      const spawn = await worldStore.loadFromRecords(records);
-      player.resetTo(spawn || undefined);
+      await openGalleryWorld(linkedWorldId);
       menu.toast('Shared world opened — this replaced what was here before.', { tone: 'success' });
       return;
     }
@@ -511,7 +547,7 @@ engine.runRenderLoop(() => {
 
 if (import.meta.env.DEV) {
   window.__debug = {
-    THREE, scene, camera, player, registry, worldStore, menu, menuActions, modelDatabase, playIconManager, programManager, programEditor, objectMenu,
+    THREE, scene, camera, player, registry, worldStore, menu, menuActions, modelDatabase, worldDatabase, playIconManager, programManager, programEditor, objectMenu,
     constructionManager, primitiveMenu, buildGizmo, drawTool, importManager, webBrowserManager, markerTrail, cinema, vrView,
     engine, bscene, bcamera, environment, terrain, pipeline, grass, water, lights, kit, natives, bridge, refreshGround, touchNav,
   };

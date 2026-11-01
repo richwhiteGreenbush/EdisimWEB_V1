@@ -53,6 +53,11 @@ export default defineConfig({
   // same-origin -- see WorldLink.js.
   base: './',
   plugins: [captureSink()],
+  // The dev server has no gallery, and answers an unknown path with the app's own index.html.
+  // Handing these two to the local mirror (./serve-local.sh) makes the World Database and
+  // ?world= links work in dev while keeping window.__debug. With the mirror stopped they answer
+  // 500, which the panel reports. Dev only: production serves them from the same docroot.
+  server: { proxy: { '/worlds/': 'http://localhost:8080' } },
   optimizeDeps: {
     include: [
       'three',

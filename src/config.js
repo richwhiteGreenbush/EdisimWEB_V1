@@ -1743,14 +1743,9 @@ export const WEB_BROWSER_DEFAULT_URL = 'https://edusim3dweb.com';
 export const WORLD_LINK_PARAM = 'world';
 export const WORLD_LINK_BASE = '/worlds/download.php?id=';
 
-// The shared world gallery, opened in a new tab by Menu > Load World > Get More Worlds.
-//
-// The mixed-content rule described above does NOT apply here, and the difference is worth
-// stating because the two look alike: that one is an http: IFRAME inside an https: page,
-// which browsers block. This is a top-level navigation into a new tab, which they do not
-// -- so this link kept working through the whole period the browser panel was blank, and
-// would keep working if the app were ever served over https again.
-export const WORLD_GALLERY_URL = 'http://edusim3dweb.com/worlds/';
+// The shared world gallery: where the World Database panel fetches its list and its pictures,
+// and where its links lead. Root-relative for the reason WORLD_LINK_BASE is.
+export const WORLD_GALLERY_URL = '/worlds/';
 export const EDIT_ICON_SIZE = 0.7; // feet, billboard sprite size
 export const EDIT_ICON_MARGIN = 0.6; // feet above the panel's bounding-box top
 

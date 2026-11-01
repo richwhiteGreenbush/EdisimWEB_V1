@@ -30,9 +30,9 @@ REMOTE_SITE="${REMOTE_SITE:-/usr/home/richwhite/public_html/edusim3d.me}"
 REMOTE_DB="${REMOTE_DB:-/usr/home/richwhite/public_html/edusim3d.me/worlds}"
 REMOTE_APP="${REMOTE_APP:-/usr/home/richwhite/public_html/edusim3d.me/app}"
 # Edusim HiFi (the Babylon.js edition) and ITS gallery. They deploy as SIBLINGS in the same
-# docroot for the reason /app/ sits beside /worlds/: the HiFi app's Get More Worlds button is
-# the relative link ../hifiworlds/, and "Open this world in Edusim HiFi" hands the app an id
-# that it fetches back from /hifiworlds/download.php -- which has to be same-origin.
+# docroot for the reason /app/ sits beside /worlds/: the HiFi app's World Database panel fetches
+# /hifiworlds/catalog.php, and "Open this world in Edusim HiFi" hands the app an id that it
+# fetches back from /hifiworlds/download.php -- which has to be same-origin.
 REMOTE_HIFI="${REMOTE_HIFI:-/usr/home/richwhite/public_html/edusim3d.me/hifi}"
 REMOTE_HIFIDB="${REMOTE_HIFIDB:-/usr/home/richwhite/public_html/edusim3d.me/hifiworlds}"
 

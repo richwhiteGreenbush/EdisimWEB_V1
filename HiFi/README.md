@@ -14,13 +14,11 @@ npm run build             # production build to HiFi/dist/
 cd .. && ./serve-local.sh # http://localhost:8080/hifi/  -- the app WITH its gallery
 ```
 
-**To test Get More Worlds or a `?hifiworld=` link, use `./serve-local.sh`, not `npm run dev` or
-`vite preview`.** Both of those serve the app by itself at a root. The Get More Worlds button is
-the relative link `../hifiworlds/`, which is right in production (the gallery is a sibling of
-`/hifi/` in one docroot) and meaningless on a Vite server that has no gallery — Vite answers a
-path it does not know with the app's own `index.html`, so you get an unstyled "Starting the
-renderer…" page. `serve-local.sh` mounts `/hifi/` beside `/hifiworlds/` under Apache + PHP-FPM,
-the way production does, builds HiFi if needed and seeds the gallery on first run.
+**To test the World Database panel or a `?hifiworld=` link, the gallery has to be there.**
+`./serve-local.sh` mounts `/hifi/` beside `/hifiworlds/` under Apache + PHP-FPM, the way production
+does, builds HiFi if needed and seeds the gallery on first run. `npm run dev` proxies `/hifiworlds/`
+to that mirror, so the panel works in dev while it is running and reports a failure when it is not.
+`vite preview` has no gallery at all.
 
 Walk with the arrow keys, drag to look. The **☰ Menu** is the main app's own. The **✦ HiFi**
 chip (bottom-left) has the renderer's settings — quality tier, wind — and a list of every
