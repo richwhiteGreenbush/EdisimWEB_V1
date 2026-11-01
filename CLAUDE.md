@@ -4620,10 +4620,10 @@ says "this used to be Get More Worlds". The sources now describe the panel, so a
 
 ### The Model Database, and a model a student can pull out of shape
 
-Menu ▸ **Model Database**: 225 ready-made educational models in ten types, searchable,
+Menu ▸ **Model Database**: 240 ready-made educational models in eleven types, searchable,
 placeable in every world in both editions, and shapeable with the same hammer tools as a cube.
 `src/models/catalog.js` is the one table, `src/ModelDatabase.js` the panel, `src/models/index.js`
-the placing, and `src/models/builders/` holds the 208 built for it, one lazy chunk per family. The
+the placing, and `src/models/builders/` holds the 223 built for it, one lazy chunk per family. The
 other 17 are `PROP_BUILDERS` entries from worlds. **`src/models/ModelKit.js` is the shared kit:** the
 signed-distance `Sculpt`, plus a closed `tube`, a correct `lathe`, `outward` and `alongMatrix`. It came
 out of `builders/Life.js`, proven byte-identical by hashing all six models before and after. `docs/guide/models.html` is GENERATED from the
@@ -4692,7 +4692,7 @@ until a student asks, and `go back to start` means where they put it.
 `realSize` must be one a reference would back, and when a model departs from the subject the card
 says so. That is why the Parthenon says all 46 columns stand so they can be counted, the Rosetta
 Stone that its writing is representative, the printing press that none of Gutenberg's survives, and
-the orrery that it turns as one piece. **All 225 cards have been fact-checked against published
+the orrery that it turns as one piece. **The first 225 cards have been fact-checked against published
 sources, by an agent with web search rather than by a person.** It reviewed about 860 claims and
 corrected 64 of them, and the kinds worth remembering are a wrong term (the prism's "refraction"
 for dispersion) and a popular factoid (the monarch's great-grandchild). Most checks read a search
@@ -4717,8 +4717,8 @@ edition, against a dev server on 5199, or `APP_URL=http://localhost:5183/` for H
 **Performance, measured on the development Mac in headless Chrome at 1366x768**: the Park alone is
 757 calls / 544k drawn. The Park plus twelve of the heaviest models is 855 calls / **1.84M drawn**,
 at 60fps there, which is OVER the 1.5M working target and is why the panel carries a fullness meter
-(750k of geometry, half of what is drawn) and warns without blocking. One of each of the 225 is
-about 8.6M triangles of geometry. Builders take up to about 300ms on the main thread once loaded and
+(750k of geometry, half of what is drawn) and warns without blocking. One of each of the first 225 is
+about 8.6M triangles of geometry, and of all 240 about 9.2M. Builders take up to about 300ms on the main thread once loaded and
 about 1s on a first build; the signed-distance models in `builders/Life.js` are the slowest. **NOT YET MEASURED ON AN
 i5/i7 CHROMEBOOK**, and several models carry 2048px canvases, which is the first place to look if
 shared memory runs short.
@@ -4739,6 +4739,57 @@ the gas. Every one honours `reducedMotion()`.
 
 **Adding a model**: an entry in the table, a builder (or a `prop`), then `check-models`,
 `model-pictures --only <id>`, `build-models-page`, and `build-stats-vocab`.
+
+### World Geography, and a landscape as a block cut out of the Earth
+
+The Model Database's eleventh type (`category: 'geography'`), per Rich: fifteen models in
+`builders/GeoLand.js`, `GeoLand2.js` and `GeoEarth.js`, on the kit in `src/models/geo/`. Six are about
+maps (a globe, latitude and longitude, climate zones, why maps stretch, a compass rose, contour lines)
+and nine are places: the Nile Delta, a meandering river, the Himalaya, the Grand Canyon, the Sahara, a
+Norwegian fjord, a Pacific atoll, the Amazon and the Philippine rice terraces.
+
+**`GeoKit.terrainBlock` IS ONE DESCRIPTION USED THREE TIMES**: a height function gives the mesh, the
+per-texel painting of the top and the per-texel painting of the four cut faces, so a river on top and
+the same river in the cut face cannot disagree. A tint can only be as detailed as the mesh under it,
+so everything finer than a grid cell is in the painting, including a second `fine` height used only
+to shade it.
+
+**A CUT FACE HAS TO CUT THROUGH THE SUBJECT.** The Grand Canyon first ran left to right and its front
+was six feet of flat stripes with the canyon hidden behind them. It runs front to back now, so the
+face is its profile. The atoll's centre sits on the front edge for the same reason, which is what
+puts the sunken volcano in view, and the Sahara's pool is cut by the front to show the water table.
+
+**The Grand Canyon's cliffs come from a table.** `CANYON_LAYERS` gives each real layer a top height
+and a horizontal run, hard rock a short run and shale a long one, so cliffs and benches are the
+consequence of the geology instead of being sculpted, and the cut face reads the same table.
+
+**COASTLINES ARE REAL.** `geo/landData.js` is Natural Earth's public-domain 1:50m land, simplified to
+about 5,300 points (50 KB, in the lazy chunk only). Deserts, forests and ranges in `geo/GeoEarth.js`
+are hand-placed ellipses and the climate zones are rules of thumb, and the cards say simplified. **No
+country borders anywhere**, because they would date and some are disputed.
+
+Things it hit:
+
+- **A distance to a winding river cannot be asked per texel, and rounding it to a cache shows.** Both
+  the water and the bank came out dotted. `sampledField` samples once on a grid and reads back smoothly.
+- **A height grid cannot draw a terrace**: a step at an angle across the grid is a sawtooth. The rice
+  terraces are rings that follow the contours, every tread and riser a real strip.
+- **Baked light has to have a floor.** Down to zero, the steep face of a dune is a black hole.
+- **A contour at the zero level wanders across the plain tracing noise**, so lines start at level 1.
+- **A globe's white mountain spine reads as a line drawn on the map.** Only Tibet shows white.
+- **A wide sign's shadow is a dark bar across what it names**, so label plates cast none.
+- **Why Maps Stretch has its curl only as a picture of unrolling.** The sheet's longitudes are not
+  aligned with the globe in front of it. A real projected sheet would have its printed side outward,
+  away from anyone looking at it, so this one is chosen so Greenland and Africa are clear of the globe.
+
+**Facts**: an agent with web search checked about 40 claims. None was wrong, and six were softened
+(the Sahara's area and sand share, the Amazon's area, light on the forest floor, when the Himalaya
+began, how tall emergents get). Most were confirmed from search summaries, not source pages, so **a
+teacher or subject expert should still read them.**
+
+**Performance, measured in node**: 19k to 60k triangles each, 2 to 6 meshes, no transparency, no point
+lights. Landscapes each carry two canvases of about 1400px and take up to about a second to paint on
+the main thread. **NOT YET MEASURED ON AN i5/i7 CHROMEBOOK.**
 
 ### Build a Village, a kit rather than twenty-five models
 
