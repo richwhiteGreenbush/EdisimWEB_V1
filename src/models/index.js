@@ -62,6 +62,8 @@ const BUILDER_CHUNKS = {
   geoland: () => import('./builders/GeoLand.js'),
   geoland2: () => import('./builders/GeoLand2.js'),
   geoearth: () => import('./builders/GeoEarth.js'),
+  citiesamerica: () => import('./builders/CitiesAmerica.js'),
+  citieseurope: () => import('./builders/CitiesEurope.js'),
 };
 
 export async function buildCatalogModel(id) {

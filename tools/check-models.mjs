@@ -278,6 +278,13 @@ const OPEN_EDGES = {
   'coral-atoll': 1620,
   'rainforest-layers': 892,
   'rice-terraces': 10116,
+  // City Dioramas. A building has no floor, a bar has no end caps and the land is a top sheet whose
+  // quay wall is a separate strip, none of which can be seen, so each counts as open.
+  'new-york-diorama': 7700,
+  'boston-diorama': 6800,
+  'london-diorama': 7750,
+  'paris-diorama': 8000,
+  'moscow-diorama': 6300,
 };
 // Reused models keep what their own world established; these rules bind what is built for here.
 const REUSED_SKIP = new Set(['outside', 'origin']);
@@ -306,7 +313,7 @@ for (const m of MODELS) {
 for (const category of MODEL_CATEGORIES) {
   if (!MODELS.some((m) => m.category === category.key)) fail(category.key, 'an empty category');
 }
-for (const [query, id] of [['nile', 'river-delta'], ['mercator', 'map-projection'], ['everest', 'himalaya-relief'], ['mitochondria', 'animal-cell'], ['t rex', 'tyrannosaurus-rex'], ['rex', 'tyrannosaurus-rex'], ['oregon trail', 'covered-wagon'], ['h2o', 'water-molecule'], ['hieroglyphs', 'rosetta-stone'], ['cochlea', 'human-ear'], ['ice age', 'woolly-mammoth'], ['euler', 'platonic-solids'], ['khipu', 'inca-quipu'], ['shakespeare', 'globe-theatre']]) {
+for (const [query, id] of [['manhattan', 'new-york-diorama'], ['kremlin', 'moscow-diorama'], ['haussmann', 'paris-diorama'], ['landfill', 'boston-diorama'], ['thames', 'london-diorama'], ['nile', 'river-delta'], ['mercator', 'map-projection'], ['everest', 'himalaya-relief'], ['mitochondria', 'animal-cell'], ['t rex', 'tyrannosaurus-rex'], ['rex', 'tyrannosaurus-rex'], ['oregon trail', 'covered-wagon'], ['h2o', 'water-molecule'], ['hieroglyphs', 'rosetta-stone'], ['cochlea', 'human-ear'], ['ice age', 'woolly-mammoth'], ['euler', 'platonic-solids'], ['khipu', 'inca-quipu'], ['shakespeare', 'globe-theatre']]) {
   if (searchModels(query)[0]?.id !== id) fail(`search "${query}"`, `first result is ${searchModels(query)[0]?.id}`);
 }
 if (searchModels('xyzzy').length) fail('search "xyzzy"', 'should find nothing');
