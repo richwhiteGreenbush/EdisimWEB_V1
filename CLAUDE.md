@@ -4620,10 +4620,10 @@ says "this used to be Get More Worlds". The sources now describe the panel, so a
 
 ### The Model Database, and a model a student can pull out of shape
 
-Menu ▸ **Model Database**: 260 ready-made educational models in twelve types, searchable,
+Menu ▸ **Model Database**: 261 ready-made educational models in twelve types, searchable,
 placeable in every world in both editions, and shapeable with the same hammer tools as a cube.
 `src/models/catalog.js` is the one table, `src/ModelDatabase.js` the panel, `src/models/index.js`
-the placing, and `src/models/builders/` holds the 243 built for it, one lazy chunk per family. The
+the placing, and `src/models/builders/` holds the 244 built for it, one lazy chunk per family. The
 other 17 are `PROP_BUILDERS` entries from worlds. **`src/models/ModelKit.js` is the shared kit:** the
 signed-distance `Sculpt`, plus a closed `tube`, a correct `lathe`, `outward` and `alongMatrix`. It came
 out of `builders/Life.js`, proven byte-identical by hashing all six models before and after. `docs/guide/models.html` is GENERATED from the
@@ -4803,6 +4803,21 @@ teacher or subject expert should still read them.**
 **Performance, measured in node**: 19k to 60k triangles each, 2 to 6 meshes, no transparency, no point
 lights. Landscapes each carry two canvases of about 1400px and take up to about a second to paint on
 the main thread. **NOT YET MEASURED ON AN i5/i7 CHROMEBOOK.**
+
+### The Great Barrier Reef, and a landscape with a room in it
+
+`builders/GeoReef.js`, one model in the World Geography type, per Rich. **Its one idea is that a reef is a thin living skin on rock its ancestors built**, so the block runs coast, lagoon, ribbon reef, Coral Sea, and the front is opened like a display case: corals and fish in the room, and the limestone in section directly under them. From above it is the turquoise map everyone knows, painted on the water from the same `bed()` the mesh is built from. The stretch is made up, and both the plate and the card say so: it gathers Heart Reef (the Whitsundays), ribbon reefs (the north) and rainforest down to the coast.
+
+- **It cannot use `terrainBlock`, which is four meshes and has no room.** Six is the budget, whatever the coral count: ground, water, coral, fish, scenery, labels. The room's back wall stands exactly on a row of the ground's grid, so the wall and the floor share stations and no crack can open.
+- **The water casts no shadow, or the sun never reaches the corals.** The museum skylight's rule, on a sheet covering the whole model.
+- **Every fish is one mesh.** Each animal's slice of the buffer is rewritten from its own path, and a body wave grows toward the tail so it swims rather than slides. The wave's sine is split into per-vertex constants so that a vertex only multiplies, and half the animals update each frame. The turtle's flippers carry their own hinges.
+- **A wide section label is clipped by the outline it sits under.** The reef is narrower at the top than at the bottom, so text has to fit the width at its own height.
+- **A slope up to the coast is not a reef.** Painting the floor by height alone turned the coastal shallows pink, so anything reef-coloured is also gated on distance from the shore.
+- **Depth is applied to colour, in both the painting and the vertex tint**: water takes the red out first, so the wall's corals are visibly bluer than the lagoon's.
+
+**Facts**: checked against Wikipedia and NOAA's coral pages. The Great Barrier Reef Marine Park Authority's own page timed out, so **its figures reached the card second-hand, and a teacher or subject expert should still read them.**
+
+**Performance, measured in node, not in a frame**: 58.5k triangles, 6 meshes, 0 transparent, 0 point lights. About 1.9s to build on the development Mac, nearly all of it painting the ground and water canvases, against the up-to-a-second recorded for the other landscapes, and those canvases are the first thing to cut if a Chromebook stalls on it. **NOT YET MEASURED ON AN i5/i7 CHROMEBOOK.**
 
 ### City Dioramas, and a whole city as one record
 
