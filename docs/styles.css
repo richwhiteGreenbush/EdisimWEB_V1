@@ -832,14 +832,14 @@ section[id], .res-group, .anchor-alias { scroll-margin-top: calc(var(--nav-h) + 
   gap: 16px;
 }
 
-/* The two world databases: big, side by side, straight under the launch button. Green
+/* The three databases: big, side by side, straight under the launch button. Green
    for the main gallery (the colour of the app's own World Database button), night-blue and gold for
-   HiFi (its own band's colours further down). */
+   HiFi (its own band's colours further down), and the guide's teal for the models. */
 .hero-dbs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
-  width: min(820px, 100%);
+  width: min(1120px, 100%);
   margin-top: 26px;
 }
 
@@ -910,8 +910,18 @@ section[id], .res-group, .anchor-alias { scroll-margin-top: calc(var(--nav-h) + 
 .hero-db-hifi .hero-db-text small { color: #cfe0ef; }
 .hero-db-hifi .hero-db-go { color: #ffd98a; }
 
-@media (max-width: 680px) {
-  .hero-dbs { grid-template-columns: 1fr; width: min(440px, 100%); }
+.hero-db-models {
+  background: #dff5f7;
+  box-shadow: 6px 6px 0 #1f8a99;
+}
+
+.hero-db-models:hover,
+.hero-db-models:focus-visible { box-shadow: 9px 9px 0 #1f8a99; }
+
+.hero-db-models .hero-db-icon { background: #1f8a99; }
+
+@media (max-width: 960px) {
+  .hero-dbs { grid-template-columns: 1fr; width: min(460px, 100%); }
 }
 
 .hero-research {

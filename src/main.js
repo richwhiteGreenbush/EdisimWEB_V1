@@ -33,7 +33,9 @@ import { Cinema, arrivalRig, flyRig } from './Cinema.js';
 import { PhotoMode } from './PhotoMode.js';
 import { SettingsPanel } from './SettingsPanel.js';
 import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD, WORLD_GALLERY_URL } from './config.js';
-import { takeLinkedWorldId, fetchLinkedWorld } from './WorldLink.js';
+import { takeLinkedWorldId, fetchLinkedWorld, linkedInspectModelId } from './WorldLink.js';
+import { MODEL_BY_ID } from './models/catalog.js';
+import { reducedMotion } from './Settings.js';
 import { enableBuildStats, setStatsWorld } from './BuildStats.js';
 
 // `?studio` opens the Social Media Studio (src/studio/) instead of the app's own boot: the
@@ -41,6 +43,11 @@ import { enableBuildStats, setStatsWorld } from './BuildStats.js';
 // because it changes what boots and whether anything is saved.
 const studioMode = new URLSearchParams(window.location.search).has('studio');
 let studio = null;
+
+// `?inspect=animal-cell` opens one model in a space of its own (src/InspectSpace.js). Read here for
+// the same reason: nothing is rehydrated or saved, so the student's own world is never touched.
+const inspectModelId = studioMode ? null : linkedInspectModelId((id) => MODEL_BY_ID.has(id));
+let inspect = null;
 
 const canvas = document.getElementById('scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -397,7 +404,7 @@ const speechBubbles = new SpeechBubbleManager({ scene, registry, camera });
 const worldStore = new WorldStore({ scene, registry, menu, programManager, playIconManager, webBrowserManager, speechBubbles, markerTrail });
 // The studio films preset worlds one after another; none of that may overwrite the world
 // this browser has saved. See WorldStore.persistent.
-if (studioMode) worldStore.persistent = false;
+if (studioMode || inspectModelId) worldStore.persistent = false;
 
 const modelDatabase = new ModelDatabase({ scene, camera, registry, worldStore, menu, groundHeightAt });
 const worldDatabase = new WorldDatabase({
@@ -493,7 +500,7 @@ programManager.onProgramWarning = (id, message) => menu.toast(message, { tone: '
 // `?world=24` on the address opens that world out of the gallery. Read -- and stripped
 // from the url -- BEFORE anything is built, so the boot world is never built just to be
 // thrown away a moment later, and so a refresh cannot replay the link. See WorldLink.js.
-const linkedWorldId = studioMode ? null : takeLinkedWorldId();
+const linkedWorldId = studioMode || inspectModelId ? null : takeLinkedWorldId();
 
 // The activation event the whole funnel is measured against: a session that got as far
 // as the app itself. Fired here rather than left to the page counter in
@@ -507,7 +514,20 @@ const linkedWorldId = studioMode ? null : takeLinkedWorldId();
 try {
   if (!studioMode) window.edusimCount?.('app', '/app/');
 } catch (err) { /* counting must never delay the boot */ }
-if (!studioMode) enableBuildStats();
+if (!studioMode && !inspectModelId) enableBuildStats();
+
+if (inspectModelId) {
+  // A lazy chunk, so the space costs a student's ordinary boot nothing at all.
+  import('./InspectSpace.js')
+    .then(({ openInspectSpace }) => openInspectSpace({
+      id: inspectModelId, scene, renderer, camera, player, cinema, worldStore, registry,
+    }))
+    .then((space) => { inspect = space; })
+    .catch((err) => {
+      console.error('Could not open the inspect space:', err);
+      menu.toast('Could not open that model.', { tone: 'error' });
+    });
+}
 
 if (studioMode) {
   // Loaded only when asked for, so the studio costs a student's boot nothing at all. It
@@ -527,7 +547,7 @@ if (studioMode) {
     });
 }
 
-if (!studioMode) worldStore
+if (!studioMode && !inspectModelId) worldStore
   .rehydrateAll()
   .then(async () => {
     if (linkedWorldId) {
@@ -610,6 +630,7 @@ if (import.meta.env.DEV) {
     worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager, speechBubbles,
     webBrowserManager, vrView, constructionManager, primitiveMenu, markerTrail, buildGizmo,
     motion, cinema, photoMode, settingsPanel, windUniforms, setWind, modelDatabase, worldDatabase,
+    get inspect() { return inspect; },
     // Every menu row, callable. `loadPreset` is the one that cannot be reached any other
     // way now that the menu lists no worlds at all: a preset is opened by a ?world= link
     // against the live gallery, which a checkout under development is not. Building the
@@ -641,6 +662,7 @@ function frame(dt, { render = true } = {}) {
   // wind and anything reading the camera this frame agree about where the student is.
   tickWind(dt, camera);
   registry.tick(dt, camera);
+  inspect?.tick(dt, reducedMotion());
   motion.tick(dt);
   programManager.tick();
   // The studio's director: after programs have moved things this frame (a shot that

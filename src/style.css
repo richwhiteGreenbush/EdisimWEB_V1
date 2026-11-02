@@ -2404,3 +2404,93 @@ body.photo-mode .stretch-done-chip {
   font-size: 11px;
   opacity: 0.75;
 }
+
+/* ---------------------------------------------------------------- the inspect space
+   ?inspect=<model>, src/InspectSpace.js. The menu is hidden because everything in it either saves
+   the world or replaces it, and this space does neither. The HUD sits where the menu was, at the
+   menu's own z-index, so the object menu, the hammer panel and every modal still open over it. */
+body.inspect-mode #menu { display: none !important; }
+
+.inspect-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  background: #16222e;
+  color: #f2f5f7;
+  text-align: center;
+  font-family: Fredoka, Nunito, "Helvetica Neue", Arial, sans-serif;
+}
+.inspect-veil b { font-size: clamp(1.6rem, 5vw, 2.6rem); font-weight: 700; }
+.inspect-veil small { font-size: 1rem; opacity: 0.8; }
+.inspect-veil a { color: #7dd3fc; font-size: 1.05rem; }
+
+.inspect-hud {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: min(1120px, calc(100vw - 24px));
+  padding: 8px 12px 8px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(20, 26, 32, 0.84);
+  color: #f2f5f7;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  font-family: Nunito, "Helvetica Neue", Arial, sans-serif;
+}
+.inspect-name { flex: none; max-width: 240px; }
+.inspect-eyebrow {
+  display: block;
+  color: var(--inspect-accent, #7dd3fc);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.inspect-title {
+  margin: 0;
+  font-family: Fredoka, Nunito, "Helvetica Neue", Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+.inspect-note { flex: 1; min-width: 0; margin: 0; font-size: 13px; line-height: 1.3; opacity: 0.86; }
+.inspect-actions { flex: none; display: flex; flex-wrap: wrap; gap: 6px; }
+.inspect-btn {
+  display: inline-block;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f2f5f7;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
+  cursor: pointer;
+}
+.inspect-btn:hover { background: rgba(255, 255, 255, 0.18); }
+.inspect-btn:focus-visible { outline: 2px solid var(--inspect-accent, #7dd3fc); outline-offset: 2px; }
+.inspect-btn-go { border-color: var(--inspect-accent, #7dd3fc); }
+
+/* Below this the sentence goes, and the D-pad says how to walk anyway. On a phone the bar stacks. */
+@media (max-width: 1040px) {
+  .inspect-note { display: none; }
+  .inspect-hud { justify-content: space-between; }
+}
+@media (max-width: 720px) {
+  .inspect-hud { flex-direction: column; align-items: stretch; gap: 7px; }
+  .inspect-name { max-width: none; }
+  .inspect-title { font-size: 18px; }
+}
