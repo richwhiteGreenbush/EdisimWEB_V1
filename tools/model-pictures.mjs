@@ -3,13 +3,22 @@
 //   npx vite --port 5199 --strictPort              (in another terminal)
 //   node tools/model-pictures.mjs                  every model's card picture and turntable
 //   node tools/model-pictures.mjs --only violin,djembe
+//   node tools/model-pictures.mjs --guide          only the guide page's modal turntables
+//   node tools/model-pictures.mjs --guide --only violin,djembe
 //   node tools/model-pictures.mjs --shot violin    look at one model: writes scratch/model-shots/
 //   node tools/model-pictures.mjs --shot violin --look 3,5,4,0,4,0 --name scroll
 //                                                  one close-up from eye x,y,z toward x,y,z, in feet
 //                                                  at scale 1: writes scratch/model-shots/violin-scroll.jpg
 //
 // The default writes three places: public/models/ and HiFi/public/models/ (each edition serves
-// its own copy) and docs/assets/models/ (the card pictures only, for the teacher page).
+// its own copy) and docs/assets/models/ (the card pictures and the modal turntables, for the
+// teacher page).
+//
+// A modal's turntable is bigger and finer than the panel's: 36 frames of 480px against 12 of 300,
+// laid out 6 x 6 rather than in one long strip, since a 17,000px image is past what some graphics
+// chips will hold. It also stands the camera at ONE distance for the whole turn. The panel's refits
+// at every frame, which at a slow rotation shows as a long model breathing in and out. The page
+// reads these three numbers too (tools/build-models-page.mjs imports them), so they cannot disagree.
 //
 // --shot is the check for a model being built. It writes five views fitted to the model, and
 // four from a 5ft eye six feet from its surface at its catalogue size, which is the distance a
@@ -26,6 +35,7 @@ const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/M
 const THUMB = 360;
 const SPIN = 300;
 const SPIN_FRAMES = 12;
+export const GUIDE_SPIN = { size: 480, frames: 36, columns: 6, backdrop: '#6b7883' };
 
 const argv = process.argv.slice(2);
 const flag = (name) => {
@@ -36,6 +46,7 @@ const shotId = flag('shot');
 const only = flag('only')?.split(',').map((s) => s.trim()).filter(Boolean) ?? null;
 const look = flag('look')?.split(',').map(Number) ?? null;
 const lookName = flag('name') || 'look';
+const guideOnly = argv.includes('--guide');
 
 async function loadPlaywright() {
   try {
@@ -214,6 +225,48 @@ window.__stage = await (async () => {
       dispose(stage);
       return { thumb, spin };
     },
+    async guideSpin(id, { size, frames, columns, backdrop }) {
+      const stage = await setup(id, { scaled: false });
+      // Flat, where the other pictures have a gradient: a smooth gradient at this compression shows
+      // as a faint plaid of blocks once it is on screen at this size. The page puts the same colour
+      // behind the picture and draws the vignette itself, in CSS.
+      stage.scene.background = new THREE.Color(backdrop);
+      stage.model.rotation.y = stage.entry.yaw ?? 0;
+      stage.model.updateMatrixWorld(true);
+      stage.box.makeEmpty();
+      const part = new THREE.Box3();
+      stage.model.traverse((n) => {
+        if (!n.isMesh || !n.geometry) return;
+        part.copy(n.geometry.boundingBox).applyMatrix4(n.matrixWorld);
+        stage.box.union(part);
+      });
+      stage.box.getCenter(stage.centre);
+      const elevation = THREE.MathUtils.degToRad(stage.entry.pictureElevation ?? 16);
+      const azimuth = stage.entry.yaw ? 0 : 0.42;
+      // The furthest back any frame of the turn needs to stand, held for all of them.
+      const dir = new THREE.Vector3();
+      const at = (i) => azimuth + (i / frames) * Math.PI * 2;
+      let far = 0;
+      for (let i = 0; i < frames; i += 3) {
+        far = Math.max(far, fitCamera(stage, at(i), elevation).position.distanceTo(stage.centre));
+      }
+      const sheet = document.createElement('canvas');
+      sheet.width = size * columns;
+      sheet.height = size * Math.ceil(frames / columns);
+      const ctx = sheet.getContext('2d');
+      for (let i = 0; i < frames; i += 1) {
+        const camera = fitCamera(stage, at(i), elevation);
+        dir.copy(camera.position).sub(stage.centre).normalize();
+        camera.position.copy(stage.centre).addScaledVector(dir, far);
+        camera.far = far + stage.radius * 12;
+        camera.lookAt(stage.centre);
+        camera.updateProjectionMatrix();
+        ctx.drawImage(draw(stage, camera, size, size), (i % columns) * size, Math.floor(i / columns) * size);
+      }
+      const data = sheet.toDataURL('image/webp', 0.6);
+      dispose(stage);
+      return data;
+    },
     async look(id, [ex, ey, ez, tx, ty, tz]) {
       const stage = await setup(id, { scaled: false });
       const camera = new THREE.PerspectiveCamera(50, 16 / 10, 0.02, 4000);
@@ -282,12 +335,24 @@ async function main() {
   } else {
     const ids = only ?? await page.evaluate(() => window.__stage.ids);
     for (const id of ids) {
+      if (guideOnly) {
+        try {
+          const data = await page.evaluate(([modelId, spec]) => window.__stage.guideSpin(modelId, spec), [id, GUIDE_SPIN]);
+          writeData(resolve(ROOT, `docs/assets/models/spin/${id}.webp`), data);
+          console.log(`${id}: ok`);
+        } catch (err) {
+          console.log(`${id}: FAILED ${err.message.split('\n')[0]}`);
+        }
+        continue;
+      }
       let pictures;
       try {
         pictures = await page.evaluate(
           ([modelId, t, s, f]) => window.__stage.pictures(modelId, t, s, f),
           [id, THUMB, SPIN, SPIN_FRAMES],
         );
+        const guide = await page.evaluate(([modelId, spec]) => window.__stage.guideSpin(modelId, spec), [id, GUIDE_SPIN]);
+        writeData(resolve(ROOT, `docs/assets/models/spin/${id}.webp`), guide);
       } catch (err) {
         console.log(`${id}: FAILED ${err.message.split('\n')[0]}`);
         continue;
@@ -306,7 +371,10 @@ async function main() {
   await browser.close();
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Only when run as a script: tools/build-models-page.mjs imports GUIDE_SPIN from this file.
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

@@ -107,7 +107,7 @@ function unscaledBox(object3D) {
 // so this solves height and width separately and takes the larger, and the margin keeps it off
 // the bezel. A tall model is the case that decides most of these: the Saturn V at 25ft has to
 // stand well back or its top is above the screen.
-function framingDistance({ width, height, depth, eye, aspect }) {
+export function framingDistance({ width, height, depth, eye, aspect }) {
   const halfV = THREE.MathUtils.degToRad(35) * 0.85;
   const halfH = Math.atan(Math.tan(THREE.MathUtils.degToRad(35)) * Math.max(aspect, 0.5)) * 0.85;
   const forTop = height > eye ? (height - eye) / Math.tan(halfV) : 0;
@@ -268,17 +268,24 @@ export async function placeCatalogModel({ id, scene, camera, registry, groundHei
   object3D.rotation.y = (entry.grid ? Math.round(facing / snap) * snap : facing) + yawOff;
   scene.add(object3D);
 
+  const record = catalogModelRecord(entry, {
+    position: object3D.position.toArray(),
+    rotation: [object3D.rotation.x, object3D.rotation.y, object3D.rotation.z],
+    scale: object3D.scale.toArray(),
+  });
+  return { object3D, record, tick: object3D.userData.tick };
+}
+
+// One model's record, wherever it is going to stand: the panel's placement above, or the inspect
+// space (src/InspectSpace.js).
+export function catalogModelRecord(entry, transform) {
   const record = {
     id: uuid(),
     kind: 'catalog-model',
     createdAt: Date.now(),
-    model: id,
+    model: entry.id,
     connections: [],
-    transform: {
-      position: object3D.position.toArray(),
-      rotation: [object3D.rotation.x, object3D.rotation.y, object3D.rotation.z],
-      scale: object3D.scale.toArray(),
-    },
+    transform,
   };
   if (entry.program) {
     record.program = STARTER_PROGRAMS[entry.program]();
@@ -287,7 +294,7 @@ export async function placeCatalogModel({ id, scene, camera, registry, groundHei
     // somebody last pressed Save in the middle of a lift-off. See the Math blocks notes.
     record.homeFromRecord = true;
   }
-  return { object3D, record, tick: object3D.userData.tick };
+  return record;
 }
 
 // Stretching has no undo in this app, so the catalogue's own size is one button away. Turning

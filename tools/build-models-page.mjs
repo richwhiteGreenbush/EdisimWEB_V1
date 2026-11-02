@@ -7,19 +7,27 @@
 // Pictures come from docs/assets/models/, written by tools/model-pictures.mjs. Links to the app
 // are absolute with a trailing slash, for the reason every other page under docs/ gives: these
 // files are also published to GitHub Pages, where a relative app/ is a dead end.
+//
+// Clicking a card opens a modal: the model turning slowly, from a sheet of 36 pictures in
+// docs/assets/models/spin/ (tools/model-pictures.mjs --guide), with everything already on the card
+// and an Inspect Model button that opens /app/?inspect=<id> (src/InspectSpace.js). It is pictures
+// rather than a live 3D view because this page must open instantly on any school computer, and
+// must not depend on the app being reachable: the sheet is part of the page and costs nothing
+// until somebody clicks. The modal's words are cloned from the card, so there is no second copy.
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { MODELS, MODEL_CATEGORIES } from '../src/models/catalog.js';
+import { GUIDE_SPIN } from './model-pictures.mjs';
 
 const APP = 'https://edusim3dweb.com/app/';
 const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const count = MODELS.length;
 
 const card = (m) => `
-        <article class="mc">
+        <article class="mc" id="model-${esc(m.id)}" data-model="${esc(m.id)}" data-type="${esc(MODEL_CATEGORIES.find((c) => c.key === m.category).label)}" data-accent="${esc(MODEL_CATEGORIES.find((c) => c.key === m.category).accent)}">
           <img src="../assets/models/${esc(m.id)}.webp" alt="${esc(m.title)}: ${esc(m.blurb)}" loading="lazy" width="360" height="360" />
           <div class="mc-body">
-            <h3>${esc(m.title)}</h3>
+            <h3><button type="button" class="mc-open" aria-haspopup="dialog">${esc(m.title)}</button></h3>
             <p>${esc(m.blurb)}</p>
             <ul>${m.facts.map((fact) => `<li>${esc(fact)}</li>`).join('')}</ul>
             <p class="mc-size"><b>Real size:</b> ${esc(m.realSize)}. <b>This model:</b> ${esc(m.shownAt)}.</p>
@@ -70,6 +78,47 @@ const page = `<!DOCTYPE html>
   .mc-size, .mc-meta { color: var(--muted); }
   .mc-meta { font-size: 0.85rem !important; }
   .mc-try { background: #f6f2ea; border-radius: 8px; padding: 0.45rem 0.6rem; }
+
+  /* The whole card opens the modal, and the title is the real button for keyboards and screen readers. */
+  .mc { cursor: pointer; transition: transform 0.14s ease, box-shadow 0.14s ease; }
+  .mc:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(36, 31, 26, 0.16); }
+  .mc-open { all: unset; cursor: pointer; }
+  .mc-open:focus-visible { outline: 3px solid #1f8a99; outline-offset: 3px; border-radius: 4px; }
+  @media (prefers-reduced-motion: reduce) { .mc { transition: none; } .mc:hover { transform: none; } }
+
+  .mm { width: min(980px, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); padding: 0; border: 0; border-radius: 16px; background: var(--paper); color: var(--ink); box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45); overflow: auto; }
+  .mm::backdrop { background: rgba(20, 24, 30, 0.72); }
+  .mm-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+  .mm-stage { position: relative; aspect-ratio: 1; background: ${GUIDE_SPIN.backdrop} center / cover no-repeat; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
+  .mm-stage.is-dragging { cursor: grabbing; }
+  .mm-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.35s ease; }
+  .mm-stage.is-ready canvas { opacity: 1; }
+  .mm-stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.1), transparent 45%, rgba(20, 28, 36, 0.34) 100%); }
+  .mm-hint, .mm-pause { z-index: 1; }
+  .mm-hint { position: absolute; left: 0.7rem; bottom: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 999px; background: rgba(20, 24, 30, 0.66); color: #fff; font-size: 0.82rem; font-weight: 700; }
+  .mm-pause { position: absolute; right: 0.7rem; bottom: 0.7rem; padding: 0.25rem 0.7rem; border: 0; border-radius: 999px; background: rgba(20, 24, 30, 0.66); color: #fff; font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+  .mm-pause:hover { background: rgba(20, 24, 30, 0.86); }
+  .mm-text { display: flex; flex-direction: column; min-width: 0; padding: 1.1rem 1.3rem 1.2rem; }
+  .mm-type { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+  .mm-text h2 { margin: 0.1rem 2rem 0.4rem 0; font-size: 1.7rem; }
+  .mm-body .mc-open { display: none; }
+  .mm-body h3 { display: none; }
+  .mm-body p { margin: 0.35rem 0; font-size: 0.97rem; }
+  .mm-body ul { margin: 0.4rem 0; padding-left: 1.1rem; font-size: 0.95rem; }
+  .mm-body li { margin-bottom: 0.2rem; }
+  .mm-go { margin-top: auto; padding-top: 0.8rem; }
+  .mm-inspect { display: block; padding: 0.7rem 1rem; border-radius: 12px; background: #1f8a99; color: #fff; font-family: Fredoka, Nunito, sans-serif; font-size: 1.12rem; font-weight: 600; text-align: center; text-decoration: none; }
+  .mm-inspect:hover { background: #18707d; }
+  .mm-inspect:focus-visible, .mm-close:focus-visible, .mm-pause:focus-visible { outline: 3px solid #ffab19; outline-offset: 2px; }
+  .mm-go small { display: block; margin-top: 0.35rem; color: var(--muted); font-size: 0.84rem; line-height: 1.35; text-align: center; }
+  .mm-close { position: absolute; top: 0.6rem; right: 0.7rem; z-index: 1; width: 2.2rem; height: 2.2rem; border: 0; border-radius: 50%; background: #e9e2d2; color: var(--ink); font-size: 1.15rem; line-height: 1; cursor: pointer; }
+  .mm-close:hover { background: #dcd2bc; }
+  @media (max-width: 760px) {
+    .mm-layout { grid-template-columns: 1fr; }
+    .mm-stage { aspect-ratio: auto; height: min(62vw, 42dvh); background-size: contain; }
+    .mm-stage canvas { left: 50%; right: auto; width: auto; height: 100%; aspect-ratio: 1; transform: translateX(-50%); }
+  }
+  @media print { .mm { display: none !important; } .mc { cursor: auto; } .mc-open { font: inherit; } }
   @media print {
     .mc-grid { grid-template-columns: 1fr 1fr; }
     .mc { flex-direction: row; }
@@ -147,6 +196,7 @@ const page = `<!DOCTYPE html>
     </aside>
 
     <h2 class="sec">Every model</h2>
+    <p class="no-print"><b>Click any model</b> to see it turn slowly, then press <b>Inspect Model</b> to walk around it in Edusim, in a space of its own.</p>
     <nav class="mc-toc no-print" aria-label="Model types">
         ${toc}
     </nav>
@@ -160,6 +210,166 @@ ${sections}
 
   </div>
 </main>
+
+<dialog class="mm no-print" id="model-modal" aria-labelledby="mm-title">
+  <button type="button" class="mm-close" aria-label="Close">✕</button>
+  <div class="mm-layout">
+    <div class="mm-stage" id="mm-stage">
+      <canvas width="${GUIDE_SPIN.size}" height="${GUIDE_SPIN.size}" aria-hidden="true"></canvas>
+      <span class="mm-hint">Drag to turn</span>
+      <button type="button" class="mm-pause" id="mm-pause">Pause</button>
+    </div>
+    <div class="mm-text">
+      <span class="mm-type" id="mm-type"></span>
+      <h2 id="mm-title"></h2>
+      <div class="mm-body" id="mm-body"></div>
+      <div class="mm-go">
+        <a class="mm-inspect" id="mm-inspect" href="${APP}">🔍 Inspect Model</a>
+        <small>Opens it on its own in Edusim, to walk around. Your own world stays just as you left it.</small>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(() => {
+  const FRAMES = ${GUIDE_SPIN.frames};
+  const COLUMNS = ${GUIDE_SPIN.columns};
+  const SIZE = ${GUIDE_SPIN.size};
+  const SECONDS_PER_TURN = 20;
+  const dialog = document.getElementById('model-modal');
+  if (!dialog.showModal) return; // A browser this old keeps the cards, which say everything anyway.
+  const stage = document.getElementById('mm-stage');
+  const canvas = stage.querySelector('canvas');
+  const ctx = canvas.getContext('2d');
+  const pause = document.getElementById('mm-pause');
+  const hint = stage.querySelector('.mm-hint');
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  let sheet = null;
+  let turning = true;
+  let turn = 0;      // Measured in frames, and fractional: the fraction is the crossfade.
+  let raf = 0;
+  let last = 0;
+  let opener = null;
+
+  // Two neighbouring pictures crossfaded, which is what makes 36 pictures read as a smooth turn at
+  // this speed. Without it the model clicks round ten degrees at a time.
+  function draw() {
+    if (!sheet) return;
+    const at = ((turn % FRAMES) + FRAMES) % FRAMES;
+    const a = Math.floor(at);
+    const paint = (i) => ctx.drawImage(sheet, (i % COLUMNS) * SIZE, Math.floor(i / COLUMNS) * SIZE, SIZE, SIZE, 0, 0, SIZE, SIZE);
+    ctx.globalAlpha = 1;
+    paint(a);
+    ctx.globalAlpha = at - a;
+    paint((a + 1) % FRAMES);
+    ctx.globalAlpha = 1;
+  }
+
+  function loop(now) {
+    raf = requestAnimationFrame(loop);
+    const dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+    if (!turning || dragging) return;
+    turn += dt * (FRAMES / SECONDS_PER_TURN);
+    draw();
+  }
+
+  function setTurning(on) {
+    turning = on;
+    pause.textContent = on ? 'Pause' : 'Play';
+  }
+
+  function open(card, { fromHash = false } = {}) {
+    const id = card.dataset.model;
+    opener = fromHash ? null : card.querySelector('.mc-open');
+    document.getElementById('mm-title').textContent = card.querySelector('.mc-open').textContent;
+    const type = document.getElementById('mm-type');
+    type.textContent = card.dataset.type;
+    type.style.color = card.dataset.accent;
+    const body = document.getElementById('mm-body');
+    body.replaceChildren(...card.querySelector('.mc-body').cloneNode(true).childNodes);
+    document.getElementById('mm-inspect').href = '${APP}?inspect=' + encodeURIComponent(id);
+
+    // The card's own picture shows at once, and the turntable fades in over it when it arrives.
+    const thumb = card.querySelector('img');
+    stage.style.backgroundImage = 'url("' + thumb.currentSrc + '")';
+    stage.classList.remove('is-ready');
+    sheet = null;
+    turn = 0;
+    setTurning(!calm.matches);
+    pause.hidden = true;
+    hint.hidden = true;
+    const image = new Image();
+    image.onload = () => {
+      if (dialog.dataset.model !== id) return;
+      sheet = image;
+      draw();
+      stage.classList.add('is-ready');
+      pause.hidden = false;
+      hint.hidden = false;
+    };
+    image.src = '../assets/models/spin/' + id + '.webp';
+
+    dialog.dataset.model = id;
+    if (!dialog.open) dialog.showModal();
+    last = performance.now();
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(loop);
+    if (!fromHash) history.replaceState(null, '', '#model-' + id);
+  }
+
+  dialog.addEventListener('close', () => {
+    cancelAnimationFrame(raf);
+    sheet = null;
+    delete dialog.dataset.model;
+    history.replaceState(null, '', location.pathname + location.search);
+    if (opener) opener.focus();
+  });
+  dialog.querySelector('.mm-close').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+  pause.addEventListener('click', () => setTurning(!turning));
+
+  // Dragging turns it by hand, which is also how somebody who has asked for no motion gets to see
+  // the back of the model.
+  let dragging = false;
+  let dragX = 0;
+  stage.addEventListener('pointerdown', (e) => {
+    if (e.target === pause || !sheet) return;
+    dragging = true;
+    dragX = e.clientX;
+    stage.setPointerCapture(e.pointerId);
+    stage.classList.add('is-dragging');
+  });
+  stage.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    turn -= (e.clientX - dragX) * (FRAMES / stage.clientWidth);
+    dragX = e.clientX;
+    draw();
+  });
+  const endDrag = () => { dragging = false; stage.classList.remove('is-dragging'); };
+  stage.addEventListener('pointerup', endDrag);
+  stage.addEventListener('pointercancel', endDrag);
+
+  document.querySelector('main').addEventListener('click', (e) => {
+    const card = e.target.closest('.mc');
+    if (!card) return;
+    // Selecting a fact to copy it is not a click on the card.
+    if (e.target.closest('a') || (window.getSelection && String(window.getSelection()))) return;
+    open(card);
+  });
+
+  // The address of one model, which is where the inspect space's All Models link comes back to.
+  const fromAddress = () => {
+    const match = /^#model-([a-z0-9-]+)$/.exec(location.hash);
+    const card = match && document.getElementById('model-' + match[1]);
+    if (card && dialog.dataset.model !== match[1]) open(card, { fromHash: true });
+  };
+  window.addEventListener('hashchange', fromAddress);
+  fromAddress();
+})();
+</script>
 
 <footer class="gfoot">
   <div class="wrap">

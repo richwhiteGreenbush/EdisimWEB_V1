@@ -1,5 +1,5 @@
 import { parseWorldPayload } from './WorldFile.js';
-import { WORLD_LINK_PARAM, WORLD_LINK_BASE } from './config.js';
+import { WORLD_LINK_PARAM, WORLD_LINK_BASE, INSPECT_LINK_PARAM } from './config.js';
 
 // Opening a shared world straight from a link: edusim.../?world=24 loads world #24 out of
 // the gallery and drops the student into it, with no download and no file picker.
@@ -64,6 +64,24 @@ export function takeLinkedWorldId() {
     // survivable; refusing to open the world over it would not be.
   }
   return raw;
+}
+
+/**
+ * The Model Database model this page was opened to inspect (`?inspect=animal-cell`), or null.
+ *
+ * The same design as ?world=: an id checked against a fixed list, never an address. The difference
+ * is that it stays in the address bar. A world link replaces the student's work, so a refresh must
+ * not replay it; the inspect space saves nothing and replaces nothing, so a refresh just starts
+ * that space again, and the link can be copied and shared.
+ */
+export function linkedInspectModelId(isKnownModel) {
+  let raw = null;
+  try {
+    raw = new URLSearchParams(window.location.search).get(INSPECT_LINK_PARAM);
+  } catch {
+    return null;
+  }
+  return raw && isKnownModel(raw) ? raw : null;
 }
 
 /**

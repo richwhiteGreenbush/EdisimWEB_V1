@@ -333,10 +333,12 @@ rather than writing a sitemap with the gallery missing. Switching it over picked
 Simon in the Land of Chalk Drawings (39) and Sunflower (42), which had been published but
 never given a card, so they had been out of the sitemap all along.
 
-**The hero carries the two world galleries as big cards** (`.hero-dbs`), straight under the
-launch button, per Rich: the main World Database (`/worlds/`) and the HiFi World Database
-(`/hifiworlds/`). Both absolute with a trailing slash; the HiFi card says it is for
-computers with a graphics card, which is the `#hifi` honesty line in eight words.
+**The hero carries the three databases as big cards** (`.hero-dbs`), straight under the
+launch button, per Rich: the main World Database (`/worlds/`), the HiFi World Database
+(`/hifiworlds/`) and the Model Database (`guide/models.html`). The two galleries are absolute with
+a trailing slash; the model page is part of `docs/`, so its link is relative and stays in the tab.
+The HiFi card says it is for computers with a graphics card, which is the `#hifi` honesty line in
+eight words, and the model card says "hundreds" rather than a count, because static HTML drifts.
 
 **`#resources` is the one list of everything**, sorted by who is reading: Open & play, Learn
 the tools, World guide cards, For teachers, The research, For schools & IT. Before it the
@@ -4708,6 +4710,48 @@ from a raised camera against a dark backdrop, and four science models passed eve
 those while failing in the app: the Archimedes screw's water could not be seen at all from below about 25
 degrees, the magnetosphere's pale lines vanished against the sky, the black hole's disk was an edge-on stripe,
 and the comet was a smudge over an empty plate.
+
+**A card on `docs/guide/models.html` opens a modal, and the modal opens the inspect space.** The modal
+shows the model turning slowly, from `docs/assets/models/spin/<id>.webp`: 36 pictures of 480px, 6 x 6,
+crossfaded, about 53MB for all of them and fetched only on a click. `tools/model-pictures.mjs --guide
+[--only id,id]` writes them and took 2 minutes for all 262; a plain run of the tool writes them too.
+They hold one camera distance for the whole turn, where the panel's refit each frame, and they have a
+flat backdrop with the vignette in CSS, because a gradient at that compression shows as a plaid of
+blocks. It is pictures rather than a live view because the page has to open at once on any school
+computer and not depend on the app. The words are cloned from the card, so there is no second copy.
+`#model-<id>` opens one, and is where the inspect space's All Models link comes back to.
+
+**`/app/?inspect=<id>` (`src/InspectSpace.js`, a 17KB lazy chunk) is one model alone in a room of its
+own, and it NEVER TOUCHES THE STUDENT'S WORLD.** main.js sets `worldStore.persistent = false` and skips
+`rehydrateAll`, so IndexedDB and the changed flag are untouched. `tools/check-inspect.mjs` opens it over
+a saved world and compares both, and that is the check that matters. Unlike `?world=` the parameter stays
+in the address bar, because a refresh here destroys nothing. It is an id checked against `MODEL_BY_ID`, never
+an address, the `?world=` security rule; anything else boots the student's world normally. Inspect Model opens
+in the same tab, on purpose: ten inspected models in ten tabs is ten WebGL contexts on a Chromebook.
+
+- **THE THEME IS `subjects[0]`, AND THE COLOUR IS MEASURED.** The model is rendered once at 72px against
+  nothing and the pixels give its hue, a second hue, how colourful it is and how light. A table of 262
+  palettes would be one more thing to maintain, and reading materials would miss every canvas map, so a new
+  model has its room already. A new SUBJECT needs an entry in `THEMES`, or it falls back to Science and
+  the check tool fails.
+- **MATCHING HUE, CONTRASTING VALUE.** A warm organ in a warm room is Fantastic Voyage's first sky, so a
+  pale model gets a deep room and the rest a light one. Astronomy and Space Exploration are always night.
+- **THE STAGE IS SCENE FURNITURE, NOT RECORDS**, so it cannot be clicked or stretched and adds no
+  persisted `PROP_BUILDERS` key. `WORLD_THEMES.inspect` is written at runtime, which is safe only because
+  the menu is hidden, so Save World cannot export a record naming it. **If the menu ever comes back here, this
+  has to change.** The floor is painted at ground level, since a raised one puts the student's eyes below it
+  and Reset Shape would bury the model.
+- **`scene.background` IS NOT TONE MAPPED AND FOG IS**, so fogged ground ends in a hard line against the
+  sky in every world here. The room's sky is a dome through the same tone mapping, which closes it. Night keeps
+  the plain background, because a dome would shut out the stars.
+- **A wall's canvas must take the wall's proportions**, or every letter comes out squeezed. The word goes in the
+  wall's top third, since a wide model covers the middle, and the HUD is a bar along the top, since a corner
+  panel sat on the left word.
+
+**Measured in the app on the development Mac, every model opened in turn**: 262 of 262 with no page
+errors, at most 33 draw calls (Taj Mahal) and 160k triangles drawn (Colosseum). The room itself is 9
+meshes, 8.7k triangles and 3 transparent, plus two canvases of 2048 and 3072px. **NOT YET MEASURED ON AN i5/i7 CHROMEBOOK.** HiFi
+does not have this: the link is to `/app/`.
 
 **How to check it**: `node tools/check-models.mjs` (the table, budget, inside-out, origin, sharing,
 determinism, open-edge baselines), `node tools/model-pictures.mjs --shot <id>` (nine views; LOOK at

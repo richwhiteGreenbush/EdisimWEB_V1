@@ -1746,6 +1746,10 @@ export const WORLD_LINK_BASE = '/worlds/download.php?id=';
 // The shared world gallery: where the World Database panel fetches its list and its pictures,
 // and where its links lead. Root-relative for the reason WORLD_LINK_BASE is.
 export const WORLD_GALLERY_URL = '/worlds/';
+// `?inspect=animal-cell` opens one Model Database model in a space of its own. See InspectSpace.js.
+export const INSPECT_LINK_PARAM = 'inspect';
+// Root-relative, like the gallery: docs/ is the docroot, /app/ is a directory inside it.
+export const MODEL_GUIDE_URL = '/guide/models.html';
 export const EDIT_ICON_SIZE = 0.7; // feet, billboard sprite size
 export const EDIT_ICON_MARGIN = 0.6; // feet above the panel's bounding-box top
 
