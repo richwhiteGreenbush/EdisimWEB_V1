@@ -301,6 +301,22 @@ export const MODELS = [
     answer: '7, 12 and 5. The lowest carry the most weight.',
   },
 
+  {
+    id: 'knee-joint', title: 'Knee Joint', category: 'body', builder: 'fieldlab', scale: 1, yaw: 0.55, pictureElevation: 6,
+    grades: UP3, subjects: ['biology', 'anatomy', 'health'],
+    aliases: ['knee', 'femur', 'tibia', 'fibula', 'patella', 'kneecap', 'meniscus', 'cartilage', 'ligament', 'acl', 'cruciate', 'hinge joint', 'tendon', 'leg'],
+    blurb: 'A knee seen from the front, many times life size and slowly bending, with the kneecap folded down so that the crossed ligaments, menisci and cartilage are all in view.',
+    facts: [
+      'The knee is the largest joint in the human body.',
+      'Smooth cartilage covers the ends of the bones, and two rubbery wedges called menisci cushion the joint between them.',
+      'Two ligaments cross inside the knee and stop the shin sliding forward or backward. Cruciate means shaped like a cross.',
+    ],
+    realSize: 'About 4 to 5 inches across on an adult',
+    shownAt: 'About nine times life size, with the skin and muscle left off, the kneecap folded down out of its place in front of the joint, and a simple hinge in place of the knee\u2019s own roll and glide',
+    tryThis: 'Find the red and blue ligaments in the middle. Walk round to the side and watch them as the knee bends. What would happen to the shin without them?',
+    answer: 'The shin could slide forward and backward under the thigh. The two crossed ligaments hold it in place while the knee bends.',
+  },
+  
   // --- Plants & Animals ---------------------------------------------------------------
   {
     id: 'tyrannosaurus-rex', title: 'Tyrannosaurus rex', category: 'life', prop: 'tyrannosaurus', scale: 0.5, yaw: 0.45,
@@ -710,6 +726,39 @@ export const MODELS = [
     answer: 'Fungi are major decomposers. They break dead matter down and return its nutrients to the soil.',
   },
 
+  {
+    id: 'frog-life-cycle', title: 'Frog Life Cycle', category: 'life', builder: 'fieldlab', scale: 1, pictureElevation: 26,
+    grades: ALL, subjects: ['biology', 'life cycles'],
+    aliases: ['tadpole', 'metamorphosis', 'frogspawn', 'froglet', 'amphibian', 'gills', 'lungs', 'life cycle', 'eggs', 'pond', 'lily pad'],
+    blurb: 'The five stages of a frog around a pond, from a clump of jelly eggs to a tadpole, a tadpole with legs, a froglet and an adult on a lily pad.',
+    facts: [
+      'Frog eggs have no shell. They are held in a clump of clear jelly that swells in the water.',
+      'A young tadpole breathes with gills. As it changes, it grows lungs and can breathe air.',
+      'A tadpole does not drop its tail. Its body absorbs the tail and reuses the material.',
+      'The change is called metamorphosis, and how long it takes depends on the kind of frog. It can take weeks, or more than a year.',
+    ],
+    realSize: 'An egg is smaller than a pea, and an adult frog a few inches long',
+    shownAt: 'Every stage made much larger, and not to one scale, so that each can be seen',
+    tryThis: 'Walk around the pond in order. What is different at each stage, and what has not changed yet?',
+    answer: 'The hind legs come first, then the front legs, then the tail shrinks away. The gills give way to lungs along the way.',
+  },
+  {
+    id: 'pond-ecosystem', title: 'Pond Ecosystem', category: 'life', builder: 'fieldlab', scale: 1, pictureElevation: 24,
+    grades: ALL, subjects: ['biology', 'ecology', 'earth science'],
+    aliases: ['ecosystem', 'food chain', 'food web', 'habitat', 'producer', 'consumer', 'decomposer', 'wetland', 'heron', 'dragonfly', 'cattail', 'algae', 'turtle', 'freshwater', 'energy pyramid'],
+    blurb: 'A block of pond cut open from the bank to the mud, with plants, insects, fish, a turtle and a heron all in their places, and the fish swimming.',
+    facts: [
+      'Producers such as water plants and algae make their own food from sunlight, which is where nearly all the energy in a pond starts.',
+      'Consumers eat plants or one another. A dragonfly nymph eats tadpoles, a fish eats the nymph, and a heron eats the fish.',
+      'Decomposers such as bacteria and worms break down dead things in the mud and return their nutrients to the water.',
+      'Very roughly, only a tenth of the energy at one step of a food chain passes on to the next, which is why there are far fewer herons than insects.',
+    ],
+    realSize: 'A pond can be anything from a few yards across to a few acres',
+    shownAt: 'A block about 16 feet long, with the animals and plants drawn much larger than they would be and far more crowded together',
+    tryThis: 'Find three producers and three consumers. Then pick one animal and take it away. What happens to what it eats, and what eats it?',
+    answer: 'What it ate tends to increase, and what ate it has less food, so one change spreads through the whole food web.',
+  },
+  
   // --- Earth & Space ------------------------------------------------------------------
   {
     id: 'cutaway-volcano', title: 'Cutaway Volcano', category: 'space', prop: 'cutaway-volcano', scale: 0.14, yaw: 0.55,
@@ -1154,6 +1203,22 @@ export const MODELS = [
     answer: 'Heavy elements such as iron were made in stars and scattered when stars exploded, and later became part of new stars, planets and people.',
   },
 
+  {
+    id: 'seasons-orbit', title: 'Seasons and Earth\u2019s Tilt', category: 'space', builder: 'fieldlab', scale: 1, pictureElevation: 28,
+    grades: UP3, subjects: ['earth science', 'astronomy'],
+    aliases: ['seasons', 'tilt', 'axis', 'orbit', 'summer', 'winter', 'solstice', 'equinox', 'year', 'polaris', 'north star', 'revolution', 'daylight'],
+    blurb: 'A globe with real coastlines travels around a lamp once a year, its tilted axis always pointing the same way, past markers for the solstices and equinoxes.',
+    facts: [
+      'Earth\u2019s axis is tilted about 23.4 degrees, and it keeps pointing the same way all year, close to the North Star.',
+      'Seasons come from that tilt. The half of the planet leaning toward the Sun gets more direct light and longer days.',
+      'Distance does not cause the seasons. Earth is closest to the Sun in early January, during winter in the north.',
+    ],
+    realSize: 'Earth is about 7,900 miles across and about 93 million miles from the Sun',
+    shownAt: 'A globe about 2 feet across on a base about 15 feet wide. The Sun and the distance are not to scale, and the orbit is drawn as a circle',
+    tryThis: 'Stop watching the globe and watch the top of its axis. Which way does it lean when it passes the December marker, and what does that mean for Kansas?',
+    answer: 'The axis never changes direction. In December the north leans away from the Sun, so Kansas gets low sunlight and short days.',
+  },
+  
   // --- Chemistry & Physics ------------------------------------------------------------
   {
     id: 'carbon-atom', title: 'Carbon Atom (Bohr Model)', category: 'lab', builder: 'lab', scale: 1,
@@ -1726,6 +1791,82 @@ export const MODELS = [
     answer: 'A big triangle is one quarter. The small square is one eighth.',
   },
 
+  {
+    id: 'pascals-triangle', title: 'Pascal\u2019s Triangle', category: 'math', builder: 'mathlab', scale: 1, pictureElevation: 20,
+    grades: UP3, subjects: ['mathematics', 'history of mathematics'],
+    aliases: ['pascal', 'binomial', 'combinations', 'pattern', 'triangular numbers', 'fibonacci', 'powers of two', 'sierpinski', 'number pattern', 'yang hui', 'khayyam'],
+    blurb: 'A leaning triangle of numbered tiles where each number is the sum of the two above it. The odd numbers are colored, and a familiar shape appears.',
+    facts: [
+      'Each number is the sum of the two directly above it.',
+      'The numbers in any row add up to a power of 2. Row 1, 3, 3, 1 adds up to 8.',
+      'Mathematicians in India, Persia and China knew this triangle centuries before Blaise Pascal wrote about it in the 1650s.',
+    ],
+    realSize: 'A pattern of numbers with no real size, and it never ends',
+    shownAt: 'The first 13 rows, on a sloped stand about 12 feet wide',
+    tryThis: 'Add up each row. What pattern do you get? Then read down the third slanting line: 1, 3, 6, 10. What comes next?',
+    answer: 'The rows add up to 1, 2, 4, 8, 16, doubling each time. The slanting line is the triangular numbers, so 15 comes next.',
+  },
+  {
+    id: 'unit-circle', title: 'The Unit Circle', category: 'math', builder: 'mathlab', scale: 1, pictureElevation: 8,
+    grades: UP6, subjects: ['mathematics', 'trigonometry'],
+    aliases: ['trigonometry', 'sine', 'cosine', 'radians', 'angle', 'sin', 'cos', 'wave', 'circle', 'precalculus', 'identity', 'periodic'],
+    blurb: 'A point travels around a circle of radius 1 while its height draws out a sine wave beside it, so a circle and a wave turn out to be one idea.',
+    facts: [
+      'On a circle of radius 1, the point at any angle sits at (cos, sin) of that angle: cosine is how far across, and sine is how far up.',
+      'Because the radius is the long side of a right triangle, cos\u00b2 + sin\u00b2 = 1 for every angle. That is the Pythagorean theorem.',
+      'One full turn is 360 degrees, or 2\u03c0 radians: about 6.28 radius lengths around the edge.',
+    ],
+    realSize: 'A circle whose radius is 1 unit, which can be any length',
+    shownAt: 'A radius of about 2.5 feet, so 1 unit on the grid is about 2.5 feet. The wave has the same heights, and its length is drawn at half scale',
+    tryThis: 'At what angles is the height exactly the same as the distance across? Find them on the circle, then find them on the wave.',
+    answer: 'At 45 and 225 degrees, where sine and cosine are equal.',
+  },
+  {
+    id: 'archimedes-volumes', title: 'Cone, Sphere and Cylinder', category: 'math', builder: 'mathlab', scale: 1, pictureElevation: 18,
+    grades: UP6, subjects: ['mathematics', 'geometry', 'history of mathematics'],
+    aliases: ['volume', 'cone', 'sphere', 'cylinder', 'archimedes', 'ratio', 'solids', 'geometry', 'tomb', 'measure', 'capacity'],
+    blurb: 'A cone, a sphere and a cylinder of the same width and height, each cut open to show the liquid it holds, beside three tubes that hold exactly the same amounts.',
+    facts: [
+      'A cone, a sphere and a cylinder with the same width and height have volumes in the ratio 1 : 2 : 3.',
+      'In the 200s BCE, Archimedes proved that a sphere holds exactly two thirds of the cylinder around it.',
+      'He is said to have asked for a sphere and cylinder on his tomb. The Roman writer Cicero reported finding that tomb in Sicily in 75 BCE.',
+    ],
+    realSize: 'A rule that holds at any size',
+    shownAt: 'Solids about 3 feet across and 3 feet tall',
+    tryThis: 'If the cone holds 2 cups, how much do the sphere and the cylinder hold? Check the tubes at the back.',
+    answer: 'The sphere holds 4 cups and the cylinder holds 6, keeping the ratio 1 : 2 : 3.',
+  },
+  {
+    id: 'pi-wheel', title: 'Rolling Out Pi', category: 'math', builder: 'mathlab', scale: 1, pictureElevation: 16,
+    grades: UP3, subjects: ['mathematics', 'geometry'],
+    aliases: ['pi', 'circumference', 'diameter', 'radius', 'circle', 'wheel', '3.14', 'irrational', 'measure', 'ruler'],
+    blurb: 'A wheel with a painted mark rolls one full turn along a ruler marked in its own diameters, and lands just past three.',
+    facts: [
+      'The distance around any circle is about 3.14 times the distance across it. That number is called pi.',
+      'Pi is the same for every circle, whether it is a coin or a planet.',
+      'Pi never ends and never repeats. In the 200s BCE, Archimedes showed it lies between 3 10/71 and 3 1/7.',
+    ],
+    realSize: 'A rule that holds at any size',
+    shownAt: 'A wheel about 3 feet across on a ruler about 12 feet long',
+    tryThis: 'Before the wheel finishes its turn, guess where the mark will touch down. How many wheels across is one trip around?',
+    answer: 'A little past 3: one turn covers about 3.14 diameters.',
+  },
+  {
+    id: 'binary-counter', title: 'Binary Counter', category: 'math', builder: 'mathlab', scale: 1, pictureElevation: 10,
+    grades: UP3, subjects: ['computer science', 'mathematics'],
+    aliases: ['binary', 'bit', 'byte', 'computer', 'base 2', 'base two', 'zero and one', 'digital', 'odometer', 'place value', 'coding', 'number system'],
+    blurb: 'Eight number wheels showing only 0 and 1 count upward by themselves, each one tipping the next as it rolls over, with the same number in ordinary digits beside them.',
+    facts: [
+      'Computers store everything as 0s and 1s, called bits, because a tiny switch is either off or on.',
+      'Each place is worth double the one to its right: 1, 2, 4, 8, 16, 32, 64, 128.',
+      'Eight bits make one byte, which can count from 0 up to 255.',
+    ],
+    realSize: 'A computer chip holds billions of far smaller switches',
+    shownAt: 'A desk-sized counter about 10 feet wide. Real computers do not use wheels, though early adding machines did',
+    tryThis: 'Watch the wheels and work out the number before you look at the ordinary digits. What is 0 0 0 0 1 0 1 1?',
+    answer: '8 + 2 + 1 = 11.',
+  },
+  
   // --- Inventions & Transport ---------------------------------------------------------
   {
     id: 'classroom-robot', title: 'Classroom Robot', category: 'machines', prop: 'robot', scale: 1,
@@ -2001,6 +2142,68 @@ export const MODELS = [
     tryThis: 'Compare it with the Saturn V, which first flew only 41 years later. What changed most?',
   },
 
+  {
+    id: 'four-stroke-engine', title: 'Four-Stroke Engine', category: 'machines', builder: 'engineeringlab', scale: 1, pictureElevation: 10,
+    grades: UP3, subjects: ['engineering', 'physics', 'technology'],
+    aliases: ['car engine', 'internal combustion', 'piston', 'crankshaft', 'spark plug', 'valve', 'cylinder', 'otto', 'gasoline', 'intake', 'compression', 'exhaust', 'motor'],
+    blurb: 'One cylinder of a car engine cut open and running, with the piston, valves, spark plug and crankshaft moving through intake, compression, power and exhaust.',
+    facts: [
+      'The four strokes are intake, compression, power and exhaust. Only the power stroke pushes the piston.',
+      'The crankshaft turns twice for every full set of four strokes, and a heavy flywheel carries it through the other three.',
+      'Nikolaus Otto built the first successful four-stroke engine in 1876.',
+    ],
+    realSize: 'A car engine\u2019s cylinder is usually about 3 to 4 inches across',
+    shownAt: 'A single cylinder about 7 feet tall, opened up to show the inside and slowed right down',
+    tryThis: 'Watch the two valves. When is each one open, and when are both of them shut? Why would both need to be shut?',
+    answer: 'Both are shut for compression and power, so the mixture can be squeezed and the burning gas can only push on the piston.',
+  },
+  {
+    id: 'difference-engine', title: 'Babbage\u2019s Difference Engine', category: 'machines', builder: 'engineeringlab', scale: 1, pictureElevation: 12,
+    grades: UP3, subjects: ['computer science', 'mathematics', 'history of science', 'engineering'],
+    aliases: ['babbage', 'charles babbage', 'computer', 'calculator', 'calculating machine', 'ada lovelace', 'gears', 'mechanical computer', 'method of differences', 'victorian', 'computing'],
+    blurb: 'A hand-cranked calculating machine of brass and iron from the 1840s. Its number wheels really do work out the square numbers by adding, one turn at a time.',
+    facts: [
+      'Charles Babbage designed Difference Engine No. 2 between 1847 and 1849, to work out mathematical tables without human mistakes.',
+      'It was not built in his lifetime. The Science Museum in London finished a working calculator from his drawings in 1991.',
+      'With its printer, that machine has about 8,000 parts and weighs about 5 tons. It can only add, and the method of differences turns other math into adding.',
+    ],
+    realSize: 'About 11 feet long and 7 feet tall',
+    shownAt: 'About the real length, but with far fewer wheels: three columns of a few digits, where the original has eight columns of 31 digits',
+    tryThis: 'Read the three columns as the crank turns. Which column stays the same, and how does it feed the others?',
+    answer: 'The right-hand column stays at 2. It adds to the middle column (3, 5, 7, 9), which adds to the left column (1, 4, 9, 16, 25), the square numbers.',
+  },
+  {
+    id: 'hydroelectric-dam', title: 'Hydroelectric Dam', category: 'machines', builder: 'fieldlab', scale: 1, pictureElevation: 18,
+    grades: UP3, subjects: ['engineering', 'energy', 'physics', 'earth science'],
+    aliases: ['dam', 'hydropower', 'hydro', 'turbine', 'generator', 'penstock', 'reservoir', 'renewable energy', 'electricity', 'hoover dam', 'power station', 'spillway'],
+    blurb: 'A concrete dam in a valley, cut open down the middle, with water falling through a pipe to spin a turbine and generator, and power lines heading off to town.',
+    facts: [
+      'Water held high behind a dam falls through a pipe called a penstock and spins a turbine, which turns a generator.',
+      'The higher the water falls and the more of it flows, the more electricity it can make.',
+      'A dam is thicker at the bottom because water pressure grows with depth.',
+      'Hoover Dam on the Colorado River, built in the 1930s, is about 726 feet tall.',
+    ],
+    realSize: 'From a few feet to over 700 feet tall',
+    shownAt: 'A made-up dam on a block about 16 feet long, with the turbine and generator drawn much larger than they would be',
+    tryThis: 'Follow the water from the reservoir to the river below. Where does its energy change form?',
+    answer: 'Height becomes speed in the pipe, speed becomes spinning in the turbine, and spinning becomes electricity in the generator.',
+  },
+  {
+    id: 'bridge-types', title: 'Four Kinds of Bridge', category: 'machines', builder: 'engineeringlab', scale: 1, pictureElevation: 22,
+    grades: ALL, subjects: ['engineering', 'physics'],
+    aliases: ['bridge', 'beam bridge', 'truss', 'arch bridge', 'suspension bridge', 'tension', 'compression', 'forces', 'structures', 'stem', 'civil engineering', 'load'],
+    blurb: 'A beam, a truss, an arch and a suspension bridge side by side over one river, with squeezed parts painted blue and stretched parts painted red, and a truck crossing each.',
+    facts: [
+      'Every bridge carries its load to the ground through parts being squeezed, called compression, and parts being stretched, called tension.',
+      'Stone and concrete are strong when squeezed and weak when stretched, which is why an arch can be built of stone. Steel cable is strong when stretched.',
+      'The longest bridge spans in the world are all suspension bridges.',
+    ],
+    realSize: 'From a plank over a stream to spans of more than a mile',
+    shownAt: 'Four small models, each about 8 feet long, all crossing the same gap so that they can be compared. The red and blue paint shows the main forces and is simplified',
+    tryThis: 'Pick one bridge and follow the weight of the truck to the ground. Which parts are pushed together and which are pulled apart?',
+    answer: 'On the arch, the stone is squeezed all the way to the banks. On the suspension bridge, the deck hangs from cables in tension, and the towers are squeezed.',
+  },
+  
   // --- World Geography ---------------------------------------------------------------
   {
     id: 'world-globe', title: 'World Globe', category: 'geography', builder: 'geoearth', scale: 1, yaw: 0, pictureElevation: 10,
@@ -2561,6 +2764,39 @@ export const MODELS = [
     answer: 'Congress has two chambers, the Senate and the House, and each has its own wing.',
   },
 
+  {
+    id: 'roman-aqueduct', title: 'Roman Aqueduct: Pont du Gard', category: 'landmarks', builder: 'engineeringlab', scale: 1, pictureElevation: 14,
+    grades: UP3, subjects: ['history', 'engineering', 'ancient rome'],
+    aliases: ['pont du gard', 'aqueduct', 'rome', 'roman', 'nimes', 'france', 'arches', 'water supply', 'gravity', 'civil engineering', 'gard', 'ancient'],
+    blurb: 'The great three-tier Roman bridge over the Gard, with its top channel opened up so you can see the water flowing along to the city.',
+    facts: [
+      'It carried water across a river valley to the Roman city of Nemausus, now Nîmes in France, and was built in the first century CE.',
+      'It is about 160 feet tall. Its top tier of 35 small arches is about 900 feet long.',
+      'There were no pumps. The channel sloped down the whole way, on average by only about 1 foot in every 3,000.',
+      'It was built largely without mortar, and some of its blocks weigh up to 6 tons.',
+    ],
+    realSize: 'About 160 feet tall and 900 feet long across the top',
+    shownAt: 'About 1/20 size, and shortened to show fewer arches, with a length of the top channel opened up',
+    tryThis: 'Why would builders stack three rows of arches instead of building one solid wall? Think about stone, cost, and the river.',
+    answer: 'Arches use much less stone while carrying the load down the piers, and they let the river flow through, even in a flood.',
+  },
+  {
+    id: 'ziggurat-of-ur', title: 'Ziggurat of Ur', category: 'landmarks', builder: 'engineeringlab', scale: 1, pictureElevation: 14, program: 'spinSlow',
+    grades: UP3, subjects: ['history', 'ancient mesopotamia', 'architecture'],
+    aliases: ['ziggurat', 'ur', 'sumer', 'sumerian', 'mesopotamia', 'iraq', 'ur-nammu', 'nanna', 'mud brick', 'temple', 'babylon', 'fertile crescent', 'ancient'],
+    blurb: 'The great stepped tower of Sumer, in mud brick with its three staircases meeting at a gateway, drawn with the upper levels archaeologists believe it had.',
+    facts: [
+      'King Ur-Nammu began it around 2100 BCE, in what is now southern Iraq, for Nanna, the moon god of the city of Ur.',
+      'Its core is mud brick, faced with baked brick set in bitumen, a natural tar.',
+      'Its base is about 210 feet by 150 feet.',
+      'Only the lowest level survives well. The upper levels shown here are a reconstruction, based on Leonard Woolley\u2019s digs of the 1920s and 1930s.',
+    ],
+    realSize: 'About 210 by 150 feet at the base, and perhaps 70 to 100 feet tall when new',
+    shownAt: 'About 1/20 size. The upper levels and the shrine are an informed reconstruction, not known for certain',
+    tryThis: 'Look at the holes in the walls of the lowest level. The core behind them is mud brick, which holds water. What might they be for?',
+    answer: 'They are thought to have let moisture escape from the mud-brick core as it dried out between rains.',
+  },
+  
   // --- History & Artifacts ------------------------------------------------------------
   {
     id: 'armillary-sphere', title: 'Armillary Sphere', category: 'artifacts', prop: 'armillary-sphere', scale: 0.6,
