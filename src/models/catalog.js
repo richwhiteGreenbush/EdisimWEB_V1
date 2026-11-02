@@ -2814,6 +2814,24 @@ export const MODELS = [
     answer: 'They are thought to have let moisture escape from the mud-brick core as it dried out between rains.',
   },
   
+  {
+    id: 'giza-plateau-diorama', title: 'Giza Plateau Diorama', category: 'landmarks', builder: 'giza', scale: 1, pictureElevation: 24,
+    grades: ALL, subjects: ['history', 'world cultures', 'mathematics', 'engineering'],
+    aliases: ['great pyramid', 'pyramid', 'giza', 'egypt', 'khufu', 'khafre', 'menkaure', 'sphinx', 'causeway', 'valley temple', 'mastaba', 'queens pyramids', 'lost city', 'heit el-ghurab', 'pyramid builders', 'wall of the crow', 'kings chamber', 'grand gallery', 'nile', 'harbor', 'merer', 'diorama', 'ancient'],
+    blurb: 'The whole Giza Plateau around 2500 BCE, with the pyramids still in their white casing, the Sphinx, temples, tombs, the builders\u2019 town and boats in the harbor, beside the Great Pyramid cut in half to show its chambers.',
+    facts: [
+      'The three great pyramids were built for the pharaohs Khufu, Khafre and Menkaure, between about 2600 and 2500 BCE.',
+      'A pyramid was only the end of a complex. A valley temple stood at the water, and a long covered causeway climbed to a mortuary temple beside the pyramid.',
+      'The Great Pyramid was the tallest structure on Earth for more than 3,800 years. It has about 2.3 million blocks, and its sides line up with north, south, east and west to about a tenth of a degree.',
+      'Modern evidence points to conscripted laborers rather than slaves. Archaeologists have found their town south of the Sphinx, with sleeping quarters, bakeries, kitchens and workshops.',
+      'Papyri found at Wadi al-Jarf in 2013 include a diary by an inspector named Merer, who recorded carrying limestone from Tura to Giza by boat.',
+      'The white casing is nearly all gone now, carted away after medieval earthquakes, which is why the pyramids look stepped and brown today.',
+    ],
+    realSize: 'The Great Pyramid was about 481 feet tall, and the monuments here spread across about a mile',
+    shownAt: 'The positions follow the real plan, with north at the back. The monuments are drawn 1.4 times larger than the plan, and heights of the ground are squeezed. The harbor, the Nile channel and some of the town are informed reconstructions: the river really lay farther east. The cutaway is to its own, larger scale, and its passages are drawn on one plane, though the entrance is really about 25 feet east of the center line',
+    tryThis: 'Stand at the front and pick the taller of the two big pyramids. Then read their signs and the card. Why might your eyes be fooled? After that, follow one block of stone from the harbor to the top of the Great Pyramid.',
+    answer: 'Khafre\u2019s pyramid looks taller because it stands on higher ground, but Khufu\u2019s, the Great Pyramid, was taller: about 481 feet against about 471.',
+  },
   // --- History & Artifacts ------------------------------------------------------------
   {
     id: 'armillary-sphere', title: 'Armillary Sphere', category: 'artifacts', prop: 'armillary-sphere', scale: 0.6,

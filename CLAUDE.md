@@ -4620,10 +4620,10 @@ says "this used to be Get More Worlds". The sources now describe the panel, so a
 
 ### The Model Database, and a model a student can pull out of shape
 
-Menu ▸ **Model Database**: 261 ready-made educational models in twelve types, searchable,
+Menu ▸ **Model Database**: 262 ready-made educational models in twelve types, searchable,
 placeable in every world in both editions, and shapeable with the same hammer tools as a cube.
 `src/models/catalog.js` is the one table, `src/ModelDatabase.js` the panel, `src/models/index.js`
-the placing, and `src/models/builders/` holds the 244 built for it, one lazy chunk per family. The
+the placing, and `src/models/builders/` holds the 245 built for it, one lazy chunk per family. The
 other 17 are `PROP_BUILDERS` entries from worlds. **`src/models/ModelKit.js` is the shared kit:** the
 signed-distance `Sculpt`, plus a closed `tube`, a correct `lathe`, `outward` and `alongMatrix`. It came
 out of `builders/Life.js`, proven byte-identical by hashing all six models before and after. `docs/guide/models.html` is GENERATED from the
@@ -4803,6 +4803,21 @@ teacher or subject expert should still read them.**
 **Performance, measured in node**: 19k to 60k triangles each, 2 to 6 meshes, no transparency, no point
 lights. Landscapes each carry two canvases of about 1400px and take up to about a second to paint on
 the main thread. **NOT YET MEASURED ON AN i5/i7 CHROMEBOOK.**
+
+### The Giza Plateau, and a monument that needs its surroundings
+
+`builders/Giza.js`, one model in Landmarks, per Rich, alongside the single `pyramid-of-giza`, which is still what a search for "great pyramid" finds first. **Its one idea is that a pyramid was never alone**: each is the far end of a machine that starts at the water, so the model is the whole plateau around 2500 BCE, harbor, valley temple, causeway, mortuary temple, pyramid, queens' pyramids, officials' tombs, and the builders' town to the south. The casing is on, because white and smooth is what these were, and that surprises a student more than anything else in it.
+
+- **The plan is real and the monuments are not to its scale, and the model says so on its own front face.** Positions are metres from the Great Pyramid's centre through `planX`/`planZ`, north at the back like the city dioramas. Monuments are 1.4 times larger, and that number is a measurement: much past it, Khufu's and Khafre's footprints collide. The harbor and the Nile channel are a reconstruction, and the real channel lay farther east.
+- **The inside is not cut into the plan's pyramid.** The chambers lie in a north-south plane, which a student standing to the south sees edge-on, and cutting away enough to show them takes the silhouette with it. So the Great Pyramid also stands beside the plan, cut in half, at its own scale. Its `INSIDE` table is computed from the measured lengths and the passage angle, and the drawing reads that table: the ascending passage and the gallery reaching the King's Chamber's level is a check that the numbers agree.
+- **It stands on a shelf beside the plan rather than in front.** In front, a 4ft half-pyramid hides Menkaure from every student at the front. The cost is that the model is 26ft wide, so it arrives small and has to be walked up to.
+- **White on pale is nothing.** The first desert was the colour of the casing, and the pyramids vanished. The desert is a warmer, darker orange-tan now, paved courts stay light, and the pyramids stand out by contrast rather than by being any brighter.
+- **A Sphinx is far longer and lower than instinct says.** At the first proportions it read as a seated dog with a hood. Real figures, 73m long and 20m high, give about 1.8ft by 0.5ft here, with a small head on a very long lion.
+- **Long black poles draw lines across everything.** Signs stand on short poles beside what they name, and a soft pole colour stops them reading as bars across the view.
+
+**Facts**: checked against Wikipedia's Great Pyramid and Giza complex pages and Ancient Egypt Research Associates' pages on the town. Menkaure's dimensions and a few details of the plan's layout came from memory, not a page read this time, and the queens' pyramids and temples are placed approximately, so **a teacher or subject expert should still read them.** The existing `pyramid-of-giza` card says "more than 3,800 years" and this card follows it; Wikipedia says "over 3,700", and both are true.
+
+**Performance, measured in node, not in a frame**: 45k triangles, 6 meshes, 0 transparent, 0 point lights. About 1.5s to build on the development Mac, mostly painting the ground. **NOT YET MEASURED ON AN i5/i7 CHROMEBOOK.**
 
 ### The Great Barrier Reef, and a landscape with a room in it
 
