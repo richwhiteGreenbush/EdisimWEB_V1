@@ -287,6 +287,7 @@ const OPEN_EDGES = {
   'moscow-diorama': 6300,
   // The ground and the water are surfaces that meet along a shared edge, and a fish's fin is a plate.
   'great-barrier-reef': 1111,
+  'giza-plateau-diorama': 841,
   // Math, engineering and field models. Flat printed discs, water sheets and label backs are surfaces
   // rather than solids, and the engine, bridges and aqueduct are parts sunk into one another.
   'pascals-triangle': 0,
@@ -332,7 +333,7 @@ for (const m of MODELS) {
 for (const category of MODEL_CATEGORIES) {
   if (!MODELS.some((m) => m.category === category.key)) fail(category.key, 'an empty category');
 }
-for (const [query, id] of [['great barrier reef', 'great-barrier-reef'], ['bleaching', 'great-barrier-reef'], ['babbage', 'difference-engine'], ['pont du gard', 'roman-aqueduct'], ['food chain', 'pond-ecosystem'], ['solstice', 'seasons-orbit'], ['crankshaft', 'four-stroke-engine'], ['meniscus', 'knee-joint'], ['manhattan', 'new-york-diorama'], ['kremlin', 'moscow-diorama'], ['haussmann', 'paris-diorama'], ['landfill', 'boston-diorama'], ['thames', 'london-diorama'], ['nile', 'river-delta'], ['mercator', 'map-projection'], ['everest', 'himalaya-relief'], ['mitochondria', 'animal-cell'], ['t rex', 'tyrannosaurus-rex'], ['rex', 'tyrannosaurus-rex'], ['oregon trail', 'covered-wagon'], ['h2o', 'water-molecule'], ['hieroglyphs', 'rosetta-stone'], ['cochlea', 'human-ear'], ['ice age', 'woolly-mammoth'], ['euler', 'platonic-solids'], ['khipu', 'inca-quipu'], ['shakespeare', 'globe-theatre']]) {
+for (const [query, id] of [['giza plateau', 'giza-plateau-diorama'], ['heit el-ghurab', 'giza-plateau-diorama'], ['great pyramid', 'pyramid-of-giza'], ['great barrier reef', 'great-barrier-reef'], ['bleaching', 'great-barrier-reef'], ['babbage', 'difference-engine'], ['pont du gard', 'roman-aqueduct'], ['food chain', 'pond-ecosystem'], ['solstice', 'seasons-orbit'], ['crankshaft', 'four-stroke-engine'], ['meniscus', 'knee-joint'], ['manhattan', 'new-york-diorama'], ['kremlin', 'moscow-diorama'], ['haussmann', 'paris-diorama'], ['landfill', 'boston-diorama'], ['thames', 'london-diorama'], ['nile', 'river-delta'], ['mercator', 'map-projection'], ['everest', 'himalaya-relief'], ['mitochondria', 'animal-cell'], ['t rex', 'tyrannosaurus-rex'], ['rex', 'tyrannosaurus-rex'], ['oregon trail', 'covered-wagon'], ['h2o', 'water-molecule'], ['hieroglyphs', 'rosetta-stone'], ['cochlea', 'human-ear'], ['ice age', 'woolly-mammoth'], ['euler', 'platonic-solids'], ['khipu', 'inca-quipu'], ['shakespeare', 'globe-theatre']]) {
   if (searchModels(query)[0]?.id !== id) fail(`search "${query}"`, `first result is ${searchModels(query)[0]?.id}`);
 }
 if (searchModels('xyzzy').length) fail('search "xyzzy"', 'should find nothing');
