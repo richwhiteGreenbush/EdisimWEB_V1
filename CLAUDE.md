@@ -4620,10 +4620,10 @@ says "this used to be Get More Worlds". The sources now describe the panel, so a
 
 ### The Model Database, and a model a student can pull out of shape
 
-Menu ▸ **Model Database**: 245 ready-made educational models in twelve types, searchable,
+Menu ▸ **Model Database**: 260 ready-made educational models in twelve types, searchable,
 placeable in every world in both editions, and shapeable with the same hammer tools as a cube.
 `src/models/catalog.js` is the one table, `src/ModelDatabase.js` the panel, `src/models/index.js`
-the placing, and `src/models/builders/` holds the 228 built for it, one lazy chunk per family. The
+the placing, and `src/models/builders/` holds the 243 built for it, one lazy chunk per family. The
 other 17 are `PROP_BUILDERS` entries from worlds. **`src/models/ModelKit.js` is the shared kit:** the
 signed-distance `Sculpt`, plus a closed `tube`, a correct `lathe`, `outward` and `alongMatrix`. It came
 out of `builders/Life.js`, proven byte-identical by hashing all six models before and after. `docs/guide/models.html` is GENERATED from the
@@ -4739,6 +4739,19 @@ the gas. Every one honours `reducedMotion()`.
 
 **Adding a model**: an entry in the table, a builder (or a `prop`), then `check-models`,
 `model-pictures --only <id>`, `build-models-page`, and `build-stats-vocab`.
+
+**The latest fifteen filled gaps rather than adding more of the same** (`MathLab.js`, `EngineeringLab.js`, `FieldLab.js`): the table had no computing, no ecology, no seasons and no engine, so it gained a binary counter, Babbage's Difference Engine, a pond ecosystem, a frog's life cycle, the seasons, a four-stroke engine, a hydroelectric dam, four kinds of bridge, a knee, Pascal's triangle, the unit circle, Archimedes' 1 : 2 : 3, a rolling pi wheel, the Pont du Gard and the Ziggurat of Ur. Things they learned:
+
+- **A THING THAT TURNS NEEDS A MESH, AND THE BUDGET IS SIX.** Eight counter drums or twelve number wheels cannot each be an inner group. Both keep every wheel in one merged mesh and rewrite position and normal only for the wheels turning right now (`DynamicDrawUsage`, a hand-set bounding sphere). HiFi follows that: it was stepped in the main app and photographed moving in HiFi. Do not animate UVs: the bridge does not re-upload them.
+- **THE NUMBERS ON A MACHINE ARE COMPUTED, NOT PAINTED ON.** The Difference Engine's wheels really run the method of differences (1, 4, 9 ... from a constant 2), the engine's valves open by a real 720-degree cycle, the bridge's suspension cable is the parabola, and the volumes' tubes are filled from the formulas. Each builder exports its table (`DIFF_ENGINE`, `ENGINE`, `VOLUMES`, `PASCAL`, `SEASON_MARKERS`), so a script can hold it to the rule.
+- **A WHEEL SHOWS FIVE DIGITS, AND NOTHING SAYS WHICH IS THE ANSWER.** Thin red rails in front only added two lines to a wall of digits. Two iron bars leaving one slot cover the neighbours, the way a real counter's window does.
+- **BEFORE CUTTING SOMETHING OPEN, CHECK WHETHER THE TEXTBOOK NEEDS TO.** The knee's first version cut a quarter away, leaving a bottle-shaped slab with torn edges. The standard anatomy view cuts nothing: from the front, kneecap folded down, the crossed ligaments stand in the notch. Its first pose is nearly straight, because bent further the shin is foreshortened behind the joint and the thing reads as a mask.
+- **The seasons globe is lit against the lamp**, as unlit vertex colour repainted from the direction to it, because the world's sun is somewhere else. Its axis is checked over a whole year to hold one direction.
+- **`check-models` prints "All checks passed" for ids it does not know, having checked nothing.** In zsh an unquoted `$IDS` does not split, so a whole list becomes one unknown id. If no rows print, nothing ran.
+
+**Facts on these fifteen**: checked against web sources during the build. Eleven claims changed, and the kinds worth remembering are a figure that includes something (Babbage's 8,000 parts and 5 tons include the printer) and a date nobody could source (Archimedes' 225 BCE, now "the 200s BCE"). Some checks read search summaries rather than pages, Wikipedia carries several of them, and a few well-known claims went unsearched (Earth's perihelion, tadpole tails, the knee being the largest joint), so **a teacher or subject expert should still read them.**
+
+**Performance, measured in node, not in a frame**: 7.6k to 57.9k triangles, 4 to 6 meshes, at most 1 transparent, no point lights. All fifteen were placed and photographed in both editions on the development Mac with no page errors. The largest canvas is the unit circle's, at about 3072 x 1560. **NOT YET MEASURED ON AN i5/i7 CHROMEBOOK.**
 
 ### World Geography, and a landscape as a block cut out of the Earth
 
