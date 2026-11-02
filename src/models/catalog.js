@@ -2409,6 +2409,23 @@ export const MODELS = [
     realSize: 'Some of the real terraces climb thousands of feet up a mountain', shownAt: 'A small teaching model with far fewer steps than a real hillside',
     tryThis: 'Follow a drop of water from the forest to the bottom. How many fields does it pass through?',
   },
+  {
+    id: 'great-barrier-reef', title: 'Great Barrier Reef', category: 'geography', builder: 'georeef', scale: 1, pictureElevation: 24,
+    grades: ALL, subjects: ['geography', 'biology', 'ecology', 'earth science'],
+    aliases: ['reef', 'coral', 'australia', 'queensland', 'polyp', 'bleaching', 'clownfish', 'sea turtle', 'coral sea', 'ribbon reef', 'cay', 'heart reef', 'staghorn', 'giant clam', 'reef shark', 'marine', 'ocean', 'cairns', 'climate change', 'diorama'],
+    blurb: 'A diorama from the Queensland coast out to the Coral Sea: a turquoise map of reefs from above, and from the front an open case of corals and swimming fish, with the limestone they built in section beneath.',
+    facts: [
+      'The Great Barrier Reef runs for about 1,400 miles along the coast of Queensland, Australia, and is made up of about 2,900 separate reefs and 900 islands.',
+      'It is the largest structure on Earth made by living things. It was built by tiny animals called coral polyps, each laying down a limestone skeleton.',
+      'The living reef on top is only about 6,000 to 8,000 years old. It grows on older reef rock, and complete reefs have stood here on and off for about 600,000 years.',
+      'Corals get much of their food and color from tiny algae living inside them. In water that stays too warm they lose the algae and turn white. This is called bleaching: a bleached coral is not dead yet, but it can starve.',
+      'Aboriginal Australians have lived in this region for at least 40,000 years, and Torres Strait Islanders for about 10,000. About 70 Traditional Owner groups have ties to the reef today.',
+    ],
+    realSize: 'About 1,400 miles long',
+    shownAt: 'A made-up stretch on a block about 18 feet long, gathering features from different parts of the reef. Depths are squeezed, and the corals and animals are drawn far larger than the map around them',
+    tryThis: 'Crouch and look at the cut face under the reef. How much of all that stone is alive? Then find the sand behind the reef and the blue beyond it. Why does the color change so fast?',
+    answer: 'Only the thin colored skin is alive. The rest is limestone left by earlier corals. The color changes because the water goes from a shallow lagoon to the very deep Coral Sea at the edge of the continental shelf.',
+  },
   // --- City Dioramas -----------------------------------------------------------------
   {
     id: 'new-york-diorama', title: 'New York City', category: 'cities', builder: 'citiesamerica', scale: 1, yaw: 0, pictureElevation: 30, program: 'spinSlow',
