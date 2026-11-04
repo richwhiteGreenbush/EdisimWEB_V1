@@ -1931,6 +1931,10 @@ body.cinema-active #menu {
   border-color: rgba(125, 211, 252, 0.5);
 }
 
+.om-zoom {
+  border-color: rgba(196, 181, 253, 0.55);
+}
+
 .om-stop {
   border-color: rgba(248, 180, 120, 0.5);
 }

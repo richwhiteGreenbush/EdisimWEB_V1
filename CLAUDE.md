@@ -4474,6 +4474,28 @@ Things the rigs had to learn:
   takes the whole screen, so `.cinema-chip` copies `.stretch-done-chip` exactly: z-index
   41, above the drag ghost and below toasts, clear of the toast band.
 
+**Zoom To** (per Rich) is the object menu's first row whenever the student is more than
+`ZOOM_MIN_DISTANCE` (10ft) from what they clicked, and walks them to `ZOOM_GAP` (5ft) in
+front of it (`zoomTo` / `zoomPose` / `zoomToRig` in `Cinema.js`). It is the one rig that does
+NOT hand back to where it started: its `end()` rewrites `cinema.returnPose` to the destination,
+the fly rig's trick, so Skip, Esc and the object being deleted mid-move all land there too.
+Things it decides, each for a reason:
+
+- **It stands in front of the POINT CLICKED, not the bounding box.** A box is mostly empty
+  air for a turned or spread-out prop, so 5ft from a T. rex's box can be 15ft from the animal.
+  `ObjectMenu.tryPick` hands `hits[0].point` to `open()`, stored relative to the object's
+  POSITION, so a gliding object is chased and a spinning one does not swing the destination
+  round in a circle. The web browser panel's edit icon opens the menu with no point, so a
+  panel uses its centre, approached from its FRONT (it is backface-hidden).
+- **Both distances are HORIZONTAL**, because the student walks. Measured in 3D, a shark
+  overhead would offer a Zoom To that goes nowhere.
+- **It looks at the point but tilts up no more than 25 degrees.** Centring a tree's crown 5ft
+  away leaves a screen of sky and leaf with no ground in it.
+- **The rig sets `easeIn: false`**, which `take()` now honours: it tweens from the student's
+  own pose, and Cinema's 0.55s blend stacked on top made the move crawl and then rush. It
+  moves along the ground, not in a straight line, which would cut through the hill between.
+- With camera movement off (Settings) it is a single cut through `player.resetTo()`.
+
 **Photo mode captures inside `animate()`, immediately after `renderer.render()` and in the
 same task.** The renderer is built without `preserveDrawingBuffer`, so a read from a click
 handler on a later tick returns a BLACK RECTANGLE with no error at all. Do not reach for a
