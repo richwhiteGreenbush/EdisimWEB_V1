@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { STICKERS, refreshSticker } from './Motion.js';
-import { orbitRig, rideRig, driveRig } from './Cinema.js';
+import { orbitRig, rideRig, driveRig, canZoomTo, zoomTo } from './Cinema.js';
 import { applyColorTint } from './ColorTint.js';
 import { PALETTE_SWATCHES } from './config.js';
 
@@ -138,11 +138,14 @@ export class ObjectMenu {
       return;
     }
 
-    this.open(id, clientX, clientY);
+    this.open(id, clientX, clientY, { point: hits[0].point });
   }
 
-  open(id, clientX, clientY) {
+  // `point` is where the click landed on the object, which is what Zoom To walks up to.
+  // The web browser panel's edit icon opens this menu without one.
+  open(id, clientX, clientY, { point } = {}) {
     this.activeId = id;
+    this.focus = this.focusFor(id, point);
     this.panel.hidden = false;
     this.renderRoot();
     this.positionAt(clientX, clientY);
@@ -152,6 +155,38 @@ export class ObjectMenu {
     this.panel.hidden = true;
     this.panel.innerHTML = '';
     this.activeId = null;
+    this.focus = null;
+  }
+
+  // What Zoom To stands in front of (see zoomPose in Cinema.js).
+  focusFor(id, point) {
+    const object3D = this.registry.get(id)?.object3D;
+    if (!object3D) return null;
+    const box = new THREE.Box3().setFromObject(object3D);
+    let anchor;
+    let approach = null;
+    if (object3D.userData.isWebBrowser) {
+      // The middle of the screen, from the FRONT whichever side the student is on: a
+      // panel is backface-hidden, so standing behind one shows nothing at all. Read off
+      // the quaternion, not matrixWorld, which lags a frame behind an edit.
+      anchor = box.isEmpty() ? object3D.position.clone() : box.getCenter(new THREE.Vector3());
+      const facing = new THREE.Vector3(0, 0, 1).applyQuaternion(object3D.quaternion);
+      facing.y = 0;
+      if (facing.lengthSq() > 1e-6) approach = facing.normalize();
+    } else if (point) {
+      anchor = point.clone();
+    } else {
+      anchor = box.isEmpty()
+        ? object3D.position.clone()
+        : box.clampPoint(this.camera.position, new THREE.Vector3());
+    }
+    return { id, object3D, offset: anchor.sub(object3D.position), approach };
+  }
+
+  startZoom() {
+    const focus = this.focus;
+    this.close();
+    zoomTo(this.cinema, focus);
   }
 
   positionAt(clientX, clientY) {
@@ -184,6 +219,12 @@ export class ObjectMenu {
     title.className = 'om-title';
     title.textContent = 'Object';
     this.panel.appendChild(title);
+    // Only offered from more than ZOOM_MIN_DISTANCE away. Up close it would move the
+    // student a step or two, which is what the arrow keys are for. It goes first because
+    // a click on something far away is, more often than not, "take me over there".
+    if (canZoomTo(this.cinema, this.focus)) {
+      this.panel.appendChild(this.button('🔍 Zoom To', () => this.startZoom(), 'om-zoom'));
+    }
     // Size and Move are deliberately NOT here any more.
     //
     // They were the two actions that changed an object by typing a number into a form,

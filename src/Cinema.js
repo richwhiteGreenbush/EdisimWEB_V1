@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { EYE_HEIGHT, WORLD_BOUND_RADIUS } from './config.js';
+import { EYE_HEIGHT, MAX_PITCH, WORLD_BOUND_RADIUS } from './config.js';
 import { EASE } from './Motion.js';
 import { cameraMovesOn, reducedMotion } from './Settings.js';
 
@@ -124,8 +124,10 @@ export class Cinema {
     this.rig = rig;
     this.rigName = name;
     // A student who has asked for no camera movement gets the destination immediately.
-    // Still arriving, just not travelling.
-    this.blend = cameraMovesOn() ? 0 : 1;
+    // Still arriving, just not travelling. A rig that tweens from the student's own pose
+    // (Zoom To) sets easeIn: false, because a second ease stacked on its own makes the
+    // move crawl away from the start and then rush to catch up.
+    this.blend = cameraMovesOn() && rig.easeIn !== false ? 0 : 1;
     document.body.classList.add('cinema-active');
     // The label has to match what the rig IS. "Back to me" is right for a rig the student
     // chose and can leave; it is meaningless during an arrival, where there is no "me" to
@@ -485,6 +487,158 @@ export function arrivalRig(cinema, spawn, { seconds = 2.1 } = {}) {
       player.resetTo(spawn);
     },
   };
+}
+
+// ZOOM TO. Walks the student up to the thing they clicked and leaves them standing
+// ZOOM_GAP feet in front of it, looking at it. Unlike every other rig here it does not
+// hand back to where they started: it MOVES them, the way walking there would have, so
+// they can carry on from the new spot.
+//
+// A focus is { id, object3D, offset, approach }:
+//   * offset is the point to stand in front of, relative to the object's POSITION -- the
+//     spot the student actually clicked, so a 41ft T. rex clicked on the tail brings them
+//     to the tail rather than to the middle of a box that is mostly empty air. Relative to
+//     position and not to the whole transform, so a thing a program is gliding is followed
+//     while a thing spinning in place (the carousel) does not drag the destination round
+//     in a circle.
+//   * approach (optional) is the horizontal direction from that point to where the
+//     student ends up. Left out, it is back along the line they were looking from, which
+//     keeps the object in front of them for the whole move. A web browser panel passes its
+//     own facing instead, because it renders nothing from behind.
+//
+// Both distances are HORIZONTAL. The student walks on the ground, so for something
+// floating overhead "how far away is it" means how far they could still walk toward it --
+// measured in 3D, a shark straight above them would offer a Zoom To that goes nowhere.
+export const ZOOM_GAP = 5;
+export const ZOOM_MIN_DISTANCE = 10;
+// fov 70 is vertical, so 25 degrees up still leaves the horizon 10 degrees above the
+// bottom of the screen.
+const ZOOM_MAX_LOOK_UP = THREE.MathUtils.degToRad(25);
+
+const _zoomPoint = new THREE.Vector3();
+
+export function zoomPose(cinema, focus, approach = focus?.approach, out = {}) {
+  if (!focus?.object3D) return null;
+  const player = cinema.player;
+  const eye = cinema.camera.position;
+  const point = _zoomPoint.copy(focus.object3D.position).add(focus.offset);
+
+  let ax = approach ? approach.x : eye.x - point.x;
+  let az = approach ? approach.z : eye.z - point.z;
+  let len = Math.hypot(ax, az);
+  if (len < 1e-4) {
+    // Standing exactly under or over it: step back the way they are facing.
+    ax = Math.sin(player.yaw);
+    az = Math.cos(player.yaw);
+    len = 1;
+  }
+  ax /= len;
+  az /= len;
+
+  let x = point.x + ax * ZOOM_GAP;
+  let z = point.z + az * ZOOM_GAP;
+  // The same bound PlayerController.update() clamps to, applied here so the move ends
+  // where the next frame of walking would leave them rather than jumping at the last step.
+  const radius = Math.hypot(x, z);
+  if (radius > WORLD_BOUND_RADIUS) {
+    x *= WORLD_BOUND_RADIUS / radius;
+    z *= WORLD_BOUND_RADIUS / radius;
+  }
+
+  // Look AT the point -- but never tilt further up than ZOOM_MAX_LOOK_UP. Five feet from
+  // a tree whose crown was clicked, the crown is sixty degrees overhead, and centring it
+  // leaves a screen of nothing but sky and leaf with no ground anywhere: the student has
+  // no idea where they are. Capped, the ground stays along the bottom of the frame and
+  // the thing they clicked fills the top. Looking DOWN is not capped, because something at
+  // their feet five feet away is exactly what looking down is for.
+  const eyeY = player.groundHeightAt(x, z) + player.eyeHeight;
+  const lx = point.x - x;
+  const ly = point.y - eyeY;
+  const lz = point.z - z;
+  const flat = Math.hypot(lx, lz);
+
+  out.x = x;
+  out.z = z;
+  out.yaw = flat > 1e-4 ? Math.atan2(-lx, -lz) : player.yaw;
+  out.pitch = THREE.MathUtils.clamp(Math.atan2(ly, flat), -MAX_PITCH, ZOOM_MAX_LOOK_UP);
+  out.approachX = ax;
+  out.approachZ = az;
+  // How far away it is now, and how far the move would actually carry them -- the second
+  // is what catches an object out past the world's edge, where the clamp above means
+  // Zoom To would go nowhere.
+  out.distance = Math.hypot(point.x - eye.x, point.z - eye.z);
+  out.travel = Math.hypot(x - eye.x, z - eye.z);
+  return out;
+}
+
+// Whether the object menu should offer Zoom To at all.
+export function canZoomTo(cinema, focus) {
+  const pose = cinema ? zoomPose(cinema, focus) : null;
+  return Boolean(pose && pose.distance > ZOOM_MIN_DISTANCE && pose.travel > 1);
+}
+
+export function zoomToRig(cinema, focus) {
+  const start = zoomPose(cinema, focus);
+  if (!start) return null;
+  const player = cinema.player;
+  const camera = cinema.camera;
+  // Frozen at the start, so a moving object is chased along a straight line of approach
+  // rather than the line swinging round as the camera moves along it.
+  const approach = new THREE.Vector3(start.approachX, 0, start.approachZ);
+  const from = camera.position.clone();
+  const fromQ = camera.quaternion.clone();
+  // Usually zero -- but a student who was flying when they clicked comes down to their
+  // own eye height over the move instead of dropping there in the first frame.
+  const fromLift = from.y - player.groundHeightAt(from.x, from.z);
+  // A short hop should not dawdle and a long one should not be a blur.
+  const seconds = THREE.MathUtils.clamp(0.5 + start.travel / 110, 0.6, 1.5);
+  const pose = { ...start };
+  const toQ = new THREE.Quaternion();
+  const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+  let t = 0;
+  return {
+    subjectId: focus.id,
+    chipLabel: 'Skip ›',
+    easeIn: false,
+    update(dt, ctx) {
+      t += dt;
+      zoomPose(cinema, focus, approach, pose);
+      const k = EASE.smooth(Math.min(1, t / seconds));
+      const x = from.x + (pose.x - from.x) * k;
+      const z = from.z + (pose.z - from.z) * k;
+      // Along the ground, not in a straight line through the air: a straight line between
+      // two points on a hill goes underground in the dip between them.
+      const lift = fromLift + (player.eyeHeight - fromLift) * k;
+      ctx.camera.position.set(x, player.groundHeightAt(x, z) + lift, z);
+      toQ.setFromEuler(euler.set(pose.pitch, pose.yaw, 0, 'YXZ'));
+      ctx.camera.quaternion.slerpQuaternions(fromQ, toQ, k);
+      return k >= 1;
+    },
+    end() {
+      // Land on the destination whether the move finished, was skipped, or the object was
+      // deleted out from under it -- release() then restores THIS pose, not the start.
+      // The fly rig hands back the same way.
+      cinema.returnPose = { x: pose.x, z: pose.z, yaw: pose.yaw, pitch: pose.pitch };
+    },
+  };
+}
+
+// The one call the object menu makes. A student who has turned camera movement off gets
+// there in a single cut: still arriving, just not travelling.
+export function zoomTo(cinema, focus) {
+  if (!cinema || !focus) return false;
+  if (cinema.vrView?.active) {
+    cinema.menu?.toast('Come out of the headset view first.', { tone: 'error' });
+    return false;
+  }
+  if (!cameraMovesOn()) {
+    const pose = zoomPose(cinema, focus);
+    if (!pose) return false;
+    if (cinema.active) cinema.release({ restore: false });
+    cinema.player.resetTo(pose);
+    return true;
+  }
+  return cinema.take('Zoom To', zoomToRig(cinema, focus));
 }
 
 // FLY. A drone camera -- the one viewpoint from which a student can see the shape of the
