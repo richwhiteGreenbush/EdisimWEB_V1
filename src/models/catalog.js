@@ -758,6 +758,23 @@ export const MODELS = [
     tryThis: 'Find three producers and three consumers. Then pick one animal and take it away. What happens to what it eats, and what eats it?',
     answer: 'What it ate tends to increase, and what ate it has less food, so one change spreads through the whole food web.',
   },
+  {
+    id: 'beaver-dam', title: 'Beaver Dam and Lodge', category: 'life', builder: 'beaverdam', scale: 1, pictureElevation: 24, program: 'spinSlow',
+    grades: ALL, subjects: ['biology', 'ecology', 'earth science'],
+    aliases: ['beaver', 'beaver pond', 'beaver lodge', 'kits', 'food cache', 'gnawed', 'pencil stump', 'ecosystem engineer', 'keystone species', 'water table', 'groundwater', 'stream', 'wet meadow', 'riparian', 'drought', 'flood', 'castor canadensis', 'rodent', 'aspen', 'willow', 'diorama'],
+    blurb: 'A stream valley cut open along its length: the pond a beaver family made, their dam and lodge in section, and the water table the dam has raised under the meadow downstream.',
+    facts: [
+      'Beavers dam a stream to make a pond deep enough that the doors of their lodge stay underwater, out of reach of predators. The room inside is built above the water and stays dry.',
+      'In autumn they push branches into the mud near the lodge. All winter, under the ice, they swim out to this food cache and bring branches back inside to eat.',
+      'A beaver pond raises the water table in the ground around it. A study in Rocky Mountain National Park found that beaver dams kept the water table high through the dry summer, which helps wet meadows grow.',
+      'A beaver’s front teeth never stop growing. They are orange because of iron in the enamel, which makes them stronger.',
+      'Beavers are called ecosystem engineers, because what they build changes the habitat for many other plants and animals.',
+    ],
+    realSize: 'An adult beaver is about 3 to 4 feet long, tail included',
+    shownAt: 'A made-up stretch of mountain valley on a block about 17 feet long. Depths and the rise in the water table are exaggerated so they can be seen, and the beavers, lodge and trees are drawn much larger than the valley around them',
+    tryThis: 'Crouch at the front and follow the solid blue line from the pond to the right-hand end, then find the dashed line. Where do sedges and willows grow, and why is the meadow drier at the far end?',
+    answer: 'The dam holds the pond up and pond water soaks into the ground, so the water table now sits just under the meadow for a long way downstream, and wet-ground plants grow there. Farther from the dam the water table sinks back toward where it was before the dam, so the grass is drier.',
+  },
   
   // --- Earth & Space ------------------------------------------------------------------
   {
@@ -816,6 +833,24 @@ export const MODELS = [
     program: 'liftOff',
   },
   {
+    id: 'tranquility-base', title: 'Tranquility Base, Apollo 11', category: 'space', builder: 'tranquility', scale: 1, pictureElevation: 24, program: 'spinSlow',
+    grades: ALL, subjects: ['space exploration', 'history', 'earth science'],
+    aliases: ['apollo 11', 'moon landing', 'moonwalk', 'moonwalk map', 'eagle', 'sea of tranquility', 'mare tranquillitatis', 'neil armstrong', 'buzz aldrin', 'footprints', 'bootprints', 'retroreflector', 'lunar laser ranging', 'seismometer', 'passive seismic', 'solar wind', 'little west crater', 'soccer field', '1969', 'diorama'],
+    blurb: 'The Apollo 11 landing site as the astronauts left it: the lander, the flag, their instruments and every trail they walked, with a soccer field drawn on the same ground at the same scale.',
+    facts: [
+      'The lander, Eagle, touched down in the Sea of Tranquility on 20 July 1969. Neil Armstrong and Buzz Aldrin spent about two and a half hours walking outside.',
+      'Everywhere they walked would fit on a soccer field. The longest walk, Armstrong’s trip to the rim of Little West Crater, went only about 60 m (200 ft) from the lander.',
+      'They left a laser reflector that needs no power. Observatories on Earth still bounce lasers off it, and the timing shows the Moon moving away from Earth by about 3.8 cm (1.5 inches) a year.',
+      'Their seismometer ran on sunlight and sent back data for 21 days before it stopped answering commands.',
+      'The flag stood about 8 m (27 ft) from the lander. Aldrin saw the engine’s exhaust knock it over as they took off.',
+      'The bottom half of the lander is still there. It served as the launch pad for the top half, which carried the astronauts back up to the command module.',
+    ],
+    realSize: 'Everywhere the two astronauts walked fits inside a soccer field, about 105 by 68 m',
+    shownAt: 'The plan is to scale, 1 foot to 6.5 m across and in depth, including the craters, the soccer field and the regolith in the cut face (about 4.4 m deep, a seismic estimate). The lander, flag and instruments are drawn 1.4 times larger, and the trails and field lines wider than real. The reflector and seismometer are placed from NASA site coordinates, and the flag, camera, solar wind foil and trails follow published traverse maps approximately. Everything they set up is shown at once, though the solar wind foil was packed up before they left',
+    tryThis: 'Find the end of Armstrong’s longest walk, then find the soccer field’s centre circle. How far did anyone go from the lander? Then open Look Around and lower the Time of Day to stretch the shadows, the way the low morning Sun did at the landing.',
+    answer: 'About 60 m (200 ft), to the rim of Little West Crater. All of their walking fits inside the soccer field.',
+  },
+  {
     id: 'mars-rover', title: 'Mars Rover', category: 'space', builder: 'space', scale: 1, yaw: 0.5,
     grades: ALL, subjects: ['space exploration', 'engineering', 'robotics'],
     aliases: ['perseverance', 'curiosity', 'nasa', 'robot', 'planet', 'red planet', 'rocker bogie', 'spacecraft'],
@@ -828,6 +863,24 @@ export const MODELS = [
     realSize: 'About 10 feet long', shownAt: 'Life size',
     tryThis: 'Program a route. Remember, you could not steer it in real time on Mars.',
     program: 'driveSquare',
+  },
+  {
+    id: 'jezero-crater', title: 'Jezero Crater, Mars', category: 'space', builder: 'jezero', scale: 1, pictureElevation: 28, program: 'spinSlow',
+    grades: UP3, subjects: ['earth science', 'space exploration', 'astrobiology'],
+    aliases: ['jezero', 'perseverance', 'river delta', 'ancient lake', 'paleolake', 'neretva vallis', 'octavia e butler landing', 'ingenuity', 'cheyava falls', 'sapphire canyon', 'bright angel', 'biosignature', 'life on mars', 'astrobiology', 'margin carbonates', 'carbonate', 'sediment', 'isidis', 'red planet', 'diorama'],
+    blurb: 'The crater where NASA landed Perseverance, cut open through its river delta: a dried-up lake whose layered mud may have kept traces of life.',
+    facts: [
+      'Jezero Crater is about 28 miles (45 km) wide. Scientists think it held a lake about 3.5 billion years ago.',
+      'A river broke through the western rim and dropped its mud and sand where it met the still water, building a fan-shaped delta. The front of the delta still stands as a line of cliffs above the crater floor.',
+      'NASA chose Jezero from about 60 possible landing sites, because a lake and a delta lay down clays and carbonates, rocks that are good at keeping signs of past life.',
+      'Perseverance landed on February 18, 2021. The crater floor turned out to be volcanic rock that water changed later, not lake mud.',
+      'In July 2024 the rover drilled a rock nicknamed Cheyava Falls in an old river channel. In 2025 NASA called what it found a “potential biosignature”: something that might have been made by life, but could also have formed without it.',
+      'A pale band of carbonate rock runs around the inside of the rim near the height of the old shoreline. Scientists still debate how it formed.',
+    ],
+    realSize: 'About 28 miles (45 km) across',
+    shownAt: 'Half the crater, cut through its middle, on a block about 17 feet wide, so 1 foot is about 2 miles. Heights are exaggerated about ten times, and the delta a little more so its layers show. The plan is turned about 35 degrees so the cut runs through the delta, and the arrow marks north. The rover’s route and the positions are approximate, the markers are not to scale, and a smaller fan on the north side is left out',
+    tryThis: 'Look through the glass at the front. Where did the river drop its mud and sand, and why there? Then follow the dotted line from where Perseverance landed. Why would a rover looking for signs of ancient life climb the delta instead of staying on the flat floor?',
+    answer: 'The river slowed when it met the still lake and dropped what it carried, which built the delta. Fine mud laid down in water is the kind of rock that best keeps traces of life on Earth, so the delta is where any traces were most likely to survive.',
   },
   {
     id: 'saturn-v', title: 'Saturn V Rocket', category: 'space', builder: 'space', scale: 0.07, pictureElevation: 8,
