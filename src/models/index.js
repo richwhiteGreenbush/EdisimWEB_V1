@@ -69,6 +69,9 @@ const BUILDER_CHUNKS = {
   fieldlab: () => import('./builders/FieldLab.js'),
   georeef: () => import('./builders/GeoReef.js'),
   giza: () => import('./builders/Giza.js'),
+  beaverdam: () => import('./builders/BeaverDam.js'),
+  tranquility: () => import('./builders/Tranquility.js'),
+  jezero: () => import('./builders/Jezero.js'),
 };
 
 export async function buildCatalogModel(id) {

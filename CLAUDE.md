@@ -4644,10 +4644,10 @@ says "this used to be Get More Worlds". The sources now describe the panel, so a
 
 ### The Model Database, and a model a student can pull out of shape
 
-Menu ▸ **Model Database**: 262 ready-made educational models in twelve types, searchable,
+Menu ▸ **Model Database**: 265 ready-made educational models in twelve types, searchable,
 placeable in every world in both editions, and shapeable with the same hammer tools as a cube.
 `src/models/catalog.js` is the one table, `src/ModelDatabase.js` the panel, `src/models/index.js`
-the placing, and `src/models/builders/` holds the 245 built for it, one lazy chunk per family. The
+the placing, and `src/models/builders/` holds the 248 built for it, one lazy chunk per family. The
 other 17 are `PROP_BUILDERS` entries from worlds. **`src/models/ModelKit.js` is the shared kit:** the
 signed-distance `Sculpt`, plus a closed `tube`, a correct `lathe`, `outward` and `alongMatrix`. It came
 out of `builders/Life.js`, proven byte-identical by hashing all six models before and after. `docs/guide/models.html` is GENERATED from the
@@ -4899,6 +4899,58 @@ the main thread. **NOT YET MEASURED ON AN i5/i7 CHROMEBOOK.**
 **Facts**: checked against Wikipedia and NOAA's coral pages. The Great Barrier Reef Marine Park Authority's own page timed out, so **its figures reached the card second-hand, and a teacher or subject expert should still read them.**
 
 **Performance, measured in node, not in a frame**: 58.5k triangles, 6 meshes, 0 transparent, 0 point lights. About 1.9s to build on the development Mac, nearly all of it painting the ground and water canvases, against the up-to-a-second recorded for the other landscapes, and those canvases are the first thing to cut if a Chromebook stalls on it. **NOT YET MEASURED ON AN i5/i7 CHROMEBOOK.**
+
+### Three science dioramas: a beaver dam, Tranquility Base and Jezero Crater
+
+`builders/BeaverDam.js` (Plants & Animals), `builders/Tranquility.js` and `builders/Jezero.js` (Earth & Space),
+per Rich, one lazy chunk each. They were built by three agents in parallel, each owning only its own builder file,
+with the catalog entries and chunk wiring done first so that no two of them edited the same file. **Each is built
+round one idea, and the cut face is where that idea is shown**:
+
+- **Beaver dam: an animal that engineers its own landscape.** The front face runs along the stream, through the
+  pond, the lodge, the food cache, the dam and the wet meadow. Under the meadow, a solid line marks the water table
+  now and a dashed one marks it before the dam, and **the soil between the two lines is its own colour**: tinted
+  the same as the rest of the saturated ground, the dam's effect disappears. There are two water levels (the pond
+  above the dam, the stream below it), which `terrainBlock`'s single `water` cannot do, so it builds its own the way
+  GeoReef does. The lodge's room is a real opening: the hole in the face uses exactly the rim stations of the room
+  behind it, and the room is its own mesh with shadows off. One beaver swims the pond with a wake, by buffer
+  rewrite, and honours `reducedMotion()`.
+- **Tranquility Base: the whole moonwalk covered a very small area.** **NASA's comparison is a SOCCER pitch** (the
+  Apollo Lunar Surface Journal overlay) and a baseball field, never an American football field, which is what
+  memory says. The plan is true scale (1ft = 6.5m) and the soccer field is drawn on the same ground at the same
+  scale. The reflector and seismometer are placed from NASA site coordinates, and the rest from the traverse maps.
+  The hardware is 1.4 times larger, and any more puts the lander's footpads on the flag. No astronauts, under the
+  real-likeness rule. The model cannot set the world's sun, so it bakes no shadows, and its card points at Time of Day.
+- **Jezero Crater: a dried-up lake whose delta may have kept traces of life.** Half the crater, cut on the line
+  from the delta to the middle of the floor, so the face is the delta's own profile (topsets, foresets, bottomsets
+  on the volcanic floor). **That line runs about 35 degrees north of west, so the plan is turned** and a north arrow
+  is painted on, because a cut with north kept at the back misses the delta. The lake is shown as gone: a dashed
+  shoreline, the pale carbonate band, and one glass sheet at the cut face from the floor to the old water level.
+
+Things they hit, worth keeping:
+
+- **A per-texel query against paths or line markings dominates a `terrainBlock` build.** `pathDistance` per sample
+  was 5.8s of Jezero's 7s; sampling each path once, within its bounding box plus a margin, took it to 0.86s.
+  Tranquility stamps its soccer lines and trails into a raster and looks them up, 2.2s down to 1.2s.
+- **Water shown on a terrain block has to be clipped to its own basin.** Ground outside Jezero's rim is lower than
+  the old lake surface, so a plain "below the water level" test flooded the plain with a lake that was never there.
+- **A crater wall drawn wider than the real one buries the delta at its foot.** Pin the floor diameter first.
+- **GeoKit `signs()` posts are sized for landscapes** and read as telegraph poles beside small hardware. Set
+  `ground` just under `y` to suppress them and draw thin posts in the batch.
+- **A white glow on a material that mixes a map with vertex colours greys out the coloured parts.** The lodge
+  room's glow is warm brown for that reason.
+- **A water-table line that falls more slowly than the dam's downstream face is drawn ON the dam.** Make it fall faster.
+
+**Facts**: researched by the three agents with web search, then spot-checked. Two of their claims did not hold and
+are not on the cards: the height of Jezero's delta front (proposed as 60m; one source says its cliffs are about 40m)
+and the length of the largest beaver dam. The Mars Sample Return funding situation was left off as something that
+will date. Most checks read search summaries rather than source pages, so **a teacher or subject expert should
+still read them.**
+
+**Performance, measured in node, not in a frame**: beaver dam 50.9k triangles, Tranquility Base 41.3k, Jezero 44.5k,
+6 meshes each, 1 transparent (Jezero's glass), no point lights. Each takes about a second to build on the
+development Mac, mostly painting. All three were placed and photographed in both editions with no page errors.
+**NOT YET MEASURED ON AN i5/i7 CHROMEBOOK.**
 
 ### City Dioramas, and a whole city as one record
 

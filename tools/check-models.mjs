@@ -288,6 +288,11 @@ const OPEN_EDGES = {
   // The ground and the water are surfaces that meet along a shared edge, and a fish's fin is a plate.
   'great-barrier-reef': 1111,
   'giza-plateau-diorama': 841,
+  // A beaver pond's two water sheets, the open rim of the lodge's room that meets the face's hole,
+  // and a terrain sheet meeting its walls; label and sign planes are surfaces rather than solids.
+  'beaver-dam': 2564,
+  'tranquility-base': 1680,
+  'jezero-crater': 2188,
   // Math, engineering and field models. Flat printed discs, water sheets and label backs are surfaces
   // rather than solids, and the engine, bridges and aqueduct are parts sunk into one another.
   'pascals-triangle': 0,
