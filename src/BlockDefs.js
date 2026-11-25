@@ -252,6 +252,19 @@ export const BLOCK_DEFS = {
     label: [{ text: 'say' }, { field: 'text' }],
     params: { text: { type: 'text', default: 'hello' } },
   },
+  // `say` for ONE object: the bubble shows as usual, but only the object NAMED here hears it,
+  // so only its `when an object says` blocks start. Objects are named from the object menu
+  // (`record.objectName`). A name nobody has is not a problem -- nobody hears it, exactly as
+  // nobody hears a `say` that no hat is listening for.
+  tell: {
+    category: 'look',
+    hasChildren: false,
+    label: [{ text: 'tell' }, { field: 'object' }, { field: 'text' }],
+    params: {
+      object: { type: 'text', default: 'robot', short: true },
+      text: { type: 'text', default: 'hello' },
+    },
+  },
   changeSize: {
     category: 'look',
     hasChildren: false,
@@ -387,8 +400,8 @@ export const BLOCK_DEFS = {
         options: [
           { value: 'sqrt', label: 'square root' },
           { value: 'square', label: 'square' },
-          { value: 'abs', label: 'absolute' },
-          { value: 'round', label: 'rounded' },
+          { value: 'abs', label: 'absolute value' },
+          { value: 'round', label: 'rounded value' },
           { value: 'sin', label: 'sin°' },
           { value: 'cos', label: 'cos°' },
           { value: 'tan', label: 'tan°' },

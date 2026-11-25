@@ -54,6 +54,16 @@ export class ProgramManager {
     // they are only ever called from a running program, long past boot.
     this.onDuplicate = null;
     this.onSay = null;
+
+    // placedId -> the name a student gave the object (`record.objectName`), which is how
+    // `tell` finds who it is talking to. Kept from startFromRecord, the one place a program
+    // starts with its record in hand; setObjectName() is how a rename reaches a running one.
+    this.objectNames = new Map();
+  }
+
+  setObjectName(id, name) {
+    if (name) this.objectNames.set(id, String(name));
+    else this.objectNames.delete(id);
   }
 
   // The transform to send `go back to start` and `set size to` back to.
@@ -101,6 +111,11 @@ export class ProgramManager {
         this.onSay?.(id, object3D, text);
         this.broadcast(text, id);
       },
+      // `tell robot2 go`: the same bubble, heard only by the object of that name.
+      tell: (name, text) => {
+        this.onSay?.(id, object3D, text);
+        this.broadcast(text, id, { to: name });
+      },
       // The marker. `this.marker` is assigned by main.js after construction, exactly as
       // `onDuplicate` is and for the same reason: ProgramManager is built at the top of
       // main.js, before the scene the marker draws into exists. Safe, because nothing here
@@ -129,6 +144,7 @@ export class ProgramManager {
   // The dispatch every caller goes through: run whichever representation the record says
   // is live. Blocks remain the default for every record that has never seen the toggle.
   startFromRecord(id, record, object3D) {
+    this.setObjectName(id, record?.objectName);
     // `go back to start` means wherever the object is when its program starts, so pressing
     // Save while a ball is in mid-air would make mid-air its home for good. A record carrying
     // this flag is an exhibit whose start is where it was PLACED, so it goes back there first.
@@ -215,11 +231,16 @@ export class ProgramManager {
   // it would be a silent special case a student could not see. What IS guarded is the
   // obvious runaway -- a hat whose body says the very text that triggered it -- which is
   // caught by refusing to re-enter a hat that is already running on the same object.
-  broadcast(text, from) {
+  //
+  // `to` is `tell`: only the object with that name hears it (names match ignoring case, the
+  // same way the words themselves do).
+  broadcast(text, from, { to = null } = {}) {
     const key = String(text ?? '').trim().toLowerCase();
     if (!key) return;
+    const target = to == null ? null : String(to).trim().toLowerCase();
 
     for (const [id, entry] of this.programs) {
+      if (target != null && (this.objectNames.get(id) ?? '').trim().toLowerCase() !== target) continue;
       for (const block of entry.program) {
         // Two hat types, one loop. `whenSaid` matches a spoken phrase and `whenWorld`
         // matches a world event, and both arrive here as the same normalised key -- so a
@@ -251,6 +272,7 @@ export class ProgramManager {
     // language boundary. Same re-entry guard as activeHats: a hat mid-run is not
     // restarted by its own trigger phrase.
     for (const run of this.jsRuns.values()) {
+      if (target != null && (this.objectNames.get(run.id) ?? '').trim().toLowerCase() !== target) continue;
       for (const hat of run.hats) {
         if (hat.key !== key || hat.running) continue;
         hat.running = true;

@@ -299,6 +299,11 @@ function* runBlock(block, ctx) {
       yield { type: 'tick' };
       return;
 
+    case 'tell':
+      ctx.tell?.(String(block.params.object ?? '').trim(), fillText(String(block.params.text ?? ''), ctx));
+      yield { type: 'tick' };
+      return;
+
     case 'changeSize': {
       // "by" (not "to") -- multiplicative on the current size, matching Scratch's own
       // "change size by N%" semantics.
