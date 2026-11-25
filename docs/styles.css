@@ -2066,7 +2066,14 @@ section[id], .res-group, .anchor-alias { scroll-margin-top: calc(var(--nav-h) + 
 }
 
 .jsm-toggle span { padding: 3px 10px; }
-.jsm-toggle .on { background: #f2d21e; color: #20242a; }
+.jsm-toggle .on { background: #3fae5a; color: #ffffff; }
+/* The typed-code mock is coloured by the editor's own highlighter (src/textcode/highlight.js):
+   command words carry their block's colour inline; these are the rest of its classes. */
+.jsm-code .tc-k { font-weight: 700; }
+.jsm-code .tc-v { color: #7fd99a; }
+.jsm-code .tc-n { color: #f7a26c; }
+.jsm-code .tc-s, .jsm-code .tc-t { color: #e6d38a; }
+.jsm-code .tc-c { color: #7a8895; font-style: italic; }
 
 .jsm-code {
   margin: 0;

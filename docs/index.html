@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <title>Edusim: Web Edition — free 3D building and coding for kids, no account needed</title>
-<meta name="description" content="Edusim is a free 3D building-and-coding world for K–8 that runs in any browser — no account required, nothing to install, and no student data collected. Explore ready-made learning worlds (dinosaurs, the Moon, a cut-away volcano, the human body, famous landmarks), build models from simple shapes, and program them with blocks or real JavaScript. Built on the spatial-reasoning research." />
+<meta name="description" content="Edusim is a free 3D building-and-coding world for K–8 that runs in any browser — no account required, nothing to install, and no student data collected. Explore ready-made learning worlds (dinosaurs, the Moon, a cut-away volcano, the human body, famous landmarks), build models from simple shapes, and program them with blocks or Python-style code. Built on the spatial-reasoning research." />
 <meta name="theme-color" content="#4da3ec" />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <!-- The logo mark is what a phone shows when the page is saved to a home screen, and a
@@ -20,7 +20,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Edusim: Web Edition" />
 <meta property="og:title" content="Edusim: Web Edition — a 3D virtual world for curious minds" />
-<meta property="og:description" content="A research-based learning tool for kids. Build it out of shapes. Code it with blocks or real JavaScript. Explore learning worlds — dinosaurs, the Moon, a cut-away volcano, the human body, the Colosseum and more. Free, in your browser, with no account." />
+<meta property="og:description" content="A research-based learning tool for kids. Build it out of shapes. Code it with blocks or Python-style code. Explore learning worlds — dinosaurs, the Moon, a cut-away volcano, the human body, the Colosseum and more. Free, in your browser, with no account." />
 <meta property="og:image" content="https://edusim3dweb.com/assets/edusim-social.jpg" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -78,7 +78,7 @@
        #hifi       the high-fidelity edition (the one dark band, straight after the
                    worlds -- see CLAUDE.md)
        #build      the Model Builder in four steps
-       #code       blocks and JavaScript side by side
+       #code       blocks and Python-style typed code side by side
        #learn      tutorials, skill cards and the seven world guide cards
        #more       the rest of the toolbox
        #teachers   "Made for Learning": the wedge, the research card, the trade-off
@@ -163,7 +163,7 @@
     <p class="hero-sub">
       A free 3D world that runs right in your browser.
       <strong class="t-build">Build</strong> things out of simple shapes.
-      <strong class="t-code">Code</strong> them with blocks or real JavaScript.
+      <strong class="t-code">Code</strong> them with blocks or Python-style code.
       <strong class="t-explore">Explore</strong> worlds made for learning.
     </p>
     <ul class="hero-facts" aria-label="What it costs you">
@@ -304,7 +304,7 @@
         <a class="door" href="#code" style="--c: var(--purple);">
           <span class="door-icon" aria-hidden="true">🧩</span>
           <span class="door-title">Bring it to life</span>
-          <span class="door-text">Program anything with drag-and-drop blocks — or real JavaScript.</span>
+          <span class="door-text">Program anything with drag-and-drop blocks — or type it in Python-style code.</span>
           <span class="door-go">How coding works ↓</span>
         </a>
         <a class="door" href="#learn" style="--c: var(--blue);">
@@ -602,7 +602,7 @@
         <p><strong>Edusim HiFi</strong> is built for higher-end computers and a richer visual experience: a living sky that lights
           everything under it, real shadows, grass and ferns you walk through, photographic stone, timber and metal, and
           models rebuilt in far finer detail. Everything else is the Edusim you know — every world, the block and
-          JavaScript coding, Create Model, Draw, saving and sharing.</p>
+          Python-style coding, Create Model, Draw, saving and sharing.</p>
       </div>
 
       <ul class="hifi-points reveal" aria-label="What Edusim HiFi adds">
@@ -747,9 +747,9 @@
         <h2>Two ways to write <span class="hl" style="--c: var(--purple);">the same program</span></h2>
         <p>
           Click anything in any world and press <strong>Program</strong>. Start with
-          drag-and-drop blocks. When you are ready, flip the switch to
-          <strong>JavaScript</strong> — your blocks turn into real code you can read.
-          Flip back any time. Nothing is ever lost.
+          drag-and-drop blocks. When you are ready, pick <strong>Basic Beginner</strong>,
+          and your blocks turn into Python-style code you can read and type. Switch back
+          any time. Nothing is ever lost.
         </p>
       </div>
 
@@ -765,10 +765,10 @@
                  alt="The drag-and-drop block editor: a palette of orange Control, blue Motion and purple Look blocks on the left, and a program stack on the right." />
           </div>
           <p>
-            Fifteen blocks in three colours: <strong>Control</strong> (repeat, forever,
-            wait), <strong>Motion</strong> (move, glide, rotate) and
-            <strong>Looks</strong> (say, size, colour). If you have met Scratch,
-            you already know how this works.
+            Blocks in four colours: <strong>Control</strong> (repeat, forever,
+            wait), <strong>Motion</strong> (move, glide, rotate), <strong>Looks</strong>
+            (say, size, colour) and <strong>Math</strong> (numbers you can name). If you
+            have met Scratch, you already know how this works.
           </p>
           <!-- The block colours are BlockDefs.js CATEGORIES, exactly: the orange chip
                here is the orange block a student then drags. Do not retint. -->
@@ -779,30 +779,31 @@
           </div>
         </div>
 
-        <div class="code-lane" style="--c: #e5c21a;">
+        <div class="code-lane" style="--c: #3fae5a;">
           <div class="lane-head">
-            <span class="lane-tag" style="background: #f2d21e; color: #20242a;">JavaScript</span>
-            <h3>Or type real code</h3>
+            <span class="lane-tag" style="background: #3fae5a;">Python-style code</span>
+            <h3>Or type it</h3>
           </div>
-          <!-- An HTML mock rather than a screenshot: it stays razor sharp at every size,
-               and the token colours are the editor's own. -->
+          <!-- An HTML mock rather than a screenshot: it stays razor sharp at every size.
+               The colouring is the editor's own, produced by src/textcode/highlight.js
+               (command words take their block's colour), and the program compiles. -->
           <div class="js-mock" aria-hidden="true">
             <div class="jsm-bar">
               <span class="jsm-dot" style="background:#e0453c"></span>
               <span class="jsm-dot" style="background:#f2c14e"></span>
               <span class="jsm-dot" style="background:#74c043"></span>
-              <span class="jsm-toggle"><span>Block Code</span><span class="on">JavaScript</span></span>
+              <span class="jsm-toggle"><span>Blocks</span><span class="on">Basic Beginner</span><span>Basic Pro</span></span>
             </div>
-            <pre class="jsm-code"><span class="tok-c">// the same program, as code</span>
-<span class="tok-k">await</span> <span class="tok-f">forever</span>(<span class="tok-k">async</span> () =&gt; {
-  <span class="tok-k">await</span> <span class="tok-f">moveForward</span>(<span class="tok-n">10</span>);
-  <span class="tok-k">await</span> <span class="tok-f">rotate</span>(<span class="tok-n">90</span>);
-});</pre>
+            <pre class="jsm-code"><span class="tc-c"># the same program, typed</span>
+<span class="tc-k" style="color:#ffab19">forever</span>
+    <span class="tc-k" style="color:#4c97ff">move</span> <span class="tc-k" style="color:#4c97ff">forward</span> <span class="tc-n">10</span> <span class="tc-k" style="color:#4c97ff">feet</span>
+    <span class="tc-k" style="color:#4c97ff">rotate</span> <span class="tc-n">90</span> <span class="tc-k" style="color:#4c97ff">degrees</span></pre>
           </div>
           <p>
-            The exact same actions, written out. Every block has a matching function,
-            and the editor colours your code as you type. If you make a typo,
-            <strong>Save</strong> tells you what is wrong instead of losing your work.
+            The exact same program, typed. <strong>Basic Beginner</strong> reads just like
+            the blocks. <strong>Basic Pro</strong> adds the Python habits: text in quotes,
+            <code>=</code> and <code>==</code>. If a line has a problem, a card says what to
+            change, and <strong>Fix it</strong> can change it for you.
           </p>
           <p class="code-notes">
             <strong>▶ Every programmed object gets a green play button</strong> floating
@@ -814,8 +815,8 @@
 
       <div class="cta-row reveal">
         <a class="btn btn-primary" href="guide/coding.html">📄 The Coding Blocks card</a>
-        <a class="btn btn-primary btn-violet" href="guide/javascript.html">📄 The JavaScript card</a>
-        <a class="btn btn-ghost" href="https://edusim3dweb.com/app/?world=38" target="_blank" rel="noopener noreferrer">⚡ Play JavaScript Basics →</a>
+        <a class="btn btn-primary btn-violet" href="guide/text-coding.html">📄 The Typing Code card</a>
+        <a class="btn btn-ghost" href="https://edusim3dweb.com/app/?world=38" target="_blank" rel="noopener noreferrer">⚡ Play Python-Style Coding Basics →</a>
       </div>
     </div>
   </section>
@@ -868,17 +869,17 @@
           </div>
         </div>
 
-        <div class="tut-card" style="--c: #e5c21a;">
+        <div class="tut-card" style="--c: #3fae5a;">
           <span class="tut-emoji" aria-hidden="true">⚡</span>
-          <h3>JavaScript</h3>
-          <p>Type real code — the same programs, written out.</p>
+          <h3>Typing Code</h3>
+          <p>Type the same programs in Python-style code.</p>
           <ul>
-            <li>Three rules: await, forever(), and Save checks your work</li>
-            <li>Every action you can call, on one card</li>
-            <li>A whole world of lessons: JavaScript Basics</li>
+            <li>Two levels: Basic Beginner, then Basic Pro</li>
+            <li>Every command at both levels, on one card</li>
+            <li>A whole world of lessons: Python-Style Coding Basics</li>
           </ul>
           <div class="tut-cta">
-            <a class="btn btn-primary" href="guide/javascript.html">The JavaScript card</a>
+            <a class="btn btn-primary" href="guide/text-coding.html">The Typing Code card</a>
             <a class="btn btn-ghost" href="https://edusim3dweb.com/app/?world=38" target="_blank" rel="noopener noreferrer">Play the lessons world</a>
           </div>
         </div>
@@ -1146,9 +1147,9 @@
             <li><a href="guide/models.html"><b>The Model Database</b><span>More than a hundred ready-made models to place, stretch and program, with the facts and a first project.</span></a></li>
             <li><a href="guide/village.html"><b>Build a Village</b><span>Six activities with life-size homes, animals and crops: plan it, feed it, program it.</span></a></li>
             <li><a href="guide/builder.html"><b>The Model Builder card</b><span>The four shapes, the hammer menu, and turning parts into one model.</span></a></li>
-            <li><a href="guide/coding.html"><b>The Coding Blocks card</b><span>All fifteen blocks in three colours, and what each one does.</span></a></li>
-            <li><a href="guide/javascript.html"><b>The JavaScript card</b><span>Every action you can await, the loops, and four programs to type first.</span></a></li>
-            <li><a href="https://edusim3dweb.com/worlds/world.php?id=38" target="_blank" rel="noopener noreferrer"><b>JavaScript Basics world ↗</b><span>Five lessons taught by machines already running code.</span></a></li>
+            <li><a href="guide/coding.html"><b>The Coding Blocks card</b><span>The blocks in four colours, and what each one does.</span></a></li>
+            <li><a href="guide/text-coding.html"><b>The Typing Code card</b><span>Python-style code at Basic Beginner and Basic Pro, every command, and four programs to type first.</span></a></li>
+            <li><a href="https://edusim3dweb.com/worlds/world.php?id=38" target="_blank" rel="noopener noreferrer"><b>Python-Style Coding Basics world ↗</b><span>Five lessons taught by machines already running code.</span></a></li>
           </ul>
         </div>
 
@@ -1274,7 +1275,7 @@
             <li><a href="https://www.amazon.com/dp/B0HM6LRHSX" target="_blank" rel="noopener noreferrer">The Edusim book ↗</a></li>
             <li><a href="guide/tutorials.html">Build-along tutorials</a></li>
             <li><a href="guide/coding.html">Coding blocks card</a></li>
-            <li><a href="guide/javascript.html">JavaScript card</a></li>
+            <li><a href="guide/text-coding.html">Typing Code card</a></li>
           </ul>
         </div>
         <div class="foot-col" style="--c: var(--blue);">

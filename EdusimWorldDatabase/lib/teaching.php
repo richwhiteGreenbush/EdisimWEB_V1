@@ -138,9 +138,9 @@ function ewd_teaching_table(): array
         ],
         'javascript-basics' => [
             'band' => 'Grades 5–8',
-            'objective' => 'Read a working JavaScript program, predict what changing one value will do, and edit it — five lessons taught by machines that are already running.',
+            'objective' => 'Read a working program typed in Python-style code, predict what changing one value will do, and edit it — five lessons taught by machines that are already running.',
             'standards' => 'ISTE 1.5 Computational Thinker · CSTA 2-AP-11, 2-AP-12, 2-AP-17',
-            'lesson' => 'teachers.html', 'card' => 'javascript.html',
+            'lesson' => 'teachers.html', 'card' => 'text-coding.html',
         ],
         'robot-challenge-world' => [
             'band' => 'Grades 3–8',

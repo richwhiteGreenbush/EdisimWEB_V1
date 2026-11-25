@@ -15,7 +15,9 @@
 // 5. WORDING: every message obeys VisualHedy's rules (15-word titles, no blaming words, no jargon
 //    at Beginner).
 // 6. ROBUSTNESS: compile never throws, on 3000 random programs.
+// 7. THE CARD: docs/guide/text-coding.html matches what tools/build-text-coding-card.mjs makes.
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import * as THREE from 'three';
 
@@ -434,6 +436,15 @@ for (let i = 0; i < 3000; i++) {
   }
 }
 console.log(`6. robustness: 6000 compiles in ${Date.now() - started}ms`);
+
+// ---- 7. the student card ---------------------------------------------------------------------
+// docs/guide/text-coding.html is generated from this language; a change here must reach it.
+try {
+  execFileSync(process.execPath, ['tools/build-text-coding-card.mjs', '--check'], { stdio: 'pipe' });
+  console.log('7. the Typing Code card is up to date');
+} catch (err) {
+  fail('docs/guide/text-coding.html is stale or a sample on it has a problem', String(err.stdout || err.stderr || err.message));
+}
 
 if (failures) {
   console.log(`\n${failures} failure(s).`);

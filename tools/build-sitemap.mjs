@@ -38,7 +38,9 @@ import { fileURLToPath } from 'node:url';
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const docsDir = join(root, 'docs');
 const SITE = 'https://edusim3dweb.com';
-const EXCLUDE = new Set(['_preview-check.html']);
+// guide/javascript.html is a pointer to text-coding.html now (JavaScript mode was replaced by
+// typed code), kept only so printed and shared links still land; it is not a page to index.
+const EXCLUDE = new Set(['_preview-check.html', 'javascript.html']);
 
 function htmlFiles(dir) {
   const out = [];
