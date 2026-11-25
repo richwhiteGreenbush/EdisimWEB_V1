@@ -1,4 +1,5 @@
 import { BLOCK_DEFS, DUPLICATE_BLOCK } from './BlockDefs.js';
+import { printBlocks } from './textcode/print.js';
 
 import { uuid } from './Uuid.js';
 import { restTransform } from './RootMotion.js';
@@ -71,6 +72,19 @@ function cloneRecord(record, transform) {
   // copy keeps the rest of its behaviour (a spinning object still produces spinning
   // copies), it just cannot breed. Copies of copies inherit the flag through the spread.
   if (copy.programMode === 'js' && copy.programJs) copy.programNoDuplicate = true;
+  // A typed program's text has to say what the copy's blocks now say: its `duplicate` lines
+  // were just stripped, and Save from text would otherwise put them straight back. Reprinted
+  // at the same level, which loses the # notes -- the right trade on a copy.
+  if (copy.programText != null) {
+    if (copy.program?.length) copy.programText = printBlocks(copy.program, copy.programLevel === 2 ? 2 : 1).text;
+    else {
+      delete copy.programText;
+      delete copy.programLevel;
+      if (copy.programMode === 'text') delete copy.programMode;
+    }
+  }
+  // Names are one per world, and a hundred copies must not take a hundred names.
+  delete copy.objectName;
   return copy;
 }
 

@@ -495,7 +495,7 @@ export const BLOCK_DEFS = {
 export const PALETTE_ORDER = [
   'repeat', 'forever', 'wait', 'whenSaid', 'whenWorld', 'duplicate', 'ifCompare', 'repeatUntil',
   'moveForward', 'moveUp', 'moveBoth', 'glide', 'rotate', 'setTilt', 'goHome',
-  'say', 'changeSize', 'setSize', 'setOpacity', 'changeColor',
+  'say', 'tell', 'changeSize', 'setSize', 'setOpacity', 'changeColor',
   'markerColor', 'markerDown', 'markerUp', 'eraseMarks',
   'setVar', 'changeVar', 'calc', 'mathFn', 'randomVar', 'sayValue', 'shareVar',
 ];

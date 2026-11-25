@@ -3,6 +3,8 @@ import { STICKERS, refreshSticker } from './Motion.js';
 import { orbitRig, rideRig, driveRig, canZoomTo, zoomTo } from './Cinema.js';
 import { applyColorTint } from './ColorTint.js';
 import { PALETTE_SWATCHES } from './config.js';
+import { cleanVariableName } from './BlockDefs.js';
+import { isValidName } from './textcode/commands.js';
 
 const CLICK_MOVE_THRESHOLD = 6; // px -- beyond this, a mousedown->mouseup is a look-drag, not a click
 const CLICK_TIME_THRESHOLD = 500; // ms
@@ -215,10 +217,18 @@ export class ObjectMenu {
   renderRoot() {
     this.panel.innerHTML = '';
     const item = this.registry.get(this.activeId);
+    // The title row carries the object's NAME, and the way to give it one. A name is what
+    // `tell robot2 go` talks to, and it heads this object's Program panel. It lives in the
+    // title rather than as a fifth row, because this panel is kept short on purpose.
+    const titleRow = document.createElement('div');
+    titleRow.className = 'om-title-row';
     const title = document.createElement('div');
     title.className = 'om-title';
-    title.textContent = 'Object';
-    this.panel.appendChild(title);
+    title.textContent = item?.record?.objectName || 'Object';
+    const nameBtn = this.button(item?.record?.objectName ? 'Rename' : 'Name it', () => this.renderName(), 'om-name-btn');
+    nameBtn.title = 'Give this object a name, so programs can talk to it';
+    titleRow.append(title, nameBtn);
+    this.panel.appendChild(titleRow);
     // Only offered from more than ZOOM_MIN_DISTANCE away. Up close it would move the
     // student a step or two, which is what the arrow keys are for. It goes first because
     // a click on something far away is, more often than not, "take me over there".
@@ -362,6 +372,92 @@ export class ObjectMenu {
     this.panel.appendChild(note);
 
     this.panel.appendChild(this.button('Back', () => this.renderRoot(), 'om-back'));
+  }
+
+  // NAME. One field, checked as it is typed: a name is one word (letters, digits and _),
+  // is not a word the text languages already use, and belongs to only one object in the world.
+  renderName() {
+    this.panel.innerHTML = '';
+    const item = this.registry.get(this.activeId);
+    const title = document.createElement('div');
+    title.className = 'om-title';
+    title.textContent = 'Name this object';
+    this.panel.appendChild(title);
+
+    const wrap = document.createElement('label');
+    wrap.className = 'om-field om-field-name';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.maxLength = 16;
+    input.spellcheck = false;
+    input.autocapitalize = 'off';
+    input.value = item?.record?.objectName || this.suggestName(item?.record);
+    wrap.appendChild(input);
+    this.panel.appendChild(wrap);
+
+    const note = document.createElement('div');
+    note.className = 'om-note';
+    this.panel.appendChild(note);
+
+    const row = document.createElement('div');
+    row.className = 'om-row';
+    const apply = this.button('Save name', () => this.applyName(input.value));
+    row.appendChild(apply);
+    if (item?.record?.objectName) row.appendChild(this.button('Remove name', () => this.applyName('')));
+    this.panel.appendChild(row);
+    this.panel.appendChild(this.button('Back', () => this.renderRoot(), 'om-back'));
+
+    const check = () => {
+      const clean = cleanVariableName(input.value);
+      if (clean !== input.value) input.value = clean;
+      const problem = this.nameProblem(clean);
+      note.textContent = problem || (clean ? `Programs can now say \`tell ${clean} hello\`.` : 'One word, like robot2 or big_rock.');
+      note.classList.toggle('om-note-bad', !!problem);
+      apply.disabled = !!problem || !clean;
+    };
+    input.addEventListener('input', check);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !apply.disabled) this.applyName(input.value);
+    });
+    check();
+    requestAnimationFrame(() => { input.focus(); input.select(); });
+  }
+
+  // A first suggestion from what the object is: `robot` for a robot prop, then `robot2`, …
+  suggestName(record) {
+    const base = cleanVariableName(String(record?.prop || record?.model || record?.shape || 'object').replace(/-/g, '_')).toLowerCase() || 'object';
+    const safe = isValidName(base) ? base : `my_${base}`;
+    let name = safe;
+    for (let n = 2; this.nameTaken(name); n++) name = `${safe}${n}`;
+    return name.slice(0, 16);
+  }
+
+  nameTaken(name) {
+    const lower = name.toLowerCase();
+    for (const [id, item] of this.registry.items || []) {
+      if (id !== this.activeId && item.record?.objectName?.toLowerCase() === lower) return true;
+    }
+    return false;
+  }
+
+  nameProblem(name) {
+    if (!name) return '';
+    if (!isValidName(name)) return `"${name}" is a word Edusim already uses. Try another.`;
+    if (this.nameTaken(name)) return `Another object is already called "${name}".`;
+    return '';
+  }
+
+  applyName(raw) {
+    const item = this.registry.get(this.activeId);
+    if (!item) return this.close();
+    const name = cleanVariableName(raw);
+    if (name && this.nameProblem(name)) return;
+    if (name) item.record.objectName = name;
+    else delete item.record.objectName;
+    this.worldStore?.saveObject(item.record);
+    this.programEditor?.programManager?.setObjectName(this.activeId, name);
+    this.menu?.toast(name ? `This object is now called "${name}".` : 'Name removed.', { tone: 'success' });
+    this.renderRoot();
   }
 
   renderColor() {

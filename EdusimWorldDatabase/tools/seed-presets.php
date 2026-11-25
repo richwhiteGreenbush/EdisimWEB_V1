@@ -787,26 +787,29 @@ $WORLDS = [
     ],
 
     'jsbasics' => [
-        'title' => 'JavaScript Basics',
-        'tags'  => 'coding, javascript, official, starter',
+        // Retitled from "JavaScript Basics" when text coding replaced JavaScript. `slug`
+        // keeps the old one, so the world is UPDATED in place under the id every link uses.
+        'title' => 'Python-Style Coding Basics',
+        'slug'  => 'javascript-basics',
+        'tags'  => 'coding, python-style, text-coding, official, starter',
         'description' =>
-            "A bright little campus where every machine is running JavaScript you can read \u{2014} "
-            . "walk up to anything, press Program, pick JavaScript, and the code that drives it is "
-            . "right there.\n\n"
-            . "The Code Beacon anchors the world: a lighthouse in JavaScript yellow whose lamp is a "
-            . "separate object turning on forever { rotate 2 }. The tower stands still, the light "
-            . "sweeps, and the placard at the door tells you exactly which four lines make that "
-            . "happen \u{2014} change the 2 and the beam changes speed.\n\n"
+            "A bright little campus where every machine is running code you can read \u{2014} "
+            . "walk up to anything, press Program, pick Basic Beginner, and the program that drives "
+            . "it is right there, written in Python-style text.\n\n"
+            . "The Code Beacon anchors the world: a lighthouse whose lamp is a separate object "
+            . "running two lines, forever and rotate 2 degrees. The tower stands still, the light "
+            . "sweeps, and the placard at the door tells you exactly which lines make that happen "
+            . "\u{2014} change the 2 and the beam changes speed.\n\n"
             . "Five lessons line the path, easy first, each taught by a working machine beside a "
-            . "board showing its code in real editor colours. Lesson 1: every action needs await "
-            . "\u{2014} try one line on a toy letter block. Lesson 2: forever() keeps going, "
-            . "demonstrated by a golden screw that never stops turning. Lesson 3: repeat() counts "
-            . "\u{2014} drive the lime robot round its painted square. Lesson 4: wait() makes "
-            . "rhythm, kept by a mood stone that has been breathing colour all day. Lesson 5: "
-            . "whenSaid() lets objects talk \u{2014} meet Ping and Pong, two robots who have been "
-            . "in polite conversation since the world was built.\n\n"
-            . "Blocks and JavaScript are two views of the same program, so you can switch the "
-            . "editor back and forth any time and nothing is lost. The browser panel by the spawn "
+            . "board showing its code in real editor colours. Lesson 1: one line, one action "
+            . "\u{2014} type rotate 90 degrees on a toy letter block. Lesson 2: forever keeps going, "
+            . "demonstrated by a golden screw that never stops turning. Lesson 3: repeat counts "
+            . "\u{2014} drive the lime robot round its painted square. Lesson 4: wait makes rhythm, "
+            . "kept by a mood stone that has been breathing colour all day. Lesson 5: objects can "
+            . "talk \u{2014} meet Ping and Pong, two robots who have been in polite conversation "
+            . "since the world was built, with their code shown at Basic Pro.\n\n"
+            . "Blocks, Basic Beginner and Basic Pro are three views of the same program, so you can "
+            . "switch back and forth any time and nothing is lost. The browser panel by the spawn "
             . "opens the coding guide.",
     ],
     'volcano' => [
@@ -1115,7 +1118,8 @@ foreach ($WORLDS as $key => $meta) {
      * So: look the world up by the slug its title produces, which is stable across
      * re-exports, and overwrite its contents while keeping `id`, `slug` and `created_at`.
      */
-    $bySlug = ewd_find_world_by_slug(ewd_slugify($meta['title']));
+    // `slug` in a world's entry pins it, so a world can be retitled and still be updated in place.
+    $bySlug = ewd_find_world_by_slug($meta['slug'] ?? ewd_slugify($meta['title']));
     if ($bySlug) {
         $slug  = (string)$bySlug['slug'];
         $world = ewd_store_world_file($raw, $slug);
@@ -1147,7 +1151,7 @@ foreach ($WORLDS as $key => $meta) {
         continue;
     }
 
-    $slug  = ewd_unique_slug(ewd_slugify($meta['title']));
+    $slug  = ewd_unique_slug($meta['slug'] ?? ewd_slugify($meta['title']));
     $world = ewd_store_world_file($raw, $slug);
     $shot  = seed_store_shot($shotPath, $slug);
     $now   = ewd_now();

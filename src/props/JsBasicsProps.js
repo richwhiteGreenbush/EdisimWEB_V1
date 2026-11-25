@@ -1,3 +1,4 @@
+import { colorRuns } from '../textcode/highlight.js';
 import * as THREE from 'three';
 import {
   standard, mesh, group, canvasTexture, seededRandom, randomIn, relief,
@@ -7,10 +8,10 @@ import {
   roundedOutline, ringPts, put, smoothNoise3,
 } from './LoftKit.js';
 
-// JavaScript Basics -- the world that teaches the Program panel's JavaScript mode. Every
-// machine in it ships RUNNING a JavaScript program a student can open and read, and every
-// lesson board displays real, syntax-highlighted code -- the same tokens, in the same
-// colours, the in-app editor uses. The hero is the Code Beacon, a lighthouse whose lamp is
+// Python-Style Coding Basics (preset key `jsbasics`; it taught JavaScript until text coding
+// replaced it) -- the world that teaches typing a program. Every machine in it ships RUNNING
+// a typed program a student can open and read, and every lesson board displays real,
+// highlighted code -- the same tokens, in the same colours, the in-app editor uses. The hero is the Code Beacon, a lighthouse whose lamp is
 // a separate object turning on `forever { rotate }`, which is the first program anybody
 // reads here and the dome-and-telescope trick (two objects, one motion) taken to a place
 // a student can see from the whole world.
@@ -314,8 +315,22 @@ function drawCodeLine(ctx, line, x, y) {
   }
 }
 
+// A typed Edusim program, painted with the text editor's own colours (src/textcode/
+// highlight.js), so the board and the pane a student then types into are one palette.
+function drawTextLine(runs, ctx, x, y) {
+  let cx = x;
+  for (const run of runs) {
+    ctx.fillStyle = run.color;
+    ctx.fillText(run.text, cx, y);
+    cx += ctx.measureText(run.text).width;
+  }
+}
+
+// `lang` says which language `code` is in: 'js' (the default, and what every board saved before
+// text coding paints) or 'text' (Basic Beginner / Basic Pro, named by `level`). Board options
+// are PERSISTED, so the default has to stay 'js'.
 export function codeBoard({
-  number = 1, title = 'Lesson', code = '', caption = '', accent = '#e3c93a',
+  number = 1, title = 'Lesson', code = '', caption = '', accent = '#e3c93a', lang = 'js', level = 1,
 } = {}) {
   const W = 8.6;
   const H = 6.2;
@@ -364,6 +379,15 @@ export function codeBoard({
     // The code, sized to fit the longest line -- cardTexture's lesson: a panel whose
     // last characters run off the edge is worse than one set a size smaller.
     const lines = String(code).split('\n');
+    const runs = lang === 'text' ? colorRuns(String(code)) : null;
+    if (lang === 'text') {
+      // The level, in the window's title bar, where an editor names the file it has open.
+      ctx.fillStyle = '#9fb0bd';
+      ctx.font = '600 26px system-ui, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(level === 2 ? 'BASIC PRO' : 'BASIC BEGINNER', w - 108, h * 0.058 + 9);
+      ctx.textAlign = 'left';
+    }
     const mono = (size) => `500 ${size}px ui-monospace, Menlo, Consolas, monospace`;
     let size = 46;
     ctx.font = mono(size);
@@ -372,10 +396,11 @@ export function codeBoard({
     ctx.font = mono(size);
     const lineH = size * 1.52;
     let y = h * 0.115 + 5 + lineH * 1.1;
-    for (const line of lines) {
-      drawCodeLine(ctx, line, 46, y);
+    lines.forEach((line, i) => {
+      if (runs) drawTextLine(runs[i] ?? [], ctx, 46, y);
+      else drawCodeLine(ctx, line, 46, y);
       y += lineH;
-    }
+    });
 
     if (caption) {
       ctx.fillStyle = '#9fb0bd';

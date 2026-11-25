@@ -398,6 +398,34 @@ html, body {
   display: none;
 }
 
+.om-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.om-title-row .om-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.om-title-row .om-name-btn {
+  flex-shrink: 0;
+  padding: 3px 9px;
+  font-size: 11.5px;
+}
+
+.om-field-name input {
+  width: 100%;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+.om-note-bad {
+  color: #ff8a98;
+}
+
 .om-title {
   color: rgba(255, 255, 255, 0.6);
   font-size: 11px;
@@ -572,7 +600,7 @@ html, body {
   font-weight: 600;
 }
 
-/* --- the Block Code / JavaScript toggle ---------------------------------- */
+/* --- Blocks | Basic Beginner | Basic Pro ------------------------------------ */
 
 #program-mode-toggle {
   display: flex;
@@ -595,29 +623,39 @@ html, body {
   color: #dfe7ee;
 }
 
-/* The active tab wears its language's colour: block blue for blocks, the JavaScript
-   yellow for JavaScript. */
+/* Blocks wear block blue; the two text levels wear VisualHedy's level colours, so a student
+   can tell from across the room which level a classmate is writing at. */
 .pe-mode-btn.active-blocks {
   background: #4c97ff;
   color: #ffffff;
 }
 
-.pe-mode-btn.active-js {
-  background: #f7df1e;
-  color: #20242a;
+.pe-mode-btn.active-level1 {
+  background: #3fae5a;
+  color: #ffffff;
+}
+
+.pe-mode-btn.active-level2 {
+  background: #8a5cf5;
+  color: #ffffff;
 }
 
 /* Panels swapped by the toggle. These ids carry display rules of their own, which beat
    the UA's [hidden] default -- so hidden needs restating explicitly. */
 #program-palette[hidden],
 #program-workspace[hidden],
-#program-js-pane[hidden] {
+#program-text-pane[hidden],
+#program-problems[hidden],
+#program-confirm[hidden],
+.pe-text-hint[hidden],
+.pe-legacy-note[hidden],
+.pe-complete[hidden] {
   display: none;
 }
 
-/* --- the JavaScript pane -------------------------------------------------- */
+/* --- the text pane ---------------------------------------------------------- */
 
-#program-js-pane {
+#program-text-pane {
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -626,47 +664,85 @@ html, body {
   gap: 8px;
 }
 
-.pe-js-editor {
+.pe-legacy-note {
+  flex-shrink: 0;
+  background: rgba(247, 223, 30, 0.1);
+  border: 1px solid rgba(247, 223, 30, 0.35);
+  color: #efe6a8;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.pe-text-editor {
   position: relative;
   flex: 1;
   min-height: 0;
+  display: flex;
   background: #14181d;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   overflow: hidden;
 }
 
-/* The overlay trick: a transparent textarea stacked exactly over the highlighted <pre>.
-   Every metric here -- font, size, line height, padding, wrapping, tab size -- must be
-   IDENTICAL on both layers, or the caret sits beside the wrong character. */
-#program-js-input,
-#program-js-highlight {
-  position: absolute;
-  inset: 0;
+/* Every metric here -- font, size, line height, padding, tab size, white-space -- must be
+   IDENTICAL on the gutter, the highlight and the textarea, or the caret and the line numbers
+   sit beside the wrong line. Lines never wrap: that is what lets the gutter and the
+   autocomplete popup find a line by arithmetic. */
+.pe-gutter,
+#program-text-input,
+#program-text-highlight,
+.pe-measure {
   margin: 0;
-  padding: 12px 14px;
   font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
-  font-size: 12.5px;
+  font-size: 13.5px;
   line-height: 1.6;
-  white-space: pre-wrap;
-  word-break: break-word;
-  tab-size: 2;
+  white-space: pre;
+  tab-size: 4;
 }
 
-#program-js-highlight {
+.pe-gutter {
+  flex-shrink: 0;
+  min-width: 2.6em;
+  padding: 12px 8px 12px 6px;
+  text-align: right;
+  color: #56636e;
+  background: rgba(255, 255, 255, 0.02);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  user-select: none;
+}
+
+.pe-gutter-err { color: #ff6b7d; font-weight: 700; }
+.pe-gutter-warn { color: #f2b94b; font-weight: 700; }
+
+.pe-text-stack {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+#program-text-input,
+#program-text-highlight {
+  position: absolute;
+  inset: 0;
+  padding: 12px 14px;
+}
+
+#program-text-highlight {
   overflow: hidden; /* scrolled programmatically, in step with the textarea */
   pointer-events: none;
   color: #e8eef4;
 }
 
-#program-js-highlight code {
+#program-text-highlight code {
   display: block;
   font: inherit;
   white-space: inherit;
-  word-break: inherit;
 }
 
-#program-js-input {
+#program-text-input {
   overflow: auto;
   border: 0;
   outline: none;
@@ -676,25 +752,195 @@ html, body {
   caret-color: #ffffff;
 }
 
-#program-js-input::selection {
+#program-text-input::selection {
   background: rgba(77, 144, 254, 0.35);
   color: transparent;
 }
 
-/* Token colours, tuned against the pane's near-black. */
+.pe-measure {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Text tokens. Command words carry their block category's colour inline. */
+.tc-k { font-weight: 600; }
+.tc-v { color: #7fd99a; }
+.tc-n { color: #f7a26c; }
+.tc-s { color: #e6d38a; }
+.tc-t { color: #e6d38a; }
+.tc-o { color: #b8c4ce; }
+.tc-c { color: #66757f; font-style: italic; }
+.tc-col { border-bottom: 3px solid transparent; }
+.tc-err { text-decoration: underline wavy #ff5a6e; text-underline-offset: 3px; }
+.tc-warn { text-decoration: underline wavy #f2b94b; text-underline-offset: 3px; }
+
+/* The legacy JavaScript view still colours with the old token classes. */
 .js-k { color: #c792ea; }
 .js-s { color: #c3e88d; }
 .js-n { color: #f78c6c; }
 .js-c { color: #66757f; font-style: italic; }
 .js-f { color: #82aaff; }
 
-.pe-js-hint {
+/* --- autocomplete ----------------------------------------------------------- */
+
+.pe-complete {
+  position: absolute;
+  z-index: 2;
+  min-width: 220px;
+  max-width: 360px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: #222930;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+}
+
+.pe-complete li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 8px;
+  border-left: 3px solid var(--pe-cat-color, #7fd99a);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: #e8eef4;
+}
+
+.pe-complete li.is-active {
+  background: rgba(77, 144, 254, 0.25);
+}
+
+.pe-complete-label {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  white-space: nowrap;
+}
+
+.pe-complete-detail {
+  color: #8b98a5;
+  font-size: 11px;
+}
+
+/* --- problems cards ---------------------------------------------------------- */
+
+#program-problems {
   flex-shrink: 0;
-  max-height: 44px;
+  max-height: 170px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pe-problems-ok,
+.pe-problems-more {
+  color: #8b98a5;
+  font-size: 12px;
+}
+
+.pe-card {
+  position: relative;
+  border-radius: 8px;
+  padding: 7px 10px 7px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border-left: 4px solid #ff5a6e;
+}
+
+.pe-card-warn {
+  border-left-color: #f2b94b;
+}
+
+.pe-card-head {
+  display: block;
+  width: calc(100% - 64px);
+  text-align: left;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #f2f5f7;
+  font-size: 13px;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.pe-card-line {
+  color: #8b98a5;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.pe-card-explain {
+  margin-top: 2px;
+  color: #a9b6c1;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.pe-card-fix {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  border: 0;
+  border-radius: 6px;
+  padding: 4px 10px;
+  background: #3fae5a;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pe-card code,
+.pe-text-hint code,
+.pe-problems-ok code,
+.pe-confirm-text code {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 0 4px;
+}
+
+.pe-text-hint {
+  flex-shrink: 0;
   color: #8b98a5;
   font-size: 11.5px;
   line-height: 1.5;
+}
+
+/* --- the level-switch question ---------------------------------------------- */
+
+#program-panel {
+  position: relative;
+}
+
+#program-confirm {
+  position: absolute;
+  left: 50%;
+  top: 72px;
+  transform: translateX(-50%);
+  width: min(460px, 86%);
+  z-index: 3;
+  background: #262d35;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+
+.pe-confirm-text {
+  color: #f2f5f7;
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.pe-confirm-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 #program-body {

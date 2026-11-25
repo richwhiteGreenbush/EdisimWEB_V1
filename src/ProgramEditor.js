@@ -2,13 +2,37 @@ import {
   CATEGORIES, BLOCK_DEFS, PALETTE_ORDER, createBlockInstance, cloneBlockTree,
   cleanVariableName, isVariableRef, variablesIn, sharedVariablesIn,
 } from './BlockDefs.js';
-import { blocksToJs, highlightJs, compileJs, JS_STARTER, JS_API_HINT } from './JsProgram.js';
+import { highlightJs } from './JsProgram.js';
 import { recordHasProgram } from './ProgramManager.js';
 import { countProgram } from './BuildStats.js';
+import { compile, printBlocks, convert, LEVELS } from './textcode/index.js';
+import { highlight } from './textcode/highlight.js';
+import { completions } from './textcode/complete.js';
 
 const DROP_ZONE_MAX_DY = 260; // px -- beyond this, dropping means "delete", not "insert far away"
 const DROP_ZONE_X_SLOP = 24; // px of leftward slop so a slightly-off pointer still hits a zone
+const ANALYZE_DELAY = 250; // ms after the last keystroke before the text is checked again
+const MAX_CARDS = 3; // VisualHedy's rule: the first problem prominent, never a wall of them
+const INDENT = '    ';
 
+// What sits under the editor at each level: the level's whole idea in one line.
+const LEVEL_HINTS = {
+  1: 'Basic Beginner: one command per line, like `move forward 10 feet`. Push lines in by 4 spaces to put them inside `repeat`, `if` or `when`.',
+  2: 'Basic Pro: text goes in "quotes", `=` sets a number (`side = 10`), and checks use `>`, `<` and `==`.',
+};
+
+// A block tree as the runner sees it: types and params, no ids. Two programs that compare
+// equal here run identically, which is how the editor knows a student's text still matches
+// the blocks (and so its # notes can be kept).
+function shape(blocks) {
+  return JSON.stringify((function walk(list) {
+    return (list || []).map((b) => [b.type, b.params, b.children ? walk(b.children) : null]);
+  })(blocks));
+}
+
+// The view the editor is showing: 'blocks', or a text level (1 or 2). 'js' is the read-only
+// view of a program written in JavaScript before text coding replaced it: it still RUNS (the
+// runner is kept for every world that has one), but nothing new is written in it.
 export class ProgramEditor {
   constructor({ registry, worldStore, programManager, menu, playIconManager }) {
     this.registry = registry;
@@ -21,15 +45,17 @@ export class ProgramEditor {
     this.tree = [];
     this.drag = null; // { block, ghostEl, pointerId, dropZone }
 
-    // The two representations live side by side and TOGGLING NEVER DESTROYS EITHER:
-    // `tree` holds the blocks, `jsCode` holds the JavaScript, and `mode` says which one
-    // runs when saved. `jsAuto` records that jsCode was generated from the blocks and
-    // never hand-edited -- while it is true, switching to the JavaScript view regenerates
-    // from the CURRENT blocks (so the JS tracks what the student just built); the moment
-    // they type in the code pane it goes false and their text is left alone.
-    this.mode = 'blocks';
-    this.jsCode = '';
-    this.jsAuto = true;
+    // The blocks and the text live side by side and SWITCHING VIEWS NEVER DESTROYS EITHER.
+    // `tree` is the blocks; `text` is what the student typed at `textLevel`. Text is checked
+    // as it is typed and always compiles to blocks before it can be saved, so the blocks are
+    // what runs and the text is what the student wrote, # notes and all.
+    this.view = 'blocks';
+    this.text = '';
+    this.textLevel = 1;
+    this.legacyJs = '';
+    this.analysis = null;
+    this.analyzeTimer = 0;
+    this.complete = null; // { from, to, items, index }
 
     this.onDragMove = this.onDragMove.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -44,30 +70,37 @@ export class ProgramEditor {
 
     const panel = document.createElement('div');
     panel.id = 'program-panel';
+    this.panelEl = panel;
 
     const titleRow = document.createElement('div');
     titleRow.id = 'program-title-row';
 
-    const title = document.createElement('div');
-    title.id = 'program-title';
-    title.textContent = 'Program this object';
+    this.titleEl = document.createElement('div');
+    this.titleEl.id = 'program-title';
+    this.titleEl.textContent = 'Program this object';
 
-    // The mode toggle. Two labelled buttons rather than a checkbox or a dropdown: both
-    // options stay visible, and the active one is coloured -- block blue for blocks,
-    // the JavaScript yellow for JavaScript.
+    // Blocks, then the two text levels, as one row of labelled buttons: every option stays
+    // visible, and the active one wears its colour. VisualHedy calls this the Level menu.
     const toggle = document.createElement('div');
     toggle.id = 'program-mode-toggle';
+    toggle.setAttribute('role', 'group');
+    toggle.setAttribute('aria-label', 'How to write this program');
     this.modeButtons = {};
-    for (const [mode, label] of [['blocks', 'Block Code'], ['js', 'JavaScript']]) {
+    for (const [view, label, title] of [
+      ['blocks', 'Blocks', 'Drag blocks to build a program'],
+      [1, LEVELS[1].name, 'Type the program, in words that match the blocks'],
+      [2, LEVELS[2].name, 'Type the program with quotes, = and symbols'],
+    ]) {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'pe-mode-btn';
       btn.textContent = label;
-      btn.addEventListener('click', () => this.setMode(mode));
-      this.modeButtons[mode] = btn;
+      btn.title = title;
+      btn.addEventListener('click', () => this.setView(view));
+      this.modeButtons[view] = btn;
       toggle.appendChild(btn);
     }
-    titleRow.append(title, toggle);
+    titleRow.append(this.titleEl, toggle);
 
     const body = document.createElement('div');
     body.id = 'program-body';
@@ -79,69 +112,29 @@ export class ProgramEditor {
     this.workspaceEl = document.createElement('div');
     this.workspaceEl.id = 'program-workspace';
 
-    // The JavaScript pane: a transparent textarea stacked exactly over a highlighted
-    // <pre>. The textarea owns the text, the caret and the scrollbar; the <pre> under it
-    // owns the colours. They share one font, size, padding and wrapping rule, which is
-    // the entire trick -- any metric that differs puts the caret beside the wrong
-    // character.
-    this.jsPane = document.createElement('div');
-    this.jsPane.id = 'program-js-pane';
-    this.jsPane.hidden = true;
+    this.buildTextPane();
 
-    const editorWrap = document.createElement('div');
-    editorWrap.className = 'pe-js-editor';
-
-    this.jsHighlight = document.createElement('pre');
-    this.jsHighlight.id = 'program-js-highlight';
-    this.jsHighlightCode = document.createElement('code');
-    this.jsHighlight.appendChild(this.jsHighlightCode);
-
-    this.jsInput = document.createElement('textarea');
-    this.jsInput.id = 'program-js-input';
-    this.jsInput.spellcheck = false;
-    this.jsInput.autocapitalize = 'off';
-    this.jsInput.setAttribute('autocomplete', 'off');
-    this.jsInput.addEventListener('input', () => {
-      this.jsCode = this.jsInput.value;
-      this.jsAuto = false;
-      this.refreshHighlight();
-    });
-    // The highlight layer has no scrollbar of its own; it is dragged along with the
-    // textarea's. (scrollTop is settable on an overflow:hidden element.)
-    this.jsInput.addEventListener('scroll', () => {
-      this.jsHighlight.scrollTop = this.jsInput.scrollTop;
-      this.jsHighlight.scrollLeft = this.jsInput.scrollLeft;
-    });
-    // Tab indents instead of leaving the field -- in a code editor, focus-next is the
-    // wrong meaning for the key.
-    this.jsInput.addEventListener('keydown', (e) => {
-      if (e.key !== 'Tab') return;
-      e.preventDefault();
-      const { selectionStart, selectionEnd, value } = this.jsInput;
-      this.jsInput.value = `${value.slice(0, selectionStart)}  ${value.slice(selectionEnd)}`;
-      this.jsInput.selectionStart = this.jsInput.selectionEnd = selectionStart + 2;
-      this.jsInput.dispatchEvent(new Event('input'));
-    });
-
-    editorWrap.append(this.jsHighlight, this.jsInput);
-
-    const hint = document.createElement('div');
-    hint.className = 'pe-js-hint';
-    hint.textContent = JS_API_HINT;
-
-    this.jsPane.append(editorWrap, hint);
-
-    body.append(this.paletteEl, this.workspaceEl, this.jsPane);
+    body.append(this.paletteEl, this.workspaceEl, this.textPane);
 
     const actions = document.createElement('div');
     actions.id = 'program-actions';
     const clearBtn = this.actionButton('Clear', () => this.clearAll());
     const cancelBtn = this.actionButton('Cancel', () => this.close());
-    const saveBtn = this.actionButton('Save', () => this.save());
-    saveBtn.classList.add('menu-link');
-    actions.append(clearBtn, cancelBtn, saveBtn);
+    this.saveBtn = this.actionButton('Save', () => this.save());
+    this.saveBtn.classList.add('menu-link');
+    actions.append(clearBtn, cancelBtn, this.saveBtn);
 
-    panel.append(titleRow, body, actions);
+    // The question asked before a level switch rewrites the program. Inside the panel, never
+    // window.confirm(), which stops the whole world while it waits.
+    this.confirmEl = document.createElement('div');
+    this.confirmEl.id = 'program-confirm';
+    this.confirmEl.hidden = true;
+
+    // Names of the world's objects, offered by the `tell` block's object field.
+    this.objectList = document.createElement('datalist');
+    this.objectList.id = 'pe-object-names';
+
+    panel.append(titleRow, body, actions, this.confirmEl, this.objectList);
     this.overlay.appendChild(panel);
     document.body.appendChild(this.overlay);
 
@@ -149,6 +142,76 @@ export class ProgramEditor {
     this.dropIndicator.id = 'program-drop-indicator';
     this.dropIndicator.hidden = true;
     this.overlay.appendChild(this.dropIndicator);
+  }
+
+  // The text editor: line numbers, then a transparent textarea stacked exactly over a
+  // highlighted <pre>. The textarea owns the text, the caret and the scrollbars; the <pre>
+  // under it owns the colours and the underlines. Every metric -- font, size, line height,
+  // padding, tab size, and `white-space: pre` -- is identical on both, or the caret sits beside
+  // the wrong character. Lines do not wrap, which is what lets the gutter and the autocomplete
+  // popup work out where a line is by arithmetic.
+  buildTextPane() {
+    this.textPane = document.createElement('div');
+    this.textPane.id = 'program-text-pane';
+    this.textPane.hidden = true;
+
+    this.legacyNote = document.createElement('div');
+    this.legacyNote.className = 'pe-legacy-note';
+    this.legacyNote.hidden = true;
+    this.legacyNote.textContent = 'This object runs a program written in JavaScript, and it keeps running. '
+      + 'Edusim programs are now written in Blocks or typed at Basic Beginner or Basic Pro. '
+      + 'Pick one above to write a new program. Saving it replaces this one.';
+
+    const editor = document.createElement('div');
+    editor.className = 'pe-text-editor';
+
+    this.gutter = document.createElement('pre');
+    this.gutter.className = 'pe-gutter';
+    this.gutter.setAttribute('aria-hidden', 'true');
+
+    const stack = document.createElement('div');
+    stack.className = 'pe-text-stack';
+    this.textStack = stack;
+
+    this.textHighlight = document.createElement('pre');
+    this.textHighlight.id = 'program-text-highlight';
+    this.textHighlightCode = document.createElement('code');
+    this.textHighlight.appendChild(this.textHighlightCode);
+
+    this.textInput = document.createElement('textarea');
+    this.textInput.id = 'program-text-input';
+    this.textInput.spellcheck = false;
+    this.textInput.autocapitalize = 'off';
+    this.textInput.wrap = 'off';
+    this.textInput.setAttribute('autocomplete', 'off');
+    this.textInput.setAttribute('aria-label', 'Program text');
+    this.textInput.addEventListener('input', () => this.onTextInput());
+    this.textInput.addEventListener('scroll', () => this.syncScroll());
+    this.textInput.addEventListener('keydown', (e) => this.onTextKey(e));
+    this.textInput.addEventListener('blur', () => setTimeout(() => this.hideComplete(), 120));
+    this.textInput.addEventListener('click', () => this.hideComplete());
+
+    this.completeEl = document.createElement('ul');
+    this.completeEl.className = 'pe-complete';
+    this.completeEl.hidden = true;
+    this.completeEl.setAttribute('role', 'listbox');
+
+    // One character of the editor's font, measured once it is on screen, for placing the popup.
+    this.measureEl = document.createElement('span');
+    this.measureEl.className = 'pe-measure';
+    this.measureEl.textContent = 'MMMMMMMMMM';
+
+    stack.append(this.textHighlight, this.textInput, this.completeEl, this.measureEl);
+    editor.append(this.gutter, stack);
+
+    this.problemsEl = document.createElement('div');
+    this.problemsEl.id = 'program-problems';
+    this.problemsEl.setAttribute('aria-live', 'polite');
+
+    this.levelHint = document.createElement('div');
+    this.levelHint.className = 'pe-text-hint';
+
+    this.textPane.append(this.legacyNote, editor, this.problemsEl, this.levelHint);
   }
 
   actionButton(label, onClick) {
@@ -192,129 +255,537 @@ export class ProgramEditor {
     this.activeId = id;
     const record = item.record || {};
     this.tree = cloneBlockTree(record.program || []);
-    this.jsCode = record.programJs || '';
-    // A record with no saved JavaScript opens with jsAuto true, so the first visit to the
-    // JavaScript view shows the blocks translated rather than an empty page.
-    this.jsAuto = record.programJs ? record.programJsAuto === true : true;
-    this.mode = record.programMode === 'js' ? 'js' : 'blocks';
-    if (this.mode === 'js' && (this.jsAuto || !this.jsCode.trim())) {
-      this.jsCode = this.tree.length ? blocksToJs(this.tree) : (this.jsCode || JS_STARTER);
+    this.text = typeof record.programText === 'string' ? record.programText : '';
+    this.textLevel = record.programLevel === 2 ? 2 : 1;
+    this.legacyJs = record.programMode === 'js' && record.programJs?.trim() ? record.programJs : '';
+    if (this.legacyJs) this.view = 'js';
+    else if (record.programMode === 'text') this.view = this.textLevel;
+    else this.view = 'blocks';
+
+    this.titleEl.textContent = record.objectName ? `Program: ${record.objectName}` : 'Program this object';
+    this.objectList.textContent = '';
+    for (const name of this.objectNames()) {
+      const opt = document.createElement('option');
+      opt.value = name;
+      this.objectList.appendChild(opt);
     }
+    this.hideConfirm();
     this.overlay.hidden = false;
     this.renderWorkspace();
-    this.renderMode();
+    this.renderView();
   }
 
   close() {
     this.cancelDrag();
+    this.hideComplete();
+    this.hideConfirm();
+    clearTimeout(this.analyzeTimer);
     this.overlay.hidden = true;
     this.activeId = null;
     this.tree = [];
   }
 
   clearAll() {
-    // Clears the representation being LOOKED AT, not both: emptying the code pane must
-    // not silently delete the block program behind it, and vice versa. A cleared
-    // JavaScript pane also re-arms jsAuto, so toggling away and back regenerates from
-    // whatever blocks still exist.
-    if (this.mode === 'js') {
-      this.jsCode = '';
-      this.jsAuto = true;
-      this.jsInput.value = '';
-      this.refreshHighlight();
-    } else {
+    // Clears the view being LOOKED AT, never both: emptying the text must not silently delete
+    // the block program, and vice versa.
+    if (this.view === 'js') return;
+    if (this.view === 'blocks') {
       this.tree = [];
       this.renderWorkspace();
+      return;
     }
+    this.text = '';
+    this.textInput.value = '';
+    this.analyzeNow();
   }
 
-  setMode(mode) {
-    if (mode === this.mode) return;
-    if (this.mode === 'js') this.jsCode = this.jsInput.value;
-    this.mode = mode;
-    if (mode === 'js' && (this.jsAuto || !this.jsCode.trim())) {
-      this.jsCode = this.tree.length ? blocksToJs(this.tree) : JS_STARTER;
-      this.jsAuto = true;
-    }
-    this.renderMode();
+  // Every object in this world that has a name (`record.objectName`).
+  objectNames() {
+    const names = [];
+    for (const item of this.registry?.items?.values?.() || []) if (item.record?.objectName) names.push(item.record.objectName);
+    return names;
   }
 
-  renderMode() {
-    const js = this.mode === 'js';
-    this.paletteEl.hidden = js;
-    this.workspaceEl.hidden = js;
-    this.jsPane.hidden = !js;
-    this.modeButtons.blocks.classList.toggle('active-blocks', !js);
-    this.modeButtons.js.classList.toggle('active-js', js);
+  // Names other objects share, which a program may read without setting.
+  sharedNames() {
+    const names = new Set();
+    for (const [id, item] of this.registry?.items || []) {
+      if (id === this.activeId) continue;
+      sharedVariablesIn(item.record?.program, names);
+    }
+    return names;
+  }
+
+  compileOpts() {
+    return { objectNames: this.objectNames(), knownNames: this.sharedNames() };
+  }
+
+  // Is the text still a faithful copy of the blocks? Then its # notes can be kept.
+  textMatchesTree() {
+    if (!this.text.trim()) return false;
+    const r = compile(this.text, this.textLevel, this.compileOpts());
+    return r.ok && shape(r.blocks) === shape(this.tree);
+  }
+
+  // --- switching views ---------------------------------------------------------
+
+  async setView(view) {
+    if (view === this.view) return;
+    this.hideComplete();
+    const from = this.view;
+
+    if (from === 'js') {
+      const ok = await this.askConfirm(
+        'Start a new program for this object? Its JavaScript keeps running until you Save the new one.',
+        'Start a new one',
+      );
+      if (!ok) return;
+      this.legacyJs = '';
+    }
+
+    if (from === 1 || from === 2) {
+      this.text = this.textInput.value;
+      const r = compile(this.text, from, this.compileOpts());
+      if (!r.ok) {
+        this.analyzeNow();
+        this.menu?.toast('Fix the problems marked in red first, then switch.', { tone: 'error' });
+        return;
+      }
+      if (view === 'blocks') {
+        this.tree = r.blocks;
+        this.textLevel = from;
+        this.view = 'blocks';
+        this.renderWorkspace();
+        this.renderView();
+        return;
+      }
+      // Up or down a level: a rewrite of what the student typed, so ask first (VisualHedy's rule).
+      if (this.text.trim()) {
+        const up = view === 2;
+        const ok = await this.askConfirm(
+          up
+            ? 'Rewrite this program in Basic Pro? Text gets "quotes", numbers get `=`, and unit words go. Your # notes stay.'
+            : 'Rewrite this program in Basic Beginner? It goes back to words, like `set x to 5`. Your # notes stay.',
+          up ? 'Rewrite in Basic Pro' : 'Rewrite in Basic Beginner',
+        );
+        if (!ok) return;
+        const result = convert(this.text, from, view, this.compileOpts());
+        if (!result.ok) return;
+        this.text = result.text;
+        for (const note of result.notes) this.menu?.toast(note.detail);
+      }
+      this.tree = r.blocks;
+      this.textLevel = view;
+      this.view = view;
+      this.renderView();
+      return;
+    }
+
+    // From blocks (or a fresh start from JavaScript) to text: printed from the blocks, which
+    // can always be done, and needs no question because nothing typed is replaced. If the
+    // text the student typed last time still matches these blocks, THAT text comes back,
+    // # notes and all, converted if they now want the other level.
+    if (view === 1 || view === 2) {
+      let text = null;
+      if (this.textMatchesTree()) {
+        text = this.textLevel === view ? this.text : convert(this.text, this.textLevel, view, this.compileOpts()).text;
+      }
+      if (text == null) {
+        const printed = printBlocks(this.tree, view);
+        text = printed.text;
+        for (const note of printed.notes) this.menu?.toast(note.detail);
+      }
+      this.text = text;
+      this.textLevel = view;
+    }
+    this.view = view;
+    this.renderWorkspace();
+    this.renderView();
+  }
+
+  renderView() {
+    const view = this.view;
+    const typed = view === 1 || view === 2;
+    const js = view === 'js';
+    this.paletteEl.hidden = typed || js;
+    this.workspaceEl.hidden = typed || js;
+    this.textPane.hidden = !(typed || js);
+    this.legacyNote.hidden = !js;
+    this.levelHint.hidden = !typed;
+    this.problemsEl.hidden = !typed;
+    for (const [key, btn] of Object.entries(this.modeButtons)) {
+      const on = String(key) === String(view);
+      btn.classList.toggle('active-blocks', on && key === 'blocks');
+      btn.classList.toggle(`active-level${key}`, on && key !== 'blocks');
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    this.textInput.readOnly = js;
     if (js) {
-      this.jsInput.value = this.jsCode;
-      this.refreshHighlight();
+      this.textInput.value = this.legacyJs;
+      this.textHighlightCode.innerHTML = `${highlightJs(this.legacyJs)}\n`;
+      this.paintGutter(this.legacyJs);
+      this.syncScroll();
+    } else if (typed) {
+      this.textInput.value = this.text;
+      this.levelHint.innerHTML = this.inlineCode(LEVEL_HINTS[view]);
+      this.analyzeNow();
+      requestAnimationFrame(() => this.textInput.focus());
     } else {
       this.cancelDrag();
     }
   }
 
-  refreshHighlight() {
-    // The trailing newline keeps the layers the same height when the text ends in one --
-    // a <pre> collapses a final blank line where a textarea does not.
-    this.jsHighlightCode.innerHTML = `${highlightJs(this.jsInput.value)}\n`;
-    this.jsHighlight.scrollTop = this.jsInput.scrollTop;
-    this.jsHighlight.scrollLeft = this.jsInput.scrollLeft;
+  // --- the text editor -----------------------------------------------------------
+
+  onTextInput() {
+    this.text = this.textInput.value;
+    // Colour at once (it is cheap); check after a pause, so a half-typed word is not marked.
+    this.paint(this.analysis?.diagnostics ?? []);
+    clearTimeout(this.analyzeTimer);
+    this.analyzeTimer = setTimeout(() => this.analyzeNow(), ANALYZE_DELAY);
+    this.updateComplete();
   }
+
+  analyzeNow() {
+    clearTimeout(this.analyzeTimer);
+    if (this.view !== 1 && this.view !== 2) return;
+    this.analysis = compile(this.textInput.value, this.view, this.compileOpts());
+    this.paint(this.analysis.diagnostics);
+    this.renderProblems(this.analysis.diagnostics);
+  }
+
+  paint(diagnostics) {
+    const value = this.textInput.value;
+    // A diagnostic from an older version of the text could point past the end of it.
+    const fresh = diagnostics.filter((d) => d.to <= value.length);
+    this.textHighlightCode.innerHTML = `${highlight(value, fresh)}\n`;
+    this.paintGutter(value);
+    this.syncScroll();
+  }
+
+  paintGutter(value) {
+    const lines = value.split('\n').length;
+    const bad = new Map();
+    for (const d of this.view === 'js' ? [] : this.analysis?.diagnostics ?? []) {
+      if (bad.get(d.line) !== 'error') bad.set(d.line, d.severity);
+    }
+    let html = '';
+    for (let i = 1; i <= lines; i++) {
+      const s = bad.get(i);
+      html += s ? `<span class="pe-gutter-${s === 'error' ? 'err' : 'warn'}">${i}</span>\n` : `${i}\n`;
+    }
+    this.gutter.innerHTML = html;
+  }
+
+  syncScroll() {
+    this.textHighlight.scrollTop = this.textInput.scrollTop;
+    this.textHighlight.scrollLeft = this.textInput.scrollLeft;
+    this.gutter.scrollTop = this.textInput.scrollTop;
+    if (this.complete) this.placeComplete();
+  }
+
+  // `code` in a message, shown as code.
+  inlineCode(text) {
+    const esc = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return esc.replace(/`([^`]+)`/g, '<code>$1</code>');
+  }
+
+  renderProblems(diagnostics) {
+    this.problemsEl.textContent = '';
+    if (!diagnostics.length) {
+      const ok = document.createElement('div');
+      ok.className = 'pe-problems-ok';
+      ok.textContent = this.textInput.value.trim() ? 'No problems. Save to run it.' : 'Type a command, like `rotate 15 degrees`.';
+      ok.innerHTML = this.inlineCode(ok.textContent);
+      this.problemsEl.appendChild(ok);
+      return;
+    }
+    for (const d of diagnostics.slice(0, MAX_CARDS)) {
+      const card = document.createElement('div');
+      card.className = `pe-card pe-card-${d.severity === 'error' ? 'err' : 'warn'}`;
+      const head = document.createElement('button');
+      head.type = 'button';
+      head.className = 'pe-card-head';
+      head.innerHTML = `<span class="pe-card-line">Line ${d.line}</span> ${this.inlineCode(d.title)}`;
+      head.title = 'Show me this line';
+      head.addEventListener('click', () => this.selectRange(d.from, d.to));
+      card.appendChild(head);
+      if (d.explain) {
+        const explain = document.createElement('div');
+        explain.className = 'pe-card-explain';
+        explain.innerHTML = this.inlineCode(d.explain);
+        card.appendChild(explain);
+      }
+      if (d.fix) {
+        const fix = document.createElement('button');
+        fix.type = 'button';
+        fix.className = 'pe-card-fix';
+        fix.textContent = 'Fix it';
+        fix.title = d.fix.label.replace(/`/g, '');
+        fix.addEventListener('click', () => this.applyFix(d.fix));
+        card.appendChild(fix);
+      }
+      this.problemsEl.appendChild(card);
+    }
+    if (diagnostics.length > MAX_CARDS) {
+      const more = document.createElement('div');
+      more.className = 'pe-problems-more';
+      more.textContent = `${diagnostics.length - MAX_CARDS} more after these.`;
+      this.problemsEl.appendChild(more);
+    }
+  }
+
+  selectRange(from, to) {
+    this.textInput.focus();
+    this.textInput.setSelectionRange(from, to);
+    // Bring the line into view: the textarea scrolls to its selection on focus in most
+    // browsers, but not reliably to one set programmatically.
+    const line = this.textInput.value.slice(0, from).split('\n').length - 1;
+    const lineH = parseFloat(getComputedStyle(this.textInput).lineHeight) || 20;
+    const top = line * lineH;
+    if (top < this.textInput.scrollTop || top > this.textInput.scrollTop + this.textInput.clientHeight - lineH * 2) {
+      this.textInput.scrollTop = Math.max(0, top - lineH * 2);
+    }
+  }
+
+  // One edit transaction through execCommand, so Ctrl+Z undoes a Fix it or an autocomplete in
+  // one step. Falls back to setRangeText where execCommand is gone.
+  replaceRange(from, to, insert) {
+    this.textInput.focus();
+    this.textInput.setSelectionRange(from, to);
+    const done = typeof document.execCommand === 'function' && document.execCommand('insertText', false, insert);
+    if (!done) {
+      this.textInput.setRangeText(insert, from, to, 'end');
+      this.textInput.dispatchEvent(new Event('input'));
+    }
+  }
+
+  applyFix(fix) {
+    // Applied from the end backwards, so earlier offsets stay true. A multi-edit fix (moving a
+    // `when` and everything under it) is applied to the whole text at once, as one undo step.
+    const edits = [...fix.edits].sort((a, b) => b.from - a.from);
+    if (edits.length === 1) {
+      this.replaceRange(edits[0].from, edits[0].to, edits[0].insert);
+    } else {
+      let value = this.textInput.value;
+      for (const e of edits) value = value.slice(0, e.from) + e.insert + value.slice(e.to);
+      const lo = Math.min(...edits.map((e) => e.from));
+      const hi = Math.max(...edits.map((e) => e.to));
+      const tail = this.textInput.value.length - hi;
+      this.replaceRange(lo, hi, value.slice(lo, value.length - tail));
+    }
+    this.analyzeNow();
+  }
+
+  onTextKey(e) {
+    if (this.view === 'js') return;
+    const c = this.complete;
+    if (c) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        c.index = (c.index + (e.key === 'ArrowDown' ? 1 : c.items.length - 1)) % c.items.length;
+        this.renderComplete();
+        return;
+      }
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault();
+        this.acceptComplete(c.index);
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        this.hideComplete();
+        return;
+      }
+    }
+    const input = this.textInput;
+    const { selectionStart: s, selectionEnd: end, value } = input;
+    if (e.key === 'Tab') {
+      // Tab pushes a line in by one step and Shift+Tab pulls it back, instead of leaving the field.
+      e.preventDefault();
+      const lineStart = value.lastIndexOf('\n', s - 1) + 1;
+      if (e.shiftKey) {
+        const lead = /^ {1,4}/.exec(value.slice(lineStart))?.[0] ?? '';
+        if (lead) this.replaceRange(lineStart, lineStart + lead.length, '');
+      } else if (s === end) {
+        this.replaceRange(s, end, INDENT);
+      } else {
+        this.replaceRange(lineStart, lineStart, INDENT);
+      }
+      return;
+    }
+    if (e.key === 'Enter' && s === end) {
+      // A new line starts where this one did, and one step further in after a line that holds
+      // lines (`repeat`, `forever`, `if`, `when`).
+      e.preventDefault();
+      const lineStart = value.lastIndexOf('\n', s - 1) + 1;
+      const line = value.slice(lineStart, s);
+      const lead = /^[ \t]*/.exec(line)[0];
+      const opens = /^\s*(repeat|forever|if|when)\b/i.test(line);
+      this.replaceRange(s, end, `\n${lead}${opens ? INDENT : ''}`);
+    }
+  }
+
+  // --- autocomplete ----------------------------------------------------------------
+
+  updateComplete() {
+    const input = this.textInput;
+    if (input.selectionStart !== input.selectionEnd) return this.hideComplete();
+    const names = new Set([...variablesIn(this.analysis?.blocks ?? []), ...this.sharedNames()]);
+    const result = completions(input.value, input.selectionStart, this.view, {
+      objectNames: this.objectNames(),
+      variableNames: [...names],
+    });
+    if (!result) return this.hideComplete();
+    this.complete = { ...result, index: 0 };
+    this.renderComplete();
+  }
+
+  renderComplete() {
+    const c = this.complete;
+    this.completeEl.textContent = '';
+    c.items.forEach((item, i) => {
+      const li = document.createElement('li');
+      li.setAttribute('role', 'option');
+      li.className = i === c.index ? 'is-active' : '';
+      if (item.category) li.style.setProperty('--pe-cat-color', CATEGORIES[item.category].fill);
+      const label = document.createElement('span');
+      label.className = 'pe-complete-label';
+      label.textContent = item.label;
+      const detail = document.createElement('span');
+      detail.className = 'pe-complete-detail';
+      detail.textContent = item.detail;
+      li.append(label, detail);
+      // pointerdown, not click: a click would blur the textarea first and close the popup.
+      li.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.acceptComplete(i);
+      });
+      this.completeEl.appendChild(li);
+    });
+    this.completeEl.hidden = false;
+    this.placeComplete();
+  }
+
+  placeComplete() {
+    const input = this.textInput;
+    const before = input.value.slice(0, this.complete.from);
+    const line = before.split('\n').length;
+    const col = before.length - before.lastIndexOf('\n') - 1;
+    const style = getComputedStyle(input);
+    const charW = this.measureEl.getBoundingClientRect().width / 10 || 7.5;
+    const lineH = parseFloat(style.lineHeight) || 20;
+    const x = parseFloat(style.paddingLeft) + col * charW - input.scrollLeft;
+    const y = parseFloat(style.paddingTop) + line * lineH - input.scrollTop;
+    const maxX = Math.max(0, this.textStack.clientWidth - 280);
+    this.completeEl.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
+    this.completeEl.style.top = `${y + 2}px`;
+  }
+
+  acceptComplete(index) {
+    const c = this.complete;
+    const item = c?.items[index];
+    this.hideComplete();
+    if (!item) return;
+    this.replaceRange(c.from, c.to, item.insert);
+  }
+
+  hideComplete() {
+    this.complete = null;
+    this.completeEl.hidden = true;
+  }
+
+  // --- the confirm box -----------------------------------------------------------------
+
+  askConfirm(message, okLabel) {
+    return new Promise((resolve) => {
+      this.confirmEl.textContent = '';
+      const text = document.createElement('div');
+      text.className = 'pe-confirm-text';
+      text.innerHTML = this.inlineCode(message);
+      const row = document.createElement('div');
+      row.className = 'pe-confirm-row';
+      // The answer is taken BEFORE the box is hidden: hideConfirm() answers "no" to whatever
+      // question is still pending, which would otherwise be this one.
+      const finish = (answer) => {
+        this.confirmResolve = null;
+        this.hideConfirm();
+        resolve(answer);
+      };
+      const cancel = this.actionButton('Keep it as it is', () => finish(false));
+      const ok = this.actionButton(okLabel, () => finish(true));
+      ok.classList.add('menu-link');
+      row.append(cancel, ok);
+      this.confirmEl.append(text, row);
+      this.confirmEl.hidden = false;
+      this.confirmResolve = finish;
+      cancel.focus();
+    });
+  }
+
+  hideConfirm() {
+    this.confirmEl.hidden = true;
+    const resolve = this.confirmResolve;
+    this.confirmResolve = null;
+    resolve?.(false);
+  }
+
+  // --- saving --------------------------------------------------------------------------
 
   save() {
     const item = this.registry.get(this.activeId);
     if (!item) return this.close();
+    const record = item.record;
 
-    if (this.mode === 'js') this.jsCode = this.jsInput.value;
-    const js = this.jsCode.trim();
+    // A JavaScript program is only ever looked at here, never rewritten.
+    if (this.view === 'js') return this.close();
 
-    // A syntax error is caught HERE, with the editor still open and the code still in
-    // the pane, rather than at run time where the only symptom is an object standing
-    // still. Nothing is saved and nothing is lost; fix it or switch to blocks.
-    if (this.mode === 'js' && js) {
-      const { error } = compileJs(this.jsCode);
-      if (error) {
-        this.menu?.toast(`JavaScript error: ${error.message}`, { tone: 'error' });
+    if (this.view === 1 || this.view === 2) {
+      this.text = this.textInput.value;
+      const result = compile(this.text, this.view, this.compileOpts());
+      if (!result.ok) {
+        this.analysis = result;
+        this.paint(result.diagnostics);
+        this.renderProblems(result.diagnostics);
+        this.menu?.toast('Fix the problems marked in red, then Save.', { tone: 'error' });
         return;
       }
-    }
-
-    // A warning, not a refusal: the program still runs, and the name reads as 0.
-    if (this.mode === 'blocks') {
+      this.tree = result.blocks;
+      this.textLevel = this.view;
+    } else {
+      // A warning, not a refusal: the program still runs, and the name reads as 0.
       const missing = this.unknownVariables();
       if (missing.length) {
         this.menu?.toast(`Nothing sets ${missing.map((n) => `"${n}"`).join(', ')} in this program yet.`, { tone: 'error' });
       }
     }
 
-    const record = item.record;
-    // BOTH representations are saved, which is what makes the toggle non-destructive
-    // across sessions too: reopening the editor tomorrow finds the same blocks and the
-    // same JavaScript this student left. `programMode` decides which one runs.
+    // The BLOCKS are what runs, whichever view saved them, so nothing that runs a program
+    // (ProgramManager, HiFi, duplicate, the play icon, an older copy of the app) needs to know
+    // a program was typed. The text rides beside them -- kept from the blocks view as well, as
+    // long as it still matches, so the # notes in it survive a look at the blocks.
     record.program = cloneBlockTree(this.tree);
-    if (js) {
-      record.programJs = this.jsCode;
-      if (this.jsAuto) record.programJsAuto = true;
-      else delete record.programJsAuto;
+    if (!record.program.length) delete record.program;
+    const typed = this.view === 1 || this.view === 2;
+    if (this.text.trim() && (typed || this.textMatchesTree())) {
+      record.programText = this.text;
+      record.programLevel = this.textLevel;
     } else {
-      delete record.programJs;
-      delete record.programJsAuto;
+      delete record.programText;
+      delete record.programLevel;
     }
-    if (this.mode === 'js' && js) record.programMode = 'js';
+    // `text` opens the editor on the text; no mode means blocks. A JavaScript program saved
+    // over here stops running, because `js` is gone; its text is left on the record untouched.
+    if (typed && record.programText) record.programMode = 'text';
     else delete record.programMode;
+    delete record.programJsAuto;
 
     this.worldStore?.saveObject(record);
     countProgram(record);
     this.programManager?.startFromRecord(this.activeId, record, item.object3D);
     this.playIconManager?.refresh(this.activeId, record, item.object3D);
-    const running = recordHasProgram(record);
-    this.menu?.toast(
-      running
-        ? (record.programMode === 'js' ? 'JavaScript saved and running.' : 'Program saved and running.')
-        : 'Program cleared.',
-      { tone: 'success' },
-    );
+    this.menu?.toast(recordHasProgram(record) ? 'Program saved and running.' : 'Program cleared.', { tone: 'success' });
     this.close();
   }
 
@@ -493,6 +964,11 @@ export class ProgramEditor {
         if (schema.step !== undefined) input.step = String(schema.step);
       }
       if (schema.type === 'text') input.maxLength = 60;
+      // `tell`'s object: any text, with the names of this world's objects offered as you type.
+      if (type === 'tell' && token.field === 'object') {
+        input.setAttribute('list', 'pe-object-names');
+        input.placeholder = 'name';
+      }
       input.value = named ? '' : params[token.field];
       input.disabled = paletteOnly;
       input.addEventListener('pointerdown', (e) => e.stopPropagation());
