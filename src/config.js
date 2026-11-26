@@ -1679,6 +1679,43 @@ export const WORLD_THEMES = {
     sunPosition: [70, 165, 175],
     stars: false,
   },
+  christmas: {
+    // Twilight on Christmas Eve in a snowy spruce forest. Deep enough blue that the warm
+    // windows of the cabin and the coloured lights on its eaves are the brightest things
+    // outside, and not so deep that the snow stops reading as white: what matters is what an
+    // eye adapted to the dusk reports, the observatory's rule.
+    //
+    // THERE IS NO WARM LIGHT IN THIS THEME AT ALL. Every warm photon in the world comes from a
+    // prop -- the fire, the tree, the chandelier -- which is what makes the room glow against
+    // the blue outside, the whole effect of the photograph it is built from.
+    groundDetail: 'ground-regolith.jpg',
+    sky: 0x2f4675,
+    // Falling snow is the weather; the fog only softens the forest into it.
+    fogNear: 70,
+    fogFar: 320,
+    // Snow under a blue sky: blue-white in the hollows, nearly white on the rises.
+    groundLow: 0xa9b8cf,
+    groundHigh: 0xdce5f2,
+    groundRoughness: 0.95,
+    // Flat round the cabin (the floor, the deck and the path are all laid level) and gently
+    // rolling out in the forest.
+    amplitude: 4.5,
+    flatRadius: 80,
+    blendRadius: 200,
+    // A cool, fairly strong fill: at dusk the whole sky is the light source, and snow bounces
+    // it back up, so the ground colour is nearly as light as the sky's.
+    hemiSky: 0x7d99cf,
+    hemiGround: 0x8d9ab4,
+    hemiIntensity: 0.95,
+    // Moonlight: cool, from the west-northwest, high enough that the shadow camera still covers
+    // the clearing (the Time of Day note in CLAUDE.md). The full Moon hangs on the same side.
+    // From straight behind the cabin it left every face a student walks up to -- the porch,
+    // the snowman, the sleigh -- in its own shade; from the side it rakes across them.
+    sunColor: 0xaec4ff,
+    sunIntensity: 1.05,
+    sunPosition: [-160, 130, -80],
+    stars: true,
+  },
 };
 
 // Spiral radius grows as SPAWN_SPACING*sqrt(n); keep SPAWN_DISTANCE comfortably larger

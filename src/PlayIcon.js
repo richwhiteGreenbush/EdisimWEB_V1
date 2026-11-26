@@ -148,11 +148,18 @@ export class PlayIconManager {
     if (dist > CLICK_MOVE_THRESHOLD || dt > CLICK_TIME_THRESHOLD) return; // was a look-drag, not a click
     if (e.target !== this.domElement) return; // click landed on UI, not the world
 
-    this.tryPick(e.clientX, e.clientY);
+    // A hit on the ▶ is this click's whole meaning. ObjectMenu registers its own
+    // pointerup on window AFTER this one (it is constructed later in main.js), and its
+    // raycast against the object under the icon would otherwise open Size/Move/Program
+    // on top of the program that just started. Only on a hit, so every other click
+    // still reaches it -- the same arbitration WebBrowserPanel's edit icon and
+    // ConstructionManager's hammer use.
+    if (this.tryPick(e.clientX, e.clientY)) e.stopImmediatePropagation();
   }
 
+  // Returns true when the click landed on a play icon, whether or not it started anything.
   tryPick(clientX, clientY) {
-    if (!this.icons.size) return;
+    if (!this.icons.size) return false;
     const rect = this.domElement.getBoundingClientRect();
     this.pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
     this.pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
@@ -170,13 +177,14 @@ export class PlayIconManager {
       icon.modelViewMatrix.multiplyMatrices(this.camera.matrixWorldInverse, icon.matrixWorld);
     }
     const hits = this.raycaster.intersectObjects(icons, false);
-    if (!hits.length) return;
+    if (!hits.length) return false;
 
     const id = hits[0].object.userData.placedId;
     const item = this.registry.get(id);
-    if (!recordHasProgram(item?.record)) return;
+    if (!recordHasProgram(item?.record)) return true;
 
     this.programManager?.startFromRecord(id, item.record, item.object3D);
     this.menu?.toast('Running program.', { tone: 'success' });
+    return true;
   }
 }

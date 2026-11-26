@@ -48,6 +48,7 @@ import * as Sunflower from './SunflowerProps.js';
 import * as Butterfly from './ButterflyProps.js';
 import * as Turkle from './TurkleProps.js';
 import * as Money from './MoneyProps.js';
+import * as Xmas from './ChristmasProps.js';
 import { applyWind, WIND_PROPS } from '../Wind.js';
 
 // The name -> builder table that a `preset-prop` record is rehydrated through.
@@ -834,6 +835,27 @@ export const PROP_BUILDERS = {
   'sc-calculator': Money.calculator,
   'sc-mail-pile': Money.mailPile,
   'sc-fact-board': Money.factBoard,
+  // A Cabin Christmas
+  'xmas-cabin': Xmas.logCabin,
+  'xmas-deck': Xmas.cabinDeck,
+  'xmas-fireplace': Xmas.stoneFireplace,
+  'xmas-tree': Xmas.christmasTree,
+  'xmas-star': Xmas.treeStar,
+  'xmas-gifts': Xmas.giftPile,
+  'xmas-train-track': Xmas.trainTrack,
+  'xmas-toy-train': Xmas.toyTrain,
+  'xmas-sofa': Xmas.cabinSofa,
+  'xmas-armchair': Xmas.plaidArmchair,
+  'xmas-cocoa-table': Xmas.cocoaTable,
+  'xmas-fur-rug': Xmas.furRug,
+  'xmas-chandelier': Xmas.candleChandelier,
+  'xmas-snow-spruce': Xmas.snowSpruce,
+  'xmas-snowman': Xmas.snowman,
+  'xmas-sleigh': Xmas.sleigh,
+  'xmas-lantern-row': Xmas.lanternRow,
+  'xmas-snow-path': Xmas.snowPath,
+  'xmas-snow-mound': Xmas.snowMound,
+  'xmas-falling-snow': Xmas.fallingSnow,
 };
 
 // Rebuilds a preset prop from its saved record. Throws on an unknown name rather than

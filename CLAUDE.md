@@ -3959,6 +3959,54 @@ Things it hit, by looking:
 file, the size coming from block programs, as Midway's does. Runs unchanged in HiFi, with bloom on the beams.
 **Not yet measured on an i5/i7 Chromebook.**
 
+### A Cabin Christmas, and a warm room against a blue night
+
+`ChristmasProps.js` + `christmasLayout()`. A gallery world -- in `PRESET_WORLDS` (key `christmas`),
+deliberately not in any menu, seeded with creator "Santa Claus". Built from a photograph of a decorated
+tree beside a fieldstone fireplace in a log cabin, and THE ARRIVAL IS THAT PHOTOGRAPH: the spawn stands
+inside, the tree 24 degrees left against the big back windows, the fire 18 degrees right. Outside is a
+snowy spruce forest at twilight, the yard (lantern path, snowman, sleigh, a tree in coloured lights) and
+a deck behind the French doors. `tools/check-christmas.mjs` runs both boards' programs and the train's.
+
+**THE THEME CARRIES NO WARM LIGHT AT ALL.** Blue twilight sky, cool moonlight, a cool hemisphere fill;
+every warm photon comes from three point lights the props carry (fire, tree, chandelier). That contrast
+is the photograph. Windows glow from outside through a second pane facing OUTWARD only (additive,
+FrontSide), so it is culled from inside and the view out stays clear.
+
+Things it hit:
+
+- **`photoMap` without an overlay never shows the photo on a mesh drawn before it loads.** It hands back a
+  texture backed by a 1 x 1 pixel and swaps the image in later, and three allocates immutable storage at
+  the first upload, so the swap logs `glTexSubImage2D: Offset overflows texture dimensions` and the
+  surface stays blank. The library dodges it by passing a full-size `overlay`. The same warning appears
+  while the Park boots, so something there may have this problem; it was not traced. The cabin floor is a
+  canvas of wide pine boards instead, since `wood-floor.jpg` is narrow strip flooring anyway.
+- **SNOW ON A BRANCH NEEDS THICKNESS.** A white vertex colour on the needles reads as frost, and a dark
+  needle map multiplies it to grey. `snowCap()` copies each whorl's top surface, pushes it OUT along its
+  normal where snow lies and IN under the needles where it does not, reusing the whorl's own index so it
+  cannot be wound inside out. Where the two meet the copy dives through the branch, which is the ragged
+  edge of a snow patch. The needle map is kept light for the same reason.
+- **A SPRUCE IS A STACK OF CLOSED BRANCH WHORLS**, each lobed into drooping tips with a sub-branch ripple
+  on the rim. Wound by measurement (`paramSurface` flips any triangle facing away from a reference), the
+  Turkle Street rule. The hero tree adds 1,600 needle tufts along its branches, or the tiers read as paddles.
+- **INTERIOR PROPS CAST NO SHADOW.** The roof already puts the room in the Moon's shadow, so drawing the
+  tree, the fireplace and the furniture into the shadow map changed nothing on screen and cost about
+  400k triangles a frame. `indoors()` turns it off.
+- **A FIRE'S LIGHT GOES IN FRONT OF THE OPENING.** Inside the firebox it lit the brick and nothing else,
+  and the stone face round the fire sat in the cool fill as grey pebbles in grout.
+- **A `forever { forward f, rotate d }` WALKS A POLYGON whose circle is centred half a step AHEAD of
+  "a radius to the left".** Placed against the naive centre the train ran 0.15ft off its rails.
+  `TRAIN_CENTRE` is the real one; doubling both numbers (the board) then runs within 0.15ft of the middle.
+- **Fieldstone has to fill its slot unevenly**: shorter than its course, nudged up or down, skewed, with
+  pale mortar behind. Full-height stones on dark mortar are a grid of pillows.
+
+**Performance, measured in the app on the development Mac**: 94 records / **331 draw calls** / 1.15M
+triangles drawn at the arrival, 1.40M from the front yard (the most anywhere) / 3 point lights / 27.8 KB
+world file. Per prop: fireplace ~120k triangles, hero tree ~125k, 55 spruces ~45% of the world's geometry
+(near ones within 55ft at full detail with snow caps, the rest at about a third). **Not yet measured on an
+i5/i7 Chromebook**, and 1.40M is near the top of the envelope. Not seeded into the HiFi gallery, and its
+additive glows and flame cards have not been looked at in HiFi.
+
 ### Sunflower, and the arithmetic of an ARRIVAL FRAME
 
 `SunflowerProps.js` + `sunflowerLayout()`. A gallery world -- in `PRESET_WORLDS`,
@@ -5338,7 +5386,10 @@ misfires as a click, and raycasts only against the tracked icon sprites — neve
 against `registry.getRootObjects()` — so it can't intercept clicks meant for
 `ObjectMenu`. Clicking a hit icon calls `programManager.start()` again, which is a
 deliberate *restart*, not a resume/no-op — useful for re-running a script that has
-already finished or drifted.
+already finished or drifted. **A hit calls `e.stopImmediatePropagation()`**, because
+`ObjectMenu`'s window `pointerup` is registered after this one and would otherwise raycast
+the object under the ▶ and open its menu over the program that just started. That only
+works while `PlayIconManager` is constructed before `ObjectMenu` in `main.js`.
 
 Icon lifecycle is driven entirely by `refresh(id, record, object3D)`, called from
 `WorldStore.addAndRun()` and `ProgramEditor.save()`: it adds a sprite if the record

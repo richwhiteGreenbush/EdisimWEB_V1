@@ -37,6 +37,7 @@ import {
   BOARD_STEPS as LIGHT_BOARDS,
 } from './props/OpticsPrograms.js';
 import { HL } from './props/OpticsProps.js';
+import { CABIN, TRAIN_R, TRAIN_STEP, TRAIN_TURN, TRAIN_CENTRE, TREE_TOP } from './props/ChristmasProps.js';
 import {
   TANK, GAUGE, THERMOSTAT, SUBSTANCES, RADIUS_PM_PER_FOOT, EN_FEET_PER_UNIT, MOLECULE_SCALE, SALT, SALT_SCALE,
   particleHomes, particleWalls, enlargement, ionsInSaltGrain, elementBySymbol, towerHeight, TREND_RADIUS, TREND_EN,
@@ -12276,8 +12277,182 @@ function hallOfLightLayout() {
   return { theme: 'optics', spawn: { ...SP, yaw: 0 }, items };
 }
 
+// ---------------------------------------------------------------------------
+// A Cabin Christmas
+// ---------------------------------------------------------------------------
+
+// A log cabin in a snowy spruce forest on Christmas Eve, built from a photograph of a decorated
+// tree beside a fieldstone fireplace. See ChristmasProps.js for how it is made.
+//
+// THE ARRIVAL IS THE PHOTOGRAPH. The spawn stands inside, near the front wall, looking at the
+// back of the room: the tree 24 degrees left against the big windows, the fire 18 degrees
+// right, the fur rug and the sofa in the left foreground. Nothing tall stands between the
+// spawn and either of them, and everything a student is meant to find second -- the browser,
+// the board, the open door to the deck -- sits off those two bearings.
+//
+// The cabin is 36 x 28ft, x -18..18 and z -14..14, with the ridge running along x. The tree
+// stands at (-6.5, -6.5), in front of the two big back windows, and the fireplace is set into
+// the back wall at x = 8. The French doors between them open onto a deck; the front door
+// behind the spawn opens onto the yard, the snowman, the sleigh and the lantern path.
+function christmasLayout() {
+  const items = [];
+  const SP = { x: 1, z: 10.5 };
+  const TREE = { x: -6.5, z: -6.5 };
+
+  // A tiny deterministic generator for the forest, so the world rebuilds identically.
+  let state = 20251224;
+  const rnd = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
+
+  // --- the cabin and what is in it -------------------------------------------------
+  items.push(prop('xmas-cabin', 0, 0, { options: { seed: 51 } }));
+  items.push(prop('xmas-deck', 0, 0, { options: { seed: 61 } }));
+  items.push(prop('xmas-fireplace', 8, -CABIN.halfD, { options: { seed: 41 } }));
+  items.push(prop('xmas-tree', TREE.x, TREE.z, { options: { seed: 11 } }));
+  items.push(prop('xmas-star', TREE.x, TREE.z, {
+    y: TREE_TOP - 0.15,
+    // Already spinning when a student arrives: the easiest program to learn is one that is
+    // running, and this one is two blocks long.
+    program: [block('forever', {}, [block('rotate', { degrees: 2 })])],
+  }));
+  items.push(prop('xmas-gifts', TREE.x, TREE.z, { options: { seed: 21 } }));
+  items.push(prop('xmas-train-track', TREE.x, TREE.z, { options: { radius: TRAIN_R } }));
+  // The train starts on the track's west side heading +z, so its left -- the way a positive
+  // rotate turns it -- points at the tree. It stands where the polygon its program walks has
+  // its centre on the tree, which is not quite a radius away (see TRAIN_CENTRE).
+  items.push(prop('xmas-toy-train', TREE.x - TRAIN_CENTRE[0], TREE.z - TRAIN_CENTRE[1], {
+    options: { radius: TRAIN_R },
+    homeFromRecord: true,
+    objectName: 'train',
+    program: [block('forever', {}, [
+      block('moveForward', { feet: TRAIN_STEP }),
+      block('rotate', { degrees: TRAIN_TURN }),
+    ])],
+  }));
+
+  items.push(prop('xmas-fur-rug', -5.5, 4.5, { rotY: 0.15, options: { seed: 74 } }));
+  items.push(prop('xmas-sofa', -14.6, 3, { rotY: Math.PI / 2, options: { seed: 71 } }));
+  items.push(prop('xmas-cocoa-table', -10.2, 3.2, { rotY: Math.PI / 2, options: { seed: 73 } }));
+  items.push(prop('xmas-armchair', 13.2, -4.5, { rotY: facing(13.2, -4.5, 6, -8) - 0.4, options: { seed: 72 } }));
+  items.push(prop('xmas-chandelier', 0, -1, { y: 10.4, options: { drop: CABIN.ridge - 1.1 - 10.4 } }));
+
+  items.push(...browserStation(10.5, 4, { faceX: SP.x, faceZ: SP.z }));
+
+  // Activity 1 is inside, in the back-left corner beside the tree, where the train runs past it.
+  // Shorter posts than outdoors: the ceiling here is thirteen feet.
+  items.push(prop('activity-board', -15.6, -10.2, {
+    rotY: facing(-15.6, -10.2, 2, 4),
+    options: {
+      number: 1,
+      title: 'Speed up the toy train',
+      target: 'the train running round the tree',
+      accent: '#c8161f',
+      postHeight: 7.4,
+      steps: [
+        ctrlStep('forever'),
+        moveStep(`move forward ${TRAIN_STEP * 2} feet`, 1),
+        moveStep(`rotate ${TRAIN_TURN * 2} degrees`, 1),
+      ],
+      tip: `The train already runs this with ${TRAIN_STEP} and ${TRAIN_TURN}. Double BOTH numbers and it goes twice as fast on the same track. Double only one and watch it leave the rails.`,
+    },
+  }));
+
+  // --- outside: the front yard -------------------------------------------------------
+  const DOOR_X = 5;
+  items.push(prop('xmas-snow-path', DOOR_X, CABIN.halfD + 30, { options: { length: 56, width: 5.2, seed: 92 } }));
+  items.push(prop('xmas-lantern-row', DOOR_X, CABIN.halfD + 32, { options: { count: 6, spacing: 9, width: 8.4 } }));
+  items.push(prop('xmas-snowman', -11, 32, {
+    rotY: facing(-11, 32, DOOR_X, 26),
+    objectName: 'snowman',
+    options: { seed: 81 },
+  }));
+  items.push(prop('xmas-sleigh', -7, 52, { rotY: facing(-7, 52, DOOR_X, 30) + 0.5, options: { seed: 91 } }));
+  items.push(prop('xmas-snow-spruce', 22, 36, { options: { height: 20, radius: 6, seed: 7, lights: true, snow: 0.6 } }));
+  items.push(prop('xmas-star', 22, 36, { y: 20 * 0.94 + 0.3, scale: 1.6 }));
+
+  items.push(prop('activity-board', -22, 24, {
+    rotY: facing(-22, 24, DOOR_X, 24),
+    options: {
+      number: 2,
+      title: 'Teach the snowman to dance',
+      target: 'the snowman in the front yard',
+      accent: '#1f7a45',
+      steps: [
+        ctrlStep('repeat 4 times'),
+        moveStep('move forward 3 feet', 1),
+        moveStep('rotate 90 degrees', 1),
+        lookStep('say Merry Christmas!'),
+      ],
+      tip: '360 divided by 4 is 90, so he dances a square and ends where he started. Try repeat 8 with rotate 45, then put the whole thing inside a forever.',
+    },
+  }));
+
+  items.push(prop('welcome-board', 18, 21, {
+    rotY: facing(18, 21, DOOR_X, CABIN.halfD + 2),
+    options: {
+      eyebrow: '🎄  A CABIN CHRISTMAS',
+      lead: 'Christmas Eve in a log cabin in the snowy woods.',
+      lines: ['The tree, the fire and the train are inside.', 'Everything here can be programmed.'],
+      footnote: 'Go round the back: the French doors open onto the deck',
+    },
+  }));
+
+  // --- snow drifts against the walls and across the clearing -------------------------------
+  const mounds = [
+    [-21, -4, 9, 4, 1.6], [21.5, 6, 8, 4, 1.4], [-12, 18.5, 10, 3.4, 1.2], [15, 18, 8, 3.2, 1.1],
+    [-30, 12, 12, 7, 2.2], [30, -12, 14, 8, 2.4], [-14, 42, 9, 6, 1.6], [26, 54, 12, 7, 2.0],
+    [-34, -30, 14, 9, 2.6], [12, -36, 10, 7, 2.0], [-40, 46, 14, 9, 2.4],
+  ];
+  for (const [x, z, w, d, h] of mounds) items.push(prop('xmas-snow-mound', x, z, { rotY: rnd() * Math.PI, options: { width: w, depth: d, height: h, seed: Math.round(x * 7 + z) } }));
+
+  // --- the forest ---------------------------------------------------------------------
+  // Dense behind the cabin, where the back windows look out; thinner round the yard, so the
+  // lanterns, the snowman and the sleigh have a clearing to stand in. Near trees are built at
+  // full detail and the rest at a third of it -- a tree planted fifty times costs fifty times.
+  const clear = (x, z) =>
+    (x > -27 && x < 26 && z > -31 && z < 22) || // cabin and deck
+    (x > -36 && x < 34 && z > 14 && z < 70) ||  // the yard
+    Math.hypot(x - SP.x, z - SP.z) < 30;
+  const trees = [];
+  let tries = 0;
+  while (trees.length < 48 && tries < 4000) {
+    tries++;
+    const a = rnd() * Math.PI * 2;
+    // Bias toward the back (-z), where the windows look.
+    const back = Math.sin(a) < 0 ? 1 : 0.55;
+    const r = 30 + Math.pow(rnd(), 0.8) * 140 * back + (1 - back) * 45;
+    const x = Math.cos(a) * r; const z = Math.sin(a) * r;
+    if (clear(x, z)) continue;
+    const h = 26 + rnd() * 24;
+    const rad = h * (0.24 + rnd() * 0.06);
+    if (trees.some((t) => Math.hypot(t.x - x, t.z - z) < (t.rad + rad) * 0.7)) continue;
+    trees.push({ x, z, h, rad });
+  }
+  // a few deliberately placed close in, framing the windows and the yard
+  for (const [x, z, h] of [[-8, -40, 34], [-24, -36, 30], [6, -44, 38], [-40, -14, 32], [36, 4, 30], [-44, 30, 28], [40, 40, 34]]) trees.push({ x, z, h, rad: h * 0.27 });
+  for (const t of trees) {
+    const near = Math.hypot(t.x, t.z) < 55;
+    items.push(prop('xmas-snow-spruce', t.x, t.z, {
+      rotY: rnd() * Math.PI * 2,
+      options: { height: Math.round(t.h * 10) / 10, radius: Math.round(t.rad * 10) / 10, seed: Math.round(t.x * 13 + t.z * 7) & 0xffff, detail: near ? 'near' : 'far', snow: 1 },
+    }));
+  }
+
+  // --- sky and weather ----------------------------------------------------------------
+  // A full Moon low over the forest to the west-northwest, on the same side as the theme's
+  // moonlight, seen from the deck and the left-hand windows.
+  items.push(prop('moon-in-sky', -210, -120, { y: 62, absoluteY: true, options: { radius: 13, seed: 93 } }));
+  items.push(prop('xmas-falling-snow', 0, 0, { options: { radius: 130, height: 55, count: 9000 } }));
+
+  return { theme: 'christmas', spawn: { ...SP, yaw: 0 }, items };
+}
+
 
 export const PRESET_WORLDS = {
+  christmas: {
+    label: 'A Cabin Christmas',
+    hint: 'Christmas Eve in a log cabin in the snowy woods -- a fire, a tree full of lights, a toy train already running, and a snowman waiting to dance',
+    build: christmasLayout,
+  },
   halloflight: {
     label: 'The Hall of Light',
     hint: 'Geometric optics where every beam of light is a program: mirrors, a periscope, water, a light pipe, a prism and a lens, all in block code',

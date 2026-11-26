@@ -962,6 +962,21 @@ $WORLDS = [
             . "blocks. The giant teacup is already spinning \u{2014} open its program and "
             . "change the number.",
     ],
+    'christmas' => [
+        'title' => 'A Cabin Christmas',
+        'creator' => 'Santa Claus',
+        'tags'  => 'holiday, christmas, winter, coding, official',
+        'description' =>
+            "Christmas Eve in a log cabin in the snowy woods. A fire crackles in the fieldstone "
+            . "fireplace under four stockings, the tree is full of lights, red and gold baubles and "
+            . "pinecones, and a toy train is already running round the presents underneath it.\n\n"
+            . "Step out of the front door into the twilight: snow is falling, the eaves are hung with "
+            . "coloured lights and icicles, a lantern path leads past a snowman and a sleigh full of "
+            . "presents, and the French doors at the back open onto a snowy deck under a full Moon.\n\n"
+            . "Two activities in block code: speed up the train without knocking it off its track, "
+            . "and teach the snowman to dance. The star on top of the tree is spinning too \u{2014} "
+            . "click it and change the number.",
+    ],
     'halloflight' => [
         'title' => 'The Hall of Light',
         'creator' => 'Ibn al-Haytham',
