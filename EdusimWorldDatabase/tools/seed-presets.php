@@ -962,6 +962,23 @@ $WORLDS = [
             . "blocks. The giant teacup is already spinning \u{2014} open its program and "
             . "change the number.",
     ],
+    'halloflight' => [
+        'title' => 'The Hall of Light',
+        'creator' => 'Ibn al-Haytham',
+        'tags'  => 'science, physics, math, coding, official',
+        'description' =>
+            "Geometric optics in a roofless hall of warm stone, where every beam of light is a program "
+            . "drawing its own path. Six light benches stand round the hall like giant ray diagrams: a "
+            . "mirror, a periscope, a tank of water, a light pipe, a prism and a lens.\n\n"
+            . "Click a beam, press Program and change a number. Turn the laser and predict where the dot "
+            . "lands; change the water's n and watch the bend vanish or grow; split white light into six "
+            . "colours, each with its own n; move a lens's focus. At the light pipe, Snell's law runs out of "
+            . "answers past the critical angle, and fixing that with two if blocks is how a fibre optic "
+            . "cable works.\n\n"
+            . "All in block code, with the Math blocks. Two activities: program an empty periscope from "
+            . "nothing, and fix the beam that has no answer. A printable student lesson guide and a teacher "
+            . "lesson card are further down this page.",
+    ],
 ];
 
 // ---------------------------------------------------------------------------

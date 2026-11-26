@@ -1,0 +1,221 @@
+<!-- The Hall of Light lesson cards, rendered inside world.php by readfile().
+
+     This fragment is the cards' ONE copy, as Atom Hall's and Newton's Midway's are. Every figure in
+     it is checked against src/props/OpticsModel.js by tools/check-hall-of-light.mjs, since nothing
+     else would notice static HTML drifting. Styles are .lc-* in assets/database.css. -->
+<section class="lesson-card" id="lesson-card" aria-labelledby="lc-h">
+  <header class="lc-head">
+    <span class="lc-kicker">Lesson Cards · Physical science: light</span>
+    <h2 id="lc-h">🔦 The Hall of Light</h2>
+    <p>A student lesson guide and a teacher lesson card. Each one prints on its own, so a student's copy has no answer key.</p>
+    <div class="lc-actions no-print">
+      <a class="btn btn-ghost btn-sm" href="#lc-student">🎒 Student lesson guide</a>
+      <a class="btn btn-ghost btn-sm" href="#lc-teacher">🍎 Teacher lesson card</a>
+      <button type="button" class="btn btn-green btn-sm" data-lc-print="lc-student">🖨️ Print student guide</button>
+      <button type="button" class="btn btn-green btn-sm" data-lc-print="lc-teacher">🖨️ Print teacher card</button>
+    </div>
+  </header>
+
+  <div class="lc-shots no-print">
+    <figure class="lc-shot">
+      <img src="../guide/shots/halloflight_1.jpg" alt="A roofless sandstone hall. At the far end a black board shows a white beam entering a glass prism and leaving as six coloured beams." loading="lazy" />
+      <figcaption>From the door, the prism splits a white beam into six colours. Every beam is a program drawing its own path.</figcaption>
+    </figure>
+    <figure class="lc-shot">
+      <img src="../guide/shots/halloflight_2.jpg" alt="A tank of water on a black board. A red beam comes down from a laser, bends at the water's surface and lands on a fish; a grey line carries on straight past it." loading="lazy" />
+      <figcaption>The water tank: the red beam bends at the surface and lands on the fish. The grey line is where the fish seems to be.</figcaption>
+    </figure>
+    <figure class="lc-shot">
+      <img src="../guide/shots/halloflight_3.jpg" alt="Five coloured beams travel left to right, pass through a lens and cross at a single point before spreading out to a screen." loading="lazy" />
+      <figcaption>The lens bench: five parallel beams meet at the focus. Change f and the meeting point moves.</figcaption>
+    </figure>
+  </div>
+
+  <!-- ================================================================= -->
+  <div class="student-part" id="lc-student">
+    <h2 class="part-title">🎒 Student lesson guide</h2>
+    <p class="howto"><strong>Getting there:</strong> press <strong>Open this world in Edusim</strong> on this page. No account or download.
+      <span class="print-only">Type it in: <span class="mono">edusim3dweb.com/worlds/world.php?slug=the-hall-of-light</span></span>
+      <span class="howto-warn">Opening a world replaces what is in your copy. Use <span class="key">☰ Menu</span> → <span class="key">Save World</span> first if you have something to keep.</span></p>
+    <p class="part-lead"><strong>How it works:</strong> walk with the arrow keys and drag to look around. Every beam of light is a small glowing bead running a program, drawing its path as it goes. To read or change a program, click the bead (or the lens) and press <span class="key">Program</span>. Change a number in a green block and press <span class="key">Save</span>. A green ▶ runs it again. The red <strong>CLEAR</strong> button in the middle of the hall wipes every beam.</p>
+    <p class="part-lead"><strong>Angles:</strong> on these benches an angle like <code class="m">-25</code> is measured from the flat, and a minus sign means the beam points down. At a mirror or a surface, the angles <code class="m">i</code> and <code class="m">r</code> are measured from the <strong>normal</strong>, the dashed line standing straight out of the surface.</p>
+    <p class="part-lead">Name <span class="blank wide"></span> Date <span class="blank"></span></p>
+
+    <section class="st" style="--st: #ff5a4a;">
+      <h3>1 · The Mirror</h3>
+      <p class="find">Bench 1 is on your left as you come in. The board shows the angle in and the angle out, both measured from the normal.</p>
+      <ol>
+        <li><strong>Before you look:</strong> if a beam hits a mirror at a steep angle, does it bounce off steeply or shallowly? <span class="blank wide"></span></li>
+        <li>Read the two marked angles on the board. Angle in: <span class="blank"></span> Angle out: <span class="blank"></span></li>
+        <li>Click the red bead → Program. Change <code class="m">angle</code> and press Save. <strong>Predict first</strong> where the dot will land on the screen, then write what the beam says.
+          <table class="lc-table">
+            <tr><th>angle</th><th>-20</th><th>-25</th><th>-30</th><th>-35</th></tr>
+            <tr><th>My prediction (feet up the screen)</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+            <tr><th>What the beam says</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+          </table></li>
+        <li>The whole mirror rule is one block. Write it: <span class="blank wide"></span> Why does turning the angle "upside down" make angle in equal angle out?<span class="line"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #f2a01c;">
+      <h3>2 · The Periscope</h3>
+      <p class="find">Bench 2 is on your right. A periscope lets an eye low behind a wall see a light above it.</p>
+      <ol>
+        <li>Click the orange bead → Program. A mirror at angle <code class="m">m</code> sends a beam at angle <code class="m">a</code> off at <code class="m">2m − a</code>. With <code class="m">m</code> = −45, a flat beam (0) leaves at <span class="blank"></span> degrees, which is straight <span class="blank"></span>.</li>
+        <li><strong>ACTIVITY 1:</strong> the right-hand periscope's yellow bead has no program. Click it, press Program and build what the activity board shows. Press Save. Did the light reach the eye? <span class="blank"></span></li>
+        <li>Your program does not mention mirrors at all. How can it still be right?<span class="line"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #2f9be0;">
+      <h3>3 · The Water Tank</h3>
+      <p class="find">Bench 3 is on your left, further back. <strong>Snell's law:</strong> n<sub>1</sub> × sin i = n<sub>2</sub> × sin r. Air has n = 1.</p>
+      <ol>
+        <li><strong>Before you look:</strong> a fish is on the bottom of a pond. Is it really where it seems to be? <span class="blank wide"></span></li>
+        <li>Read the board. In air the beam meets the water at <span class="blank"></span>° from the normal. In water it is at <span class="blank"></span>°. Does it bend toward or away from the normal? <span class="blank"></span></li>
+        <li>Click the red bead → Program and change <code class="m">n</code>. The beam says the angle it bent to.
+          <table class="lc-table">
+            <tr><th>n</th><th>1 (no water)</th><th>1.333 (water)</th><th>1.49 (acrylic)</th><th>2.417 (diamond)</th></tr>
+            <tr><th>r, degrees</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+          </table></li>
+        <li>What happens to the bend as n gets bigger? <span class="blank wide"></span></li>
+        <li>The grey line carries the beam on straight, the way your eye assumes light travels. A spear thrown along it misses the fish. Should a spearfisher aim nearer or further than where the fish seems to be? <span class="blank"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #38c76a;">
+      <h3>4 · The Light Pipe</h3>
+      <p class="find">Bench 4 is on your right, further back. On the left half a red beam starts inside a glass block (n = 1.52) and meets the top at angle <code class="m">i</code>. Going out into air, sin r = 1.52 × sin i.</p>
+      <ol>
+        <li>Click the red bead → Program. Set <code class="m">i</code> to each angle, press Save, and fill in the table. <code class="m">t</code> is 1.52 × sin i.
+          <table class="lc-table">
+            <tr><th>i</th><th>30</th><th>40</th><th>45</th><th>60</th></tr>
+            <tr><th>t = 1.52 × sin i</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+            <tr><th>What did the beam do?</th><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+          </table></li>
+        <li>At 45 a message says <code class="m">r</code> has no answer. Why can no angle r have a sine bigger than 1? <span class="line"></span></li>
+        <li><strong>ACTIVITY 2:</strong> build the fix the board shows: one <code class="m">if t ≤ 1</code> holding the two blocks that let the light out, and one <code class="m">if t &gt; 1</code> that reflects it. Try 45 and 60 again. What happens now? <span class="blank wide"></span></li>
+        <li>The angle where t is exactly 1 is the <strong>critical angle</strong>. For this glass it is <span class="blank"></span>°. Click the green bead in the acrylic rod. How many bounces does it make? <span class="blank"></span> Try <code class="m">angle</code> = 30, then 50. What changes, and why? <span class="line"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #a35cf0;">
+      <h3>5 · The Prism</h3>
+      <p class="find">Bench 5 faces the door. The white beam is cut into six colour beams at the glass.</p>
+      <ol>
+        <li>Click any colour bead → Program. Which green block is different for each colour? <span class="blank"></span></li>
+        <li>Fill in each colour's n from the board, smallest first. <span class="blank wide"></span> Which colour bends most? <span class="blank"></span></li>
+        <li>A rainbow is made the same way, in raindrops. Why is red on the outside of a rainbow and violet on the inside?<span class="line"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #e8b800;">
+      <h3>6 · The Lens</h3>
+      <p class="find">Bench 6 is behind you as you come in. The lens rule: tan(new angle) = tan(angle) − h ÷ f, where h is how high the ray crosses the lens.</p>
+      <ol>
+        <li>Where do the five beams cross? <span class="blank"></span> feet past the lens. That point is the <strong>focus</strong>.</li>
+        <li>Click the lens → Program and change <code class="m">f</code> to 4, then 9. <strong>Predict first.</strong> Where do they cross now? <span class="blank"></span> and <span class="blank"></span></li>
+        <li>Which lens is stronger, the one with f = 4 or f = 9? <span class="blank"></span> Your eye focuses on something close by making its own lens stronger. Does its f get bigger or smaller? <span class="blank"></span></li>
+      </ol>
+    </section>
+
+    <section class="st" style="--st: #444;">
+      <h3>Exit ticket</h3>
+      <ol>
+        <li>Name one way light changes direction that you saw today, and the rule a beam's program used for it.<span class="line"></span></li>
+        <li>Every beam here was told where the glass was. Real light is not told anything. What is the difference between this model and real light?<span class="line"></span></li>
+      </ol>
+    </section>
+  </div>
+
+  <!-- ================================================================= -->
+  <div class="teacher-part" id="lc-teacher">
+    <h2 class="part-title">🍎 Teacher lesson card</h2>
+
+    <table class="lc-table">
+      <tr><th>Grades</th><td>7–12. Sections 1, 2 and 3 suit middle school; Sections 4, 5 and 6 use sine and arcsine.</td></tr>
+      <tr><th>Time</th><td>One 45-minute period for three benches, or a 90-minute block for all six.</td></tr>
+      <tr><th>You need</th><td>A browser on each computer. No account, install or student data. Printed copies of the student guide or a way to type answers.</td></tr>
+      <tr><th>Students will</th><td>Use ray models to predict reflection and refraction, apply the law of reflection and Snell's law, explain total internal reflection and the critical angle, explain dispersion as each colour having its own refractive index, and find the focus of a converging lens. Read and change block programs that carry these rules.</td></tr>
+    </table>
+
+    <div class="honest"><strong>Say this out loud.</strong> These are ray diagrams, not light. Real light is a wave, and this world ignores that: there is no diffraction, no interference, no partial reflection at glass, and no light lost on the way. Each beam is a program that keeps its own position and is <em>told</em> where every surface is in its green blocks; it cannot detect glass it was not told about. The light is slowed down about a hundred million times: real light crosses this 30-foot hall in about 30 nanoseconds. The prism is dense flint glass (Schott SF11), because in ordinary window glass the colours separate by only 1.4 degrees, narrower than a beam here. The lens uses the thin-lens rule, which is exact for this model and approximate for a real lens. The benches are larger than real lab equipment; angles do not depend on size. Research supports 3D learning environments in general, but nobody has tested this particular world.</div>
+
+    <h3 class="lc-sec">Misconceptions this world is built to surface</h3>
+    <ul>
+      <li><strong>"Light bends because the glass pulls it."</strong> It bends because it changes speed crossing the surface. The water placard and the beam's own n say so; a beam that meets the surface straight on, along the normal, does not bend at all.</li>
+      <li><strong>"Angles are measured from the surface."</strong> For a flat mirror either way gives equal angles, but Snell's law only works with angles from the normal, so every bench measures from the normal.</li>
+      <li><strong>"Glass makes the colours."</strong> The white beam already holds them; the prism only bends each by a different amount.</li>
+      <li><strong>"Total internal reflection is a special kind of mirror."</strong> It is Snell's law having no answer: no angle has a sine above 1.</li>
+    </ul>
+
+    <h3 class="lc-sec">45-minute plan</h3>
+    <table class="lc-table">
+      <tr><th>Min</th><th>You</th><th>Students</th></tr>
+      <tr><td>0–5</td><td>Ask the "before you look" questions from Sections 1 and 3. Do not correct anything yet.</td><td>Write, then open the world.</td></tr>
+      <tr><td>5–35</td><td>Middle school: Sections 1, 2, 3. High school: Sections 3, 4, 5. Insist on a prediction before each Save.</td><td>Work through the guide in pairs.</td></tr>
+      <tr><td>35–45</td><td>Collect predictions against results on the board. Exit ticket.</td><td>Share and write.</td></tr>
+    </table>
+
+    <h3 class="lc-sec">90-minute plan</h3>
+    <table class="lc-table">
+      <tr><th>Min</th><th>You</th><th>Students</th></tr>
+      <tr><td>0–10</td><td>Opening questions.</td><td>Write, then open the world.</td></tr>
+      <tr><td>10–40</td><td>Sections 1, 2 and 3.</td><td>Mirror, periscope (Activity 1), water.</td></tr>
+      <tr><td>40–75</td><td>Sections 4, 5 and 6.</td><td>No-answer fix (Activity 2), prism, lens.</td></tr>
+      <tr><td>75–90</td><td>Discussion and exit ticket.</td><td>Share and write.</td></tr>
+    </table>
+
+    <h3 class="lc-sec">Discussion prompts</h3>
+    <ul>
+      <li>Why does a straw in a glass of water look broken at the surface?</li>
+      <li>A diamond sparkles more than glass cut the same way. Its critical angle is only 24.4°. How might that help?</li>
+      <li>Fibre optic cables carry most of the world's internet traffic as light. Why does the light not leak out at the bends?</li>
+      <li>Every beam here was told where the glass was. How would you write a program that found out for itself?</li>
+    </ul>
+
+    <h3 class="lc-sec">Answer key</h3>
+    <details class="answers">
+      <summary>Show the answers</summary>
+      <table class="lc-table">
+        <tr><th>1 Mirror</th><td>Angle in 65°, angle out 65°. The beam says the dot is 5.63 feet up the screen at -20, 7.83 at -25 and 10.21 at -30. At -35 it says it went over the top of the screen. The rule is <code class="m">set angle to 0 − angle</code>: a beam arriving 25° below flat leaves 25° above it, so it makes the same angle with the normal on both sides.</td></tr>
+        <tr><th>2 Periscope</th><td>2 × (−45) − 0 = −90, straight down. Then 2 × (−45) − (−90) = 0, flat again. Activity 1: yes. The program draws the path the mirrors would make; it does not need to know why, which is the difference between a model and the thing it models.</td></tr>
+        <tr><th>3 Water</th><td>50° in air, 35.08° in water: toward the normal. r is 50° with n = 1 (no bend), 35.08° for water, 30.94° for acrylic, 18.48° for diamond. The bigger n, the more it bends toward the normal. Aim nearer: the grey line of sight lands beyond the real fish, so the fish is closer and deeper than it looks.</td></tr>
+        <tr><th>4 Light pipe</th><td>t is 0.76 at 30°, 0.98 at 40°, 1.07 at 45° and 1.32 at 60°. At 30 and 40 the beam leaves the glass, bending away from the normal (to 49.46° and 77.70°). At 45 and 60, before the fix, asin has no answer and the beam goes wrong; after the fix it reflects back into the glass. No angle has a sine above 1. The critical angle is 41.1° for this glass (48.6° for water, 42.2° for acrylic, 24.4° for diamond). The rod makes 4 bounces at 18°, 7 bounces at 30, and at 50 the wall angle is only 40°, under acrylic's 42.2°, so the light escapes at the first wall.</td></tr>
+        <tr><th>5 Prism</th><td>Only <code class="m">n</code> differs. Red 1.773, orange 1.781, yellow 1.786, green 1.795, blue 1.812, violet 1.842. Violet bends most. In a raindrop violet is bent more, so it reaches our eyes from drops lower in the sky, inside the red.</td></tr>
+        <tr><th>6 Lens</th><td>6 feet past the lens. At f = 4, 4 feet; at f = 9, 9 feet. f = 4 is stronger: it bends rays more. Focusing close, the eye's lens gets stronger and its f smaller.</td></tr>
+        <tr><th>Exit ticket</th><td>Any one of: reflection (angle out = minus angle in), refraction (Snell's law), total internal reflection (reflect when n sin i is more than 1), the lens rule. Real light is a wave and needs no program; this model only follows rays, and only where it was told surfaces are.</td></tr>
+      </table>
+    </details>
+
+    <h3 class="lc-sec">Adjusting it</h3>
+    <ul>
+      <li><strong>Middle school:</strong> Sections 1, 2 and 3, with the Program panel used only to change one number.</li>
+      <li><strong>Physics:</strong> have students derive the critical angle from n before they test it, and compare 41.1° with the beam's behaviour at 40 and 45.</li>
+      <li><strong>Math:</strong> the mirror bench is a right-triangle problem: work out where the dot lands with tangent before pressing Save.</li>
+      <li><strong>Computer science:</strong> read how every beam keeps <code class="m">x</code> and <code class="m">y</code> and cuts each straight run into <code class="m">steps</code> equal moves, and why that lands exactly on a surface where a fixed step would overshoot.</li>
+      <li><strong>Handing work in:</strong> <span class="key">☰ Menu</span> → <span class="key">Save World</span> downloads a file you can open and inspect, programs included.</li>
+    </ul>
+
+    <h3 class="lc-sec">Quick troubleshooting</h3>
+    <ul>
+      <li><strong>Old beams are still there after a change:</strong> that is on purpose, so two settings can be compared. The red CLEAR button in the middle of the hall wipes them all.</li>
+      <li><strong>A message says a value has no answer:</strong> that is Section 4, at a glass angle past 41.1°.</li>
+      <li><strong>A beam flew off the board:</strong> an angle was too steep, or a minus sign is missing. Change it back and press Save.</li>
+      <li><strong>Changing one prism colour does nothing:</strong> the colours wait for the white beam. Press the white beam's green ▶.</li>
+      <li><strong>Lots of beams have stopped drawing:</strong> the hall has a limit on marks. Press CLEAR.</li>
+      <li><strong>Things look slow:</strong> a slower computer shows the same light in slower motion. The numbers do not change.</li>
+    </ul>
+
+    <h3 class="lc-sec">Standards alignment</h3>
+    <p>A suggested match to the Next Generation Science Standards and the CSTA K–12 Computer Science Standards. Please check it against your own course requirements.</p>
+    <table class="lc-table">
+      <tr><th>Section</th><th>Topic</th><th>Standards</th><th>Focus</th></tr>
+      <tr><td>1, 2, 3</td><td>Reflection and refraction</td><td>MS-PS4-2</td><td>A model of light being reflected and transmitted through materials</td></tr>
+      <tr><td>3, 5</td><td>Speed of light in a medium</td><td>HS-PS4-1</td><td>The refractive index as the ratio of light's speed in a vacuum to its speed in the material</td></tr>
+      <tr><td>4</td><td>Fibre optics</td><td>HS-PS4-5</td><td>How a device uses wave behaviour to carry information</td></tr>
+      <tr><td>1–6</td><td>Modelling in code</td><td>CSTA 2-AP-11, 2-AP-12, 3A-AP-13</td><td>Named variables, conditionals and loops in a working model</td></tr>
+    </table>
+  </div>
+
+</section>

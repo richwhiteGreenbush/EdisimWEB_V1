@@ -303,6 +303,12 @@ function ewd_teaching_table(): array
             'standards' => 'NGSS HS-PS2-1, HS-PS2-2, HS-PS3-1, HS-PS3-2 · CSTA 3A-AP-13, 3A-AP-15, 3A-AP-17',
             'lesson' => null, 'card' => null, 'lesson_page' => '../worlds/world.php?slug=newton-s-midway#lesson-card',
         ],
+        'the-hall-of-light' => [
+            'band' => 'Grades 7–12',
+            'objective' => "Use working ray models in block code to predict reflection and refraction, apply the law of reflection and Snell's law, explain total internal reflection and the critical angle, explain dispersion as each colour having its own refractive index, and find the focus of a converging lens.",
+            'standards' => 'NGSS MS-PS4-2, HS-PS4-1, HS-PS4-5 · CSTA 2-AP-11, 2-AP-12, 3A-AP-13',
+            'lesson' => null, 'card' => null, 'lesson_page' => '../worlds/world.php?slug=the-hall-of-light#lesson-card',
+        ],
         'stand-on-the-earth' => [
             'band' => 'Grades 5–8',
             'objective' => "Use a walk-around model of the Earth, Moon and Sun to explain the cycle of Moon phases and why the seasons come from the tilt of the Earth's axis rather than its distance from the Sun, and use a block model to predict the noon Sun and hours of daylight at any latitude.",

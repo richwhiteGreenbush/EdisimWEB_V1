@@ -105,7 +105,7 @@ export class ProgramManager {
       onUnknownVariable: (name) => this.warnOnce(id, `unknown:${name}`,
         `This program reads "${name}", but nothing has set it yet. Using 0.`),
       onMathProblem: (name) => this.warnOnce(id, `math:${name}`,
-        `"${name}" has no answer (divided by zero?). Using 0.`),
+        `"${name}" has no answer (divided by zero, or asin of more than 1?). Using 0.`),
       duplicate: (offset) => this.onDuplicate?.(id, offset * ++copies),
       say: (text) => {
         this.onSay?.(id, object3D, text);

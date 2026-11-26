@@ -136,6 +136,12 @@ function ewd_teaching_table(): array
             'standards' => 'NGSS HS-PS1-1, HS-PS1-3, MS-PS1-1, MS-PS1-4 · CSTA 2-AP-11, 2-AP-12',
             'lesson' => null, 'card' => null, 'lesson_card' => 'atom-hall',
         ],
+        'the-hall-of-light' => [
+            'band' => 'Grades 7–12',
+            'objective' => "Use working ray models in block code to predict reflection and refraction, apply the law of reflection and Snell's law, explain total internal reflection and the critical angle, explain dispersion as each colour having its own refractive index, and find the focus of a converging lens.",
+            'standards' => 'NGSS MS-PS4-2, HS-PS4-1, HS-PS4-5 · CSTA 2-AP-11, 2-AP-12, 3A-AP-13',
+            'lesson' => null, 'card' => null, 'lesson_card' => 'hall-of-light',
+        ],
         'javascript-basics' => [
             'band' => 'Grades 5–8',
             'objective' => 'Read a working program typed in Python-style code, predict what changing one value will do, and edit it — five lessons taught by machines that are already running.',

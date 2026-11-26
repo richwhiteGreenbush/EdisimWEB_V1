@@ -28,6 +28,16 @@ import {
 } from './props/MidwayProps.js';
 
 import {
+  BENCH, MIRROR, PERISCOPE, TANK as LIGHT_TANK, BLOCK as GLASS_BLOCK, FIBRE, PRISM, LENS, SPECTRUM, CRITICAL, INDEX,
+  mirrorTrace, tankTrace, blockTrace, prismLaser, prismEntry, prismCorners,
+} from './props/OpticsModel.js';
+import {
+  mirrorProgram, periscopeProgram, waterProgram, spearProgram, blockProgram, fibreProgram,
+  whiteLaserProgram, colourProgram, lensProgram, lensBeamProgram, clearProgram, BEAM_INK,
+  BOARD_STEPS as LIGHT_BOARDS,
+} from './props/OpticsPrograms.js';
+import { HL } from './props/OpticsProps.js';
+import {
   TANK, GAUGE, THERMOSTAT, SUBSTANCES, RADIUS_PM_PER_FOOT, EN_FEET_PER_UNIT, MOLECULE_SCALE, SALT, SALT_SCALE,
   particleHomes, particleWalls, enlargement, ionsInSaltGrain, elementBySymbol, towerHeight, TREND_RADIUS, TREND_EN,
 } from './props/AtomModel.js';
@@ -11988,7 +11998,291 @@ function midwayLayout() {
   return { theme: 'midway', spawn: { ...SP, yaw: 0 }, items };
 }
 
+
+// The Hall of Light: geometric optics, where every beam is a program that draws its own path with the
+// marker. Six light benches round a roofless hall; every number comes from OpticsModel.js and every
+// beam's program from OpticsPrograms.js.
+//
+// A bench's own frame is (u, y): u along the board, to the right of a student facing it. Every part
+// on a bench is placed through `onBench`, which turns bench feet into world feet, so a beam starts
+// exactly at its laser's aperture and a mirror sits exactly where its beam's program says it is.
+function hallOfLightLayout() {
+  const items = [];
+  const SP = { x: 0, z: 62 };
+  const HALL = { x: 0, z: 58, width: 76, depth: 124 };
+  const DISC = { x: 0, z: 32 };
+  const RZ = BENCH.rayZ;
+
+  const placard = (x, z, tx, tz, eyebrow, title, body, accent) => {
+    items.push(prop('info-placard', x, z, { rotY: facing(x, z, tx, tz), options: { eyebrow, title, body, accent, width: 3.4, height: 4.2 } }));
+  };
+  const blocks = (x, z, tx, tz, number, title, steps, caption, accent) => {
+    items.push(prop('block-board', x, z, { rotY: facing(x, z, tx, tz), options: { number, title, steps, caption, accent } }));
+  };
+
+  // A bench and everything on it. `at(u, zl)` is a bench point in world feet; a part is placed at
+  // (u, y) on the beam plane, turned with the board.
+  const bench = (cx, cz, rotY, opts) => {
+    const c = Math.cos(rotY);
+    const s = Math.sin(rotY);
+    const at = (u, zl = RZ) => ({ x: cx + u * c + zl * s, z: cz - u * s + zl * c });
+    items.push(prop('hl-bench', cx, cz, { rotY, options: opts }));
+    return {
+      at,
+      part: (name, u, y, options = {}, extra = {}) => {
+        const p = at(u, extra.zl ?? RZ);
+        items.push(prop(name, p.x, p.z, { rotY, y, absoluteY: true, options, ...extra }));
+      },
+      // A beam faces along the bench: a prop's forward is its +Z, a quarter turn from the board's.
+      // Its marker draws 0.125 ft above its origin, so it stands that much below the line it draws.
+      beam: (u, y, color, extra = {}) => {
+        const p = at(u, extra.zl ?? RZ);
+        items.push(prop('hl-beam', p.x, p.z, {
+          rotY: rotY + Math.PI / 2, y: y - 0.125, absoluteY: true, options: { color }, homeFromRecord: true, ...extra,
+        }));
+      },
+    };
+  };
+
+  items.push(prop('hl-hall', HALL.x, HALL.z, {
+    options: { width: HALL.width, depth: HALL.depth, entrance: 0, centre: [DISC.x - HALL.x, DISC.z - HALL.z] },
+  }));
+
+  // --- arrival -----------------------------------------------------------------
+  // The prism is dead ahead. Nothing else stands inside the 14 degrees it fills, and the boards near the
+  // door keep to their own bearings: welcome 15-33 degrees left, the kiosk 23-31 right.
+  items.push(prop('welcome-board', -16, 26, {
+    rotY: facing(-16, 26, SP.x, SP.z),
+    options: {
+      eyebrow: 'THE HALL OF LIGHT',
+      lead: 'Every beam of light in this hall is a program drawing its own path.',
+      lines: ['Click a laser, a lens or a beam. Press Program.', 'Change a number, predict, then press Save.'],
+      footnote: 'The light is slowed down about a hundred million times so you can watch it.',
+    },
+  }));
+  items.push(...browserStation(16, 30, {
+    faceX: SP.x, faceZ: SP.z, url: 'https://edusim3dweb.com/worlds/world.php?slug=the-hall-of-light#lesson-card',
+  }));
+  // The one button that clears every beam, on the spectrum in the floor.
+  items.push(prop('hl-clear-button', DISC.x, DISC.z, { rotY: facing(DISC.x, DISC.z, SP.x, SP.z), program: clearProgram(), programIdle: true }));
+  placard(-26, 34, SP.x, SP.z, 'HOW THIS WORKS', 'A ray is a model',
+    'Real light is a wave. Here each beam follows three rules: go straight, bounce off mirrors, bend at glass and water. A beam cannot see the glass. Its program is told where the glass is, in the green blocks at the top.', HL.hall);
+  placard(18, 12, SP.x, SP.z, 'A THOUSAND YEARS AGO', 'Ibn Sahl and Ibn al-Haytham',
+    "The law of refraction was first written down by Ibn Sahl in Baghdad in 984, six centuries before Snell. Ibn al-Haytham's Book of Optics, written in Cairo soon after 1011, began testing ideas about light by experiment.", HL.prism);
+
+  // --- 1. THE MIRROR (left wall, ahead) ----------------------------------------
+  {
+    const t = mirrorTrace();
+    const b = bench(-32, 43, Math.PI / 2, {
+      number: 1, title: 'THE MIRROR', accent: HL.mirror,
+      caption: 'Angle in = angle out. The marks show the starting angle.',
+      info: [
+        'Click the red bead. Press Program.',
+        `Change angle from ${MIRROR.angle} to -20, then -30.`,
+        'Predict where the dot lands first.',
+        'Try -35 too. What happens?',
+      ],
+      marks: [
+        { kind: 'normal', u: t.hit[0], y: t.hit[1], angle: 90, length: 2.6, label: 'normal' },
+        { kind: 'arc', u: t.hit[0], y: t.hit[1], from: 90, to: 180 + MIRROR.angle, label: `${t.incidence}°`, color: '#ffd9d4' },
+        { kind: 'arc', u: t.hit[0], y: t.hit[1], from: -MIRROR.angle, to: 90, label: `${t.incidence}°`, color: '#ffd9d4' },
+        { kind: 'text', u: MIRROR.screenU - 0.6, y: MIRROR.screenTop - 0.2, text: 'screen', align: 'right' },
+      ],
+    });
+    b.part('hl-laser', MIRROR.laser[0], MIRROR.laser[1], { angle: MIRROR.angle, post: MIRROR.laser[1], color: BEAM_INK.mirror });
+    b.part('hl-flat-mirror', (MIRROR.mirrorFrom + MIRROR.mirrorTo) / 2, MIRROR.mirrorY, { length: MIRROR.mirrorTo - MIRROR.mirrorFrom, post: MIRROR.mirrorY });
+    b.part('hl-screen', MIRROR.screenU, 0, { top: MIRROR.screenTop, accent: HL.mirror });
+    b.beam(MIRROR.laser[0], MIRROR.laser[1], BEAM_INK.mirror, { program: mirrorProgram() });
+    blocks(-30.5, 62, 0, 62, 1, 'The mirror rule is one block', LIGHT_BOARDS.mirror(),
+      'The beam turns its own angle upside down at the mirror.', HL.mirror);
+  }
+
+  // --- 2. THE PERISCOPE (right wall, ahead) ------------------------------------
+  {
+    const b = bench(32, 43, -Math.PI / 2, {
+      number: 2, title: 'THE PERISCOPE', accent: HL.periscope,
+      caption: 'Two mirrors at 45 degrees let a low eye see over a wall.',
+      info: [
+        'A mirror at angle m: out = 2m - in.',
+        'At -45°, flat turns straight down, and back.',
+        'The right-hand periscope is empty.',
+      ],
+      marks: [],
+    });
+    for (const shift of [0, PERISCOPE.studentShift]) {
+      const u0 = PERISCOPE.laser[0] + shift;
+      const y0 = PERISCOPE.laser[1];
+      b.part('hl-laser', u0, y0, { angle: 0, post: y0, color: shift ? BEAM_INK.student : BEAM_INK.periscope });
+      b.part('hl-periscope', u0 + PERISCOPE.ahead, y0, { drop: PERISCOPE.drop, height: y0 });
+      b.part('hl-brick-wall', (PERISCOPE.wall[0] + PERISCOPE.wall[1]) / 2 + shift, 0, { width: PERISCOPE.wall[1] - PERISCOPE.wall[0], height: PERISCOPE.wall[2] });
+      b.part('hl-eye', u0 + PERISCOPE.ahead + PERISCOPE.out + 0.45, y0 - PERISCOPE.drop, { post: y0 - PERISCOPE.drop });
+    }
+    b.beam(PERISCOPE.laser[0], PERISCOPE.laser[1], BEAM_INK.periscope, { program: periscopeProgram() });
+    // The student's beam: no program at all, so no green arrow. The activity is to write one.
+    b.beam(PERISCOPE.laser[0] + PERISCOPE.studentShift, PERISCOPE.laser[1], BEAM_INK.student);
+    items.push(activity(30.5, 62, {
+      number: 1,
+      rotY: facing(30.5, 62, 0, 62),
+      title: 'Program the empty periscope',
+      target: 'Click the yellow bead (no green arrow), press Program:',
+      steps: [
+        lookStep('marker color yellow'),
+        lookStep('marker down'),
+        moveStep(`move forward ${PERISCOPE.ahead} and up 0 feet`),
+        moveStep(`move forward 0 and up -${PERISCOPE.drop} feet`),
+        moveStep(`move forward ${PERISCOPE.out} and up 0 feet`),
+      ],
+      tip: 'Each mirror turns the light a quarter turn. Press Save and watch the eye.',
+      accent: HL.periscope,
+    }));
+  }
+
+  // --- 3. THE WATER TANK (left wall, behind) -----------------------------------
+  {
+    const t = tankTrace();
+    const b = bench(-32, 81, Math.PI / 2, {
+      number: 3, title: 'THE WATER TANK', accent: HL.water,
+      caption: "Snell's law: n1 sin i = n2 sin r, measured from the normal.",
+      info: [
+        'Light slows down in water and bends.',
+        'Click the red bead. Set n to 1: no bend.',
+        `Set n to ${INDEX.diamond}: a tank of diamond.`,
+        'Grey: where the fish seems to be.',
+      ],
+      marks: [
+        { kind: 'normal', u: t.hit[0], y: t.hit[1], angle: 90, length: 2.8, label: 'normal' },
+        { kind: 'arc', u: t.hit[0], y: t.hit[1], from: 90, to: 180 + LIGHT_TANK.aim, label: `${Math.round(t.i)}°`, color: '#d6ecff' },
+        { kind: 'arc', u: t.hit[0], y: t.hit[1], from: 270, to: 360 + t.bent, radius: 1.6, label: `${t.r.toFixed(0)}°`, color: '#d6ecff' },
+        { kind: 'text', u: LIGHT_TANK.to - 3.2, y: LIGHT_TANK.surfaceY + 0.35, text: `water, n = ${INDEX.water}` },
+        { kind: 'text', u: LIGHT_TANK.to - 3.2, y: LIGHT_TANK.surfaceY + 1.5, text: 'air, n = 1' },
+      ],
+    });
+    b.part('hl-laser', LIGHT_TANK.laser[0], LIGHT_TANK.laser[1], { angle: LIGHT_TANK.aim, post: LIGHT_TANK.laser[1], color: BEAM_INK.water });
+    b.part('hl-water-tank', (LIGHT_TANK.from + LIGHT_TANK.to) / 2, 0, {});
+    b.part('hl-fish', t.floor[0] - 0.9, LIGHT_TANK.floorY, { color: '#f07a2a' }, { zl: RZ - 0.35 });
+    // The laser shares `aim`, and the spear line reads it, so the laser comes first.
+    b.beam(LIGHT_TANK.laser[0], LIGHT_TANK.laser[1], BEAM_INK.water, { program: waterProgram() });
+    b.beam(LIGHT_TANK.laser[0], LIGHT_TANK.laser[1], BEAM_INK.spear, { program: spearProgram(), programQuiet: true, zl: RZ - 0.3 });
+    blocks(-26, 106, -6, 86, 3, "Snell's law in five blocks", LIGHT_BOARDS.water(),
+      'i and r are measured from the normal. Air is n = 1.', HL.water);
+  }
+
+  // --- 4. THE LIGHT PIPE (right wall, behind) ----------------------------------
+  {
+    const g = blockTrace();
+    const crit = CRITICAL.glass;
+    const b = bench(32, 81, -Math.PI / 2, {
+      number: 4, title: 'THE LIGHT PIPE', accent: HL.pipe,
+      caption: 'Left: when the maths has no answer. Right: a fibre.',
+      info: [
+        `Glass to air: sin r = ${GLASS_BLOCK.n} × sin i.`,
+        `Past ${crit.toFixed(1)}°, that is more than 1,`,
+        'and no angle has a sine above 1.',
+        'So the light cannot get out. It reflects.',
+      ],
+      marks: [
+        { kind: 'normal', u: g.hit[0], y: g.hit[1], angle: 90, length: 2.2, label: 'normal' },
+        { kind: 'text', u: GLASS_BLOCK.from + 0.3, y: GLASS_BLOCK.top + 3.2, text: `glass, n = ${GLASS_BLOCK.n}` },
+        { kind: 'text', u: GLASS_BLOCK.from + 0.3, y: GLASS_BLOCK.top + 2.7, text: `critical angle ${crit.toFixed(1)}°` },
+        { kind: 'text', u: FIBRE.start[0] + 0.3, y: FIBRE.start[1] + 2.6, text: `acrylic rod, n = ${FIBRE.n}` },
+        { kind: 'text', u: FIBRE.start[0] + 0.3, y: FIBRE.start[1] + 2.1, text: 'every bounce is total internal reflection' },
+      ],
+    });
+    b.part('hl-glass-block', (GLASS_BLOCK.from + GLASS_BLOCK.to) / 2, 0, {});
+    b.part('hl-laser', GLASS_BLOCK.start[0], GLASS_BLOCK.start[1], { angle: 90 - GLASS_BLOCK.i, post: GLASS_BLOCK.start[1], length: 0.9, color: BEAM_INK.block }, { zl: RZ - 0.55 });
+    b.part('hl-light-rod', FIBRE.start[0], 0, {});
+    // Shipped WITHOUT its guard: fine at the 30 degrees it ships with, "no answer" at 45.
+    b.beam(GLASS_BLOCK.start[0], GLASS_BLOCK.start[1], BEAM_INK.block, { program: blockProgram() });
+    b.beam(FIBRE.start[0], FIBRE.start[1], BEAM_INK.fibre, { program: fibreProgram() });
+    items.push(activity(26, 106, {
+      number: 2,
+      rotY: facing(26, 106, 6, 86),
+      title: 'When the maths has no answer',
+      target: 'Click the red bead in the glass. Set i to 45, press Save. Then fix it:',
+      steps: [
+        ctrlStep('if t ≤ 1'),
+        mathStep('set r to asin° of t', 1),
+        mathStep('set angle to 90 − r', 1),
+        ctrlStep('if t > 1'),
+        mathStep('set angle to i − 90', 1),
+      ],
+      tip: 'Drag the two blocks under "set t" into the first if. Then try i = 30, 40, 45, 60.',
+      accent: HL.pipe,
+    }));
+  }
+
+  // --- 5. THE PRISM (far wall, the view from the door) -------------------------
+  {
+    const laser = prismLaser();
+    const entry = prismEntry();
+    const { apex } = prismCorners();
+    const b = bench(0, 4, 0, {
+      number: 5, title: 'THE PRISM', accent: HL.prism,
+      caption: 'Dense flint glass. White light comes apart.',
+      info: [
+        'Every colour has its own n.',
+        'Click any colour bead and read it:',
+        'n is the only number that differs.',
+        'Newton did this with sunlight in 1666.',
+      ],
+      marks: [
+        { kind: 'normal', u: entry[0], y: entry[1], angle: 150, length: 1.8 },
+        { kind: 'normal', u: (apex[0] + PRISM.side / 2) / 2, y: (apex[1] + PRISM.baseY) / 2, angle: 30, length: 1.8 },
+        { kind: 'text', u: PRISM.screenU + 1.6, y: 6.45, text: 'n for each colour', size: 13 },
+        ...SPECTRUM.map((c, k) => ({ kind: 'text', u: PRISM.screenU + 1.6, y: 5.95 - k * 0.48, text: `${c.name}  ${c.n}`, color: c.hex, size: 15, weight: 700 })),
+      ],
+    });
+    b.part('hl-laser', laser.start[0], laser.start[1], { angle: laser.angle, post: laser.start[1], color: '#ffffff' });
+    b.part('hl-prism', 0, 0, {});
+    b.part('hl-screen', PRISM.screenU, 0, { top: 6.2, accent: HL.prism });
+    // The colours wait at the face and listen, so they come first; the white beam gives the cue.
+    SPECTRUM.forEach((c, k) => {
+      b.beam(entry[0], entry[1], c.hex, { program: colourProgram(c), programQuiet: true, zl: RZ - 0.15 + k * 0.06 });
+    });
+    b.beam(laser.start[0], laser.start[1], BEAM_INK.white, { program: whiteLaserProgram() });
+  }
+
+  // --- 6. THE LENS (back wall, behind the door) --------------------------------
+  {
+    const b = bench(0, 108, Math.PI, {
+      number: 6, title: 'THE LENS', accent: HL.lens,
+      caption: 'Every ray parallel to the axis meets at the focus.',
+      infoRight: LENS.screenU - 0.8,
+      info: [
+        'tan(new angle) = tan(angle) - h ÷ f',
+        'h: how high the ray crosses the lens.',
+        `Click the lens. Change f from ${LENS.f} to 4, then 9.`,
+        'Your eye focuses by changing its own f.',
+      ],
+      marks: [
+        { kind: 'normal', u: 0, y: LENS.axisY, angle: 0, length: 13, label: 'axis' },
+        { kind: 'dot', u: LENS.u + LENS.f, y: LENS.axisY, label: `F   f = ${LENS.f} ft`, color: '#f4d21f', below: true },
+      ],
+    });
+    // The beams listen for the lens, so they come first; the lens owns f and shares it.
+    LENS.heights.forEach((h, k) => {
+      b.beam(LENS.start, LENS.axisY + h, LENS.colors[k], { program: lensBeamProgram(h, LENS.colors[k]), programQuiet: true });
+      b.part('hl-laser', LENS.start, LENS.axisY + h, { angle: 0, post: LENS.axisY + h, color: LENS.colors[k], length: 1.1 });
+    });
+    b.part('hl-lens', LENS.u, 0, {}, { program: lensProgram(), objectName: 'lens' });
+    b.part('hl-screen', LENS.screenU, 0, { top: 10.6, accent: HL.lens });
+  }
+
+  // Trees outside the walls, for scale and for a horizon that is not all wall.
+  [[-58, 10], [-60, 64], [-56, 112], [58, 14], [60, 70], [57, 110], [-24, -22], [26, -24]].forEach(([x, z], i) => {
+    items.push(prop(i % 2 ? 'flowering-cherry' : 'japanese-maple', x, z, { rotY: i * 1.7 }));
+  });
+
+  return { theme: 'optics', spawn: { ...SP, yaw: 0 }, items };
+}
+
+
 export const PRESET_WORLDS = {
+  halloflight: {
+    label: 'The Hall of Light',
+    hint: 'Geometric optics where every beam of light is a program: mirrors, a periscope, water, a light pipe, a prism and a lens, all in block code',
+    build: hallOfLightLayout,
+  },
   standonearth: {
     label: 'Stand on the Earth',
     hint: 'Stand on the North Pole of a globe with the phases of the Moon all round you, then watch a tilted Earth make the seasons, all in block code',

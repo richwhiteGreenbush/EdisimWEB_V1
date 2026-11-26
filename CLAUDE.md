@@ -3903,6 +3903,62 @@ that rather than spent: the rides read at the distances they are seen from, and 
 the lightest populated worlds in the app. **Not yet measured on an i5/i7 Chromebook.** It is not in
 the HiFi gallery, though the Math blocks work there because HiFi runs this editor.
 
+### The Hall of Light, and a world where every beam is a program
+
+`OpticsProps.js` + `OpticsModel.js` + `OpticsPrograms.js` + `hallOfLightLayout()`. Gallery world in both
+galleries, in `PRESET_WORLDS` (key `halloflight`), deliberately not in any menu, seeded with creator
+"Ibn al-Haytham". Geometric optics, blocks only, per Rich: six light benches round a roofless hall (mirror,
+periscope, water tank, light pipe, prism, lens). The plan is `edusim-hall-of-light-plan.md` with Rich's other
+plan documents.
+
+**EVERY BEAM IS A PROGRAM DRAWING WITH THE MARKER, and a beam cannot see the glass.** There is no "touching"
+block and no position reporter, so each beam keeps its own `x` (along the bench) and `y` (up) and is TOLD
+where every surface is in its green blocks. The honesty placard says so: that is also how a real ray tracer
+works. Beams travel with `move forward and up` (one tick, so the marker draws a straight diagonal) and never
+`rotate`: reflection and refraction are changes to one variable, `angle`.
+
+**A straight run is cut into `steps` EQUAL moves, never a fixed step.** That lands a beam exactly on its
+surface, where a fixed step overshoots by up to a step (Newton's Midway's drop tower), and it still lets the
+light be watched travelling. `travel()` in OpticsPrograms.js is the seven blocks every segment repeats.
+
+**A BENCH IS ITS OWN FRAME**: (u, y), u along the board and to the right of a student facing it. Every part is
+placed through the layout's `bench().part()` / `.beam()`, which turns bench feet into world feet, and a beam's
+yaw is the board's plus a quarter turn, because a prop's forward is its +Z. The marker draws 0.125 ft above
+an object's origin, so a beam stands that much below the line it draws. `OpticsModel.js` holds every bench's
+geometry and an exact tracer for each, and `tools/check-hall-of-light.mjs` runs every beam through the real
+runner and compares the path with the tracer vertex by vertex, at every setting the boards and the card name.
+
+**THE LIGHT PIPE SHIPS WITHOUT ITS GUARD, on purpose**, the Stand on the Earth column's trick. Past the
+critical angle `asin` of n sin i has no answer, `setResult` turns NaN into 0, and the existing toast fires.
+Its wording now says "divided by zero, or asin of more than 1?" (`ProgramManager.js`). Activity 2 is two `if`
+blocks; the check tool holds the shipped version to failing at 45 degrees and the fixed one to not.
+
+**CUES HAVE TO FIND THEIR LISTENERS ALREADY RUNNING, so record order matters both ways.** The six prism
+colours (`programQuiet` hats on "split the light") come before the white beam that says it; the five lens
+beams come before the lens, which owns `f` and shares it; the water laser shares `aim` before the grey
+spear line reads it. A hat-only beam starts its hat with `marker up, go back to start`, and every beam has
+`homeFromRecord`, so a restart always begins at its laser.
+
+Things it hit, by looking:
+
+- **Dispersion is small.** In crown glass red and violet leave a prism 1.4 degrees apart, narrower than a
+  3-inch tube over the bench. The prism is dense flint (Schott SF11, from its Sellmeier coefficients, which
+  reproduce the published n_d and n_C, and the check tool says so) at about 10 degrees.
+- **A periscope's mirror must face the side the light arrives from.** Both mirrors lie at -45, but the upper
+  one's silver faces down-left and the lower one's up-right: turned the same way, one is backwards.
+- **Text painted on a board must clear what stands in front of it.** The how-to lines sit top right, the one
+  part of every bench the beams leave empty (`info`, and `infoRight` where a screen is in the way), and the
+  prism legend sits past the screen's depth, since a 1.7 ft deep screen hides more board than its width.
+- **A crowded arrival.** The benches leave a 14 degree window round the prism; the welcome board and kiosk sit
+  outside it and the station placards moved ONTO the boards. The check tool holds the window clear.
+- **Metal mirrors render black** (no environment map), so a mirror is a pale matte face with the textbook's
+  hatching down its front edge, which also teaches the symbol.
+
+**Performance, measured at the spawn on the development Mac, in the app**: 73 records / **132 draw calls** /
+220k drawn / **5 transparent** (water, glass block, rod, prism, lens) / **0 point lights** / 104 KB world
+file, the size coming from block programs, as Midway's does. Runs unchanged in HiFi, with bloom on the beams.
+**Not yet measured on an i5/i7 Chromebook.**
+
 ### Sunflower, and the arithmetic of an ARRIVAL FRAME
 
 `SunflowerProps.js` + `sunflowerLayout()`. A gallery world -- in `PRESET_WORLDS`,

@@ -972,6 +972,19 @@ $WORLDS = [
             . "Cross the road and look back, go round the garage, stand on the corner. Then run "
             . "the Time of Day slider and watch the windows come on.",
     ],
+    'halloflight' => [
+        'title'   => 'The Hall of Light',
+        'creator' => 'Ibn al-Haytham',
+        'tags'    => 'hifi, science, physics, math, coding, official',
+        'description' =>
+            "Geometric optics in a roofless hall of warm stone, where every beam of light is a program "
+            . "drawing its own path: a mirror, a periscope, a tank of water, a light pipe, a prism and a "
+            . "lens, each on a bench like a giant ray diagram. Click a beam, press Program, change a number "
+            . "and predict where the light goes. At the light pipe, Snell's law runs out of answers past the "
+            . "critical angle, and fixing that with two if blocks is how a fibre optic cable works.\n\n"
+            . "The printable student lesson guide and teacher lesson card are on this world's page in the "
+            . "main World Database, linked below.",
+    ],
 ];
 
 // ---------------------------------------------------------------------------

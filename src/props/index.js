@@ -1,5 +1,6 @@
 import { blockBoard } from './BlockBoard.js';
 import * as Midway from './MidwayProps.js';
+import * as Optics from './OpticsProps.js';
 import * as Atom from './AtomProps.js';
 import * as EarthSky from './EarthSkyProps.js';
 import * as Common from './CommonProps.js';
@@ -666,6 +667,23 @@ export const PROP_BUILDERS = {
   'mw-fair-tent': Midway.fairTent,
   'mw-bunting': Midway.bunting,
   'mw-midway-path': Midway.midwayPath,
+  // The Hall of Light.
+  'hl-bench': Optics.lightBench,
+  'hl-laser': Optics.laser,
+  'hl-beam': Optics.beamBead,
+  'hl-flat-mirror': Optics.flatMirror,
+  'hl-periscope': Optics.periscope,
+  'hl-brick-wall': Optics.brickWall,
+  'hl-eye': Optics.eyeTarget,
+  'hl-water-tank': Optics.waterTank,
+  'hl-fish': Optics.tankFish,
+  'hl-glass-block': Optics.glassBlock,
+  'hl-light-rod': Optics.lightRod,
+  'hl-prism': Optics.prism,
+  'hl-lens': Optics.convergingLens,
+  'hl-screen': Optics.lightScreen,
+  'hl-clear-button': Optics.clearButton,
+  'hl-hall': Optics.hall,
   'code-spinner': JsBasics.codeSpinner,
   'mood-crystal': JsBasics.moodCrystal,
   'practice-block': JsBasics.practiceBlock,

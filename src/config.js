@@ -1300,6 +1300,29 @@ export const WORLD_THEMES = {
     stars: false,
   },
 
+  optics: {
+    // The Hall of Light, late on a clear afternoon: warm stone under a pale gold sky. The light benches
+    // are near-black boards, and that contrast is what makes a 3-inch marker line read as a beam. The
+    // sun stands behind the spawn and high enough that the side walls do not shade the benches.
+    // Flat all the way out: the benches are measuring instruments, and a bench on a slope would put
+    // its laser and its mirror at heights its program does not know.
+    sky: 0xc4d7e8,
+    fogNear: 220,
+    fogFar: 760,
+    groundLow: 0xa78e66,
+    groundHigh: 0xbca37a,
+    amplitude: 0,
+    flatRadius: 400,
+    blendRadius: 500,
+    hemiSky: 0xfff0dc,
+    hemiGround: 0xb7a588,
+    hemiIntensity: 1.55,
+    sunColor: 0xffdcaa,
+    sunIntensity: 2.3,
+    sunPosition: [30, 125, 160],
+    stars: false,
+  },
+
   midway: {
     // A fairground on a bright, clear afternoon. The grass is kept quiet because the rides are
     // the colour, and the sun comes from behind the spawn so everything faces into the light.
