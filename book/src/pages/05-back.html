@@ -8,7 +8,7 @@
     <p class="small">Every address starts with <b>edusim3dweb.com</b>: the first one is <span class="addr">edusim3dweb.com/app/?world=35</span>. Or find a world by name at <span class="addr">edusim3dweb.com/worlds/</span>.</p>
     <table class="ref next-worlds">
       <tr><td><b>Robot Challenge World</b></td><td>Five robots, five coding challenges.</td><td class="addr">/app/?world=35</td></tr>
-      <tr><td><b>JavaScript Basics</b></td><td>The same programs, typed as real code.</td><td class="addr">/app/?world=38</td></tr>
+      <tr><td><b>Coding Basics</b></td><td>The same programs, typed as Python-style code.</td><td class="addr">/app/?world=38</td></tr>
       <tr><td><b>The Butterfly Garden</b></td><td>A garden twelve times life size.</td><td class="addr">/app/?world=43</td></tr>
       <tr><td><b>Volcanoes &amp; Rocks</b></td><td>A volcano cut open down the middle.</td><td class="addr">/app/?world=37</td></tr>
       <tr><td><b>Solar System Walk</b></td><td>The planets, spaced out to scale.</td><td class="addr">/app/?world=12</td></tr>
@@ -17,7 +17,7 @@
       <tr><td><b>Alice in Wonderland</b></td><td>A tea party, and a cat that vanishes.</td><td class="addr">/app/?world=40</td></tr>
     </table>
     <div class="grid2 small">
-      <div class="idea"><b>Type your code</b><span>The <span class="ui">JavaScript</span> button in the Program editor turns your blocks into real typed code. Try it on a program you've already written.</span></div>
+      <div class="idea"><b>Type your code</b><span>Pick <span class="ui">Basic Beginner</span> in the Program editor and your blocks turn into Python-style code. Try it on a program you've written.</span></div>
       <div class="idea"><b>Edusim HiFi</b><span>The same worlds with lifelike graphics, at <span class="addr">edusim3dweb.com/hifi/</span>. Best on a recent computer with a dedicated graphics card; on a Chromebook, use the standard Edusim.</span></div>
       <div class="idea"><b>Step inside</b><span><span class="ui">VR Headset View</span> shows your world in a VR headset, or side by side on a phone in a cardboard viewer.</span></div>
       <div class="idea"><b>Share your best</b><span>Put your living town in the World Database (Chapter 7) so other students can visit it.</span></div>
@@ -54,8 +54,9 @@
 <section class="page pb" data-folio="Every block">
   <div class="safe">
     <div class="family-head block-fam look" id="blocks2">Look</div>
-    <table class="ref blocks">
+    <table class="ref blocks dense">
       <tr><td><x-blk>say [Hello!]</x-blk></td><td>Shows a speech bubble for a few seconds. Listening objects hear it.</td></tr>
+      <tr><td><x-blk>tell [robot2] [hello]</x-blk></td><td>Like <b>say</b>, but only the named object hears.</td></tr>
       <tr><td><x-blk>change size by [10] %</x-blk></td><td>Grows by that much. A minus number shrinks.</td></tr>
       <tr><td><x-blk>set size to [100] %</x-blk></td><td>Sets the size, compared with the size when the program began.</td></tr>
       <tr><td><x-blk>set opacity to [50] %</x-blk></td><td>100 is solid, 0 is invisible.</td></tr>

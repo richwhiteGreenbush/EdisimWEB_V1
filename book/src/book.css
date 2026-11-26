@@ -624,6 +624,8 @@ table.ref.next-worlds td.addr { white-space: nowrap; font-size: 8.4pt; }
 .block-fam.motion { --c: var(--motion); }
 .block-fam.look { --c: var(--look); }
 table.ref.blocks td { vertical-align: middle; padding-top: 0.05in; padding-bottom: 0.05in; }
+/* The Look page carries one more row (tell) than the Control/Motion page, in the same room. */
+table.ref.blocks.dense td { padding-top: 0.035in; padding-bottom: 0.035in; }
 table.ref.blocks td:first-child { width: 1%; white-space: nowrap; padding-right: 0.12in; }
 ol.mini { margin: 0.03in 0 0; padding-left: 0.2in; display: grid; gap: 0.03in; }
 .menu-map { display: grid; gap: 0.05in; }
@@ -673,3 +675,87 @@ table.ref.plan-time td:first-child { white-space: nowrap; }
 /* Drawn symbols (see book.js GLYPH): sized and seated like a letter. */
 svg.g { display: inline-block; width: 0.78em; height: 0.78em; vertical-align: -0.08em; }
 .box-icon svg.g { width: 0.85em; height: 0.85em; vertical-align: 0; }
+
+/* ===========================================================================
+   THE COLOUR LAYER (2026-11): a bolder, more playful visual system on top of the
+   original layout. It changes colour, shape and decoration only, never the size of
+   anything that holds text, so no page reflows. Everything here obeys the print rules
+   above: flat fills and SVG, hard-offset shadows with no blur, no gradients.
+
+   The motif is the book's own four 3D shapes (book.js ICON): they are what a reader
+   builds with in Part 3, so scattering them as confetti says "this is a building book".
+   =========================================================================== */
+
+:root { --math: #3fae5a; --ctrl-ty: #ffbf47; --motion-ty: #7db4ff; --look-ty: #b892ff; --math-ty: #6fd98a; }
+
+/* --- the top strip: every content page wears its part's colour across the top edge,
+   with a scatter of tiny shapes, so a page says where it is before a word is read. It
+   runs into the bleed and stops 0.3 in above the safe area. */
+.strip { position: absolute; left: 0; right: 0; top: 0; height: 0.36in; background: var(--part); overflow: hidden; }
+.strip svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.strip::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1.6pt; background: var(--ink); opacity: 0.85; }
+
+/* --- chapter heads: the pale band stays (the lede is read on it), and a SATURATED top
+   sits over it behind the number and title. book.js sizes .band-top from where the chapter
+   head really ends, after the fonts load, so a title on two lines still sits on colour and
+   the lede below it never does: white text that ran off the colour would vanish. */
+.chapter-band .band-top { position: absolute; left: 0; right: 0; top: 0; height: 1.6in; background: var(--part); border-bottom: 2pt solid var(--ink); overflow: hidden; }
+.chapter-band .band-top::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 0.07in; background: var(--sun); }
+.chapter-band .band-shapes { position: absolute; inset: 0; }
+.chapter-band .band-shapes span { position: absolute; display: block; }
+.chapter-band .band-shapes svg { display: block; width: 100%; height: auto; }
+.page:has(.chapter-band) .chapter-head h1 { color: #fff; text-shadow: 1.6pt 1.6pt 0 var(--ink); }
+.page:has(.chapter-band) .chapter-head .chapter-kicker { color: #fff; }
+.chapter-num { background: var(--sun); color: var(--ink); box-shadow: 4pt 4pt 0 var(--ink); }
+
+/* --- section titles: the dot becomes one of the four shapes, in the part colour */
+.section-title .dot { display: none; }
+.section-title .sec-shape { flex: none; width: 0.24in; height: 0.24in; color: var(--part); margin-top: -1pt; }
+.section-title .sec-shape svg { display: block; width: 100%; height: 100%; }
+
+/* --- steps: tilted block-shaped badges, alternating, like stickers on a page */
+ol.steps > li::before { border-radius: 7pt; box-shadow: 2pt 2pt 0 var(--ink); transform: rotate(-5deg); }
+ol.steps > li:nth-child(even)::before { transform: rotate(5deg); background: var(--deep); }
+
+/* --- the recurring boxes: a hard shadow in their own colour, so each one pops off the page */
+.box { box-shadow: 3pt 3pt 0 var(--box-shadow, rgba(30, 42, 58, 0.85)); }
+.try { --box-shadow: #e0a800; }
+.watch { --box-shadow: var(--red); }
+.yourturn { --box-shadow: var(--part); }
+.unstuck { --box-shadow: var(--part); }
+.fact { --box-shadow: var(--orange); }
+.teacher { box-shadow: none; }
+.box-icon { box-shadow: 1.2pt 1.2pt 0 var(--ink); }
+
+/* --- pictures: a heavier offset in the part colour, and a sun-yellow corner sticker */
+.shot .frame { box-shadow: 4pt 4pt 0 var(--part); border-width: 1.6pt; }
+/* A folded-corner sticker: a small flat triangle in the frame's own rounded corner, so it
+   covers almost nothing of the picture. SVG, not a CSS gradient (the print rule above). */
+.shot .frame::after { content: ''; position: absolute; left: 0; top: 0; width: 0.17in; height: 0.17in; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M0 0H10L0 10Z' fill='%23ffc93c'/%3E%3Cpath d='M10 0L0 10' stroke='%231e2a3a' stroke-width='1.1'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat; }
+.title-shot .frame::after, .shot .frame:has(.callout)::after { display: none; }
+
+/* --- folio: the page number as a little block chip */
+.folio .num { border-radius: 4pt; border: 1pt solid var(--ink); box-shadow: 1.4pt 1.4pt 0 var(--ink); }
+
+/* --- part openers: colour bands behind the title and the chapter list */
+.opener .part-label { background: var(--sun); color: var(--ink); }
+.opener h1 { color: var(--ink); }
+.opener .chapters div { box-shadow: 3pt 3pt 0 var(--part); }
+.opener .confetti { position: absolute; inset: 0; pointer-events: none; }
+.opener .confetti span { position: absolute; display: block; }
+.opener .confetti svg { display: block; width: 100%; height: auto; }
+
+/* --- typed code: the app's text editor, in print -------------------------------- */
+.typed { border-radius: 9pt; overflow: hidden; border: 1.4pt solid var(--ink); box-shadow: 3pt 3pt 0 var(--math); background: #171c24; }
+.typed .ty-bar { display: flex; align-items: center; gap: 4pt; padding: 3pt 8pt; background: #262e3b; }
+.typed .ty-bar i { width: 6pt; height: 6pt; border-radius: 50%; background: #e0453c; }
+.typed .ty-bar i:nth-child(2) { background: #f2c14e; }
+.typed .ty-bar i:nth-child(3) { background: #74c043; }
+.typed .ty-bar span { margin-left: auto; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 7pt; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; background: var(--math); border-radius: 999px; padding: 0 6pt; }
+.typed .ty-body { padding: 5pt 10pt 6pt; font-family: 'Fredoka', sans-serif; font-weight: 500; font-size: 9.4pt; line-height: 1.5; color: #e8eef4; }
+.typed .ty-line { padding-left: calc(var(--d) * 0.24in); white-space: nowrap; }
+.typed .ty-k { font-weight: 700; }
+.typed .ty-n { color: #f7a26c; }
+.typed .ty-s { color: #e6d38a; }
+.typed .ty-v { color: #7fd99a; }
+.typed .ty-o { color: #b8c4ce; }

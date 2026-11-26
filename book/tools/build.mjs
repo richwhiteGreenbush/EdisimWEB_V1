@@ -100,7 +100,7 @@ const report = await page.evaluate(() => {
       const ppi = 1 / (scale / pxPerIn);
       if (ppi < 250) problems.push(`p${n}: ${img.getAttribute('src').split('/').pop()} prints at ${Math.round(ppi)} ppi`);
     }
-    for (const el of pg.querySelectorAll('x-shot, x-code, x-box, x-part, x-skill, x-blk')) problems.push(`p${n}: unrendered <${el.tagName.toLowerCase()}>`);
+    for (const el of pg.querySelectorAll('x-shot, x-code, x-type, x-box, x-part, x-skill, x-blk')) problems.push(`p${n}: unrendered <${el.tagName.toLowerCase()}>`);
   }
   return { count: pages.length, problems };
 });
