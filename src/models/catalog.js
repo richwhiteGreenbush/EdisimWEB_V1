@@ -1034,6 +1034,22 @@ export const MODELS = [
     answer: 'It loses the warm ocean water that gives it energy.',
   },
   {
+    id: 'thunderstorm-cutaway', title: 'Thunderstorm Cutaway', category: 'space', builder: 'thunderstorm', scale: 1, pictureElevation: 18, program: 'spinSlow',
+    grades: UP3, subjects: ['earth science', 'weather', 'electricity'],
+    aliases: ['thunderstorm', 'storm', 'cumulonimbus', 'anvil', 'lightning', 'thunder', 'hail', 'hailstone', 'updraft', 'downdraft', 'charge', 'static', 'cloud', 'rain', 'weather', 'severe weather'],
+    blurb: 'A towering storm cloud cut in half: rising air, hailstones growing in the cold top, and electric charge pulling apart until lightning jumps.',
+    facts: [
+      'A thunderstorm cloud is called a cumulonimbus. Its top can reach 40,000 to 60,000 feet, where it spreads into a flat anvil along the top of the lower atmosphere.',
+      'Warm, damp air rising fast is what builds the cloud. As it cools, its water vapor turns to droplets and ice, giving off heat that keeps it rising.',
+      'Hailstones grow when supercooled water droplets freeze onto them. A strong updraft holds them up until they are too heavy and fall.',
+      'When ice crystals and small soft hail collide, they pull electric charge apart. The top of the cloud usually ends up positive and the middle negative.',
+      'Lightning heats the air around it to about 50,000°F, about five times hotter than the surface of the Sun. The air expands so fast that it makes the sound of thunder.',
+    ],
+    realSize: 'Often about 15 miles across, and up to about 11 miles tall', shownAt: 'About 1 : 6,250, the same scale up and across, with the hailstones, the charges, the houses and the trees drawn far larger than real',
+    tryThis: 'Follow a hailstone through the cut face. Where does it grow, and why does it fall at last? Then count the plus and minus signs. Where does the lightning start?',
+    answer: 'It grows in the middle of the cloud, above the freezing level, where water droplets colder than freezing freeze onto it, and falls once it is too heavy for the updraft to hold. The lightning starts in the negative middle of the cloud and jumps to the positive charge above it or on the ground below.',
+  },
+  {
     id: 'james-webb-telescope', title: 'James Webb Space Telescope', category: 'space', builder: 'science4', scale: 0.33, yaw: -0.7, pictureElevation: 16,
     grades: ALL, subjects: ['astronomy', 'space exploration', 'engineering'],
     aliases: ['jwst', 'webb', 'nasa', 'infrared', 'sunshield', 'gold mirror', 'hexagon', 'telescope', 'esa'],
@@ -1672,6 +1688,22 @@ export const MODELS = [
     realSize: 'About 3 feet long on a lab bench', shownAt: 'About 9 feet long',
     tryThis: 'Why is the liquid in the second flask clear when the liquid in the first is coloured?',
     answer: 'Only the water boils off. The dissolved salt and dye stay behind in the first flask.',
+  },
+  {
+    id: 'chladni-plate', title: 'Chladni Plate', category: 'lab', builder: 'chladni', scale: 1, pictureElevation: 40, program: 'chladniModes',
+    grades: UP3, subjects: ['physics', 'music', 'history of science'],
+    aliases: ['chladni', 'sand', 'vibration', 'vibrating plate', 'standing wave', 'node', 'nodal lines', 'resonance', 'frequency', 'cymatics', 'violin bow', 'sound', 'acoustics', 'pattern', 'sophie germain'],
+    blurb: 'A square metal plate dusted with sand. Make it ring and the sand runs off the parts that shake and piles up along the lines that stay still.',
+    facts: [
+      'Ernst Chladni, a German physicist and musician, published these patterns in 1787. He made a plate ring by drawing a violin bow along its edge.',
+      'Each pattern belongs to one note. Higher notes give patterns with more lines.',
+      'The lines are called nodes. They are places on the plate that stay still while the parts between them shake up and down.',
+      'Robert Hooke saw the same kind of pattern in 1680, bowing a plate covered with flour.',
+      'In 1809 Napoleon offered a prize for a mathematical explanation of the patterns. Sophie Germain won it in 1816, though even her answer was not complete, and the full theory took decades more.',
+    ],
+    realSize: 'Usually about a foot across', shownAt: 'The plate is about 4 times life size. The bow is not to that scale, and the sand is drawn much bigger than real grains',
+    tryThis: 'Press the green arrow and watch the sand move to a new pattern each time the note changes. Open the program and change the number for the mode. What happens to the number of lines?',
+    answer: 'Higher modes are higher notes. In general they have more nodal lines, so the sand gathers into more, smaller cells.',
   },
 
   // --- Math & Geometry -----------------------------------------------------------------
@@ -2479,6 +2511,24 @@ export const MODELS = [
     tryThis: 'Crouch and look at the cut face under the reef. How much of all that stone is alive? Then find the sand behind the reef and the blue beyond it. Why does the color change so fast?',
     answer: 'Only the thin colored skin is alive. The rest is limestone left by earlier corals. The color changes because the water goes from a shallow lagoon to the very deep Coral Sea at the edge of the continental shelf.',
   },
+  {
+    id: 'carbon-cycle', title: 'The Carbon Cycle', category: 'geography', builder: 'carboncycle', scale: 1, pictureElevation: 26,
+    grades: UP3, subjects: ['earth science', 'climate', 'ecology', 'chemistry'],
+    aliases: ['carbon', 'carbon dioxide', 'co2', 'greenhouse', 'greenhouse effect', 'climate change', 'global warming', 'fossil fuels', 'photosynthesis', 'respiration', 'ocean', 'forest', 'emissions', 'gigatonne', 'carbon sink', 'volcanoes', 'deforestation', 'diorama'],
+    blurb: 'Land, forest, ocean and a power plant on one block, with arrows for every way carbon moves between them. Each arrow is as thick as the real amount it carries.',
+    facts: [
+      'Carbon moves all the time between the air, living things, the ocean and the rocks. Plants take carbon dioxide out of the air to grow, and breathing and rotting put it back.',
+      'Every year plants on land take in about 140 billion tonnes of carbon, and breathing, rotting and fire give back nearly as much. The ocean takes in about 80 billion tonnes a year and gives off about 78.',
+      'Burning coal, oil and gas adds about 10 billion tonnes of carbon a year, and clearing forests about 1 more. That is small next to the natural flows, but no natural flow runs the other way to match it.',
+      'About half of the carbon people add each year stays in the air. The ocean and land plants soak up the rest, and the ocean grows more acidic as it does.',
+      'Volcanoes add only about 0.1 billion tonnes of carbon a year, about a hundredth of what burning fuel adds.',
+      'Carbon dioxide in the air has risen from about 280 parts per million before 1750 to about 422 in 2024. It traps heat, which is why the Earth is warming.',
+    ],
+    realSize: 'The whole Earth',
+    shownAt: 'A made-up landscape on a block about 16 feet wide. Each arrow\'s width is in proportion to the carbon it moves in a year, about 1 foot for every 70 billion tonnes; the two smallest are drawn wider than that and striped. The natural flows are averages for 2010 to 2019 and the store numbers are approximate',
+    tryThis: 'Find the thickest arrows and the thin red one from the power plant. Which arrows have a partner going the other way? Which one does not?',
+    answer: 'The natural flows come in pairs that nearly balance: plants take in about 142 billion tonnes a year and breathing, rot and fire give back about 137, and the ocean takes in about 80 and gives off about 78. The small gaps are the land and ocean soaking up some of our carbon. The arrow from burning fuel has no partner, so each year it adds carbon the cycle does not take back, and about half of it stays in the air.',
+  },
   // --- City Dioramas -----------------------------------------------------------------
   {
     id: 'new-york-diorama', title: 'New York City', category: 'cities', builder: 'citiesamerica', scale: 1, yaw: 0, pictureElevation: 30, program: 'spinSlow',
@@ -2554,6 +2604,22 @@ export const MODELS = [
     realSize: 'The area shown is about 3.4 miles across', shownAt: 'About 1 foot to a fifth of a mile, with north at the back. The Kremlin and Red Square are enlarged, the roads are simplified, and every building is far bigger and taller than the map scale',
     tryThis: 'Walk the green Boulevard Ring from one end to the other. Where does it stop? Then follow a straight road outward from the Kremlin. What does it cross?',
     answer: 'The Boulevard Ring is really a horseshoe whose two ends stop near the river, leaving the south side open. The roads running outward cross each ring in turn, like a spider\'s web.',
+  },
+  {
+    id: 'venice-diorama', title: 'Venice', category: 'cities', builder: 'citiesvenice', scale: 1, yaw: 0, pictureElevation: 30, program: 'spinSlow',
+    grades: UP3, subjects: ['geography', 'history', 'social studies', 'engineering'],
+    aliases: ['italy', 'italian', 'venezia', 'lagoon', 'canals', 'grand canal', 'gondola', 'rialto', 'st marks', 'san marco', 'doges palace', 'campanile', 'islands', 'wooden piles', 'stilts', 'city', 'water', 'diorama', 'map'],
+    blurb: 'A city built on more than a hundred islands in a lagoon, standing on wooden piles, with canals where other cities have streets.',
+    facts: [
+      'Venice is built on more than a hundred small islands (usually counted as 118) in a shallow lagoon, joined by more than 400 bridges.',
+      'Its buildings stand on wooden piles of oak, larch and alder driven down through the mud into firmer clay. Sealed in wet mud with little oxygen, the wood rots very slowly, so much of it has lasted for centuries.',
+      'The Grand Canal winds through the city in a backward S, about 2.4 miles long.',
+      'The Rialto Bridge, finished in 1591, was the only bridge across the Grand Canal until the Accademia bridge opened in 1854.',
+      'Venice floods more and more often at high tide, which Venetians call acqua alta. Since October 2020, barriers called MOSE can rise from the sea floor to close the lagoon\'s three inlets from the sea.',
+    ],
+    realSize: 'The area shown is about 3.4 miles across', shownAt: 'About 1 foot to a fifth of a mile, with north at the back. Only the main canals are real: the small canals are a pattern of the right size, not the real ones. Landmarks are enlarged and nudged to fit, every building is far bigger and taller than the map scale, and the depths in the cut edge are stretched',
+    tryThis: 'Follow the gondola along the Grand Canal. Where can you cross it on foot? Then look at the edge of the base, where the city is cut open. What is the city standing on?',
+    answer: 'Only at the bridges, and for centuries there was only the Rialto. The cut edge shows the wooden piles driven down through the mud into a firmer layer of clay, with stone and brick built on top.',
   },
   // --- Landmarks ----------------------------------------------------------------------
   {

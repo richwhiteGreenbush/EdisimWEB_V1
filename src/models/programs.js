@@ -1,5 +1,5 @@
 import { makeBlock } from '../BlockDefs.js';
-import { forever, repeat, wait, forward, up, both, rotate, goHome } from '../BlockKit.js';
+import { forever, repeat, wait, forward, up, both, rotate, goHome, setv, change, when } from '../BlockKit.js';
 
 // Starter programs a model can arrive carrying. They ship idle (`programIdle`), with a green
 // play arrow, so nothing in a student's world starts moving until they ask it to; the point of
@@ -14,6 +14,9 @@ const duplicate = (offset) => makeBlock('duplicate', { offset });
 export const STARTER_PROGRAMS = {
   spin: () => [forever(rotate(1))],
   spinSlow: () => [forever(rotate(0.4))],
+  // The Chladni plate reads its OWN program's `mode` (ProgramManager puts an object's variables on
+  // userData.programVars), so the sand moves to a new pattern each time the number changes.
+  chladniModes: () => [setv('mode', 1), forever(wait(5), change('mode', 1), when('mode', '>', 6, setv('mode', 1)))],
   swimCircle: () => [forever(forward(0.3), rotate(1.5))],
   buzzCircle: () => [forever(forward(0.2), rotate(4))],
   hop: () => [

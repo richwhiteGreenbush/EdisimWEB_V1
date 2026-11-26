@@ -72,6 +72,10 @@ const BUILDER_CHUNKS = {
   beaverdam: () => import('./builders/BeaverDam.js'),
   tranquility: () => import('./builders/Tranquility.js'),
   jezero: () => import('./builders/Jezero.js'),
+  chladni: () => import('./builders/Chladni.js'),
+  citiesvenice: () => import('./builders/CitiesVenice.js'),
+  carboncycle: () => import('./builders/CarbonCycle.js'),
+  thunderstorm: () => import('./builders/Thunderstorm.js'),
 };
 
 export async function buildCatalogModel(id) {

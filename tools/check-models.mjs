@@ -293,6 +293,9 @@ const OPEN_EDGES = {
   'beaver-dam': 2564,
   'tranquility-base': 1680,
   'jezero-crater': 2188,
+  'carbon-cycle': 1376,
+  'thunderstorm-cutaway': 920,
+  'venice-diorama': 11500,
   // Math, engineering and field models. Flat printed discs, water sheets and label backs are surfaces
   // rather than solids, and the engine, bridges and aqueduct are parts sunk into one another.
   'pascals-triangle': 0,

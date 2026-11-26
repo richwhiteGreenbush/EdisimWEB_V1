@@ -205,7 +205,12 @@ export class ProgramManager {
     if (!program || !program.length) return;
 
     const home = this.captureHome(object3D);
-    this.programs.set(id, { program, object3D, home, vars: new Map(), warned: new Set() });
+    const vars = new Map();
+    this.programs.set(id, { program, object3D, home, vars, warned: new Set() });
+    // A model's own moving parts may read the variables of the program running on it (the
+    // Chladni plate's `mode`). Per object, unlike `share`, so two plates never fight over one
+    // name. It is replaced on every start, so a restart begins from what the program sets.
+    if (object3D) object3D.userData.programVars = vars;
 
     // Top-level hats are registered, not run. If the program is nothing BUT hats there is
     // no main runner at all -- which is correct: an object whose only script is "when an
@@ -300,6 +305,8 @@ export class ProgramManager {
       run.hats.length = 0;
       this.jsRuns.delete(key);
     }
+    const entry = this.programs.get(id);
+    if (entry && entry.object3D?.userData.programVars === entry.vars) delete entry.object3D.userData.programVars;
     this.programs.delete(id);
   }
 

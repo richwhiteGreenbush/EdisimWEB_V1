@@ -4748,7 +4748,7 @@ says "this used to be Get More Worlds". The sources now describe the panel, so a
 
 ### The Model Database, and a model a student can pull out of shape
 
-Menu ▸ **Model Database**: 265 ready-made educational models in twelve types, searchable,
+Menu ▸ **Model Database**: 269 ready-made educational models in twelve types, searchable,
 placeable in every world in both editions, and shapeable with the same hammer tools as a cube.
 `src/models/catalog.js` is the one table, `src/ModelDatabase.js` the panel, `src/models/index.js`
 the placing, and `src/models/builders/` holds the 248 built for it, one lazy chunk per family. The
@@ -4922,6 +4922,55 @@ the gas. Every one honours `reducedMotion()`.
 **Facts on these fifteen**: checked against web sources during the build. Eleven claims changed, and the kinds worth remembering are a figure that includes something (Babbage's 8,000 parts and 5 tons include the printer) and a date nobody could source (Archimedes' 225 BCE, now "the 200s BCE"). Some checks read search summaries rather than pages, Wikipedia carries several of them, and a few well-known claims went unsearched (Earth's perihelion, tadpole tails, the knee being the largest joint), so **a teacher or subject expert should still read them.**
 
 **Performance, measured in node, not in a frame**: 7.6k to 57.9k triangles, 4 to 6 meshes, at most 1 transparent, no point lights. All fifteen were placed and photographed in both editions on the development Mac with no page errors. The largest canvas is the unit circle's, at about 3072 x 1560. **NOT YET MEASURED ON AN i5/i7 CHROMEBOOK.**
+
+### Four more: a Chladni plate, Venice, the carbon cycle and a thunderstorm
+
+`builders/Chladni.js` (Chemistry & Physics), `CitiesVenice.js` (the sixth City Diorama), `CarbonCycle.js` (World
+Geography) and `Thunderstorm.js` (Earth & Space), per Rich, one lazy chunk each. They were built by four agents in
+parallel from one brief, each owning only its own builder file, after the catalogue entries, the chunk wiring and the
+starter program were in place. A Vite config with `server.hmr: false` (and file watching left ON, or edits are
+served stale) kept one agent's save from reloading another's render. **The picture tool returns a 500 for
+`src/models/index.js` while any builder it names is missing**, so write placeholders before starting agents next time.
+
+**A MODEL CAN NOW READ ITS OWN PROGRAM'S VARIABLES.** `ProgramManager.start()` puts the running program's `vars` Map
+on `object3D.userData.programVars`, and `stop()` takes it away again. It is per object, unlike `share`, so two
+plates never fight over one name. The Chladni plate's tick reads `mode` from it, and its starter program
+`chladniModes` sets `mode` to 1 and steps it every 5 seconds, wrapping after 6. Checked in the app: the sand
+moves to the new pattern after the first step. **`stop()` must not assume an entry exists**: `PlacedRegistry.remove`
+calls it for every object, and the first version threw on every removal.
+
+- **Chladni plate: the sand marks the part that does not move.** `Z = cos(n pi u)cos(m pi v) +/- cos(m pi u)cos(n pi v)`,
+  the free-edge square-plate first approximation, not an exact solution (the file says so). `CHLADNI_MODES` is
+  exported, every mode is zero at the centre (the plate is clamped there), and it supports 8, so a student can type
+  past 6. 7,000 grains in one mesh, bounced off the antinodes and settled on the nodes over about 2.2 s. Brass looked like a
+  wooden table against the walnut, so the plate is steel.
+- **Venice: a city on water.** 158 islands traced from one field, each its own `City.land()` with quay walls, so water
+  shows down every canal. **Only the main canals are real: the small ones are a jittered Voronoi pattern** of the right
+  size, and the card says so. The front edge is cut through Giudecca to show water, lagoon mud, the caranto clay and the
+  wooden piles under each island. The gondola is the `mover()`. It calls CityKit's `c._free()`, `c.halos` and
+  `c.labels`, so a rename there has to follow through, and it skips the kit's front title because that would cover
+  the piles.
+- **Carbon cycle: the arrow from burning fuel has no partner.** Shaft width is proportional to the flow, 1 ft for about
+  70 GtC a year. Gross flows are IPCC AR6 WG1 Figure 5.12 (2010 to 2019); fuel and forest clearing are the Global Carbon
+  Budget 2024 (for 2023). `CARBON_FLUXES` and `CARBON_STORES` carry each figure's source. Clearing forests (1) and volcanoes
+  (0.1) are drawn wider than to scale and striped, and the legend says so. **A label must not contradict the card**: the
+  fuel arrow first read "Nothing takes it back", while the card says land and ocean absorb about half; it now reads
+  "No arrow back to match it". Figure 5.12's numbers came out of the PDF out of order and were matched by checking the sums.
+- **Thunderstorm: one scale up and across**, about 1 : 6,250, anvil at the tropopause, painted cut face with the freezing
+  level, -40 and the tripole charge. **Hail is shown growing on one pass**, with only a few stones looping once, because
+  NSSL says stones do not grow by many trips to the top. That is also why the card's answer was reworded. The lightning
+  is geometry collapsed to a point when off (no point light), and the model opens on a bolt so the picture shows one.
+
+**Facts**: each agent checked its card with web search and the corrections were applied. Among them: Venice's island count is
+given as "usually counted as 118" (Wikipedia gives 118 and 126), "millions of piles" was dropped as unconfirmed, the storm's width
+is "about 15 miles", and lightning is "about five times hotter than the Sun's surface". Several came through search summaries
+rather than pages, and Venice's coastlines were traced by hand, so **a teacher or subject expert should still read them.**
+
+**Performance, measured in node, not in a frame**: Chladni 38.9k triangles / 5 meshes, Venice 49.7k / 6, carbon cycle 49.1k / 6,
+thunderstorm 51.0k / 6 with 1 transparent (the rain); no point lights. Open-edge baselines: carbon 1376, thunderstorm 920,
+Venice 11500 (about 160 islands' quay walls). The Chladni plate may hitch for a frame on its first notes while it works out the
+next mode's layout. **NOT YET MEASURED ON AN i5/i7 CHROMEBOOK, and none of the four has been looked at in HiFi**, where the
+plate's hum and the beads depend on the bridge re-uploading position and normal.
 
 ### World Geography, and a landscape as a block cut out of the Earth
 
