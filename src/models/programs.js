@@ -37,4 +37,15 @@ export const STARTER_PROGRAMS = {
   plotRow: () => [repeat(3, duplicate(20))],
   fenceRow: () => [repeat(3, duplicate(10))],
   streamRow: () => [repeat(2, duplicate(30))],
+  // The city kit. A road section and a row house are 20ft along X, so plotRow lays a street or a
+  // row of houses too. Vehicles drive along their own +Z and turn round in place rather than
+  // leaving the world: a bus that ran on forever would be in the fog in a minute.
+  busRoute: () => [forever(repeat(3, glide(40, 4), wait(2)), rotate(180))],
+  houseStops: () => [forever(repeat(4, glide(20, 2), wait(1.5)), rotate(180))],
+  // Round a city block: four 20ft road sections between 40ft intersections puts their centres
+  // 120ft apart. A negative rotate turns right.
+  blockLoop: () => [forever(glide(120, 8), rotate(-90))],
+  // The traffic light reads its OWN program's three numbers, in seconds (the Chladni plate's
+  // mechanism). The forever keeps the program, and so the variables, alive.
+  trafficTimer: () => [setv('green', 8), setv('yellow', 3), setv('red', 8), forever(wait(1))],
 };

@@ -76,6 +76,12 @@ const BUILDER_CHUNKS = {
   citiesvenice: () => import('./builders/CitiesVenice.js'),
   carboncycle: () => import('./builders/CarbonCycle.js'),
   thunderstorm: () => import('./builders/Thunderstorm.js'),
+  cityhomes: () => import('./builders/CityHomes.js'),
+  citycivic: () => import('./builders/CityCivic.js'),
+  cityvehicles: () => import('./builders/CityVehicles.js'),
+  citycars: () => import('./builders/CityCars.js'),
+  citystreets: () => import('./builders/CityStreets.js'),
+  cityworks: () => import('./builders/CityWorks.js'),
 };
 
 export async function buildCatalogModel(id) {
@@ -90,8 +96,55 @@ export async function buildCatalogModel(id) {
     if (!builder) throw new Error(`No builder for catalogue model: "${id}"`);
     object3D = builder(entry.options ?? {});
   }
+  if (entry.seat) deepenFoundation(object3D);
   object3D.userData.catalogModel = id;
   return object3D;
+}
+
+// THE CITY KIT'S STREETS AND BUILDINGS ARE SEATED ON THE HIGHEST GROUND UNDER THEM (`seat: true` on a
+// card), not on the ground at their origin. A prop is grounded once, at one point, and My World's
+// gentle hills rise about a foot within a 40ft square (measured: median 0.94ft, worst 2.25ft), so a
+// road seated at its centre had grass growing up through the asphalt at both ends, and a fire station
+// had a lawn in its engine bay. Seated on the high point nothing pokes through; the cost is that the
+// downhill side stands proud, which is what a road bed on a slope does anyway. SKIRT is how far proud
+// it can stand without a gap: every vertex a builder put at its foundation's bottom (y = -0.4, the
+// kit's rule) is carried down to -SKIRT, so the foundation walls and slab edges simply reach deeper.
+const SKIRT = 2.5;
+const MAX_LIFT = SKIRT - 0.4;
+function deepenFoundation(object3D) {
+  object3D.traverse((node) => {
+    if (!node.isMesh || !node.geometry?.attributes?.position) return;
+    const position = node.geometry.attributes.position;
+    let moved = false;
+    for (let i = 0; i < position.count; i++) {
+      if (position.getY(i) < -0.33) { position.setY(i, -SKIRT); moved = true; }
+    }
+    if (!moved) return;
+    position.needsUpdate = true;
+    node.geometry.computeBoundingBox();
+    node.geometry.computeBoundingSphere();
+  });
+}
+
+// Where a model stands vertically at (x, z) turned by `yaw`: the ground at its origin plus any hover,
+// or for a seated piece the highest ground under its footprint, no more than MAX_LIFT above the origin.
+export function seatHeight(entry, object3D, x, z, yaw, groundHeightAt) {
+  const atOrigin = groundHeightAt(x, z);
+  if (!entry?.seat) return atOrigin + (entry?.hover ?? 0);
+  const box = unscaledBox(object3D);
+  const scale = object3D.scale.x || 1;
+  const cos = Math.cos(yaw);
+  const sin = Math.sin(yaw);
+  let high = atOrigin;
+  const steps = 6;
+  for (let i = 0; i <= steps; i++) {
+    for (let j = 0; j <= steps; j++) {
+      const lx = THREE.MathUtils.lerp(box.min.x + 0.5, box.max.x - 0.5, i / steps) * scale;
+      const lz = THREE.MathUtils.lerp(box.min.z + 0.5, box.max.z - 0.5, j / steps) * scale;
+      high = Math.max(high, groundHeightAt(x + lx * cos + lz * sin, z - lx * sin + lz * cos));
+    }
+  }
+  return Math.min(high, atOrigin + MAX_LIFT);
 }
 
 function unscaledBox(object3D) {
@@ -269,10 +322,10 @@ export async function placeCatalogModel({ id, scene, camera, registry, groundHei
   // A prop's origin is its base centre, so ground height plus any hover is the whole of
   // seating it. Parts below the origin are meant to be there: an ankle in the dirt, a skirt of
   // rock that hides the join with uneven ground.
-  object3D.position.set(x, groundHeightAt(x, z) + (entry.hover ?? 0), z);
   const facing = Math.atan2(camera.position.x - x, camera.position.z - z);
   const snap = entry.grid === 'row' ? Math.PI : Math.PI / 2;
   object3D.rotation.y = (entry.grid ? Math.round(facing / snap) * snap : facing) + yawOff;
+  object3D.position.set(x, seatHeight(entry, object3D, x, z, object3D.rotation.y, groundHeightAt), z);
   scene.add(object3D);
 
   const record = catalogModelRecord(entry, {
@@ -312,8 +365,9 @@ export function resetCatalogModel({ item, groundHeightAt, worldStore }) {
   if (!entry) return;
   const { object3D, record } = item;
   const rest = restTransform(object3D);
-  const position = [rest.position[0], groundHeightAt(rest.position[0], rest.position[2]) + (entry.hover ?? 0), rest.position[2]];
   const scale = entry.scale ?? 1;
+  object3D.scale.setScalar(scale);
+  const position = [rest.position[0], seatHeight(entry, object3D, rest.position[0], rest.position[2], rest.rotation[1], groundHeightAt), rest.position[2]];
   record.transform = { position, rotation: [0, rest.rotation[1], 0], scale: [scale, scale, scale] };
   object3D.position.fromArray(position);
   object3D.rotation.set(0, rest.rotation[1], 0);

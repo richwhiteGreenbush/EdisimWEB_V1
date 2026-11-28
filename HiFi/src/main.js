@@ -364,7 +364,7 @@ const buildGizmo = new BuildGizmo({ scene, camera, canvas, registry, worldStore,
 const primitiveMenu = new PrimitiveMenu({ registry, menu, worldStore, buildGizmo, modelDatabase, groundHeightAt });
 motion.attach({ buildGizmo });
 
-programManager.onDuplicate = (id, offset) => duplicatePlacedObject({ id, offset, registry, worldStore, menu });
+programManager.onDuplicate = (id, offset) => duplicatePlacedObject({ id, offset, registry, worldStore, menu, groundHeightAt });
 programManager.onSay = (id, object3D, text) => speechBubbles.show(id, object3D, text);
 programManager.onScriptError = (id, err) => menu.toast(`JavaScript error: ${err?.message || err}`, { tone: 'error' });
 

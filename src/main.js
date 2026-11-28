@@ -485,7 +485,7 @@ motion.attach({ buildGizmo });
 // store exist. ProgramManager is built at the top of this file because PlacedRegistry
 // takes it as a constructor argument, so it cannot be given these up front -- and it
 // does not need to be, since nothing calls this until a program is actually running.
-programManager.onDuplicate = (id, offset) => duplicatePlacedObject({ id, offset, registry, worldStore, menu });
+programManager.onDuplicate = (id, offset) => duplicatePlacedObject({ id, offset, registry, worldStore, menu, groundHeightAt });
 // The `say` block's visible half. The broadcast half -- waking every `when an object
 // says` hat in the world -- is ProgramManager's own job and needs nothing from here.
 programManager.onSay = (id, object3D, text) => speechBubbles.show(id, object3D, text);

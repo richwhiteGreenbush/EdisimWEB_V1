@@ -4,6 +4,8 @@ import { printBlocks } from './textcode/print.js';
 import { uuid } from './Uuid.js';
 import { restTransform } from './RootMotion.js';
 import { markProgramCopy } from './BuildStats.js';
+import { MODEL_BY_ID } from './models/catalog.js';
+import { seatHeight } from './models/index.js';
 // Backs the "duplicate" program block: makes a second, independent copy of a placed
 // object, wherever that object currently is.
 //
@@ -95,7 +97,7 @@ function cloneRecord(record, transform) {
 // re-decode files -- so this returns as soon as the work is scheduled rather than
 // making the caller wait; the program runner steps on and the copy appears when it is
 // ready, which is a frame or two later at worst.
-export function duplicatePlacedObject({ id, offset = 4, registry, worldStore, menu }) {
+export function duplicatePlacedObject({ id, offset = 4, registry, worldStore, menu, groundHeightAt = null }) {
   const item = registry.get(id);
   if (!item?.record) return null;
 
@@ -121,6 +123,12 @@ export function duplicatePlacedObject({ id, offset = 4, registry, worldStore, me
     rotation: base.rotation,
     scale: base.scale,
   };
+  // A seated city piece (a road, a row house) is re-seated where the copy lands, or a row laid down a
+  // hill would have grass growing through every copy but the first. See seatHeight().
+  const entry = item.record.kind === 'catalog-model' ? MODEL_BY_ID.get(item.record.model) : null;
+  if (entry?.seat && groundHeightAt) {
+    transform.position[1] = seatHeight(entry, object3D, transform.position[0], transform.position[2], base.rotation[1], groundHeightAt);
+  }
 
   const copy = cloneRecord(item.record, transform);
   markProgramCopy(copy);

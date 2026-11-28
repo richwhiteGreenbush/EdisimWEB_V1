@@ -313,6 +313,14 @@ const OPEN_EDGES = {
   'hydroelectric-dam': 615,
   'seasons-orbit': 96,
   'knee-joint': 0,
+  // Build a City. Every solid is closed; the cars' counts are window, decal and wheel-well patches
+  // lying on their bodies, and the water tower's are its cut-out lettering bands.
+  'row-house': 0, 'apartment-building': 0, 'office-tower': 0, 'corner-grocery': 0, 'city-diner': 0, 'post-office': 0,
+  'fire-station': 0, 'police-station': 0, 'city-hospital': 0, 'city-hall': 0, 'public-library': 0, 'elementary-school': 0,
+  'city-bus': 0, 'school-bus': 0, 'fire-engine': 0, 'garbage-truck': 0,
+  'police-car': 992, 'city-ambulance': 656, 'city-taxi': 1294, 'delivery-truck': 204,
+  'road-straight': 0, 'road-intersection': 0, 'traffic-light': 0, 'street-lamp': 0, 'fire-hydrant': 0, 'bus-stop': 0,
+  'city-park': 0, 'recycling-bins': 0, 'solar-panel-array': 0, 'water-tower': 228,
 };
 // Reused models keep what their own world established; these rules bind what is built for here.
 const REUSED_SKIP = new Set(['outside', 'origin']);
@@ -448,7 +456,8 @@ for (const entry of MODELS) {
   const h = m.max[1] - m.min[1];
   if (!reused) {
     if (Math.abs((m.max[0] + m.min[0]) / 2) > w * 0.2 + 0.05 || Math.abs((m.max[2] + m.min[2]) / 2) > d * 0.2 + 0.05) fail(entry.id, 'origin is not near the base centre');
-    if (m.min[1] > 0.2 || m.min[1] < -Math.max(0.5, h * 0.05)) fail(entry.id, `base is at y=${m.min[1].toFixed(2)}, not on the origin`);
+    // A seated city piece's foundation is carried down to -2.5 on purpose (seatHeight() in index.js).
+    if (m.min[1] > 0.2 || m.min[1] < -(entry.seat ? 2.6 : Math.max(0.5, h * 0.05))) fail(entry.id, `base is at y=${m.min[1].toFixed(2)}, not on the origin`);
   }
   if (m.hash !== n.hash) fail(entry.id, 'two builds differ: use seededRandom, never Math.random');
   const shared = (list, other) => list.filter((x) => other.includes(x)).length;
