@@ -105,7 +105,9 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "site" ]; then
     --exclude 'app/' \
     --exclude 'hifi/' \
     --exclude 'hifiworlds/' \
-    --exclude 'stages/' \
+    `# Anchored with a leading /: an unanchored 'stages/' matches at ANY depth and silently` \
+    `# left docs/assets/stages/ (the home page's Stages pictures) out of the upload.` \
+    --exclude '/stages/' \
     -e "ssh $SSH_OPTS" \
     "$HERE/docs/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_SITE/"
 fi

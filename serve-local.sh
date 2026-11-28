@@ -89,7 +89,7 @@ sync_all() {
   # them on every sync (they survived only by being written afterwards, which is exactly
   # the kind of order dependency that breaks the first time these lines are reordered).
   rsync -a --delete --exclude '.DS_Store' --exclude '_preview-check.html' \
-    --exclude 'worlds/' --exclude 'app/' --exclude 'hifiworlds/' --exclude 'hifi/' --exclude 'stages/' "$HERE/docs/" "$SITE/"
+    --exclude 'worlds/' --exclude 'app/' --exclude 'hifiworlds/' --exclude 'hifi/' --exclude '/stages/' "$HERE/docs/" "$SITE/"
   rsync -a --delete --exclude '.DS_Store' \
     --exclude 'data/worlds.sqlite*' --exclude 'data/stats.sqlite*' \
     --exclude 'data/worlds/*.json' \
