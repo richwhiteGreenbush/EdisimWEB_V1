@@ -331,6 +331,18 @@ export class WorldStore {
       return;
     }
 
+    // An Edusim Stages project standing in the world, run by the Stages runtime itself (see
+    // src/stages3d/StageObject.js). Loaded lazily, so a world without one costs nothing. Its
+    // project travels in `files`, so WorldFile base64s it with no code of its own.
+    if (record.kind === 'stages-project') {
+      const { buildStageObject } = await import('./stages3d/StageObject.js');
+      const object3D = await buildStageObject(record);
+      applyTransform(object3D, record.transform);
+      this.scene.add(object3D);
+      this.addAndRun(record, object3D, { tick: object3D.userData.tick });
+      return;
+    }
+
     if (record.kind === 'light-orb') {
       const group = createLightOrb(record.color);
       applyTransform(group, record.transform);

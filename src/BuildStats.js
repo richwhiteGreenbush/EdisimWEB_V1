@@ -78,7 +78,8 @@ export function objectLabel(record) {
     case 'startup-library':
     case 'startup-tree':
     case 'startup-billboard':
-    case 'startup-llama': return record.kind;
+    case 'startup-llama':
+    case 'stages-project': return record.kind;
     default: return 'other';
   }
 }

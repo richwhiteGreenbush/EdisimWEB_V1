@@ -2744,3 +2744,17 @@ body.inspect-mode #menu { display: none !important; }
   .inspect-name { max-width: none; }
   .inspect-title { font-size: 18px; }
 }
+
+/* --- Edusim Stages projects in a world (src/stages3d/) --------------------------------------
+   Below the toasts (50), which must outrank everything, and above every other overlay. */
+.stages3d-confirm { position: fixed; inset: 0; z-index: 46; display: grid; place-items: center; background: rgba(15, 22, 35, 0.55); padding: 16px; }
+.stages3d-confirm-box { background: #fff; color: #1e2a3a; border-radius: 14px; padding: 20px 22px; max-width: 440px; box-shadow: 0 16px 44px rgba(0, 0, 0, 0.35); font-family: system-ui, sans-serif; }
+.stages3d-confirm-box h2 { margin: 0 0 8px; font-size: 19px; }
+.stages3d-confirm-box p { margin: 0 0 16px; line-height: 1.5; }
+.stages3d-confirm-row { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.stages3d-confirm-row button { border: 1px solid #c9d3e3; background: #fff; border-radius: 9px; padding: 9px 16px; font-weight: 700; font-size: 14px; cursor: pointer; }
+.stages3d-confirm-row button.go { background: #4c97ff; border-color: #4c97ff; color: #fff; }
+.stages3d-ask { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 45; display: flex; gap: 8px; align-items: flex-end; background: #fff; border-radius: 14px; padding: 12px 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); width: min(520px, calc(100vw - 32px)); font-family: system-ui, sans-serif; }
+.stages3d-ask label { flex: 1; display: flex; flex-direction: column; gap: 6px; font-weight: 700; color: #1e2a3a; }
+.stages3d-ask input { border: 2px solid #4c97ff; border-radius: 18px; padding: 7px 12px; font-size: 15px; outline: none; }
+.stages3d-ask button { border: 0; background: #4c97ff; color: #fff; font-weight: 700; border-radius: 18px; padding: 9px 16px; cursor: pointer; }

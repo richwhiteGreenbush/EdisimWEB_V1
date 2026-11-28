@@ -66,6 +66,30 @@ npm run build                     # Stages/dist, deployed by ../deploy.sh stages
 - **The `.is-cap` class is not the `cap` shape.** A forever loop is a C block that is a cap; giving it the
   shape's class made it a flex row and collapsed its mouth.
 
+## Convert to 3D World, and the code the 3D apps share
+
+`src/export/To3D.js` is the dialog (layout, size, where, a preview picture) and the handoff; the main
+app's `src/stages3d/` is the other half and runs the project with THIS runtime (root CLAUDE.md; plan:
+`../edusim-stages-to-3d-plan.md`). So these files are imported by the main app and HiFi too, and must
+stay free of anything only Stages has (no StageRenderer, no DOM panels):
+
+- `src/runtime/*`, `src/project/Project.js`, `assets.js`, `handoff.js`, `src/audio/AudioEngine.js`,
+  `src/render/overlay.js` (bubbles, monitors, captions) and `src/render/penLayer.js` (the pen).
+- `overlay.js` and `penLayer.js` were split out of `StageRenderer.js` so the 2D and 3D stages draw them
+  with one piece of code.
+
+**The handoff** (`handoff.js`): a token in the address naming a record in IndexedDB `edusim-stages`
+(key `handoff:<token>`), single use, an hour at most. `?from-world=<token>` here is **Edit in Stages**
+from a 3D world: the project opens with a **↩ Back to 3D world** button, the link kept in sessionStorage
+(`edusim-stages.link`) so a refresh keeps it. Back to 3D posts the project on the BroadcastChannel
+`edusim-stages-link`; the open 3D tab updates the stage and answers, and with no answer in 1.5 s a new 3D
+tab opens with an `update` handoff. A new project, a loaded file or a gallery project ends the link.
+
+Checks for this half: `tools/check-stages3d.mjs` (both dev servers: every official project run in 2D and
+3D on one virtual clock with the same dice and keys, held to identical state, plus the drawing positions,
+a world-file round trip, the token rules and the object menu) and `tools/check-roundtrip.mjs` (the whole
+student path through the real DOM, on PRODUCTION builds served together on one origin).
+
 ## The libraries
 
 - **Cartoons**: Kenney's CC0 packs. `node Stages/tools/build-library.mjs <folder of unzipped packs>` copies

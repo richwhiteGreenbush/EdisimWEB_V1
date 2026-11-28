@@ -30,6 +30,8 @@ import { BuildGizmo } from './BuildGizmo.js';
 import { Motion } from './Motion.js';
 import { tickWind, uniforms as windUniforms, setWind } from './Wind.js';
 import { Cinema, arrivalRig, flyRig } from './Cinema.js';
+import { configureStages3D } from './stages3d/StageObject.js';
+import { installStagesLink, takeStagesToken } from './stages3d/link.js';
 import { PhotoMode } from './PhotoMode.js';
 import { SettingsPanel } from './SettingsPanel.js';
 import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD, WORLD_GALLERY_URL } from './config.js';
@@ -98,8 +100,13 @@ const constructionManager = new ConstructionManager({
 // buildPresetWorldRecords applies the world's theme first and then reads each object's
 // ground height off the freshly reshaped terrain -- so it has to run before
 // loadFromRecords, and the player is only moved once the new ground exists under them.
-async function loadPresetWorld(name) {
-  const { records, spawn, label } = buildPresetWorldRecords(name, { groundHeightAt });
+// `except` names props to leave out: an Edusim Stages project converted into My World arrives
+// without My World's three building signboards, which are about a different activity and would
+// stand between the student and their stage (src/stages3d/link.js).
+async function loadPresetWorld(name, { except = [] } = {}) {
+  const built = buildPresetWorldRecords(name, { groundHeightAt });
+  const { spawn, label } = built;
+  const records = except.length ? built.records.filter((r) => !(r.kind === 'preset-prop' && except.includes(r.prop))) : built.records;
   await worldStore.loadFromRecords(records);
   setStatsWorld(`preset:${name}`);
   player.resetTo(spawn);
@@ -502,6 +509,15 @@ programManager.onProgramWarning = (id, message) => menu.toast(message, { tone: '
 // thrown away a moment later, and so a refresh cannot replay the link. See WorldLink.js.
 const linkedWorldId = studioMode || inspectModelId ? null : takeLinkedWorldId();
 
+// Edusim Stages: a project converted to a 3D world arrives as /app/?from-stages=<token>, read and
+// stripped here for the same reason as ?world= above. The stage itself is src/stages3d/.
+const stagesToken = studioMode || inspectModelId ? null : takeStagesToken();
+configureStages3D({ camera, cinema, domElement: canvas, menu, registry });
+const stagesLink = studioMode || inspectModelId ? null : installStagesLink({
+  registry, worldStore, menu, camera, groundHeightAt, loadPresetWorld,
+  beforeLoad: () => { cinema.release(); buildGizmo.deactivate(); objectMenu.close(); primitiveMenu.close(); },
+});
+
 // The activation event the whole funnel is measured against: a session that got as far
 // as the app itself. Fired here rather than left to the page counter in
 // docs/assets/edusim-analytics.js, because that one counts a VISIT once per browser
@@ -550,6 +566,14 @@ if (studioMode) {
 if (!studioMode && !inspectModelId) worldStore
   .rehydrateAll()
   .then(async () => {
+    if (stagesToken) {
+      await stagesLink.arrive(stagesToken).catch((err) => {
+        console.error('Could not bring in the Stages project:', err);
+        menu.toast('Could not bring in that project from Edusim Stages.', { tone: 'error' });
+      });
+      if (registry.count === 0) return loadPresetWorld(BOOT_WORLD);
+      return;
+    }
     if (linkedWorldId) {
       menu.toast('Opening the shared world…');
       await openGalleryWorld(linkedWorldId);
@@ -626,7 +650,7 @@ timer.connect(document);
 
 if (import.meta.env.DEV) {
   window.__debug = {
-    camera, player, renderer, scene, THREE, menu, registry, importManager, drawTool,
+    camera, player, renderer, scene, THREE, menu, registry, importManager, drawTool, stagesLink, cinema,
     worldStore, objectMenu, touchNav, programManager, programEditor, playIconManager, speechBubbles,
     webBrowserManager, vrView, constructionManager, primitiveMenu, markerTrail, buildGizmo,
     motion, cinema, photoMode, settingsPanel, windUniforms, setWind, modelDatabase, worldDatabase,

@@ -95,6 +95,18 @@ export const TUTORIALS = [
     ],
   },
   {
+    id: 'walk-in', title: 'Walk into Your Project', level: 'Beginner', picture: 'walk-in', start: null,
+    blurb: 'Turn any project into a 3D world in Edusim, play it there, then bring changes back.',
+    steps: [
+      { title: 'Pick a project', html: p('Use any project: one of yours, or one from Projects. Catch the Coins is a good first one.', 'Your project stays exactly as it is. Converting makes a copy in 3D.') },
+      { title: 'Convert it', html: p('Press <b>🌍 3D</b> beside the stop button (or File, then Convert to 3D World).', 'Choose how the stage stands: <b>a stage set</b> stands up like a theatre, <b>a board</b> lies on the ground like a giant game board. Then choose how big, and where. A backdrop from an Edusim world, like the Moon, can take you to that whole world.') },
+      { title: 'Open it in Edusim', html: p('Press <b>Open in Edusim</b>. A new tab opens with your project standing in a world, right in front of you.', 'Walk round it with the arrow keys. Look at it from the side, from behind, from far away.') },
+      { title: 'Play it in 3D', html: p('Click the stage and choose <b>▶ Play</b>. The camera comes round to face it, and the arrow keys and the mouse go to your project, exactly as in Stages.', 'Press <b>Esc</b> or <b>Stop playing</b> to walk again.') },
+      { title: 'Edusim models come back to life', html: p('A sprite you chose from <b>Edusim Models</b> is the real 3D model in the world. Its 12 costumes were 12 sides of it, so <b>next costume</b> turns the real model round.') },
+      { title: 'Change it and send it back', html: p('Click the stage and choose <b>✎ Edit in Stages</b>. Your project opens here. Change anything, then press <b>↩ Back to 3D world</b> at the top: the stage in your world updates straight away.') },
+    ],
+  },
+  {
     id: 'patterns', title: 'Draw with the Pen', level: 'Beginner', picture: 'patterns', start: STARTERS.patterns,
     blurb: 'Make a sprite draw shapes, then a pattern from a shape.',
     steps: [

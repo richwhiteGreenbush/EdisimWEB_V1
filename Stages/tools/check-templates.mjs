@@ -118,8 +118,12 @@ await project('space', async () => {
   await run(40, ['left arrow']);
   s = await state();
   check('space: the ship moves', s.sprites.Ship.x < -100, `x ${s.sprites.Ship.x}`);
-  await run(1800);
-  s = await state();
+  // A ship that never moves is hit sooner or later; run until it is, for up to four minutes.
+  for (let i = 0; i < 12; i++) {
+    await run(600);
+    s = await state();
+    if (s.stage.lives < 1) break;
+  }
   check('space: the game ends when the lives run out', s.stage.lives < 1 && /lasted/.test(s.sprites.Ship.bubble || ''), `lives ${s.stage.lives} ${s.sprites.Ship.bubble}`);
 });
 

@@ -16,6 +16,7 @@ import {
 } from '../project/Project.js';
 import { costumeFromBlob, maskFor, preloadProject, soundFromBlob } from '../project/assets.js';
 import { AutoSaver, loadSaved } from '../project/Store.js';
+import { CHANNEL, putHandoff, takeHandoff, takeTokenParam } from '../project/handoff.js';
 import { BACKDROPS } from '../library/backdrops.js';
 import { CARTOON_SPRITES } from '../library/cartoons.js';
 import {
@@ -27,6 +28,7 @@ import { SoundsPanel } from './SoundsPanel.js';
 import { ask, el, escapeHtml, modal, promptText, toast } from './dialogs.js';
 
 const CHANGED_KEY = 'edusim-stages.changed';
+const LINK_KEY = 'edusim-stages.link';
 
 export class App {
   constructor(root) {
@@ -68,6 +70,7 @@ export class App {
               <button type="button" data-act="load">Load from your computer</button>
               <button type="button" data-act="save">Save to your computer</button>
               <button type="button" data-act="video">Export a video…</button>
+              <button type="button" data-act="to3d">Convert to 3D World…</button>
             </div>
           </div>
           <button type="button" class="menu-btn" data-act="gallery">🎮 Projects</button>
@@ -76,6 +79,7 @@ export class App {
         <input class="title-input" type="text" aria-label="Project title" maxlength="60">
         <span class="saved" aria-live="polite"></span>
         <div class="top-right">
+          <button type="button" class="top-link back3d" data-act="back3d" hidden>↩ Back to 3D world</button>
           <button type="button" class="top-link see-inside" data-act="inside">✎ See inside</button>
           <a class="top-link" href="../app/" title="Open Edusim, the 3D world">Edusim 3D</a>
         </div>
@@ -113,6 +117,7 @@ export class App {
           <div class="stage-bar">
             <button type="button" class="flag" title="Green flag: start" aria-label="Start">⚑</button>
             <button type="button" class="stop" title="Stop" aria-label="Stop">⬣</button>
+            <button type="button" class="to3d" data-act="to3d" title="Convert to 3D World: walk into your project in Edusim">🌍 3D</button>
             <span class="stage-warn" role="status"></span>
             <div class="stage-sizes">
               <button type="button" data-size="small" title="Small stage" aria-label="Small stage">▫</button>
@@ -192,6 +197,8 @@ export class App {
     if (act === 'load') this.root.querySelector('.file-in').click();
     if (act === 'save') this.saveFile();
     if (act === 'video') import('../export/VideoExport.js').then((m) => m.openExportDialog(this));
+    if (act === 'to3d') import('../export/To3D.js').then((m) => m.openTo3DDialog(this));
+    if (act === 'back3d') this.backTo3D();
     if (act === 'gallery') import('./Gallery.js').then((m) => m.openGallery(this));
     if (act === 'tutorials') import('./Tutorials.js').then((m) => m.openTutorials(this));
   }
@@ -328,10 +335,33 @@ export class App {
   }
 
   async boot() {
+    const editToken = takeTokenParam('from-world');
     const params = new URLSearchParams(location.search);
     const linked = params.get('project');
     const play = params.has('play');
     let project = await loadSaved();
+    if (editToken) {
+      // "Edit in Stages" on a stage in a 3D world: open that stage's project here, and offer a way
+      // back that updates it in place (plan: edusim-stages-to-3d-plan.md, phase 5).
+      const payload = await takeHandoff(editToken).catch(() => null);
+      if (payload?.type === 'edit') {
+        const ok = !project || !this.hasChanges() || (await this.confirmReplace('Edit the stage from your 3D world'));
+        if (ok) {
+          try {
+            project = fromFileText(payload.projectText);
+            this.setLink({ recordId: payload.recordId, edition: payload.edition || 'app', layout: payload.layout, size: payload.size });
+            await this.setProject(project, { fresh: true });
+            toast('This is the project from your 3D world. When you are done, press ↩ Back to 3D world.', { ms: 6000 });
+            return;
+          } catch (err) {
+            toast(err.message, { kind: 'error' });
+          }
+        }
+      } else {
+        toast('That link from your 3D world has expired. Click the stage there and choose Edit in Stages again.', { kind: 'error', ms: 6000 });
+      }
+    }
+    this.setLink(this.readLink());
     if (linked) {
       const { GALLERY } = await import('../templates/index.js');
       const entry = GALLERY.find((g) => g.id === linked);
@@ -376,6 +406,51 @@ export class App {
     if (fresh) { this.saver.touch(); this.markChanged(false); }
   }
 
+  // --- the link back to a 3D world -------------------------------------------------------------
+
+  readLink() {
+    try { return JSON.parse(sessionStorage.getItem(LINK_KEY) || 'null'); } catch { return null; }
+  }
+
+  setLink(link) {
+    this.link = link && link.recordId ? link : null;
+    try {
+      if (this.link) sessionStorage.setItem(LINK_KEY, JSON.stringify(this.link));
+      else sessionStorage.removeItem(LINK_KEY);
+    } catch { /* storage blocked: the button simply will not survive a refresh */ }
+    const b = this.root.querySelector('.back3d');
+    if (b) b.hidden = !this.link;
+  }
+
+  // Sends the edited project back. With the 3D world still open in another tab, it is updated at
+  // once over a BroadcastChannel, which answers; with nothing answering, the world opens in a new
+  // tab and updates itself from a handoff token.
+  async backTo3D() {
+    if (!this.link) return;
+    const projectText = await toFileText(this.project, this.runtime.drawOrder);
+    const { recordId, edition, layout = 'set', size = 'life' } = this.link;
+    const answered = await new Promise((resolve) => {
+      let ch;
+      try { ch = new BroadcastChannel(CHANNEL); } catch { resolve(false); return; }
+      const timer = setTimeout(() => { ch.close(); resolve(false); }, 1500);
+      ch.onmessage = (e) => {
+        if (e.data?.type === 'project-updated-ok' && e.data.recordId === recordId) {
+          clearTimeout(timer);
+          ch.close();
+          resolve(true);
+        }
+      };
+      ch.postMessage({ type: 'project-updated', recordId, projectText });
+    });
+    if (answered) {
+      toast('Your 3D world has the new version. Switch to its tab to see it.', { ms: 5000 });
+      return;
+    }
+    const token = await putHandoff({ type: 'update', recordId, projectText, title: this.project.title, layout, size, preset: 'empty' });
+    const url = `${edition === 'hifi' ? '../hifi/' : '../app/'}?from-stages=${token}`;
+    if (!window.open(url, '_blank')) location.href = url;
+  }
+
   hasChanges() {
     try { return localStorage.getItem(CHANGED_KEY) === '1'; } catch { return true; }
   }
@@ -408,6 +483,7 @@ export class App {
 
   async newProject() {
     if (!(await this.confirmReplace('Start a new project'))) return;
+    this.setLink(null);
     await this.setProject(await this.defaultProject(), { fresh: true });
     toast('A new project is ready.');
   }
@@ -415,6 +491,7 @@ export class App {
   async openProject(build, title) {
     if (!(await this.confirmReplace(`Open "${title}"`))) return false;
     const project = await build();
+    this.setLink(null);
     await this.setProject(project, { fresh: true });
     return true;
   }
@@ -444,6 +521,7 @@ export class App {
       return;
     }
     if (!(await this.confirmReplace('Load this project'))) return;
+    this.setLink(null);
     await this.setProject(project, { fresh: true });
     toast(`Opened "${project.title}".`);
   }

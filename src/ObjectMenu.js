@@ -105,6 +105,9 @@ export class ObjectMenu {
     // panel itself having opened a menu, and it is worse than the bug the filter was
     // added to prevent. A panel hides what is behind it, so a click on one selects
     // nothing at all.
+    // While an Edusim Stages project is being played, clicks belong to the project (its sprites
+    // hear them as "when this sprite clicked"), not to this menu.
+    if (document.body.classList.contains('stages-playing')) return;
     const pickable = this.registry.getRootObjects().filter((obj) => !obj.userData.isConstruction);
     const hits = this.raycaster.intersectObjects(pickable, true);
     if (!hits.length) {
@@ -244,6 +247,14 @@ export class ObjectMenu {
     // and it made the programming tool look like the long way round rather than the point.
     if (item?.record?.kind === 'light-orb') {
       this.panel.appendChild(this.button('Color', () => this.renderColor()));
+    }
+    // An Edusim Stages project: play it here, or open its scripts in Stages. Its scripts are
+    // Stages scripts, so they are edited there (plan: edusim-stages-to-3d-plan.md, decision A).
+    const stage = item?.object3D?.userData?.stagesProject;
+    if (stage) {
+      this.panel.appendChild(this.button('\u25b6 Play', () => { this.close(); stage.play(); }, 'om-life'));
+      if (stage.started) this.panel.appendChild(this.button('\u25a0 Stop', () => { this.close(); stage.stop(); }));
+      this.panel.appendChild(this.button('\u270e Edit in Stages', () => { this.close(); stage.editInStages(); }));
     }
     if (item?.record?.kind === 'catalog-model' && this.modelDatabase) {
       this.panel.appendChild(this.button('About this model', () => {

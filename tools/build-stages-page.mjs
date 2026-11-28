@@ -109,6 +109,7 @@ const page = `<!DOCTYPE html>
       <li><b>Edusim's 3D models are sprites.</b> In <span class="key">Choose a Sprite</span> → <span class="key">Edusim Models</span>, any model from the Model Database is photographed from twelve sides, and the twelve pictures become its costumes, so <span class="chip" style="background:${CATEGORIES.looks.fill}">next costume</span> turns it round.</li>
       <li><b>Edusim's worlds are backdrops.</b> Set a story on the Moon, in Ancient Egypt or on Dinosaur Island.</li>
       <li><b>Every project can be a video.</b> <span class="key">File</span> → <span class="key">Export a video</span> makes an MP4, sound included, that plays on any phone or in a slideshow.</li>
+      <li><b>Every project can become a 3D world.</b> <span class="key">🌍 3D</span> (or <span class="key">File</span> → <span class="key">Convert to 3D World</span>) stands the project up in Edusim as a stage set, or lays it down as a giant board, and it still runs there: click it and choose <span class="key">▶ Play</span>. A sprite from the Model Database comes back as the real 3D model, and <span class="key">✎ Edit in Stages</span> brings the project back here to change.</li>
       <li><b>Every script can be text.</b> The <span class="key">Text</span> switch above the scripts shows them as lines of text, indented like Python, and turns edited text back into blocks.</li>
     </ul>
 

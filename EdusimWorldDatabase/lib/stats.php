@@ -229,7 +229,7 @@ function ewd_stats_clean_world(string $raw): string
 function ewd_stats_clean_object(string $raw): string
 {
     $kinds = ['model', 'built-model', 'image', 'gif', 'balloon', 'light-orb', 'web-browser',
-              'startup-library', 'startup-tree', 'startup-billboard', 'startup-llama'];
+              'startup-library', 'startup-tree', 'startup-billboard', 'startup-llama', 'stages-project'];
     if (in_array($raw, $kinds, true)) {
         return $raw;
     }
@@ -378,6 +378,7 @@ function ewd_stats_object_label(string $object): string
         'startup-tree'      => 'World object: maple tree',
         'startup-billboard' => 'World object: billboard',
         'startup-llama'     => 'World object: llama',
+        'stages-project'    => 'Edusim Stages project',
     ][$object] ?? 'Other';
 }
 

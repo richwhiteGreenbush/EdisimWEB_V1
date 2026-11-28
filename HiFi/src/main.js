@@ -49,6 +49,8 @@ import { PrimitiveMenu } from '../../src/PrimitiveMenu.js';
 import { BuildGizmo } from '../../src/BuildGizmo.js';
 import { Motion } from '../../src/Motion.js';
 import { Cinema, arrivalRig, flyRig } from '../../src/Cinema.js';
+import { configureStages3D } from '../../src/stages3d/StageObject.js';
+import { installStagesLink, takeStagesToken } from '../../src/stages3d/link.js';
 import { PhotoMode } from '../../src/PhotoMode.js';
 import { SettingsPanel } from '../../src/SettingsPanel.js';
 import { EYE_HEIGHT, PALETTE_SWATCHES, DEFAULT_THEME, BOOT_WORLD } from '../../src/config.js';
@@ -142,8 +144,13 @@ const constructionManager = new ConstructionManager({
 
 const bridge = new ThreeBridge({ scene: bscene, threeScene: scene, pipeline, lights, natives, registry, ignore: builtIn });
 
-async function loadPresetWorld(name) {
-  const { records, spawn, label } = buildPresetWorldRecords(name, { groundHeightAt });
+// `except` names props to leave out: an Edusim Stages project converted into My World arrives
+// without My World's three building signboards, which are about a different activity and would
+// stand between the student and their stage (src/stages3d/link.js).
+async function loadPresetWorld(name, { except = [] } = {}) {
+  const built = buildPresetWorldRecords(name, { groundHeightAt });
+  const { spawn, label } = built;
+  const records = except.length ? built.records.filter((r) => !(r.kind === 'preset-prop' && except.includes(r.prop))) : built.records;
   await worldStore.loadFromRecords(records);
   player.resetTo(spawn);
   // ?still=1 skips the arrival swoop: a screenshot wants the arrival FRAME, not the flight to it.
@@ -440,6 +447,13 @@ environment.onChange = () => { lights.setNight(environment.lampAmount); natives.
 
 // ---- boot ---------------------------------------------------------------------------------------------
 const linkedWorldId = takeLinkedWorldId();
+// An Edusim Stages project converted to a 3D world (?from-stages=<token>), as in the main app.
+const stagesToken = takeStagesToken();
+configureStages3D({ camera, cinema, domElement: canvas, menu, registry });
+const stagesLink = installStagesLink({
+  registry, worldStore, menu, camera, groundHeightAt, loadPresetWorld,
+  beforeLoad: () => { cinema.release(); buildGizmo.deactivate(); objectMenu.close(); primitiveMenu.close(); },
+});
 const presetParam = PRESET_WORLDS[params.get('preset')] ? params.get('preset') : null;
 let worldReady = false;
 progress('Building the world…', 0.45);
@@ -447,6 +461,14 @@ refreshGround(true);
 
 worldStore.rehydrateAll()
   .then(async () => {
+    if (stagesToken) {
+      await stagesLink.arrive(stagesToken).catch((err) => {
+        console.error('Could not bring in the Stages project:', err);
+        menu.toast('Could not bring in that project from Edusim Stages.', { tone: 'error' });
+      });
+      if (registry.count === 0) return loadPresetWorld(BOOT_WORLD);
+      return;
+    }
     if (linkedWorldId) {
       menu.toast('Opening the shared world…');
       await openGalleryWorld(linkedWorldId);
