@@ -133,7 +133,9 @@
   'use strict';
   try {
     var me = document.currentScript && document.currentScript.src;
-    if (!me) return;
+    // Every page now carries its own tag for it, since this file's name gets it blocked by ad and
+    // tracker blockers and an old cached copy of it has no loader. This stays as the fallback.
+    if (!me || document.querySelector('script[src*="edusim-feedback.js"]')) return;
     var s = document.createElement('script');
     s.src = me.replace(/edusim-analytics\.js(\?.*)?$/, 'edusim-feedback.js');
     s.defer = true;

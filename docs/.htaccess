@@ -1,0 +1,15 @@
+# The site's one server setting: pages, scripts and stylesheets are revalidated on every visit.
+#
+# Without it the server sends no Cache-Control at all, and a browser falls back to HEURISTIC caching:
+# a file unchanged for weeks may be reused for days without asking. That is how an update to
+# assets/edusim-analytics.js went unseen by a visitor who had opened the site before. "no-cache" does
+# not mean "do not store": the browser keeps its copy and asks with the ETag, and an unchanged file
+# costs a 304 with no body.
+#
+# This file sits at the docroot, so it also applies under /app/, /hifi/ and the two galleries. The
+# PHP pages set their own headers and are not matched here.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html?|js|css)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

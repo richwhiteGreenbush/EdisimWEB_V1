@@ -67,6 +67,7 @@ const page = `<!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Gluten:wght@700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="guide.css" />
 <script defer src="../assets/edusim-analytics.js"></script>
+<script defer src="../assets/edusim-feedback.js?v=20261128"></script>
 <style>
   .vk-group h3 { margin: 0.8rem 0 0.35rem; font-size: 1.05rem; }
   .vk-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 0.55rem; }

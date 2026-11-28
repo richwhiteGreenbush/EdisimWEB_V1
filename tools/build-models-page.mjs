@@ -63,6 +63,7 @@ const page = `<!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Gluten:wght@700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="guide.css" />
 <script defer src="../assets/edusim-analytics.js"></script>
+<script defer src="../assets/edusim-feedback.js?v=20261128"></script>
 <style>
   .mc-toc { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; margin: 1rem 0 0.4rem; }
   .mc-type { margin-top: 1.6rem; }

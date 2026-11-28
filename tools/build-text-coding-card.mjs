@@ -98,6 +98,7 @@ const html = `<!DOCTYPE html>
   }
 </style>
 <script defer src="../assets/edusim-analytics.js"></script>
+<script defer src="../assets/edusim-feedback.js?v=20261128"></script>
 </head>
 <body>
 <nav class="gnav no-print">

@@ -42,7 +42,9 @@
 
   var ENDPOINT = '/worlds/feedback.php';
   var SHARE_URL = 'https://edusim3dweb.com/';
-  var SNOOZE_KEY = 'edusim.feedback.until';
+  // Renamed from 'edusim.feedback.until' when only Not now became a month: the first version also
+  // snoozed on the x and a click outside, and those snoozes must not outlive that mistake.
+  var SNOOZE_KEY = 'edusim.feedback.notnow';
   var DAY = 24 * 60 * 60 * 1000;
   var NOT_NOW_DAYS = 30;
   var AFTER_SEND_DAYS = 182;

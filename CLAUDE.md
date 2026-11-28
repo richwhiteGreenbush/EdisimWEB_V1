@@ -370,8 +370,14 @@ seconds). ONLY the "Not now" button snoozes it for a month, per Rich; the x, Esc
 it away for the rest of the browser session only (a sessionStorage flag), and sending snoozes it for 182
 days. The snooze is one localStorage date; with storage blocked it never appears by itself.
 
-- **It is loaded by `edusim-analytics.js`, which is on every site page including the generated ones.
-  The APP'S `index.html` AND BOTH GALLERIES load that file too**, so the popup refuses to run under
+- **Every site page loads it with its own tag** (`edusim-feedback.js?v=<date>`, written by the five
+  page generators too). It was first loaded BY `edusim-analytics.js`, and Rich never saw it: ad and
+  tracker blockers block a file with "analytics" in its name, and a browser can reuse an old cached
+  copy of that file for days, because the server sent no Cache-Control (`docs/.htaccess` now sends
+  `no-cache` for html, js and css). The analytics loader stays as a fallback for a page without the tag.
+  Bump `?v=` when the script changes. The snooze key is `edusim.feedback.notnow`, renamed so the
+  first version's snoozes (which the x and a click outside also set) were forgotten.
+- **The APP'S `index.html` AND BOTH GALLERIES load `edusim-analytics.js` too**, so the popup refuses to run under
   `/app/`, `/hifi/`, `/worlds/` and `/hifiworlds/` and on any page with the app's `#scene` canvas. The
   app asking a child for nothing is the promise in `privacy.html` and the IT brief, and Rich chose
   website-only over putting this in the app. `privacy.html` has a section saying exactly what it keeps.
