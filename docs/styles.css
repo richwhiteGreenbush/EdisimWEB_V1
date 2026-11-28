@@ -169,6 +169,14 @@ section[id], .res-group, .anchor-alias { scroll-margin-top: calc(var(--nav-h) + 
 
 .btn-violet { background: #c4b0ff; }
 
+/* Edusim Stages' own blue, beside the hero's launch button (per Rich). Darker than the app's
+   #4c97ff so white text on it passes contrast. */
+.btn-stages {
+  background: #3373cc;
+  color: #fff;
+  box-shadow: 0 5px 0 var(--ink);
+}
+
 .btn-ghost {
   background: #fff;
   color: var(--ink);

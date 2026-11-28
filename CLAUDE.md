@@ -570,9 +570,10 @@ sky back to daylight instead of inheriting it.
 ### Prebuilt worlds: Park / Museum / Library / Moon / Mars / Dinosaur Island / Fantastic Voyage / the curriculum set / My World / (New York, Under the Sea)
 
 The menu reads **Save World → Load World File → World Database → Model Database → Create
-Model → Look Around → Clear World → VR Headset View → Settings**, in that order: keep this
+Stage → Create Model → Look Around → Clear World → VR Headset View → Settings**, in that order: keep this
 world, open a file, the two databases side by side (per Rich), then how am I building, how am
-I looking at it, and the whole-session actions. **Load Object** (Import / Draw / Light Orb / Web Browser) is not
+I looking at it, and the whole-session actions. **Create Stage** (per Rich, 2026-11-28) opens
+Edusim Stages at `../stages/` in a new tab, so the world stays open; it is not in `VRMenu`. **Load Object** (Import / Draw / Light Orb / Web Browser) is not
 top-level — it is a dropdown *inside* Create Model, because bringing in a model, painting
 a balloon, dropping an orb and hanging a browser panel are the same job as adding a
 shape: putting something of your own into the world.

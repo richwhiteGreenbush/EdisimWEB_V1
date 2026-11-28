@@ -108,6 +108,21 @@ export class Menu {
       [...shapeButtons, loadObject.toggle, loadObject.panel]
     );
 
+    // CREATE STAGE, per Rich (2026-11-28): straight above Create Model, the 2D way to make
+    // something. It opens Edusim Stages (/stages/, a sibling of /app/ and /hifi/) in a NEW TAB,
+    // so the student's world stays open behind it, and a stage converted with Open in Edusim
+    // arrives in a tab of its own. Resolved against this page, so it works from either edition.
+    const createStageBtn = this._button(
+      'Create Stage',
+      'Open Edusim Stages: make a game, story or animation with blocks, then turn it into a 3D world'
+    );
+    createStageBtn.classList.add('menu-btn-stage');
+    createStageBtn.addEventListener('click', () => {
+      this.closeGroups();
+      this.setCollapsed(true);
+      window.open(new URL('../stages/', location.href).href, '_blank', 'noopener');
+    });
+
     // Above Create Model, because it answers the same question with less work: "I need a
     // heart in this world" is a search away, where building one is an afternoon. It opens a
     // panel, not a dropdown, because a hundred pictures do not fit in this column.
@@ -280,6 +295,7 @@ export class Menu {
       loadWorldFileBtn,
       worldDatabaseBtn,
       modelDatabaseBtn,
+      createStageBtn,
       createModel.toggle,
       createModel.panel,
       lookAround.toggle,

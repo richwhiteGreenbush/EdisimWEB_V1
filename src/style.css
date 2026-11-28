@@ -1287,6 +1287,17 @@ body.vr-active #toast-host {
   background: rgba(45, 178, 196, 0.3);
 }
 
+/* Create Stage, above Create Model: Edusim Stages' own blue, so it reads as a door to the other app. */
+.menu-btn-stage {
+  background: rgba(76, 151, 255, 0.16);
+  border-color: rgba(76, 151, 255, 0.55);
+  color: #bcd6ff;
+}
+
+.menu-btn-stage:hover {
+  background: rgba(76, 151, 255, 0.3);
+}
+
 /* The Model Database panel. z-index 35 with the Program panel, so the toast host at 50 still
    lands in front of it. */
 #modeldb-overlay,
