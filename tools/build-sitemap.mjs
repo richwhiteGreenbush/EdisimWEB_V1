@@ -47,7 +47,8 @@ function htmlFiles(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) out.push(...htmlFiles(path));
-    else if (entry.name.endsWith('.html') && !EXCLUDE.has(entry.name)) out.push(path);
+    // "village 2.html" is macOS's own duplicate naming; deploy.sh never ships those, so neither does the map.
+    else if (entry.name.endsWith('.html') && !EXCLUDE.has(entry.name) && !/ \d+\.html$/.test(entry.name)) out.push(path);
   }
   return out;
 }

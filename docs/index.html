@@ -108,6 +108,7 @@
       <li><a href="#worlds" style="--dot: var(--green);">Worlds</a></li>
       <li><a href="#build" style="--dot: var(--orange);">Build &amp; Code</a></li>
       <li><a href="#hifi" style="--dot: var(--wm-2);">HiFi</a></li>
+      <li><a href="#stages" style="--dot: var(--blue);">Stages</a></li>
       <li><a href="#learn" style="--dot: var(--blue);">Learn</a></li>
       <li><a href="#book" style="--dot: var(--orange);">Book</a></li>
       <li><a href="#teachers" style="--dot: var(--red);">Teachers</a></li>
@@ -675,6 +676,84 @@
     </div>
   </section>
 
+  <!-- ============================ STAGES ============================
+       Edusim Stages (/stages/), the sibling app for games, stories and animations. Each card opens
+       an official project by id (?project=<id>), which the app builds from its own table, so these
+       ids are Stages/src/templates/index.js's GALLERY ids. Pictures are copied from Stages' own
+       renders by tools/build-stages-page.mjs. Links are absolute with a trailing slash, as
+       everywhere in docs/. -->
+  <section class="band stages-section" id="stages" style="--accent: var(--blue);">
+    <div class="wrap">
+      <div class="band-head reveal">
+        <span class="sticker" style="--c: var(--blue);">🎭 New · Edusim Stages</span>
+        <h2>Make <span class="hl" style="--c: var(--blue);">games, stories and animations</span></h2>
+        <p><strong>Edusim Stages</strong> is a stage, sprites, backdrops and blocks, laid out the way anyone who has used Scratch will
+          recognise. Then it does the Edusim things: any of the Model Database's 3D models becomes a sprite you can turn round, Edusim's
+          worlds become backdrops, every script can be read and written as text, and every project can be saved as a video.</p>
+      </div>
+
+      <div class="world-grid reveal">
+        <article class="world-card" style="--accent: var(--blue);">
+          <div class="world-shot">
+            <img src="assets/stages/catch.jpg" width="640" height="480" loading="lazy" alt="A green hero at the bottom of a hilly scene catching gold coins that fall from a blue sky with clouds" />
+            <span class="world-pin">🪙</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">A game</span>
+            <h3>Catch the Coins</h3>
+            <p>Arrow keys, falling clones, a score and a 30-second timer. Open it, play it, then change how fast the coins fall.</p>
+            <a class="world-open" href="https://edusim3dweb.com/stages/?project=catch"
+               target="_blank" rel="noopener noreferrer">Catch the Coins <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </article>
+        <article class="world-card" style="--accent: var(--blue);">
+          <div class="world-shot">
+            <img src="assets/stages/moon-trip.jpg" width="640" height="480" loading="lazy" alt="Riley and Robo the robot cheering on the grey lunar surface beside a spaceship, with the Earth in the black sky and a caption reading and landed on the Moon" />
+            <span class="world-pin">🚀</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">A story</span>
+            <h3>A Trip to the Moon</h3>
+            <p>Riley and Robo fly from the Park to the Moon, two of Edusim's own worlds, told with captions and conversation.</p>
+            <a class="world-open" href="https://edusim3dweb.com/stages/?project=moon-trip"
+               target="_blank" rel="noopener noreferrer">A Trip to the Moon <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </article>
+        <article class="world-card" style="--accent: var(--blue);">
+          <div class="world-shot">
+            <img src="assets/stages/heart.jpg" width="640" height="480" loading="lazy" alt="A 3D model of a human heart on a stand against a starry night sky, with a caption about its four chambers" />
+            <span class="world-pin">🫀</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">An Edusim model</span>
+            <h3>The Beating Heart</h3>
+            <p>The Model Database's human heart as a sprite: twelve costumes from twelve sides, a heartbeat, and the facts as captions.</p>
+            <a class="world-open" href="https://edusim3dweb.com/stages/?project=heart"
+               target="_blank" rel="noopener noreferrer">The Beating Heart <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </article>
+        <article class="world-card" style="--accent: var(--blue);">
+          <div class="world-shot">
+            <img src="assets/stages/patterns.jpg" width="640" height="480" loading="lazy" alt="A rainbow circle of overlapping five-pointed stars drawn with thin lines on a dark background" />
+            <span class="world-pin">✨</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">Art with the pen</span>
+            <h3>Star Patterns</h3>
+            <p>One star drawn 36 times, turning ten degrees and shifting colour each time. Seven blocks make the whole thing.</p>
+            <a class="world-open" href="https://edusim3dweb.com/stages/?project=patterns"
+               target="_blank" rel="noopener noreferrer">Star Patterns <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </article>
+      </div>
+
+      <div class="cta-row reveal">
+        <a class="btn btn-primary" href="https://edusim3dweb.com/stages/" target="_blank" rel="noopener noreferrer">🎭 Launch Edusim Stages</a>
+        <a class="btn btn-ghost" href="guide/stages.html">📘 Projects and tutorials</a>
+      </div>
+    </div>
+  </section>
+
   <!-- ============================ BUILD ============================ -->
   <section class="band build" id="build" style="--accent: var(--orange);">
     <div class="wrap">
@@ -1135,6 +1214,7 @@
             <li><a href="https://edusim3dweb.com/worlds/" target="_blank" rel="noopener noreferrer"><b>Edusim World Database ↗</b><span>Every world, plus the ones classes share. Open or upload.</span></a></li>
             <li><a href="https://edusim3dweb.com/hifi/" target="_blank" rel="noopener noreferrer"><b>Edusim HiFi ↗</b><span>The high-fidelity edition, for computers with a graphics card.</span></a></li>
             <li><a href="https://edusim3dweb.com/hifiworlds/" target="_blank" rel="noopener noreferrer"><b>HiFi Worlds Database ↗</b><span>The worlds made for HiFi, ready to open.</span></a></li>
+            <li><a href="https://edusim3dweb.com/stages/" target="_blank" rel="noopener noreferrer"><b>Edusim Stages ↗</b><span>Make games, stories and animations with blocks, on a flat stage.</span></a></li>
           </ul>
         </div>
 
@@ -1152,6 +1232,7 @@
             <li><a href="guide/futurecity.html"><b>Build a Future City</b><span>Six activities for a city a hundred years from now: vertical farms, maglev trains, air taxis and a spaceport.</span></a></li>
             <li><a href="guide/builder.html"><b>The Model Builder card</b><span>The four shapes, the hammer menu, and turning parts into one model.</span></a></li>
             <li><a href="guide/coding.html"><b>The Coding Blocks card</b><span>The blocks in four colours, and what each one does.</span></a></li>
+            <li><a href="guide/stages.html"><b>Edusim Stages projects and tutorials</b><span>Eleven projects to play and remix, and seven step-by-step tutorials for games, stories and art.</span></a></li>
             <li><a href="guide/text-coding.html"><b>The Typing Code card</b><span>Python-style code at Basic Beginner and Basic Pro, every command, and four programs to type first.</span></a></li>
             <li><a href="https://edusim3dweb.com/worlds/world.php?id=38" target="_blank" rel="noopener noreferrer"><b>Python-Style Coding Basics world ↗</b><span>Five lessons taught by machines already running code.</span></a></li>
           </ul>
@@ -1277,6 +1358,7 @@
             <li><a href="https://edusim3dweb.com/worlds/" target="_blank" rel="noopener noreferrer">World Database</a></li>
             <li><a href="https://edusim3dweb.com/hifi/" target="_blank" rel="noopener noreferrer">Edusim HiFi</a></li>
             <li><a href="https://edusim3dweb.com/hifiworlds/" target="_blank" rel="noopener noreferrer">HiFi Worlds Database</a></li>
+            <li><a href="https://edusim3dweb.com/stages/" target="_blank" rel="noopener noreferrer">Edusim Stages</a></li>
           </ul>
         </div>
         <div class="foot-col" style="--c: var(--purple);">
@@ -1287,6 +1369,7 @@
             <li><a href="guide/village.html">Build a Village</a></li>
             <li><a href="guide/city.html">Build a City</a></li>
             <li><a href="guide/futurecity.html">Build a Future City</a></li>
+            <li><a href="guide/stages.html">Edusim Stages tutorials</a></li>
             <li><a href="assets/book/The-Official-Edusim-Tutorial-and-Projects-Book-Vol-1.pdf" target="_blank" rel="noopener">The Edusim book (PDF) ↗</a></li>
             <li><a href="guide/tutorials.html">Build-along tutorials</a></li>
             <li><a href="guide/coding.html">Coding blocks card</a></li>

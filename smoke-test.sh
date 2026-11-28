@@ -232,6 +232,19 @@ for base in worlds hifiworlds; do
   rm -f "$cat_json"
 done
 
+section "Edusim Stages"
+# /stages/ sits beside /app/ because its sprite library shows the Model Database's card pictures
+# from ../app/models/thumbs/. The trailing slash matters: /stages alone is a redirect.
+check "the app"              "$SITE/stages/"                          200
+check "its service worker"   "$SITE/stages/sw.js"                     200
+check "its manifest"         "$SITE/stages/manifest.webmanifest"      200
+check "a cartoon sprite"     "$SITE/stages/library/kenney/toon/character_robot_idle.png" 200
+check "  · and its licence"  "$SITE/stages/library/kenney/toon/License.txt" 200
+check "a world backdrop"     "$SITE/stages/library/worlds/moon.jpg"   200
+check "a project picture"    "$SITE/stages/gallery/catch.jpg"         200
+check "a model thumbnail"    "$SITE/app/models/thumbs/human-heart.webp" 200
+check "its guide page"       "$SITE/guide/stages.html"                200
+
 section "Things that must NOT be reachable"
 # These are the .htaccess rules. A 200 here is a security bug, not a cosmetic one.
 check "lib/ config"          "$SITE/worlds/lib/config.php"        403 404

@@ -89,7 +89,7 @@ sync_all() {
   # them on every sync (they survived only by being written afterwards, which is exactly
   # the kind of order dependency that breaks the first time these lines are reordered).
   rsync -a --delete --exclude '.DS_Store' --exclude '_preview-check.html' \
-    --exclude 'worlds/' --exclude 'app/' --exclude 'hifiworlds/' --exclude 'hifi/' "$HERE/docs/" "$SITE/"
+    --exclude 'worlds/' --exclude 'app/' --exclude 'hifiworlds/' --exclude 'hifi/' --exclude 'stages/' "$HERE/docs/" "$SITE/"
   rsync -a --delete --exclude '.DS_Store' \
     --exclude 'data/worlds.sqlite*' --exclude 'data/stats.sqlite*' \
     --exclude 'data/worlds/*.json' \
@@ -122,6 +122,11 @@ sync_all() {
   fi
   if [ -d "$HERE/HiFi/dist" ]; then
     rsync -a --delete "$HERE/HiFi/dist/" "$SITE/hifi/"
+  fi
+  # Edusim Stages, at /stages/ beside /app/: its sprite library shows the Model Database's card
+  # pictures from ../app/models/thumbs/, so the two have to be siblings here as in production.
+  if [ -d "$HERE/Stages/dist" ]; then
+    rsync -a --delete "$HERE/Stages/dist/" "$SITE/stages/"
   fi
 }
 

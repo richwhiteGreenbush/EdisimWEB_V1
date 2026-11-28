@@ -1,0 +1,13 @@
+{
+  "name": "Edusim Stages",
+  "short_name": "Stages",
+  "description": "Make games, stories and animations with blocks.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4c97ff",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

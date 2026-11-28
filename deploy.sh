@@ -35,6 +35,9 @@ REMOTE_APP="${REMOTE_APP:-/usr/home/richwhite/public_html/edusim3d.me/app}"
 # fetches back from /hifiworlds/download.php -- which has to be same-origin.
 REMOTE_HIFI="${REMOTE_HIFI:-/usr/home/richwhite/public_html/edusim3d.me/hifi}"
 REMOTE_HIFIDB="${REMOTE_HIFIDB:-/usr/home/richwhite/public_html/edusim3d.me/hifiworlds}"
+# Edusim Stages (games, stories and animations with blocks), the fifth sibling. It has no gallery
+# of its own on the server: its official projects are built into the app.
+REMOTE_STAGES="${REMOTE_STAGES:-/usr/home/richwhite/public_html/edusim3d.me/stages}"
 
 SSH_KEY="${SSH_KEY:-$HOME/.ssh/edusim_pairserver}"
 SSH_OPTS="-i $SSH_KEY -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15"
@@ -51,6 +54,7 @@ for arg in "$@"; do
     app)  WHAT="app" ;;
     hifi)   WHAT="hifi" ;;
     hifidb) WHAT="hifidb" ;;
+    stages) WHAT="stages" ;;
     *) echo "unknown argument: $arg" >&2; exit 2 ;;
   esac
 done
@@ -101,6 +105,7 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "site" ]; then
     --exclude 'app/' \
     --exclude 'hifi/' \
     --exclude 'hifiworlds/' \
+    --exclude 'stages/' \
     -e "ssh $SSH_OPTS" \
     "$HERE/docs/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_SITE/"
 fi
@@ -214,6 +219,24 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "hifidb" ]; then
     ssh $SSH_OPTS "$REMOTE_USER@$REMOTE_HOST" \
       "cd '$REMOTE_HIFIDB' && mkdir -p data/worlds uploads/screenshots && chmod -R 775 data uploads"
   fi
+fi
+
+# ---- Edusim Stages -------------------------------------------------------------------------
+# stages/ is in the site rsync's exclude list above, for the reason the note before the HiFi block
+# gives. The Stages build is static, with no server state, so --delete is safe here.
+if [ "$WHAT" = "all" ] || [ "$WHAT" = "stages" ]; then
+  if [ ! -f "$HERE/Stages/dist/index.html" ]; then
+    echo "No Stages/dist/ to deploy. Run: (cd Stages && npm run build)" >&2
+    exit 1
+  fi
+  say "Edusim Stages   ->  $REMOTE_HOST:$REMOTE_STAGES"
+  ssh $SSH_OPTS "$REMOTE_USER@$REMOTE_HOST" "mkdir -p '$REMOTE_STAGES'"
+  rsync -az --human-readable --itemize-changes $DRY \
+    --delete \
+    --exclude '.DS_Store' \
+    --exclude '* 2.*' \
+    -e "ssh $SSH_OPTS" \
+    "$HERE/Stages/dist/" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_STAGES/"
 fi
 
 say "Done${DRY:+ (dry run -- nothing was transferred)}"

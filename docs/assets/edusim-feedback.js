@@ -59,7 +59,7 @@
   // where a class of students would each get it, and never a gallery, which students reach from
   // inside the app. The 3D canvas test covers the app wherever it is served from, including dev.
   var path = location.pathname;
-  var notHere = /^\/(app|hifi|worlds|hifiworlds)(\/|$)/.test(path) || !!document.getElementById('scene');
+  var notHere = /^\/(app|hifi|worlds|hifiworlds|stages)(\/|$)/.test(path) || !!document.getElementById('scene');
   if (!onSite || notHere || window.EdusimFeedback) return;
 
   function storageOk() {
