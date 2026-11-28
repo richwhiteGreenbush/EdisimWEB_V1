@@ -60,3 +60,24 @@ export const TYRE = {
   van: { r: 1.35, w: 0.8 },
   heavy: { r: 1.75, w: 0.95 },
 };
+
+// Build a Future City's colours: bright and optimistic, but each one a mid-range albedo, since a
+// near-white clips under the sun and a near-black reads as a hole. Glow colours are for emissive parts.
+export const FUTURE = {
+  white: 0xe8edf2,
+  pearl: 0xd7dde6,
+  teal: 0x22b5a8,
+  aqua: 0x45c8e8,
+  sky: 0x4d8ff0,
+  violet: 0x8a5cf0,
+  magenta: 0xe04fb4,
+  coral: 0xff7a59,
+  sun: 0xffc23d,
+  lime: 0x8bd448,
+  leaf: 0x3fa34d,
+  glass: 0x2b5876, // opaque tinted glass
+  glowCyan: 0x5cf2ff,
+  glowPink: 0xff5ccf,
+  glowLime: 0xb6ff5c,
+  glowGold: 0xffd166,
+};

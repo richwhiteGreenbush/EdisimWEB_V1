@@ -321,6 +321,14 @@ const OPEN_EDGES = {
   'police-car': 992, 'city-ambulance': 656, 'city-taxi': 1294, 'delivery-truck': 204,
   'road-straight': 0, 'road-intersection': 0, 'traffic-light': 0, 'street-lamp': 0, 'fire-hydrant': 0, 'bus-stop': 0,
   'city-park': 0, 'recycling-bins': 0, 'solar-panel-array': 0, 'water-tower': 228,
+  // Build a Future City. The open edges are glass shells and canopies (the biodome's rim, the robo-bus's
+  // doorway), decal patches lying on bodies, and the air tower's ribbons, all surfaces rather than solids.
+  'vertical-farm-tower': 0, 'forest-tower': 0, 'printed-dome-home': 0, 'floating-home': 0, 'solar-skyscraper': 0, 'biodome-garden': 26,
+  'future-school': 0, 'zero-waste-center': 0, 'fusion-power-plant': 0, 'spaceport-pad': 0, 'hyperloop-station': 0,
+  'air-taxi': 0, 'self-driving-pod': 6, 'maglev-train': 32, 'delivery-drone': 0, 'robo-bus': 144,
+  'helper-robot': 76, 'sweeper-robot': 0, 'hover-scooter': 4, 'cargo-airship': 8,
+  'smart-road': 0, 'smart-intersection': 0, 'maglev-track': 0, 'hyperloop-tube': 0, 'ev-charging-hub': 0,
+  'drone-port': 0, 'wind-tree': 0, 'air-cleaning-tower': 258, 'hologram-kiosk': 0, 'rain-garden-plaza': 0,
 };
 // Reused models keep what their own world established; these rules bind what is built for here.
 const REUSED_SKIP = new Set(['outside', 'origin']);

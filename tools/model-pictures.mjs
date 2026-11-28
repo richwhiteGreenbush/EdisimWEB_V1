@@ -83,7 +83,7 @@ window.__stage = await (async () => {
   background.colorSpace = THREE.SRGBColorSpace;
 
   function setup(id, { scaled }) {
-    return buildCatalogModel(id).then((model) => {
+    return buildCatalogModel(id, { skirt: false }).then((model) => {
       const entry = MODEL_BY_ID.get(id);
       const scene = new THREE.Scene();
       scene.background = background;

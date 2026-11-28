@@ -82,9 +82,17 @@ const BUILDER_CHUNKS = {
   citycars: () => import('./builders/CityCars.js'),
   citystreets: () => import('./builders/CityStreets.js'),
   cityworks: () => import('./builders/CityWorks.js'),
+  futurehomes: () => import('./builders/FutureHomes.js'),
+  futurecivic: () => import('./builders/FutureCivic.js'),
+  futurevehicles: () => import('./builders/FutureVehicles.js'),
+  futurerobots: () => import('./builders/FutureRobots.js'),
+  futurestreets: () => import('./builders/FutureStreets.js'),
+  futureworks: () => import('./builders/FutureWorks.js'),
 };
 
-export async function buildCatalogModel(id) {
+// `skirt: false` leaves a seated piece's foundation at its authored depth. Only the picture tool asks
+// for that: its backdrop is empty, so a skirt that the ground hides in a world shows there as a slab.
+export async function buildCatalogModel(id, { skirt = true } = {}) {
   const entry = MODEL_BY_ID.get(id);
   if (!entry) throw new Error(`Unknown catalogue model: "${id}"`);
   let object3D;
@@ -96,7 +104,7 @@ export async function buildCatalogModel(id) {
     if (!builder) throw new Error(`No builder for catalogue model: "${id}"`);
     object3D = builder(entry.options ?? {});
   }
-  if (entry.seat) deepenFoundation(object3D);
+  if (entry.seat && skirt) deepenFoundation(object3D);
   object3D.userData.catalogModel = id;
   return object3D;
 }
@@ -111,9 +119,14 @@ export async function buildCatalogModel(id) {
 // kit's rule) is carried down to -SKIRT, so the foundation walls and slab edges simply reach deeper.
 const SKIRT = 2.5;
 const MAX_LIFT = SKIRT - 0.4;
+// Only the static meshes straight under the root, untransformed, are touched. A part that moves lives in
+// an inner group with its own origin, and stretching what hangs below THAT origin turned the drone
+// port's circling drone's parcel into an eleven-foot bar.
+const isIdentity = (node) => node.position.lengthSq() === 0 && node.rotation.x === 0 && node.rotation.y === 0
+  && node.rotation.z === 0 && node.scale.x === 1 && node.scale.y === 1 && node.scale.z === 1;
 function deepenFoundation(object3D) {
-  object3D.traverse((node) => {
-    if (!node.isMesh || !node.geometry?.attributes?.position) return;
+  object3D.children.forEach((node) => {
+    if (!node.isMesh || !isIdentity(node) || !node.geometry?.attributes?.position) return;
     const position = node.geometry.attributes.position;
     let moved = false;
     for (let i = 0; i < position.count; i++) {

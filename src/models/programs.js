@@ -48,4 +48,13 @@ export const STARTER_PROGRAMS = {
   // The traffic light reads its OWN program's three numbers, in seconds (the Chladni plate's
   // mechanism). The forever keeps the program, and so the variables, alive.
   trafficTimer: () => [setv('green', 8), setv('yellow', 3), setv('red', 8), forever(wait(1))],
+  // The future city kit. The spaceport's rocket is part of its pad, so it cannot be moved by a program
+  // without taking the pad with it: the model reads its own `height` and flies the rocket itself.
+  rocketLaunch: () => [setv('height', 60), forever(wait(1))],
+  airHop: () => [repeat(60, up(0.5)), glide(60, 5), repeat(60, up(-0.5)), wait(2), repeat(60, up(0.5)), glide(-60, 5), repeat(60, up(-0.5))],
+  droneDelivery: () => [glide(50, 5), repeat(12, up(-0.5)), wait(2), repeat(12, up(0.5)), glide(-50, 5)],
+  maglevShuttle: () => [forever(glide(80, 4), wait(2), glide(-80, 4), wait(2))],
+  airshipCircle: () => [forever(forward(0.25), rotate(0.4))],
+  // A maglev track and a hyperloop tube are 40ft long.
+  trackRow: () => [repeat(3, duplicate(40))],
 };
