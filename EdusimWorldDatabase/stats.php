@@ -19,6 +19,7 @@ require_once __DIR__ . '/lib/db.php';
 require_once __DIR__ . '/lib/layout.php';
 require_once __DIR__ . '/lib/admin.php';
 require_once __DIR__ . '/lib/stats.php';
+require_once __DIR__ . '/lib/feedback.php';
 
 $action = (string)($_POST['action'] ?? '');
 
@@ -77,6 +78,9 @@ $totals = ewd_stats_totals($days);
 $daily  = ewd_stats_daily($days);
 $pages  = ewd_stats_top_paths($days, 'page', 30);
 $refs   = ewd_stats_referrers($days, 25);
+// The website popup's messages (lib/feedback.php), read-only here and over the same range as the
+// traffic. Deleting one stays on admin.php?view=feedback, the one place that changes them.
+$feedback = ewd_feedback_since($days, 100);
 
 $buildDays   = ewd_stats_build_days($days);
 $worldTitles = ewd_stats_gallery_titles($buildDays);
@@ -209,6 +213,33 @@ ewd_header(['title' => 'Traffic']);
             the total.
           </p>
         <?php endif; ?>
+
+        <h2 id="feedback" style="margin-top:32px;">Website feedback</h2>
+        <p class="hint" style="margin-top:0;">
+          From the "Help us share and improve Edusim" popup, last <?= $days ?> days, newest first.
+          Each is also emailed to <?= e(EWD_FEEDBACK_TO) ?>; one marked <strong>not emailed</strong>
+          was refused by the server's mail system.
+          <a href="admin.php?view=feedback">Delete messages →</a>
+        </p>
+        <?php if (!$feedback): ?>
+          <p class="hint">No feedback in the last <?= $days ?> days.</p>
+        <?php else: ?>
+          <?php foreach ($feedback as $m): ?>
+            <article class="side-card" style="margin:0 0 12px;padding:14px 16px;">
+              <p class="hint" style="margin:0 0 6px;">
+                #<?= (int)$m['id'] ?> · <?= e($m['created_at']) ?> UTC · <?= e($m['page'] ?: '/') ?>
+                <?php $labels = ewd_feedback_topic_labels((string)$m['topics']); if ($labels !== ''): ?> · <?= e($labels) ?><?php endif; ?>
+                · <?= (int)$m['mailed'] ? 'emailed' : '<strong>not emailed</strong>' ?>
+              </p>
+              <div style="white-space:pre-wrap;"><?= e($m['message']) ?></div>
+              <?php if ($m['email'] !== ''): ?>
+                <p style="margin:8px 0 0;">
+                  Reply to <a href="<?= e('mailto:' . $m['email']) ?>"><?= e($m['email']) ?></a> (said they are 18 or older)
+                </p>
+              <?php endif; ?>
+            </article>
+          <?php endforeach; ?>
+        <?php endif; ?>
       </div>
 
       <aside>
@@ -248,6 +279,9 @@ ewd_header(['title' => 'Traffic']);
           <h3>Teacher tools</h3>
           <p class="hint" style="margin:0;">
             <a href="admin.php">Approve, hide and remove shared worlds →</a>
+          </p>
+          <p class="hint" style="margin:8px 0 0;">
+            <a href="#feedback">Website feedback (<?= count($feedback) ?> in <?= $days ?> days) ↓</a>
           </p>
         </div>
       </aside>

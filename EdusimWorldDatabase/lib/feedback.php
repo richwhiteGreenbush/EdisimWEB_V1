@@ -171,11 +171,36 @@ function ewd_feedback_mail(int $id, string $when, array $topics, string $message
         $headers[] = 'Reply-To: ' . $email;
     }
     $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+    // -f sets sendmail's ENVELOPE sender (the Return-Path) to the same address as From. Without it
+    // the envelope is the hosting account's own default address, which does not match From, and
+    // Gmail rejects or junks mail whose sender it cannot authenticate. The domain also needs an SPF
+    // record naming pair's mail servers; see the note in CLAUDE.md's feedback paragraph.
     try {
-        return @mail(EWD_FEEDBACK_TO, $encodedSubject, $body, implode("\r\n", $headers));
+        return @mail(EWD_FEEDBACK_TO, $encodedSubject, $body, implode("\r\n", $headers), '-f' . EWD_FEEDBACK_FROM);
     } catch (Throwable $e) {
         return false;
     }
+}
+
+/** Newest first, within the last $days days, for stats.php's range buttons. */
+function ewd_feedback_since(int $days, int $limit = 100): array
+{
+    try {
+        $q = ewd_feedback_db()->prepare('SELECT * FROM feedback WHERE created_at >= ? ORDER BY id DESC LIMIT ?');
+        $q->execute([gmdate('c', time() - $days * 86400), $limit]);
+        return $q->fetchAll();
+    } catch (Throwable $e) {
+        return [];
+    }
+}
+
+/** "New worlds, New models" from the stored comma-separated keys. */
+function ewd_feedback_topic_labels(string $topics): string
+{
+    if ($topics === '') {
+        return '';
+    }
+    return implode(', ', array_map(static fn($t) => EWD_FEEDBACK_TOPICS[$t] ?? $t, explode(',', $topics)));
 }
 
 /** Newest first, for admin.php. */

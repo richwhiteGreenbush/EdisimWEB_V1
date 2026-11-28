@@ -365,7 +365,12 @@ topic chips, and an email field that appears only after "I am 18 or older" is ti
 `data/feedback.sqlite` (gitignored, and excluded from the deploy rsync, which runs with `--delete`) and
 emails it to `EWD_FEEDBACK_TO`, inventoriumlab@gmail.com, from `feedback@edusim3dweb.com` with the
 visitor's address in Reply-To. Teacher tools (`admin.php?view=feedback`) list and delete them, because a
-web server's mail can land in spam. It appears about 1.8s after the page is ready (per Rich: within two
+web server's mail can land in spam, and `stats.php` lists them read-only under "Website feedback", over the
+same 7/30/90-day range as the traffic, per Rich. **The first test never arrived**: `mail()` was called without `-f`, so
+sendmail's envelope sender was the hosting account's default and did not match From, and edusim3dweb.com had
+no SPF record (checked with `dig TXT`), so Gmail could not authenticate it. `mail()` now passes
+`-f feedback@edusim3dweb.com`; the domain also needs an SPF TXT record naming pair's mail servers, which is a
+DNS change at the host, not anything in this repo. It appears about 1.8s after the page is ready (per Rich: within two
 seconds). ONLY the "Not now" button snoozes it for a month, per Rich; the x, Esc and a click outside keep
 it away for the rest of the browser session only (a sessionStorage flag), and sending snoozes it for 182
 days. The snooze is one localStorage date; with storage blocked it never appears by itself.
