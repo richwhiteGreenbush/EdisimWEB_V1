@@ -270,6 +270,20 @@ button.top-link { border: 0; font: inherit; font-weight: 600; }
 .gal-text span { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
 .gal-kind { font-size: 11px !important; font-weight: 700; color: var(--blue-dark) !important; text-transform: uppercase; letter-spacing: 0.04em; }
 .gal-intro { margin: 0 0 14px; color: var(--muted); }
+.gal-card[hidden] { display: none; }
+.gal-learn { color: #2b3550 !important; }
+.gal-subject { font-weight: 700; color: var(--blue-dark) !important; margin-top: auto; }
+/* The Project Database: search, grade and subject chips. */
+.pdb-modal .modal-body { min-height: 60vh; }
+.pdb-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
+.pdb-search { flex: 1 1 240px; padding: 9px 12px; border: 2px solid var(--line); border-radius: 10px; font: inherit; font-size: 15px; }
+.pdb-search:focus { outline: none; border-color: var(--blue); }
+.pdb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pdb-subjects { margin-bottom: 8px; }
+.pdb-chip { padding: 6px 12px; border: 2px solid var(--line); border-radius: 999px; background: #fff; font: inherit; font-size: 13px; font-weight: 700; color: #3a4560; cursor: pointer; }
+.pdb-chip:hover { border-color: var(--blue); }
+.pdb-chip.is-on { background: var(--blue); border-color: var(--blue); color: #fff; }
+.pdb-count { margin: 4px 0 12px; color: var(--muted); font-size: 13px; }
 .tut-card { position: fixed; z-index: 70; right: 16px; bottom: 16px; width: min(380px, calc(100vw - 32px)); background: #fff; border-radius: 14px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28); border: 2px solid var(--amber); display: flex; flex-direction: column; max-height: 60vh; }
 .tut-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #fff7d6; border-radius: 12px 12px 0 0; cursor: move; touch-action: none; }
 .tut-head strong { flex: 1; }

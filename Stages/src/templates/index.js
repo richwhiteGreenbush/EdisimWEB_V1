@@ -11,6 +11,9 @@ import {
 } from './kit.js';
 import { stageOf } from '../project/Project.js';
 import { cloneBlock } from '../blocks/make.js';
+import { LEARNING } from './learning/index.js';
+
+export { SUBJECTS } from './learning/index.js';
 
 const flag = () => B('event_whenflagclicked');
 const key = (k) => R('sensing_keypressed', { KEY_OPTION: k });
@@ -447,17 +450,19 @@ async function buildPatterns({ scripts = true } = {}) {
 
 // The gallery, in the order the Projects panel shows it.
 export const GALLERY = [
-  { id: 'catch', kind: 'Game', title: 'Catch the Coins', blurb: 'Arrow keys to catch falling coins for 30 seconds. Clones, a score and a timer.', build: () => buildCatch() },
-  { id: 'jump', kind: 'Game', title: 'Jump Up', blurb: 'A platform game: run, jump and reach the flag. Gravity is one variable.', build: () => buildJump() },
-  { id: 'space', kind: 'Game', title: 'Space Dodge', blurb: 'Dodge the meteors as they fall faster and faster. Three lives.', build: () => buildSpace() },
-  { id: 'maze', kind: 'Game', title: 'Mouse Maze', blurb: 'Guide the mouse to the star without walking through the walls.', build: () => buildMaze() },
-  { id: 'paddle', kind: 'Game', title: 'Paddle Ball', blurb: 'Keep the ball in play with the paddle. Mouse or arrow keys.', build: () => buildPaddle() },
-  { id: 'quiz', kind: 'Quiz', title: 'Times Tables Quiz', blurb: 'Maya asks five questions and keeps score. Ask, answer, if and else.', build: () => buildQuiz() },
-  { id: 'moon-trip', kind: 'Story', title: 'A Trip to the Moon', blurb: 'Riley and Robo fly from the Park to the Moon, two of Edusim\'s own worlds.', build: () => buildMoonTrip() },
-  { id: 'walk', kind: 'Animation', title: 'A Walk Through Town', blurb: 'A walk cycle from eight costumes, and a bee that flies a sine wave.', build: () => buildWalk() },
-  { id: 'heart', kind: 'Animation', title: 'The Beating Heart', blurb: 'The Model Database\'s heart as a sprite: it turns, it beats, and the facts come with it.', build: () => buildHeart() },
-  { id: 'dance', kind: 'Animation', title: 'Robot Dance Party', blurb: 'Costumes, a colour effect and a drum beat. The first tutorial, finished.', build: () => buildDance() },
-  { id: 'patterns', kind: 'Art', title: 'Star Patterns', blurb: 'A star drawn 36 times with the pen, turning a little and changing colour each time.', build: () => buildPatterns() },
+  { id: 'catch', grades: [3, 8], subject: 'Coding', kind: 'Game', title: 'Catch the Coins', blurb: 'Arrow keys to catch falling coins for 30 seconds. Clones, a score and a timer.', build: () => buildCatch() },
+  { id: 'jump', grades: [3, 8], subject: 'Coding', kind: 'Game', title: 'Jump Up', blurb: 'A platform game: run, jump and reach the flag. Gravity is one variable.', build: () => buildJump() },
+  { id: 'space', grades: [3, 8], subject: 'Coding', kind: 'Game', title: 'Space Dodge', blurb: 'Dodge the meteors as they fall faster and faster. Three lives.', build: () => buildSpace() },
+  { id: 'maze', grades: [3, 8], subject: 'Coding', kind: 'Game', title: 'Mouse Maze', blurb: 'Guide the mouse to the star without walking through the walls.', build: () => buildMaze() },
+  { id: 'paddle', grades: [3, 8], subject: 'Coding', kind: 'Game', title: 'Paddle Ball', blurb: 'Keep the ball in play with the paddle. Mouse or arrow keys.', build: () => buildPaddle() },
+  { id: 'quiz', grades: [3, 5], subject: 'Math', kind: 'Quiz', title: 'Times Tables Quiz', blurb: 'Maya asks five questions and keeps score. Ask, answer, if and else.', build: () => buildQuiz() },
+  { id: 'moon-trip', grades: [3, 5], subject: 'Language Arts', kind: 'Story', title: 'A Trip to the Moon', blurb: 'Riley and Robo fly from the Park to the Moon, two of Edusim\'s own worlds.', build: () => buildMoonTrip() },
+  { id: 'walk', grades: [3, 8], subject: 'Art & Music', kind: 'Animation', title: 'A Walk Through Town', blurb: 'A walk cycle from eight costumes, and a bee that flies a sine wave.', build: () => buildWalk() },
+  { id: 'heart', grades: [3, 8], subject: 'Life Science', kind: 'Animation', title: 'The Beating Heart', blurb: 'The Model Database\'s heart as a sprite: it turns, it beats, and the facts come with it.', build: () => buildHeart() },
+  { id: 'dance', grades: [3, 5], subject: 'Coding', kind: 'Animation', title: 'Robot Dance Party', blurb: 'Costumes, a colour effect and a drum beat. The first tutorial, finished.', build: () => buildDance() },
+  { id: 'patterns', grades: [3, 8], subject: 'Art & Music', kind: 'Art', title: 'Star Patterns', blurb: 'A star drawn 36 times with the pen, turning a little and changing colour each time.', build: () => buildPatterns() },
+  // The learning projects, grades 3-12 (./learning/).
+  ...LEARNING,
 ];
 
 // Starting points for the tutorials: the same projects with their scripts left for the student.

@@ -73,7 +73,7 @@ export class App {
               <button type="button" data-act="to3d">Convert to 3D World…</button>
             </div>
           </div>
-          <button type="button" class="menu-btn" data-act="gallery">🎮 Projects</button>
+          <button type="button" class="menu-btn" data-act="gallery" title="The Stages Project Database: projects for grades 3 to 12">🗂️ Projects</button>
           <button type="button" class="menu-btn" data-act="tutorials">📘 Tutorials</button>
         </div>
         <input class="title-input" type="text" aria-label="Project title" maxlength="60">

@@ -1,4 +1,4 @@
-// Pictures for the Projects gallery and the tutorial cards: each official project is run for a few
+// Pictures for the Project Database and the tutorial cards: each official project is run for a few
 // seconds on the virtual clock and its stage is saved as public/gallery/<id>.jpg. Rerun whenever a
 // project changes how it looks.
 //
@@ -36,7 +36,12 @@ const browser = await chromium.launch({ executablePath: CHROME, headless: true, 
 const page = await browser.newPage({ viewport: { width: 1366, height: 768 } });
 await page.goto(URL_, { waitUntil: 'load' });
 await page.waitForFunction(() => window.__stages?.project, null, { timeout: 30000 });
-for (const [id, steps] of Object.entries(PLAN)) {
+// The learning projects carry their own picture plan (`picture` in the spec; 150 frames if none).
+const learning = await page.evaluate(async () => {
+  const { LEARNING_SPECS } = await import('/src/templates/learning/index.js');
+  return LEARNING_SPECS.map((s) => [s.id, s.picture || [[150]]]);
+});
+for (const [id, steps] of [...Object.entries(PLAN), ...learning]) {
   if (only && !only.includes(id)) continue;
   const data = await page.evaluate(async ([id, steps]) => {
     const a = window.__stages;
