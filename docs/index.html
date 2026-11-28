@@ -45,7 +45,7 @@
   "numberOfPages": 112,
   "inLanguage": "en",
   "image": "https://edusim3dweb.com/assets/book/cover.jpg",
-  "url": "https://www.amazon.com/dp/B0HM6LRHSX",
+  "url": "https://edusim3dweb.com/assets/book/The-Official-Edusim-Tutorial-and-Projects-Book-Vol-1.pdf",
   "about": "Step-by-step building and coding projects in Edusim, a free 3D virtual world for kids"
 }
 </script>
@@ -73,7 +73,7 @@
        #start      "What do you want to do today?" -- six doors, one per reason a
                    person arrives here. This is the page's own table of contents,
                    and the answer to "where is the thing I came for".
-       #book       The Official Edusim Tutorial & Projects Book, on sale on Amazon
+       #book       The Official Edusim Tutorial & Projects Book, free to read as a PDF
        #worlds     eight featured worlds, topic shortcuts into the World Database
        #hifi       the high-fidelity edition (the one dark band, straight after the
                    worlds -- see CLAUDE.md)
@@ -147,7 +147,7 @@
     <a class="hero-book" href="#book">
       <img src="assets/book/cover.jpg" width="720" height="1080" alt="" />
       <span class="hb-new">New</span>
-      <span class="hb-text"><b>The Official Edusim Tutorial &amp; Projects Book</b> is out — in paperback on Amazon</span>
+      <span class="hb-text"><b>The Official Edusim Tutorial &amp; Projects Book</b> is out — free to read as a PDF</span>
       <span class="hb-go" aria-hidden="true">→</span>
     </a>
 
@@ -337,8 +337,9 @@
          * Every picture is rendered from the book's OWN sources (book/src/cover.html and
            three real spreads), not mocked up, so nothing here can promise a page the
            book does not have. Re-render them if the book is revised.
-         * The Amazon link is the plain /dp/ address the a.co share link resolves to:
-           the same listing, readable in the status bar, with no share-tracking tail.
+         * Every book link opens the book's own PDF (assets/book/), per Rich, not the
+           Amazon listing. It is the KDP interior file, copied from book/dist/: re-copy it
+           whenever the book is rebuilt, or the site serves an old edition.
          * No PRICE. A price written into static HTML is wrong the first time Amazon
            changes it, and nothing will fail when it drifts. The ISBN cannot drift, and
            it is what a school's purchasing office asks for.
@@ -348,7 +349,7 @@
     <div class="wrap">
       <div class="book-feature reveal">
         <div class="book-art">
-          <a class="book-cover" href="https://www.amazon.com/dp/B0HM6LRHSX" target="_blank" rel="noopener noreferrer">
+          <a class="book-cover" href="assets/book/The-Official-Edusim-Tutorial-and-Projects-Book-Vol-1.pdf" target="_blank" rel="noopener">
             <img src="assets/book/cover.jpg" width="720" height="1080"
                  alt="The book's front cover: the Edusim wordmark in chunky orange letters over a blue sky, the title The Official Edusim Tutorial &amp; Projects Book, a red Vol. 1 badge, and below it a green steam engine and carriage, a train station and a green turtle built from simple shapes on a grassy field." />
           </a>
@@ -377,7 +378,7 @@
             <li style="--c: var(--purple);"><small>Part 4</small>Code it</li>
           </ol>
           <div class="book-cta">
-            <a class="btn btn-primary btn-big" href="https://www.amazon.com/dp/B0HM6LRHSX" target="_blank" rel="noopener noreferrer">🛒 Get the book on Amazon ↗</a>
+            <a class="btn btn-primary btn-big" href="assets/book/The-Official-Edusim-Tutorial-and-Projects-Book-Vol-1.pdf" target="_blank" rel="noopener">📖 Read the book (PDF, 25&nbsp;MB) ↗</a>
             <a class="btn btn-ghost" href="#learn">Free tutorials online ↓</a>
           </div>
           <p class="book-fine">
@@ -1142,7 +1143,7 @@
             <div><h3>Learn the tools</h3><p>For students — and anyone new</p></div>
           </div>
           <ul class="res-list">
-            <li><a href="https://www.amazon.com/dp/B0HM6LRHSX" target="_blank" rel="noopener noreferrer"><b>📗 The Edusim book ↗</b><span>The Official Tutorial &amp; Projects Book: 112 full-colour pages, in paperback on Amazon.</span></a></li>
+            <li><a href="assets/book/The-Official-Edusim-Tutorial-and-Projects-Book-Vol-1.pdf" target="_blank" rel="noopener"><b>📗 The Edusim book (PDF) ↗</b><span>The Official Tutorial &amp; Projects Book: 112 full-colour pages, free to read and print.</span></a></li>
             <li><a href="guide/tutorials.html"><b>Six build-along tutorials</b><span>Build a snowman, a rocket, a robot and a house, then teach them to move.</span></a></li>
             <li><a href="guide/models.html"><b>The Model Database</b><span>More than a hundred ready-made models to place, stretch and program, with the facts and a first project.</span></a></li>
             <li><a href="guide/village.html"><b>Build a Village</b><span>Six activities with life-size homes, animals and crops: plan it, feed it, program it.</span></a></li>
@@ -1276,7 +1277,7 @@
             <li><a href="guide/village.html">Build a Village</a></li>
             <li><a href="guide/city.html">Build a City</a></li>
             <li><a href="guide/futurecity.html">Build a Future City</a></li>
-            <li><a href="https://www.amazon.com/dp/B0HM6LRHSX" target="_blank" rel="noopener noreferrer">The Edusim book ↗</a></li>
+            <li><a href="assets/book/The-Official-Edusim-Tutorial-and-Projects-Book-Vol-1.pdf" target="_blank" rel="noopener">The Edusim book (PDF) ↗</a></li>
             <li><a href="guide/tutorials.html">Build-along tutorials</a></li>
             <li><a href="guide/coding.html">Coding blocks card</a></li>
             <li><a href="guide/text-coding.html">Typing Code card</a></li>
@@ -1289,6 +1290,7 @@
             <li><a href="spatial-reasoning/index.html">Spatial reasoning</a></li>
             <li><a href="spatial-reasoning/activities.html">Classroom activities</a></li>
             <li><a href="schools/index.html">For schools</a></li>
+            <li><a href="#feedback" data-edusim-feedback>💬 Share &amp; give feedback</a></li>
           </ul>
         </div>
         <div class="foot-col" style="--c: var(--green);">

@@ -18,6 +18,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/lib/db.php';
 require_once __DIR__ . '/lib/layout.php';
 require_once __DIR__ . '/lib/admin.php';
+require_once __DIR__ . '/lib/feedback.php';
 
 $action = (string)($_POST['action'] ?? '');
 
@@ -193,6 +194,72 @@ if (in_array($action, ['approve', 'hide', 'publish', 'delete', 'spotlight', 'uns
 }
 
 // ---------------------------------------------------------------------------
+// Website feedback (lib/feedback.php): every message the popup sent, kept here as well as emailed,
+// because a message from a web server can land in spam with nothing to show it was sent. Deleting
+// one is how "ask us to delete it" on the privacy page is honoured.
+// ---------------------------------------------------------------------------
+
+if ($action === 'feedback_delete') {
+    if (!ewd_csrf_ok()) {
+        ewd_flash('error', 'That request expired. Try again.');
+        ewd_redirect('admin.php?view=feedback');
+    }
+    ewd_feedback_db()->prepare('DELETE FROM feedback WHERE id = ?')->execute([(int)($_POST['id'] ?? 0)]);
+    ewd_flash('success', 'That message has been deleted.');
+    ewd_redirect('admin.php?view=feedback');
+}
+
+if ((string)($_GET['view'] ?? '') === 'feedback') {
+    $messages = ewd_feedback_recent(300);
+    ewd_header(['title' => 'Website feedback']);
+    ?>
+    <main class="section">
+      <div class="wrap">
+        <div class="admin-bar">
+          <h1 style="margin:0;font-size:1.6rem;">Website feedback</h1>
+          <a class="chip" href="admin.php">← Worlds</a>
+          <span class="hint" style="margin:0;">Also emailed to <?= e(EWD_FEEDBACK_TO) ?> as each arrives.</span>
+        </div>
+        <?php if (!$messages): ?>
+          <div class="empty">
+            <span class="icon" aria-hidden="true">💬</span>
+            <h3>No feedback yet</h3>
+            <p>Messages from the website's "Help us share and improve Edusim" popup will appear here.</p>
+          </div>
+        <?php else: ?>
+          <?php foreach ($messages as $m): ?>
+            <article class="side-card" style="margin:0 0 14px;padding:16px 18px;">
+              <p class="hint" style="margin:0 0 8px;">
+                #<?= (int)$m['id'] ?> · <?= e($m['created_at']) ?> UTC · <?= e($m['page'] ?: '/') ?>
+                <?php if ($m['topics'] !== ''): ?> · <?= e(implode(', ', array_map(static fn($t) => EWD_FEEDBACK_TOPICS[$t] ?? $t, explode(',', $m['topics'])))) ?><?php endif; ?>
+                · <?= (int)$m['mailed'] ? 'emailed' : '<strong>not emailed</strong>' ?>
+              </p>
+              <div style="white-space:pre-wrap;"><?= e($m['message']) ?></div>
+              <p style="margin:10px 0 0;">
+                <?php if ($m['email'] !== ''): ?>
+                  Reply to <a href="<?= e('mailto:' . $m['email']) ?>"><?= e($m['email']) ?></a> (said they are 18 or older)
+                <?php else: ?>
+                  <span class="hint">No email address.</span>
+                <?php endif; ?>
+              </p>
+              <form method="post" action="admin.php" style="margin-top:8px;"
+                    onsubmit="return confirm('Delete this message for good?');">
+                <?= ewd_csrf_field() ?>
+                <input type="hidden" name="action" value="feedback_delete" />
+                <input type="hidden" name="id" value="<?= (int)$m['id'] ?>" />
+                <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+              </form>
+            </article>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </div>
+    </main>
+    <?php
+    ewd_footer();
+    exit;
+}
+
+// ---------------------------------------------------------------------------
 // The queue
 // ---------------------------------------------------------------------------
 
@@ -228,6 +295,8 @@ ewd_header(['title' => 'Teacher tools']);
       ] as $key => $label): ?>
         <a class="chip<?= $status === $key ? ' is-on' : '' ?>" href="<?= e('admin.php?status=' . eu($key)) ?>"><?= e($label) ?></a>
       <?php endforeach; ?>
+
+      <a class="chip" href="admin.php?view=feedback">💬 Website feedback</a>
 
       <form class="spacer" method="post" action="admin.php">
         <?= ewd_csrf_field() ?>

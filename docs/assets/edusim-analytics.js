@@ -124,3 +124,19 @@
   if (firstThisSession('edusim.visit')) send('visit');
   send('page');
 })();
+
+// The "Help us share and improve Edusim" popup (edusim-feedback.js) is loaded from here because
+// this file is already on every page of the site, including the generated guide pages, and is on
+// NO page of the app: the popup belongs to the website only. It is not tracking, so it is loaded
+// whatever Do Not Track says, and it decides for itself whether to appear.
+(function () {
+  'use strict';
+  try {
+    var me = document.currentScript && document.currentScript.src;
+    if (!me) return;
+    var s = document.createElement('script');
+    s.src = me.replace(/edusim-analytics\.js(\?.*)?$/, 'edusim-feedback.js');
+    s.defer = true;
+    document.head.appendChild(s);
+  } catch (err) { /* never a reason to break the page */ }
+})();

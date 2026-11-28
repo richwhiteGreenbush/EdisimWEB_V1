@@ -357,6 +357,31 @@ pictures come from `docs/assets/screenshots/thumbs/` — 800px copies made with
 `sips -s format jpeg -s formatOptions 78 -Z 800` (1.6 MB for all 21, against 6.7 MB of originals);
 regenerate a thumb whenever its source screenshot is recaptured.
 
+**THE WEBSITE HAS A FEEDBACK POPUP, AND ONLY THE WEBSITE** (2026-11, per Rich).
+`docs/assets/edusim-feedback.js`, "Help us share and improve Edusim": Facebook and LinkedIn share
+buttons (plain links to each network's share page; nothing of theirs is loaded), a feedback box with
+topic chips, and an email field that appears only after "I am 18 or older" is ticked. It posts to
+`/worlds/feedback.php` (`EdusimWorldDatabase/lib/feedback.php`), which keeps every message in
+`data/feedback.sqlite` (gitignored, and excluded from the deploy rsync, which runs with `--delete`) and
+emails it to `EWD_FEEDBACK_TO`, inventoriumlab@gmail.com, from `feedback@edusim3dweb.com` with the
+visitor's address in Reply-To. Teacher tools (`admin.php?view=feedback`) list and delete them, because a
+web server's mail can land in spam. "Not now", the close button and Esc snooze it for 30 days and sending
+for 182, as one localStorage date; with storage blocked it never appears by itself.
+
+- **It is loaded by `edusim-analytics.js`, which is on every site page including the generated ones.
+  The APP'S `index.html` AND BOTH GALLERIES load that file too**, so the popup refuses to run under
+  `/app/`, `/hifi/`, `/worlds/` and `/hifiworlds/` and on any page with the app's `#scene` canvas. The
+  app asking a child for nothing is the promise in `privacy.html` and the IT brief, and Rich chose
+  website-only over putting this in the app. `privacy.html` has a section saying exactly what it keeps.
+- Only on edusim3dweb.com and localhost, since the GitHub Pages mirror has no `feedback.php`.
+- The home page footer's "Share & give feedback" (`data-edusim-feedback`) opens it on purpose.
+
+**Every book link now opens the book's own PDF** (2026-11, per Rich), not Amazon:
+`docs/assets/book/The-Official-Edusim-Tutorial-and-Projects-Book-Vol-1.pdf`, a copy of the KDP interior
+file in `book/dist/` (24.7MB, no PDF tools on this machine to shrink it). **Re-copy it whenever the book
+is rebuilt**, or the site serves an old edition. The paperback is still on Amazon, just not linked.
+The paragraph below is the history of how the links were placed.
+
 **The print book is sold from the page** (2026-10, per Rich): The Official Edusim Tutorial &
 Projects Book, Vol. 1 (`book/`), on Amazon at `https://www.amazon.com/dp/B0HM6LRHSX` — the
 plain address the `a.co/d/06dUEcGP` share link resolves to — ISBN 9798160064970. It appears

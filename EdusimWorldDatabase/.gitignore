@@ -11,6 +11,12 @@ data/worlds.sqlite-shm
 data/stats.sqlite
 data/stats.sqlite-wal
 data/stats.sqlite-shm
+
+# The website's feedback messages (lib/feedback.php). A THIRD database file, for the same reason
+# as the counters: what visitors send is a deployment's contents, never the repository's.
+data/feedback.sqlite
+data/feedback.sqlite-wal
+data/feedback.sqlite-shm
 data/worlds/*.json
 uploads/screenshots/*
 

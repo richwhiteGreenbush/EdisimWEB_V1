@@ -89,7 +89,7 @@
 
     <ul class="qa">
       <li><b>Does a student need an account?</b><span>No. There is no account system at all &mdash; not for students, not for teachers, not optionally.</span></li>
-      <li><b>Do you ask for a name, email address or age?</b><span>No. Edusim has no field anywhere that asks a child for anything about themselves.</span></li>
+      <li><b>Do you ask for a name, email address or age?</b><span>Not in the app. The Edusim app has no field anywhere that asks a child for anything about themselves. This website has one optional feedback form, meant for teachers and parents, described below.</span></li>
       <li><b>Where is a student&rsquo;s work stored?</b><span>In their own browser, on their own device, using the browser&rsquo;s built-in storage (IndexedDB). It never leaves the machine unless the student chooses to export a file.</span></li>
       <li><b>Can a teacher see what a student built?</b><span>Only if the student hands it to them. <strong>Save World</strong> exports a file the student can email, drop in a shared folder, or hand in however your school already hands work in.</span></li>
       <li><b>Is there chat, messaging or any way to contact another user?</b><span>No. There are no other users. Edusim is single-player by design and there is nothing in it that connects one child to another.</span></li>
@@ -161,6 +161,40 @@
 <section class="dsection">
   <div class="wrap">
     <div class="col">
+      <h2>The feedback form on this website</h2>
+      <p>
+        These pages, and only these pages, sometimes show a small window titled
+        <strong>&ldquo;Help us share and improve Edusim.&rdquo;</strong> It never appears inside the
+        Edusim app or the World Database, which is where students spend their time, and if a
+        visitor chooses <strong>Not now</strong> it stays away for a month. It remembers that with
+        one date stored in the visitor&rsquo;s own browser, which never leaves it.
+      </p>
+      <ul>
+        <li><strong>Sharing buttons load nothing.</strong> The Facebook and LinkedIn buttons are
+          plain links to those sites&rsquo; own share pages. Nothing from Facebook or LinkedIn is
+          on this site, and nothing is sent to either of them unless the visitor clicks.</li>
+        <li><strong>The feedback itself</strong> (the idea typed in, the topics ticked, and which of
+          these pages it was sent from) is emailed to the Inventorium Lab team and kept on our own
+          server so that nothing is lost if an email goes astray.</li>
+        <li><strong>An email address is asked for only from adults, and only if they want a
+          reply.</strong> The field stays hidden until the visitor confirms they are 18 or older,
+          and an address sent without that confirmation is thrown away. It is used only to answer
+          that message: never shared, sold or added to a mailing list. Students are told on the
+          form not to type their name or email.</li>
+        <li><strong>No IP address is stored.</strong> As with shared worlds, the server keeps only a
+          one-way hash of it, so that a flood of automated messages can be stopped.</li>
+      </ul>
+      <p>
+        To have a message you sent deleted, tell us and it will be removed. Nothing about this form
+        changes anything on the rest of this page: the app still asks nothing of anyone.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="dsection">
+  <div class="wrap">
+    <div class="col">
       <h2>The two places a student can reach the wider internet</h2>
       <p>
         Edusim has two features that put real web content inside a world. Neither collects
@@ -207,7 +241,7 @@
     <div class="col">
       <h2>Sharing a world to the World Database</h2>
       <p>
-        The one place a student can send something to us is the
+        The one place in the app where a student can send something to us is the
         <a href="https://edusim3dweb.com/worlds/" target="_blank" rel="noopener noreferrer">World Database</a>,
         where a world can be published for other people to open. This is entirely optional,
         it is never automatic, and it takes a deliberate multi-step action.

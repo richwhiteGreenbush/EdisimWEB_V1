@@ -159,6 +159,7 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "db" ]; then
     --exclude '* 2.*' \
     --exclude 'data/worlds.sqlite*' \
     --exclude 'data/stats.sqlite*' \
+    --exclude 'data/feedback.sqlite*' \
     --exclude 'data/worlds/*.json' \
     --exclude 'uploads/screenshots/*' \
     --exclude 'lib/config.local.php' \
@@ -202,6 +203,7 @@ if [ "$WHAT" = "all" ] || [ "$WHAT" = "hifidb" ]; then
     --exclude '* 2.*' \
     --exclude 'data/worlds.sqlite*' \
     --exclude 'data/stats.sqlite*' \
+    --exclude 'data/feedback.sqlite*' \
     --exclude 'data/worlds/*.json' \
     --exclude 'uploads/screenshots/*' \
     --exclude 'lib/config.local.php' \
