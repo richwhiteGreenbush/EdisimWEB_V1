@@ -46,6 +46,11 @@ departed from this plan:
 - **Answered from section 7**: `Mp4Muxer` takes the audio after the video (the Studio's exporter already
   does, and a Stages export decodes with its sound in Chrome and in avconvert); every Kenney pack's own
   licence file was read, says CC0, and ships beside its pictures.
+- **Deployed 2026-11-27** to `https://edusim3dweb.com/stages/`, with the home page's `#stages` section and
+  `guide/stages.html`. `./smoke-test.sh --prod` passed 69 of 69, and the live app was driven in Chrome:
+  a project link, the model library, the service worker, no console errors. The work is on the `stages`
+  branch, not yet merged into `main`. The dry run caught one bug before it shipped: an unanchored rsync
+  exclude (`stages/`) also skipped `docs/assets/stages/`; it is `/stages/` now.
 - **Still open**: measuring on an i5/i7 Chromebook (on the development Mac 100 moving clones cost 103 draw
   calls and about 0.3 ms a frame); Scratch's exact timing rules and the 300-clone figure are from memory,
   not a source; WebCodecs on ChromeOS; importing Scratch projects; everything in section 9.
