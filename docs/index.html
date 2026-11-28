@@ -19,14 +19,14 @@
 <meta property="og:url" content="https://edusim3dweb.com/" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Edusim: Web Edition" />
-<meta property="og:title" content="Edusim: Web Edition — a 3D virtual world for curious minds" />
+<meta property="og:title" content="Edusim: Web Edition — a learning tool for curious minds" />
 <meta property="og:description" content="A research-based learning tool for kids. Build it out of shapes. Code it with blocks or Python-style code. Explore learning worlds — dinosaurs, the Moon, a cut-away volcano, the human body, the Colosseum and more. Free, in your browser, with no account." />
 <meta property="og:image" content="https://edusim3dweb.com/assets/edusim-social.jpg" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:image:alt" content="The word Edusim in chunky rounded amber letters with a cream outline, on a bright blue sky over a deep blue field, with the lines 'A 3D virtual world for curious minds' and 'Build it. Code it. Explore it.' beneath it." />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Edusim: Web Edition — a 3D virtual world for curious minds" />
+<meta name="twitter:title" content="Edusim: Web Edition — a learning tool for curious minds" />
 <meta name="twitter:description" content="Build it. Code it. Explore it. A free 3D sandbox in your browser — no download, no account, no ads." />
 <meta name="twitter:image" content="https://edusim3dweb.com/assets/edusim-social.jpg" />
 
@@ -59,70 +59,61 @@
      that matters more here than on an ordinary site, and privacy.html for the promise
      it keeps. Relative rather than root-absolute, because docs/ is ALSO published to
      GitHub Pages under a subdirectory, where a leading slash is a 404. -->
+<!-- First-party page counting: one POST to this site's own server, no cookies, no
+     identifiers, no third-party script. See docs/assets/edusim-analytics.js for why
+     that matters more here than on an ordinary site, and privacy.html for the promise
+     it keeps. Relative rather than root-absolute, because docs/ is ALSO published to
+     GitHub Pages under a subdirectory, where a leading slash is a 404. -->
 <script defer src="assets/edusim-analytics.js"></script>
 <script defer src="assets/edusim-feedback.js?v=20261128"></script>
 </head>
 <body>
 
-<a class="skip-link" href="#start">Skip to the good stuff</a>
-
 <!-- ======================================================================
-     THE PAGE, IN ORDER (the 2026-10 reorganisation)
+     THE PAGE, IN ORDER (the 2026-11 reorganisation, per Rich: built round the
+     five parts of Edusim, in the order the hero's cards give them)
 
-       hero        the book announcement, the wordmark, one launch button, the
-                   research claim
-       #start      "What do you want to do today?" -- six doors, one per reason a
-                   person arrives here. This is the page's own table of contents,
-                   and the answer to "where is the thing I came for".
-       #book       The Official Edusim Tutorial & Projects Book, free to read as a PDF
-       #worlds     eight featured worlds, topic shortcuts into the World Database
-       #hifi       the high-fidelity edition (the one dark band, straight after the
-                   worlds -- see CLAUDE.md)
-       #build      the Model Builder in four steps
-       #code       blocks and Python-style typed code side by side
-       #learn      tutorials, skill cards and the seven world guide cards
-       #more       the rest of the toolbox
-       #teachers   "Made for Learning": the wedge, the research card, the trade-off
+       hero        wordmark, "A learning tool for curious minds", the facts, FIVE
+                   numbered cards (#start): Edusim, Edusim Stages, Edusim HiFi,
+                   World Database, Model Database; the "I'm a..." chips; research
+       #edusim     1. Edusim, with Build (#build), Code (#code) and Make it yours
+                   (#more) as three TABS. An old #build/#code/#more link opens its tab.
+       #stages     2. Edusim Stages
+       #hifi       3. Edusim HiFi (the one dark band)
+       #worlds     4. World Database: the featured worlds and topic tiles
+       #models     5. Model Database: a shelf of models that spin on hover
+                   (assets/models/spin/), the fourteen types
+       then the sections for people, after a dark Learn / Teach / Find strip:
+       #learn      tutorials, skill cards, world guide cards (#tutorials alias)
+       #book       the book, free as a PDF (no banner over the wordmark, per Rich)
+       #teachers   "Made for Learning"
        #resources  EVERY resource on the site, sorted by who it is for
        #play       the last launch button
 
-     #tutorials still resolves (it is on the Learn section) so links shared before
-     this reorganisation keep landing somewhere sensible.
+     The numbers, colours and order of the cards, the nav and the sections agree:
+     a new part of Edusim joins all three.
      ====================================================================== -->
 
+<a class="skip-link" href="#start">Skip to the good stuff</a>
 <nav class="site-nav" aria-label="Main">
   <div class="wrap">
-    <!-- The name, set in the wordmark's own face rather than a cropped photo chip. The
-         mark image is gone from the bar; it still serves as the favicon and the
-         apple-touch-icon, where an icon genuinely has to be a picture. -->
     <a class="brand" href="#top">
       <span class="brand-word">Edusim
         <small>Web Edition</small>
       </span>
     </a>
-
-    <!-- Checkbox, list, button, label — in that DOM order, because the CSS drives both
-         the open panel and the burger's X animation off `.nav-toggle:checked ~ …`. -->
     <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Show or hide the menu" />
     <ul class="nav-links">
-      <li><a href="#worlds" style="--dot: var(--green);">Worlds</a></li>
-      <li><a href="#build" style="--dot: var(--orange);">Build &amp; Code</a></li>
-      <li><a href="#hifi" style="--dot: var(--wm-2);">HiFi</a></li>
-      <li><a href="#stages" style="--dot: var(--blue);">Stages</a></li>
-      <li><a href="#learn" style="--dot: var(--blue);">Learn</a></li>
-      <li><a href="#book" style="--dot: var(--orange);">Book</a></li>
+      <li><a class="nav-product" href="#edusim" style="--dot: var(--orange);">🚀 Edusim</a></li><li><a class="nav-product" href="#stages" style="--dot: var(--blue);">🎭 Stages</a></li><li><a class="nav-product" href="#hifi" style="--dot: var(--night);">✦ HiFi</a></li><li><a class="nav-product" href="#worlds" style="--dot: var(--green);">🌍 Worlds</a></li><li><a class="nav-product" href="#models" style="--dot: #2db2c4;">🧭 Models</a></li>
+      <li class="nav-sep" aria-hidden="true"></li>
+      <li><a href="#learn" style="--dot: var(--purple);">Learn</a></li>
       <li><a href="#teachers" style="--dot: var(--red);">Teachers</a></li>
-      <li><a href="research/index.html" style="--dot: var(--purple);">Research</a></li>
       <li><a href="#resources" style="--dot: var(--sun);">Resources</a></li>
     </ul>
-    <!-- "Edusim" is its own span so it can be dropped in the one narrow band where the
-         full label pushes the links onto a second line — see .nav-cta-word. The
-         wordmark is on the left of this same bar, so "▶ Launch" alone is unambiguous. -->
     <a class="btn btn-primary nav-cta" href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer"><span class="nav-cta-label">▶ Launch<span class="nav-cta-word"> Edusim</span></span></a>
     <label class="nav-burger" for="nav-toggle"><span class="burger-box" aria-hidden="true"></span>Menu</label>
   </div>
 </nav>
-
 <header class="hero" id="top">
   <!-- The sky. Everything in here is decoration: a sun, three clouds, two light orbs,
        and the four shapes every Edusim model is built from -- cube, sphere, cylinder and
@@ -142,16 +133,6 @@
   </div>
 
   <div class="wrap hero-inner">
-    <!-- The book, announced above the wordmark: the one thing on this page that is new
-         AND for sale, so it gets the announcement slot rather than a place in the row of
-         free things below. It jumps to #book on this page, not straight to Amazon -- a
-         visitor should see what the book is before being sent to a shop. -->
-    <a class="hero-book" href="#book">
-      <img src="assets/book/cover.jpg" width="720" height="1080" alt="" />
-      <span class="hb-new">New</span>
-      <span class="hb-text"><b>The Official Edusim Tutorial &amp; Projects Book</b> is out — free to read as a PDF</span>
-      <span class="hb-go" aria-hidden="true">→</span>
-    </a>
 
     <!-- The wordmark is TEXT, not a picture. It is one real text node: selectable,
          translatable, found by Ctrl-F, and it scales with the user's own font size.
@@ -160,14 +141,8 @@
          the old image's alt text carried. -->
     <h1 class="hero-logo">
       <span class="lockup"><span class="wordmark" data-text="Edusim">Edusim</span></span>
-      <span class="hero-tagline">A 3D virtual world for curious minds</span>
+      <span class="hero-tagline">A learning tool for curious minds</span>
     </h1>
-    <p class="hero-sub">
-      A free 3D world that runs right in your browser.
-      <strong class="t-build">Build</strong> things out of simple shapes.
-      <strong class="t-code">Code</strong> them with blocks or Python-style code.
-      <strong class="t-explore">Explore</strong> worlds made for learning.
-    </p>
     <ul class="hero-facts" aria-label="What it costs you">
       <li>🆓 Free</li>
       <li>⬇️ No download</li>
@@ -175,35 +150,71 @@
       <li>🚫 No ads</li>
       <li>💻 Works on Chromebooks</li>
     </ul>
-    <div class="hero-cta-row">
-      <a class="btn btn-primary btn-big" href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">▶ Launch Edusim — it's free</a>
-      <a class="btn btn-stages btn-big" href="https://edusim3dweb.com/stages/" target="_blank" rel="noopener noreferrer">🎭 Create an Edusim Stage</a>
-    </div>
 
-    <!-- The three databases, given the same weight as the launch button's neighbours
-         would have had: they are where every world and model lives, and "where do I find
-         more" is the second thing everyone asks. The two galleries are absolute with a trailing
-         slash, like every app link here, because docs/ is also published to GitHub Pages; the
-         Model Database's page is part of docs/, so its link is relative and stays in this tab.
-         The HiFi card says what kind of computer it is for -- the same honesty line #hifi
-         carries. The model card gives no count, because static HTML drifts and the table grows. -->
-    <div class="hero-dbs">
-      <a class="hero-db" href="https://edusim3dweb.com/worlds/" target="_blank" rel="noopener noreferrer">
-        <span class="hero-db-icon" aria-hidden="true">🌍</span>
-        <span class="hero-db-text"><b>World Database</b><small>Every Edusim world, ready to open — plus the ones classes share</small></span>
-        <span class="hero-db-go" aria-hidden="true">↗</span>
-      </a>
-      <a class="hero-db hero-db-hifi" href="https://edusim3dweb.com/hifiworlds/" target="_blank" rel="noopener noreferrer">
-        <span class="hero-db-icon" aria-hidden="true">✦</span>
-        <span class="hero-db-text"><b>HiFi World Database</b><small>High-fidelity worlds, for computers with a graphics card</small></span>
-        <span class="hero-db-go" aria-hidden="true">↗</span>
-      </a>
-      <a class="hero-db hero-db-models" href="guide/models.html">
-        <span class="hero-db-icon" aria-hidden="true">🧭</span>
-        <span class="hero-db-text"><b>Model Database</b><small>Hundreds of ready-made 3D models. Spin one, inspect it, place it in your world</small></span>
-        <span class="hero-db-go" aria-hidden="true">→</span>
-      </a>
+    <div class="pdoors" id="start" aria-label="The five parts of Edusim">
+      <article class="pcard" style="--c: var(--orange);">
+        <a class="pcard-pic" href="#edusim" tabindex="-1" aria-hidden="true"><img src="assets/screenshots/thumbs/world_park.jpg" alt="" loading="lazy" /></a>
+        <span class="pcard-num" aria-hidden="true">1</span>
+        <span class="pcard-icon" aria-hidden="true">🚀</span>
+        <h2 class="pcard-name"><a href="#edusim">Edusim</a></h2>
+        <p class="pcard-line">Build, code and explore in a 3D world</p>
+        <div class="pcard-actions">
+          <a class="pcard-go" href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">▶ Launch</a>
+          <a class="pcard-more" href="#edusim">More ↓</a>
+        </div>
+      </article>
+      <article class="pcard" style="--c: var(--blue);">
+        <a class="pcard-pic" href="#stages" tabindex="-1" aria-hidden="true"><img src="assets/stages/catch.jpg" alt="" loading="lazy" /></a>
+        <span class="pcard-num" aria-hidden="true">2</span>
+        <span class="pcard-icon" aria-hidden="true">🎭</span>
+        <h2 class="pcard-name"><a href="#stages">Edusim Stages</a></h2>
+        <p class="pcard-line">Make games, stories and animations in 2D</p>
+        <div class="pcard-actions">
+          <a class="pcard-go" href="https://edusim3dweb.com/stages/" target="_blank" rel="noopener noreferrer">▶ Create</a>
+          <a class="pcard-more" href="#stages">More ↓</a>
+        </div>
+      </article>
+      <article class="pcard pcard-dark" style="--c: var(--night);">
+        <a class="pcard-pic" href="#hifi" tabindex="-1" aria-hidden="true"><img src="assets/screenshots/hifi_moon.jpg" alt="" loading="lazy" /></a>
+        <span class="pcard-num" aria-hidden="true">3</span>
+        <span class="pcard-icon" aria-hidden="true">✦</span>
+        <h2 class="pcard-name"><a href="#hifi">Edusim HiFi</a></h2>
+        <p class="pcard-line">The worlds in high fidelity, for a graphics card</p>
+        <div class="pcard-actions">
+          <a class="pcard-go" href="https://edusim3dweb.com/hifi/" target="_blank" rel="noopener noreferrer">▶ Launch</a>
+          <a class="pcard-more" href="#hifi">More ↓</a>
+        </div>
+      </article>
+      <article class="pcard" style="--c: var(--green);">
+        <a class="pcard-pic pcard-mosaic" href="#worlds" tabindex="-1" aria-hidden="true"><img src="assets/screenshots/thumbs/world_dinosaur.jpg" alt="" loading="lazy" /><img src="assets/screenshots/thumbs/world_sea.jpg" alt="" loading="lazy" /><img src="assets/screenshots/thumbs/world_egypt.jpg" alt="" loading="lazy" /><img src="assets/screenshots/thumbs/world_chalk.jpg" alt="" loading="lazy" /></a>
+        <span class="pcard-num" aria-hidden="true">4</span>
+        <span class="pcard-icon" aria-hidden="true">🌍</span>
+        <h2 class="pcard-name"><a href="#worlds">World Database</a></h2>
+        <p class="pcard-line">Every world, ready to open in one click</p>
+        <div class="pcard-actions">
+          <a class="pcard-go" href="https://edusim3dweb.com/worlds/" target="_blank" rel="noopener noreferrer">Browse ↗</a>
+          <a class="pcard-more" href="#worlds">More ↓</a>
+        </div>
+      </article>
+      <article class="pcard" style="--c: #2db2c4;">
+        <a class="pcard-pic pcard-mosaic" href="#models" tabindex="-1" aria-hidden="true"><img src="assets/models/tyrannosaurus-rex.webp" alt="" loading="lazy" /><img src="assets/models/human-heart.webp" alt="" loading="lazy" /><img src="assets/models/taj-mahal.webp" alt="" loading="lazy" /><img src="assets/models/saturn-v.webp" alt="" loading="lazy" /></a>
+        <span class="pcard-num" aria-hidden="true">5</span>
+        <span class="pcard-icon" aria-hidden="true">🧭</span>
+        <h2 class="pcard-name"><a href="#models">Model Database</a></h2>
+        <p class="pcard-line">Hundreds of models to spin, inspect and place</p>
+        <div class="pcard-actions">
+          <a class="pcard-go" href="guide/models.html">Browse →</a>
+          <a class="pcard-more" href="#models">More ↓</a>
+        </div>
+      </article>
     </div>
+    <nav class="iam" aria-label="Jump to what you need">
+      <span>I'm a…</span>
+      <a href="#learn" style="--c: var(--purple);">🎒 Student</a>
+      <a href="#teachers" style="--c: var(--red);">🍎 Teacher</a>
+      <a href="#res-schools" style="--c: var(--green);">🏫 School or IT</a>
+      <a href="#res-research" style="--c: var(--sun);">🔬 Researcher</a>
+    </nav>
 
     <!-- The research claim, up front and clickable. The four measured effect sizes are
          the claim; the sentence is only a promise that a claim exists. Four figures and
@@ -221,28 +232,6 @@
       <span class="he-fig" style="--c: var(--blue);"><b>g&nbsp;=&nbsp;0.28</b><small>It transfers to maths<br />29 studies</small></span>
       <span class="he-fig" style="--c: var(--purple);"><b>+7.08</b><small>3D beats 2D in class<br />vs +1.76 controls</small></span>
     </a>
-  </div>
-
-  <!-- Proof before prose: four real screenshots straight out of the app, standing in
-       the meadow like postcards. Decorative -- every one of these worlds has its own
-       card, with a full description, further down. -->
-  <div class="wrap postcards" aria-hidden="true">
-    <figure class="postcard" style="--tilt: -5deg; --c: var(--green);">
-      <img src="assets/screenshots/thumbs/world_dinosaur.jpg" width="800" height="500" alt="" />
-      <figcaption>Dinosaur Island</figcaption>
-    </figure>
-    <figure class="postcard" style="--tilt: 3deg; --c: var(--purple);">
-      <img src="assets/screenshots/thumbs/world_chalk.jpg" width="800" height="500" alt="" />
-      <figcaption>Chalk Drawings</figcaption>
-    </figure>
-    <figure class="postcard" style="--tilt: -2deg; --c: var(--red);">
-      <img src="assets/screenshots/thumbs/world_neighborhood.jpg" width="800" height="500" alt="" />
-      <figcaption>The Neighborhood</figcaption>
-    </figure>
-    <figure class="postcard" style="--tilt: 5deg; --c: var(--blue);">
-      <img src="assets/screenshots/thumbs/world_sea.jpg" width="800" height="500" alt="" />
-      <figcaption>Under the Sea</figcaption>
-    </figure>
   </div>
 
   <!-- The meadow: the logo's own deep-blue poppy field, in three rolling layers, with
@@ -270,166 +259,371 @@
     <path fill="#fffdf7" d="M0 244 C 240 230 480 236 720 246 S 1200 254 1440 238 V260 H0 Z"/>
   </svg>
 </header>
-
 <main>
 
-  <!-- ============================ START: SIX DOORS ============================
-       The page's own table of contents, written as the six reasons people arrive.
-       A first-time visitor should be able to find the thing they came for without
-       scrolling past anything else -- and every door here goes straight to it. -->
-  <section class="band start" id="start">
+  <section class="band chapter-intro" id="edusim" style="--accent: var(--orange);">
     <div class="wrap">
       <div class="band-head reveal">
-        <span class="sticker" style="--c: var(--red);">⭐ Build it. Code it. Explore it.</span>
-        <h2>What do you want to do <span class="hl" style="--c: var(--sun);">today?</span></h2>
-        <p>Pick a door. Every one of them is free, and none of them asks you to sign up.</p>
+        <span class="chapter-num" style="--c: var(--orange);"><b>1</b>Edusim</span>
+        <h2>Build it. Code it. <span class="hl" style="--c: var(--orange);">Explore it.</span></h2>
+        <p>A free 3D world in your browser. Stretch simple shapes into anything, program it with blocks or
+          Python-style code, and walk into worlds made for learning.</p>
+        <p class="chapter-cta"><a class="btn btn-primary btn-big" href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">▶ Launch Edusim — it's free</a></p>
       </div>
-
-      <div class="door-grid reveal">
-        <a class="door" href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer" style="--c: var(--orange);">
-          <span class="door-icon" aria-hidden="true">🚀</span>
-          <span class="door-title">Jump right in</span>
-          <span class="door-text">Open Edusim and start exploring the Park. It loads in seconds.</span>
-          <span class="door-go">Launch Edusim ↗</span>
-        </a>
-        <a class="door" href="#worlds" style="--c: var(--green);">
-          <span class="door-icon" aria-hidden="true">🌍</span>
-          <span class="door-title">Visit a world</span>
-          <span class="door-text">Dinosaurs, the Moon, a volcano cut in half, the inside of your own body…</span>
-          <span class="door-go">Browse the worlds ↓</span>
-        </a>
-        <a class="door" href="#build" style="--c: var(--red);">
-          <span class="door-icon" aria-hidden="true">🔨</span>
-          <span class="door-title">Build a model</span>
-          <span class="door-text">Stretch, stack and snap simple shapes into anything you can picture.</span>
-          <span class="door-go">How building works ↓</span>
-        </a>
-        <a class="door" href="#code" style="--c: var(--purple);">
-          <span class="door-icon" aria-hidden="true">🧩</span>
-          <span class="door-title">Bring it to life</span>
-          <span class="door-text">Program anything with drag-and-drop blocks — or type it in Python-style code.</span>
-          <span class="door-go">How coding works ↓</span>
-        </a>
-        <a class="door" href="#learn" style="--c: var(--blue);">
-          <span class="door-icon" aria-hidden="true">📘</span>
-          <span class="door-title">Follow a tutorial</span>
-          <span class="door-text">Step-by-step projects and printable cards for every skill.</span>
-          <span class="door-go">Start learning ↓</span>
-        </a>
-        <a class="door" href="#teachers" style="--c: var(--sun);">
-          <span class="door-icon" aria-hidden="true">🍎</span>
-          <span class="door-title">Teach with Edusim</span>
-          <span class="door-text">Lesson plans, the research behind it, and the privacy answer.</span>
-          <span class="door-go">For teachers ↓</span>
-        </a>
+      <div class="tabs reveal" role="tablist" aria-label="What you can do in Edusim">
+        <button type="button" role="tab" id="tab-build" aria-controls="build" aria-selected="true" style="--c: var(--orange);">🧱 Build</button>
+        <button type="button" role="tab" id="tab-code" aria-controls="code" aria-selected="false" style="--c: var(--purple);">💻 Code</button>
+        <button type="button" role="tab" id="tab-more" aria-controls="more" aria-selected="false" style="--c: var(--red);">✨ Make it yours</button>
       </div>
-
-      <p class="start-more reveal">
-        🔎 Looking for something specific?
-        <a href="#resources">Every Edusim resource, in one place →</a>
-      </p>
     </div>
   </section>
-
-  <!-- ============================ THE BOOK ============================
-       The Official Edusim Tutorial & Projects Book, Vol. 1 -- the print book built in
-       book/ and sold through Amazon KDP. It sits straight after the six doors so it is
-       the first thing below the page's own table of contents.
-
-       Rules this block keeps:
-         * Every picture is rendered from the book's OWN sources (book/src/cover.html and
-           three real spreads), not mocked up, so nothing here can promise a page the
-           book does not have. Re-render them if the book is revised.
-         * Every book link opens the book's own PDF (assets/book/), per Rich, not the
-           Amazon listing. It is the KDP interior file, copied from book/dist/: re-copy it
-           whenever the book is rebuilt, or the site serves an old edition.
-         * No PRICE. A price written into static HTML is wrong the first time Amazon
-           changes it, and nothing will fail when it drifts. The ISBN cannot drift, and
-           it is what a school's purchasing office asks for.
-         * The app stays free, and the copy says so. A page whose hero says "Free" and
-           "No ads" must not make the book read as the price of admission. -->
-  <section class="band book" id="book">
+  <div class="tab-panels">
+<section role="tabpanel" aria-labelledby="tab-build" class="band build" id="build" style="--accent: var(--orange);">
     <div class="wrap">
-      <div class="book-feature reveal">
-        <div class="book-art">
-          <a class="book-cover" href="assets/book/The-Official-Edusim-Tutorial-and-Projects-Book-Vol-1.pdf" target="_blank" rel="noopener">
-            <img src="assets/book/cover.jpg" width="720" height="1080"
-                 alt="The book's front cover: the Edusim wordmark in chunky orange letters over a blue sky, the title The Official Edusim Tutorial &amp; Projects Book, a red Vol. 1 badge, and below it a green steam engine and carriage, a train station and a green turtle built from simple shapes on a grassy field." />
-          </a>
-          <span class="book-burst" aria-hidden="true">New!<small>Vol. 1</small></span>
-        </div>
+      <div class="band-head reveal">
+        <span class="sticker" style="--c: var(--orange);">🔨 Build</span>
+        <h2>Four shapes. <span class="hl" style="--c: var(--orange);">Endless models.</span></h2>
+        <p>
+          Open <strong>Menu → Create Model</strong> and drop a shape on the ground —
+          a cube, a sphere, a cylinder or a pyramid. A little <strong>🔨 hammer</strong>
+          floats over it. The hammer is the whole toolbox: click it and you can stretch
+          the piece, turn it, paint it, and join it to its neighbours.
+        </p>
+      </div>
 
-        <div class="book-copy">
-          <span class="sticker" style="--c: var(--red);">📗 New · Now in print</span>
-          <h2>The Official Edusim <span class="hl" style="--c: var(--orange);">Tutorial &amp; Projects Book</span></h2>
-          <p class="book-lede">
-            From your very first steps in the Park to a whole town you have built and
-            programmed yourself — <strong>112 full-colour pages</strong> of step-by-step
-            projects, with a real screenshot beside every step so you can match it on
-            screen.
-          </p>
-          <ul class="book-points">
-            <li style="--c: var(--orange);"><span aria-hidden="true">🚂</span> <span><strong>Build</strong> a steam train, a turtle and a whole train station out of four simple shapes.</span></li>
-            <li style="--c: var(--purple);"><span aria-hidden="true">🧩</span> <span><strong>Code</strong> them with blocks: a train that runs to a timetable, an animal that answers back, street lamps that come on at sunset.</span></li>
-            <li style="--c: var(--green);"><span aria-hidden="true">🦖</span> <span><strong>Explore</strong> Dinosaur Island, find the secret doors, and paint balloons that puff up into 3D.</span></li>
-            <li style="--c: var(--blue);"><span aria-hidden="true">🍎</span> <span>Skills checks, challenges and <strong>notes for teachers</strong> in every part.</span></li>
-          </ul>
-          <ol class="book-parts" aria-label="The four parts of the book">
-            <li style="--c: var(--blue);"><small>Part 1</small>Meet Edusim</li>
-            <li style="--c: var(--green);"><small>Part 2</small>First projects</li>
-            <li style="--c: var(--orange);"><small>Part 3</small>Build it</li>
-            <li style="--c: var(--purple);"><small>Part 4</small>Code it</li>
-          </ol>
-          <div class="book-cta">
-            <a class="btn btn-primary btn-big" href="assets/book/The-Official-Edusim-Tutorial-and-Projects-Book-Vol-1.pdf" target="_blank" rel="noopener">📖 Read the book (PDF, 25&nbsp;MB) ↗</a>
-            <a class="btn btn-ghost" href="#learn">Free tutorials online ↓</a>
+      <ol class="build-steps reveal">
+        <li class="build-step" style="--c: var(--orange);">
+          <div class="window">
+            <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>✥ Stretch to Shape</span></div>
+            <img src="assets/screenshots/thumbs/build_stretch.jpg" width="800" height="500" loading="lazy"
+                 alt="A yellow cube stretched tall, wrapped in a see-through blue box with pale handles on all eight corners. A sphere and a cylinder stand beside it, each with a hammer icon above." />
           </div>
-          <p class="book-fine">
-            Paperback · 112 pages · full colour · 15 chapters · ISBN&nbsp;9798160064970<br />
-            Edusim itself stays <strong>free</strong> — the book is a companion for
-            classrooms and kitchen tables, never the price of getting in.
+          <span class="step-num" aria-hidden="true">1</span>
+          <h3>Stretch it into shape</h3>
+          <p>Choose <strong>Stretch to Shape</strong> and drag a corner. A cube becomes a wall, a plank or a whole roof — and the opposite corner stays put, so nothing drifts.</p>
+          <p class="step-aside">🔄 <strong>Rotate/Move Shape</strong> adds rings for turning. Turns snap every 15°, so square corners are actually square.</p>
+        </li>
+        <li class="build-step" style="--c: var(--green);">
+          <div class="window">
+            <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>✥ Move</span></div>
+            <img src="assets/screenshots/thumbs/build_lift.jpg" width="800" height="500" loading="lazy"
+                 alt="One yellow sphere lifted on top of a larger one, wrapped in the see-through blue box, with a green ball on a short stem floating above it — the lift handle." />
+          </div>
+          <span class="step-num" aria-hidden="true">2</span>
+          <h3>Lift it into place</h3>
+          <p>Drag the <strong>green ball</strong> above the box to move a piece anywhere — up, down, sideways. That is how a head goes on a body and a roof goes on a house.</p>
+        </li>
+        <li class="build-step" style="--c: var(--blue);">
+          <div class="window">
+            <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>🔗 Nine pieces</span></div>
+            <img src="assets/screenshots/thumbs/build_painted.jpg" width="800" height="500" loading="lazy"
+                 alt="A robot built from nine separate sphere and cylinder pieces — a purple body of three overlapping balls, a purple head, two lime-green eye sensors and a black collar — each piece with an orange hammer icon floating over it." />
+          </div>
+          <span class="step-num" aria-hidden="true">3</span>
+          <h3>Join the pieces</h3>
+          <p><strong>Connect to Primitive</strong> lists only the pieces touching this one. Tap to join them, and paint each with <strong>Apply Texture</strong> — a colour, or a picture.</p>
+        </li>
+        <li class="build-step" style="--c: var(--purple);">
+          <div class="window">
+            <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>✨ One model</span></div>
+            <img src="assets/screenshots/thumbs/build_robot.jpg" width="800" height="500" loading="lazy"
+                 alt="The finished robot: a purple body of three overlapping spheres with a black chest panel, and a purple head carrying two lime-rimmed eye sensors with white spoked rings and black lenses." />
+          </div>
+          <span class="step-num" aria-hidden="true">4</span>
+          <h3>Press Render Model</h3>
+          <p>The hammers vanish and the pile of parts becomes <strong>one solid thing</strong> you can resize, program, save and copy.</p>
+          <p class="step-aside">🆕 <strong>Got your own 3D models?</strong> Import a <code>.glb</code> file and it gets the hammer too.</p>
+        </li>
+      </ol>
+
+      <div class="cta-row reveal">
+        <a class="btn btn-primary" href="guide/builder.html">📄 The Model Builder card</a>
+        <a class="btn btn-ghost" href="guide/tutorials.html">🛠️ Build-along projects →</a>
+      </div>
+    </div>
+  </section>
+<section hidden role="tabpanel" aria-labelledby="tab-code" class="band coding" id="code" style="--accent: var(--purple);">
+    <div class="wrap">
+      <div class="band-head reveal">
+        <span class="sticker" style="--c: var(--purple);">🧩 Code</span>
+        <h2>Two ways to write <span class="hl" style="--c: var(--purple);">the same program</span></h2>
+        <p>
+          Click anything in any world and press <strong>Program</strong>. Start with
+          drag-and-drop blocks. When you are ready, pick <strong>Basic Beginner</strong>,
+          and your blocks turn into Python-style code you can read and type. Switch back
+          any time. Nothing is ever lost.
+        </p>
+      </div>
+
+      <div class="lane-grid reveal">
+        <div class="code-lane" style="--c: var(--orange);">
+          <div class="lane-head">
+            <span class="lane-tag" style="background: var(--orange);">Block Code</span>
+            <h3>Snap blocks together</h3>
+          </div>
+          <div class="window">
+            <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>🧩 Program this object</span></div>
+            <img src="assets/screenshots/thumbs/07_program_editor.jpg" width="1200" height="750" loading="lazy"
+                 alt="The drag-and-drop block editor: a palette of orange Control, blue Motion and purple Look blocks on the left, and a program stack on the right." />
+          </div>
+          <p>
+            Blocks in four colours: <strong>Control</strong> (repeat, forever,
+            wait), <strong>Motion</strong> (move, glide, rotate), <strong>Looks</strong>
+            (say, size, colour) and <strong>Math</strong> (numbers you can name). If you
+            have met Scratch, you already know how this works.
+          </p>
+          <!-- The block colours are BlockDefs.js CATEGORIES, exactly: the orange chip
+               here is the orange block a student then drags. Do not retint. -->
+          <div class="code-blocks" aria-hidden="true">
+            <span class="cb ctrl">forever</span>
+            <span class="cb motion d1">move forward <b>10</b> feet</span>
+            <span class="cb motion d1">rotate <b>90</b> degrees</span>
+          </div>
+        </div>
+
+        <div class="code-lane" style="--c: #3fae5a;">
+          <div class="lane-head">
+            <span class="lane-tag" style="background: #3fae5a;">Python-style code</span>
+            <h3>Or type it</h3>
+          </div>
+          <!-- An HTML mock rather than a screenshot: it stays razor sharp at every size.
+               The colouring is the editor's own, produced by src/textcode/highlight.js
+               (command words take their block's colour), and the program compiles. -->
+          <div class="js-mock" aria-hidden="true">
+            <div class="jsm-bar">
+              <span class="jsm-dot" style="background:#e0453c"></span>
+              <span class="jsm-dot" style="background:#f2c14e"></span>
+              <span class="jsm-dot" style="background:#74c043"></span>
+              <span class="jsm-toggle"><span>Blocks</span><span class="on">Basic Beginner</span><span>Basic Pro</span></span>
+            </div>
+            <pre class="jsm-code"><span class="tc-c"># the same program, typed</span>
+<span class="tc-k" style="color:#ffab19">forever</span>
+    <span class="tc-k" style="color:#4c97ff">move</span> <span class="tc-k" style="color:#4c97ff">forward</span> <span class="tc-n">10</span> <span class="tc-k" style="color:#4c97ff">feet</span>
+    <span class="tc-k" style="color:#4c97ff">rotate</span> <span class="tc-n">90</span> <span class="tc-k" style="color:#4c97ff">degrees</span></pre>
+          </div>
+          <p>
+            The exact same program, typed. <strong>Basic Beginner</strong> reads just like
+            the blocks. <strong>Basic Pro</strong> adds the Python habits: text in quotes,
+            <code>=</code> and <code>==</code>. If a line has a problem, a card says what to
+            change, and <strong>Fix it</strong> can change it for you.
+          </p>
+          <p class="code-notes">
+            <strong>▶ Every programmed object gets a green play button</strong> floating
+            above it. Programs save with the world and start themselves the next time
+            you open it.
           </p>
         </div>
       </div>
 
-      <div class="book-inside reveal">
-        <h3>Take a look inside</h3>
-        <div class="spread-grid">
-          <figure class="spread" style="--c: var(--orange);">
-            <img src="assets/book/spread-build.jpg" width="1152" height="864" loading="lazy"
-                 alt="Pages 50 and 51, Chapter 9, Build a train: a picture of the finished green steam engine and blue carriage, and a parts list of twelve pieces for the engine and six for the carriage, with tips and a note for teachers." />
-            <figcaption><b>Build it</b> Chapter 9: a steam engine from twelve pieces</figcaption>
-          </figure>
-          <figure class="spread" style="--c: var(--purple);">
-            <img src="assets/book/spread-code.jpg" width="1152" height="864" loading="lazy"
-                 alt="Pages 92 and 93, Chapter 13, Make the train go: a block program that puts the marker pen down and repeats four times glide and rotate 90 degrees, and the red square the engine draws on the grass." />
-            <figcaption><b>Code it</b> Chapter 13: the train draws a square</figcaption>
-          </figure>
-          <figure class="spread" style="--c: var(--green);">
-            <img src="assets/book/spread-explore.jpg" width="1152" height="864" loading="lazy"
-                 alt="Pages 28 and 29: a Dinosaur Island scavenger hunt with four pictures to tick off — a Tyrannosaurus rex, a Triceratops, a nest and a fossil dig — and Secret doors, showing the Under the Sea sign behind the Park's nature centre and the coral reef it leads to." />
-            <figcaption><b>Explore it</b> Chapter 4: a dinosaur hunt and a secret door</figcaption>
-          </figure>
+      <div class="cta-row reveal">
+        <a class="btn btn-primary" href="guide/coding.html">📄 The Coding Blocks card</a>
+        <a class="btn btn-primary btn-violet" href="guide/text-coding.html">📄 The Typing Code card</a>
+        <a class="btn btn-ghost" href="https://edusim3dweb.com/app/?world=38" target="_blank" rel="noopener noreferrer">⚡ Play Python-Style Coding Basics →</a>
+      </div>
+    </div>
+  </section>
+<section hidden role="tabpanel" aria-labelledby="tab-more" class="band more" id="more">
+    <div class="wrap">
+      <div class="band-head reveal">
+        <span class="sticker" style="--c: var(--blue);">🧰 Also in the box</span>
+        <h2>More ways to make a world <span class="hl" style="--c: var(--red);">yours</span></h2>
+      </div>
+      <div class="toy-grid reveal">
+        <div class="toy" style="--c: var(--red);">
+          <span class="toy-icon" aria-hidden="true">🎨</span>
+          <h3>Draw, and it inflates</h3>
+          <p>Paint a flat shape on the drawing pad and it puffs up into a 3D balloon.</p>
+        </div>
+        <div class="toy" style="--c: var(--orange);">
+          <span class="toy-icon" aria-hidden="true">🖊️</span>
+          <h3>A 3D marker pen</h3>
+          <p>Four blocks put a pen on any object, so it draws a glowing line wherever it goes.</p>
+        </div>
+        <div class="toy" style="--c: var(--sun);">
+          <span class="toy-icon" aria-hidden="true">💡</span>
+          <h3>Light orbs</h3>
+          <p>Drop real lights anywhere — and program their colours.</p>
+        </div>
+        <div class="toy" style="--c: var(--green);">
+          <span class="toy-icon" aria-hidden="true">🖥️</span>
+          <h3>Web panels in-world</h3>
+          <p>Hang a live web page or a YouTube video on any wall.</p>
+        </div>
+        <div class="toy" style="--c: var(--blue);">
+          <span class="toy-icon" aria-hidden="true">🥽</span>
+          <h3>VR view</h3>
+          <p>One menu click splits the screen for a headset or a phone viewer. Esc comes back.</p>
+        </div>
+        <div class="toy" style="--c: var(--purple);">
+          <span class="toy-icon" aria-hidden="true">💾</span>
+          <h3>Save it. Share it.</h3>
+          <p>Your world saves itself as you go. Export it as one small file and hand it to a friend.</p>
         </div>
       </div>
     </div>
   </section>
-
-  <!-- ============================ WORLDS ============================
-       A TASTE, not the catalogue. Eight featured worlds, picked for range -- a place to
-       start, a story, a coding course, earth science, nature, space, history and the human
-       body -- then six topic shortcuts into the World Database, which is where every world
-       lives. The landing page used to carry a card for every published world, and at
-       thirty-eight of them the worlds section alone was longer than the rest of the page.
-
-       Rules the cards still keep (see CLAUDE.md):
-         * The card -> gallery id map is keyed by TITLE, not position.
-         * `.world-open` link text is the world's own name.
-         * The topic tiles link to the gallery's own ?tag= views, so they can never list a
-           world the gallery does not have. -->
-  <section class="band worlds" id="worlds" style="--accent: var(--green);">
+  </div>
+<section class="band stages-section" id="stages" style="--accent: var(--blue);">
     <div class="wrap">
       <div class="band-head reveal">
+        <span class="chapter-num" style="--c: var(--blue);"><b>2</b>Edusim Stages</span>
+        
+        <span class="sticker" style="--c: var(--blue);">🎭 New · Edusim Stages</span>
+        <h2>Make <span class="hl" style="--c: var(--blue);">games, stories and animations</span></h2>
+        <p><strong>Edusim Stages</strong> is a stage, sprites, backdrops and blocks, laid out the way anyone who has used Scratch will
+          recognise. Then it does the Edusim things: any of the Model Database's 3D models becomes a sprite you can turn round, Edusim's
+          worlds become backdrops, every script can be read and written as text, and every project can be saved as a video.
+          And when it is ready, <strong>🌍 Convert to 3D World</strong> stands it up in Edusim, still running, for you to walk
+          into and play in 3D.</p>
+      </div>
+
+      <div class="world-grid reveal">
+        <article class="world-card" style="--accent: var(--blue);">
+          <div class="world-shot">
+            <img src="assets/stages/catch.jpg" width="640" height="480" loading="lazy" alt="A green hero at the bottom of a hilly scene catching gold coins that fall from a blue sky with clouds" />
+            <span class="world-pin">🪙</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">A game</span>
+            <h3>Catch the Coins</h3>
+            <p>Arrow keys, falling clones, a score and a 30-second timer. Open it, play it, then change how fast the coins fall.</p>
+            <a class="world-open" href="https://edusim3dweb.com/stages/?project=catch"
+               target="_blank" rel="noopener noreferrer">Catch the Coins <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </article>
+        <article class="world-card" style="--accent: var(--blue);">
+          <div class="world-shot">
+            <img src="assets/stages/moon-trip.jpg" width="640" height="480" loading="lazy" alt="Riley and Robo the robot cheering on the grey lunar surface beside a spaceship, with the Earth in the black sky and a caption reading and landed on the Moon" />
+            <span class="world-pin">🚀</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">A story</span>
+            <h3>A Trip to the Moon</h3>
+            <p>Riley and Robo fly from the Park to the Moon, two of Edusim's own worlds, told with captions and conversation.</p>
+            <a class="world-open" href="https://edusim3dweb.com/stages/?project=moon-trip"
+               target="_blank" rel="noopener noreferrer">A Trip to the Moon <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </article>
+        <article class="world-card" style="--accent: var(--blue);">
+          <div class="world-shot">
+            <img src="assets/stages/heart.jpg" width="640" height="480" loading="lazy" alt="A 3D model of a human heart on a stand against a starry night sky, with a caption about its four chambers" />
+            <span class="world-pin">🫀</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">An Edusim model</span>
+            <h3>The Beating Heart</h3>
+            <p>The Model Database's human heart as a sprite: twelve costumes from twelve sides, a heartbeat, and the facts as captions.</p>
+            <a class="world-open" href="https://edusim3dweb.com/stages/?project=heart"
+               target="_blank" rel="noopener noreferrer">The Beating Heart <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </article>
+        <article class="world-card" style="--accent: var(--blue);">
+          <div class="world-shot">
+            <img src="assets/stages/patterns.jpg" width="640" height="480" loading="lazy" alt="A rainbow circle of overlapping five-pointed stars drawn with thin lines on a dark background" />
+            <span class="world-pin">✨</span>
+          </div>
+          <div class="world-body">
+            <span class="world-kicker">Art with the pen</span>
+            <h3>Star Patterns</h3>
+            <p>One star drawn 36 times, turning ten degrees and shifting colour each time. Seven blocks make the whole thing.</p>
+            <a class="world-open" href="https://edusim3dweb.com/stages/?project=patterns"
+               target="_blank" rel="noopener noreferrer">Star Patterns <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </article>
+      </div>
+
+      <div class="cta-row reveal">
+        <a class="btn btn-primary" href="https://edusim3dweb.com/stages/" target="_blank" rel="noopener noreferrer">🎭 Launch Edusim Stages</a>
+        <a class="btn btn-ghost" href="guide/stages.html">📘 Projects and tutorials</a>
+      </div>
+    </div>
+  </section>
+<section class="band hifi-section" id="hifi">
+    <div class="stars" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="band-head reveal">
+        <span class="chapter-num" style="--c: var(--wm-2);"><b>3</b>Edusim HiFi</span>
+        
+        <span class="sticker hifi-eyebrow">✦ New · Edusim HiFi</span>
+        <h2>The same worlds, in <span class="hl hl-gold">high fidelity</span></h2>
+        <p><strong>Edusim HiFi</strong> is built for higher-end computers and a richer visual experience: a living sky that lights
+          everything under it, real shadows, grass and ferns you walk through, photographic stone, timber and metal, and
+          models rebuilt in far finer detail. Everything else is the Edusim you know — every world, the block and
+          Python-style coding, Create Model, Draw, saving and sharing.</p>
+      </div>
+
+      <ul class="hifi-points reveal" aria-label="What Edusim HiFi adds">
+        <li><span aria-hidden="true">🌤️</span> A real sky, from noon to starlight</li>
+        <li><span aria-hidden="true">🌿</span> Grass, ferns and trees in leaf</li>
+        <li><span aria-hidden="true">🪨</span> Photographic stone, wood and metal</li>
+        <li><span aria-hidden="true">🌗</span> Soft shadows and lamps that come on at dusk</li>
+      </ul>
+
+      <div class="hifi-grid reveal">
+        <article class="hifi-card">
+          <div class="hifi-shot"><img src="assets/screenshots/hifi_moon.jpg" width="1600" height="1000" loading="lazy" alt="The Apollo lunar module on the Moon, wrapped in gold foil, with the flag, the rover and the Earth in a black sky" /></div>
+          <div class="hifi-body">
+            <h3>The Moon</h3>
+            <p>Gold-foil lander, a rover with mesh wheels, fractured boulders under a hard sun — and the Earth hanging in a black sky.</p>
+            <a class="hifi-open" href="https://edusim3dweb.com/hifi/?hifiworld=4" target="_blank" rel="noopener noreferrer">▶ The Moon in HiFi</a>
+          </div>
+        </article>
+        <article class="hifi-card">
+          <div class="hifi-shot"><img src="assets/screenshots/hifi_mars.jpg" width="1600" height="1000" loading="lazy" alt="A glass habitation dome and its airlock on a red Martian plain scattered with rocks" /></div>
+          <div class="hifi-body">
+            <h3>On Mars</h3>
+            <p>A glazed dome you can walk into, a rover, a lander and a drill rig, on a dusty plain littered with real stones.</p>
+            <a class="hifi-open" href="https://edusim3dweb.com/hifi/?hifiworld=5" target="_blank" rel="noopener noreferrer">▶ On Mars in HiFi</a>
+          </div>
+        </article>
+        <article class="hifi-card">
+          <div class="hifi-shot"><img src="assets/screenshots/hifi_dinosaur.jpg" width="1600" height="1000" loading="lazy" alt="Tree ferns, a ginkgo and araucaria trees over a forest floor of ferns" /></div>
+          <div class="hifi-body">
+            <h3>Dinosaur Island</h3>
+            <p>Cretaceous plants modelled as the plants they were: tree ferns, cycads, ginkgos and araucarias over a floor of ferns.</p>
+            <a class="hifi-open" href="https://edusim3dweb.com/hifi/?hifiworld=6" target="_blank" rel="noopener noreferrer">▶ Dinosaur Island in HiFi</a>
+          </div>
+        </article>
+        <article class="hifi-card">
+          <div class="hifi-shot"><img src="assets/screenshots/hifi_park.jpg" width="1600" height="1000" loading="lazy" alt="A stone park gate with a wrought-iron arch, cherry trees in blossom behind it" /></div>
+          <div class="hifi-body">
+            <h3>The Park</h3>
+            <p>Stone, iron and timber you can read the grain of, trees in leaf and blossom, and grass that parts as you walk.</p>
+            <a class="hifi-open" href="https://edusim3dweb.com/hifi/?hifiworld=1" target="_blank" rel="noopener noreferrer">▶ The Park in HiFi</a>
+          </div>
+        </article>
+        <article class="hifi-card">
+          <div class="hifi-shot"><img src="assets/screenshots/hifi_machupicchu.jpg" width="1600" height="1000" loading="lazy" alt="Inca stone houses among golden tussock grass with snow-capped Andean peaks behind" /></div>
+          <div class="hifi-body">
+            <h3>Machu Picchu</h3>
+            <p>Golden puna grass, red-barked polylepis trees and cloud-wrapped peaks around the stonework.</p>
+            <a class="hifi-open" href="https://edusim3dweb.com/hifi/?hifiworld=21" target="_blank" rel="noopener noreferrer">▶ Machu Picchu in HiFi</a>
+          </div>
+        </article>
+        <article class="hifi-card">
+          <div class="hifi-shot"><img src="assets/screenshots/hifi_neighborhood.jpg" width="1600" height="1000" loading="lazy" alt="A small-town main street with painted houses, street trees in autumn colour and a trolley" /></div>
+          <div class="hifi-body">
+            <h3>The Neighborhood</h3>
+            <p>A model town in autumn colour: street trees in green, amber and gold, clipped hedges, lit windows and a trolley on Main Street.</p>
+            <a class="hifi-open" href="https://edusim3dweb.com/hifi/?hifiworld=40" target="_blank" rel="noopener noreferrer">▶ The Neighborhood in HiFi</a>
+          </div>
+        </article>
+      </div>
+
+      <div class="cta-row reveal">
+        <a class="btn btn-primary" href="https://edusim3dweb.com/hifi/" target="_blank" rel="noopener noreferrer">✦ Launch Edusim HiFi</a>
+        <a class="btn btn-ghost hifi-ghost" href="https://edusim3dweb.com/hifiworlds/" target="_blank" rel="noopener noreferrer">🌍 Browse the HiFi Worlds Database</a>
+      </div>
+      <p class="hifi-note reveal">Best on a recent desktop or laptop with a dedicated graphics card. On a Chromebook or an older machine,
+        <a href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">the standard Edusim</a> is the one to use —
+        it has all the same worlds and tools, and a world saved in either edition opens in the other.</p>
+    </div>
+  </section>
+<section class="band worlds" id="worlds" style="--accent: var(--green);">
+    <div class="wrap">
+      <div class="band-head reveal">
+        <span class="chapter-num" style="--c: var(--green);"><b>4</b>World Database</span>
+        
         <span class="sticker" style="--c: var(--green);">🗺️ Explore</span>
         <h2>Worlds, ready to <span class="hl" style="--c: var(--green);">walk into</span></h2>
         <p>
@@ -581,336 +775,33 @@
     </div>
   </section>
 
-  <!-- ============================ EDUSIM HIFI ============================
-       The high-fidelity edition. It sits straight after the worlds because that is the
-       question a reader has just been given an answer to -- "what can I walk into?" -- and
-       this is the same answer at a higher setting.
-
-       Three things about this block, all the rules the worlds section already keeps:
-         * Links are ABSOLUTE with a trailing slash (https://edusim3dweb.com/hifi/): these
-           files are also published to GitHub Pages, where a relative hifi/ is a dead end.
-         * Each card opens its world by ?hifiworld=<id>, the HiFi gallery's OWN ids -- they
-           are not the main gallery's. The map is keyed by title: Park 1, Moon 4, Mars 5,
-           Dinosaur Island 6, Machu Picchu 21, The Neighborhood 40.
-         * Link text names the world. Six identical "open this" links is what a screen
-           reader reads out six times.
-       The honesty line matters as much here as in the research section: HiFi is for a
-       capable computer, and saying so up front is kinder than a student on a Chromebook
-       finding out from a slideshow. The standard edition is one click away in the same row. -->
-  <section class="band hifi-section" id="hifi">
-    <div class="stars" aria-hidden="true"></div>
+  <section class="band models-section" id="models" style="--accent: #2db2c4;">
     <div class="wrap">
       <div class="band-head reveal">
-        <span class="sticker hifi-eyebrow">✦ New · Edusim HiFi</span>
-        <h2>The same worlds, in <span class="hl hl-gold">high fidelity</span></h2>
-        <p><strong>Edusim HiFi</strong> is built for higher-end computers and a richer visual experience: a living sky that lights
-          everything under it, real shadows, grass and ferns you walk through, photographic stone, timber and metal, and
-          models rebuilt in far finer detail. Everything else is the Edusim you know — every world, the block and
-          Python-style coding, Create Model, Draw, saving and sharing.</p>
+        <span class="chapter-num" style="--c: #2db2c4;"><b>5</b>Model Database</span>
+        <h2>Spin it. Read it. <span class="hl" style="--c: #2db2c4;">Place it.</span></h2>
+        <p>A beating heart, a T. rex, the Taj Mahal, a whole city on a table. Search, spin one round,
+          read its card, and drop it into your world with one click. Point at one to spin it.</p>
       </div>
-
-      <ul class="hifi-points reveal" aria-label="What Edusim HiFi adds">
-        <li><span aria-hidden="true">🌤️</span> A real sky, from noon to starlight</li>
-        <li><span aria-hidden="true">🌿</span> Grass, ferns and trees in leaf</li>
-        <li><span aria-hidden="true">🪨</span> Photographic stone, wood and metal</li>
-        <li><span aria-hidden="true">🌗</span> Soft shadows and lamps that come on at dusk</li>
-      </ul>
-
-      <div class="hifi-grid reveal">
-        <article class="hifi-card">
-          <div class="hifi-shot"><img src="assets/screenshots/hifi_moon.jpg" width="1600" height="1000" loading="lazy" alt="The Apollo lunar module on the Moon, wrapped in gold foil, with the flag, the rover and the Earth in a black sky" /></div>
-          <div class="hifi-body">
-            <h3>The Moon</h3>
-            <p>Gold-foil lander, a rover with mesh wheels, fractured boulders under a hard sun — and the Earth hanging in a black sky.</p>
-            <a class="hifi-open" href="https://edusim3dweb.com/hifi/?hifiworld=4" target="_blank" rel="noopener noreferrer">▶ The Moon in HiFi</a>
-          </div>
-        </article>
-        <article class="hifi-card">
-          <div class="hifi-shot"><img src="assets/screenshots/hifi_mars.jpg" width="1600" height="1000" loading="lazy" alt="A glass habitation dome and its airlock on a red Martian plain scattered with rocks" /></div>
-          <div class="hifi-body">
-            <h3>On Mars</h3>
-            <p>A glazed dome you can walk into, a rover, a lander and a drill rig, on a dusty plain littered with real stones.</p>
-            <a class="hifi-open" href="https://edusim3dweb.com/hifi/?hifiworld=5" target="_blank" rel="noopener noreferrer">▶ On Mars in HiFi</a>
-          </div>
-        </article>
-        <article class="hifi-card">
-          <div class="hifi-shot"><img src="assets/screenshots/hifi_dinosaur.jpg" width="1600" height="1000" loading="lazy" alt="Tree ferns, a ginkgo and araucaria trees over a forest floor of ferns" /></div>
-          <div class="hifi-body">
-            <h3>Dinosaur Island</h3>
-            <p>Cretaceous plants modelled as the plants they were: tree ferns, cycads, ginkgos and araucarias over a floor of ferns.</p>
-            <a class="hifi-open" href="https://edusim3dweb.com/hifi/?hifiworld=6" target="_blank" rel="noopener noreferrer">▶ Dinosaur Island in HiFi</a>
-          </div>
-        </article>
-        <article class="hifi-card">
-          <div class="hifi-shot"><img src="assets/screenshots/hifi_park.jpg" width="1600" height="1000" loading="lazy" alt="A stone park gate with a wrought-iron arch, cherry trees in blossom behind it" /></div>
-          <div class="hifi-body">
-            <h3>The Park</h3>
-            <p>Stone, iron and timber you can read the grain of, trees in leaf and blossom, and grass that parts as you walk.</p>
-            <a class="hifi-open" href="https://edusim3dweb.com/hifi/?hifiworld=1" target="_blank" rel="noopener noreferrer">▶ The Park in HiFi</a>
-          </div>
-        </article>
-        <article class="hifi-card">
-          <div class="hifi-shot"><img src="assets/screenshots/hifi_machupicchu.jpg" width="1600" height="1000" loading="lazy" alt="Inca stone houses among golden tussock grass with snow-capped Andean peaks behind" /></div>
-          <div class="hifi-body">
-            <h3>Machu Picchu</h3>
-            <p>Golden puna grass, red-barked polylepis trees and cloud-wrapped peaks around the stonework.</p>
-            <a class="hifi-open" href="https://edusim3dweb.com/hifi/?hifiworld=21" target="_blank" rel="noopener noreferrer">▶ Machu Picchu in HiFi</a>
-          </div>
-        </article>
-        <article class="hifi-card">
-          <div class="hifi-shot"><img src="assets/screenshots/hifi_neighborhood.jpg" width="1600" height="1000" loading="lazy" alt="A small-town main street with painted houses, street trees in autumn colour and a trolley" /></div>
-          <div class="hifi-body">
-            <h3>The Neighborhood</h3>
-            <p>A model town in autumn colour: street trees in green, amber and gold, clipped hedges, lit windows and a trolley on Main Street.</p>
-            <a class="hifi-open" href="https://edusim3dweb.com/hifi/?hifiworld=40" target="_blank" rel="noopener noreferrer">▶ The Neighborhood in HiFi</a>
-          </div>
-        </article>
+      <div class="shelf reveal">
+        <a class="shelf-item" href="guide/models.html#model-human-heart" style="--spin: url(assets/models/spin/human-heart.webp);"><span class="shelf-pic"><img src="assets/models/human-heart.webp" alt="" loading="lazy" width="360" height="360" /><span class="shelf-spin" aria-hidden="true"></span></span><b>Human Heart</b><small>Human Body</small></a><a class="shelf-item" href="guide/models.html#model-tyrannosaurus-rex" style="--spin: url(assets/models/spin/tyrannosaurus-rex.webp);"><span class="shelf-pic"><img src="assets/models/tyrannosaurus-rex.webp" alt="" loading="lazy" width="360" height="360" /><span class="shelf-spin" aria-hidden="true"></span></span><b>Tyrannosaurus rex</b><small>Plants & Animals</small></a><a class="shelf-item" href="guide/models.html#model-saturn-v" style="--spin: url(assets/models/spin/saturn-v.webp);"><span class="shelf-pic"><img src="assets/models/saturn-v.webp" alt="" loading="lazy" width="360" height="360" /><span class="shelf-spin" aria-hidden="true"></span></span><b>Saturn V Rocket</b><small>Earth & Space</small></a><a class="shelf-item" href="guide/models.html#model-cutaway-volcano" style="--spin: url(assets/models/spin/cutaway-volcano.webp);"><span class="shelf-pic"><img src="assets/models/cutaway-volcano.webp" alt="" loading="lazy" width="360" height="360" /><span class="shelf-spin" aria-hidden="true"></span></span><b>Cutaway Volcano</b><small>Earth & Space</small></a><a class="shelf-item" href="guide/models.html#model-taj-mahal" style="--spin: url(assets/models/spin/taj-mahal.webp);"><span class="shelf-pic"><img src="assets/models/taj-mahal.webp" alt="" loading="lazy" width="360" height="360" /><span class="shelf-spin" aria-hidden="true"></span></span><b>Taj Mahal</b><small>Landmarks</small></a><a class="shelf-item" href="guide/models.html#model-animal-cell" style="--spin: url(assets/models/spin/animal-cell.webp);"><span class="shelf-pic"><img src="assets/models/animal-cell.webp" alt="" loading="lazy" width="360" height="360" /><span class="shelf-spin" aria-hidden="true"></span></span><b>Animal Cell</b><small>Human Body</small></a><a class="shelf-item" href="guide/models.html#model-solar-system-orrery" style="--spin: url(assets/models/spin/solar-system-orrery.webp);"><span class="shelf-pic"><img src="assets/models/solar-system-orrery.webp" alt="" loading="lazy" width="360" height="360" /><span class="shelf-spin" aria-hidden="true"></span></span><b>Solar System Orrery</b><small>Earth & Space</small></a><a class="shelf-item" href="guide/models.html#model-dna-helix" style="--spin: url(assets/models/spin/dna-helix.webp);"><span class="shelf-pic"><img src="assets/models/dna-helix.webp" alt="" loading="lazy" width="360" height="360" /><span class="shelf-spin" aria-hidden="true"></span></span><b>DNA Double Helix</b><small>Human Body</small></a><a class="shelf-item" href="guide/models.html#model-venice-diorama" style="--spin: url(assets/models/spin/venice-diorama.webp);"><span class="shelf-pic"><img src="assets/models/venice-diorama.webp" alt="" loading="lazy" width="360" height="360" /><span class="shelf-spin" aria-hidden="true"></span></span><b>Venice</b><small>City Dioramas</small></a><a class="shelf-item" href="guide/models.html#model-grand-canyon" style="--spin: url(assets/models/spin/grand-canyon.webp);"><span class="shelf-pic"><img src="assets/models/grand-canyon.webp" alt="" loading="lazy" width="360" height="360" /><span class="shelf-spin" aria-hidden="true"></span></span><b>The Grand Canyon</b><small>World Geography</small></a><a class="shelf-item" href="guide/models.html#model-grain-windmill" style="--spin: url(assets/models/spin/grain-windmill.webp);"><span class="shelf-pic"><img src="assets/models/grain-windmill.webp" alt="" loading="lazy" width="360" height="360" /><span class="shelf-spin" aria-hidden="true"></span></span><b>Grain Windmill</b><small>Build a Village</small></a><a class="shelf-item" href="guide/models.html#model-maglev-train" style="--spin: url(assets/models/spin/maglev-train.webp);"><span class="shelf-pic"><img src="assets/models/maglev-train.webp" alt="" loading="lazy" width="360" height="360" /><span class="shelf-spin" aria-hidden="true"></span></span><b>Maglev Train</b><small>Build a Future City</small></a>
       </div>
-
-      <div class="cta-row reveal">
-        <a class="btn btn-primary" href="https://edusim3dweb.com/hifi/" target="_blank" rel="noopener noreferrer">✦ Launch Edusim HiFi</a>
-        <a class="btn btn-ghost hifi-ghost" href="https://edusim3dweb.com/hifiworlds/" target="_blank" rel="noopener noreferrer">🌍 Browse the HiFi Worlds Database</a>
+      <div class="type-chips reveal" aria-label="The model types">
+        <a href="guide/models.html" style="--c: #e4577a;">🫀 Human Body</a><a href="guide/models.html" style="--c: #5fae57;">🦖 Plants & Animals</a><a href="guide/models.html" style="--c: #5c8dea;">🪐 Earth & Space</a><a href="guide/models.html" style="--c: #9c6ade;">⚛️ Chemistry & Physics</a><a href="guide/models.html" style="--c: #2aa58f;">📐 Math & Geometry</a><a href="guide/models.html" style="--c: #e39a33;">⚙️ Inventions & Transport</a><a href="guide/models.html" style="--c: #2f9fb0;">🗺️ World Geography</a><a href="guide/models.html" style="--c: #4f7fc4;">🏙️ City Dioramas</a><a href="guide/models.html" style="--c: #c9a24d;">🏛️ Landmarks</a><a href="guide/models.html" style="--c: #b9734a;">🏺 History & Artifacts</a><a href="guide/models.html" style="--c: #d35fb7;">🎻 Arts & Music</a><a href="guide/models.html" style="--c: #c8763b;">🏡 Build a Village</a><a href="guide/models.html" style="--c: #4a6fd8;">🚦 Build a City</a><a href="guide/models.html" style="--c: #b44fe0;">🚀 Build a Future City</a>
       </div>
-      <p class="hifi-note reveal">Best on a recent desktop or laptop with a dedicated graphics card. On a Chromebook or an older machine,
-        <a href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">the standard Edusim</a> is the one to use —
-        it has all the same worlds and tools, and a world saved in either edition opens in the other.</p>
+      <p class="cta-row reveal" style="justify-content: center;">
+        <a class="btn btn-big" style="background: #2db2c4; color: var(--ink);" href="guide/models.html">🧭 Open the Model Database →</a>
+        <a class="btn btn-ghost btn-big" href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">Place one in Edusim ↗</a>
+      </p>
     </div>
   </section>
 
-  <!-- ============================ STAGES ============================
-       Edusim Stages (/stages/), the sibling app for games, stories and animations. Each card opens
-       an official project by id (?project=<id>), which the app builds from its own table, so these
-       ids are Stages/src/templates/index.js's GALLERY ids. Pictures are copied from Stages' own
-       renders by tools/build-stages-page.mjs. Links are absolute with a trailing slash, as
-       everywhere in docs/. -->
-  <section class="band stages-section" id="stages" style="--accent: var(--blue);">
+  <div class="people-break" role="presentation">
     <div class="wrap">
-      <div class="band-head reveal">
-        <span class="sticker" style="--c: var(--blue);">🎭 New · Edusim Stages</span>
-        <h2>Make <span class="hl" style="--c: var(--blue);">games, stories and animations</span></h2>
-        <p><strong>Edusim Stages</strong> is a stage, sprites, backdrops and blocks, laid out the way anyone who has used Scratch will
-          recognise. Then it does the Edusim things: any of the Model Database's 3D models becomes a sprite you can turn round, Edusim's
-          worlds become backdrops, every script can be read and written as text, and every project can be saved as a video.
-          And when it is ready, <strong>🌍 Convert to 3D World</strong> stands it up in Edusim, still running, for you to walk
-          into and play in 3D.</p>
-      </div>
-
-      <div class="world-grid reveal">
-        <article class="world-card" style="--accent: var(--blue);">
-          <div class="world-shot">
-            <img src="assets/stages/catch.jpg" width="640" height="480" loading="lazy" alt="A green hero at the bottom of a hilly scene catching gold coins that fall from a blue sky with clouds" />
-            <span class="world-pin">🪙</span>
-          </div>
-          <div class="world-body">
-            <span class="world-kicker">A game</span>
-            <h3>Catch the Coins</h3>
-            <p>Arrow keys, falling clones, a score and a 30-second timer. Open it, play it, then change how fast the coins fall.</p>
-            <a class="world-open" href="https://edusim3dweb.com/stages/?project=catch"
-               target="_blank" rel="noopener noreferrer">Catch the Coins <span aria-hidden="true">&rarr;</span></a>
-          </div>
-        </article>
-        <article class="world-card" style="--accent: var(--blue);">
-          <div class="world-shot">
-            <img src="assets/stages/moon-trip.jpg" width="640" height="480" loading="lazy" alt="Riley and Robo the robot cheering on the grey lunar surface beside a spaceship, with the Earth in the black sky and a caption reading and landed on the Moon" />
-            <span class="world-pin">🚀</span>
-          </div>
-          <div class="world-body">
-            <span class="world-kicker">A story</span>
-            <h3>A Trip to the Moon</h3>
-            <p>Riley and Robo fly from the Park to the Moon, two of Edusim's own worlds, told with captions and conversation.</p>
-            <a class="world-open" href="https://edusim3dweb.com/stages/?project=moon-trip"
-               target="_blank" rel="noopener noreferrer">A Trip to the Moon <span aria-hidden="true">&rarr;</span></a>
-          </div>
-        </article>
-        <article class="world-card" style="--accent: var(--blue);">
-          <div class="world-shot">
-            <img src="assets/stages/heart.jpg" width="640" height="480" loading="lazy" alt="A 3D model of a human heart on a stand against a starry night sky, with a caption about its four chambers" />
-            <span class="world-pin">🫀</span>
-          </div>
-          <div class="world-body">
-            <span class="world-kicker">An Edusim model</span>
-            <h3>The Beating Heart</h3>
-            <p>The Model Database's human heart as a sprite: twelve costumes from twelve sides, a heartbeat, and the facts as captions.</p>
-            <a class="world-open" href="https://edusim3dweb.com/stages/?project=heart"
-               target="_blank" rel="noopener noreferrer">The Beating Heart <span aria-hidden="true">&rarr;</span></a>
-          </div>
-        </article>
-        <article class="world-card" style="--accent: var(--blue);">
-          <div class="world-shot">
-            <img src="assets/stages/patterns.jpg" width="640" height="480" loading="lazy" alt="A rainbow circle of overlapping five-pointed stars drawn with thin lines on a dark background" />
-            <span class="world-pin">✨</span>
-          </div>
-          <div class="world-body">
-            <span class="world-kicker">Art with the pen</span>
-            <h3>Star Patterns</h3>
-            <p>One star drawn 36 times, turning ten degrees and shifting colour each time. Seven blocks make the whole thing.</p>
-            <a class="world-open" href="https://edusim3dweb.com/stages/?project=patterns"
-               target="_blank" rel="noopener noreferrer">Star Patterns <span aria-hidden="true">&rarr;</span></a>
-          </div>
-        </article>
-      </div>
-
-      <div class="cta-row reveal">
-        <a class="btn btn-primary" href="https://edusim3dweb.com/stages/" target="_blank" rel="noopener noreferrer">🎭 Launch Edusim Stages</a>
-        <a class="btn btn-ghost" href="guide/stages.html">📘 Projects and tutorials</a>
-      </div>
+      <span>📚 Learn</span><span>🍎 Teach</span><span>🗂️ Find everything</span>
     </div>
-  </section>
-
-  <!-- ============================ BUILD ============================ -->
-  <section class="band build" id="build" style="--accent: var(--orange);">
-    <div class="wrap">
-      <div class="band-head reveal">
-        <span class="sticker" style="--c: var(--orange);">🔨 Build</span>
-        <h2>Four shapes. <span class="hl" style="--c: var(--orange);">Endless models.</span></h2>
-        <p>
-          Open <strong>Menu → Create Model</strong> and drop a shape on the ground —
-          a cube, a sphere, a cylinder or a pyramid. A little <strong>🔨 hammer</strong>
-          floats over it. The hammer is the whole toolbox: click it and you can stretch
-          the piece, turn it, paint it, and join it to its neighbours.
-        </p>
-      </div>
-
-      <ol class="build-steps reveal">
-        <li class="build-step" style="--c: var(--orange);">
-          <div class="window">
-            <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>✥ Stretch to Shape</span></div>
-            <img src="assets/screenshots/thumbs/build_stretch.jpg" width="800" height="500" loading="lazy"
-                 alt="A yellow cube stretched tall, wrapped in a see-through blue box with pale handles on all eight corners. A sphere and a cylinder stand beside it, each with a hammer icon above." />
-          </div>
-          <span class="step-num" aria-hidden="true">1</span>
-          <h3>Stretch it into shape</h3>
-          <p>Choose <strong>Stretch to Shape</strong> and drag a corner. A cube becomes a wall, a plank or a whole roof — and the opposite corner stays put, so nothing drifts.</p>
-          <p class="step-aside">🔄 <strong>Rotate/Move Shape</strong> adds rings for turning. Turns snap every 15°, so square corners are actually square.</p>
-        </li>
-        <li class="build-step" style="--c: var(--green);">
-          <div class="window">
-            <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>✥ Move</span></div>
-            <img src="assets/screenshots/thumbs/build_lift.jpg" width="800" height="500" loading="lazy"
-                 alt="One yellow sphere lifted on top of a larger one, wrapped in the see-through blue box, with a green ball on a short stem floating above it — the lift handle." />
-          </div>
-          <span class="step-num" aria-hidden="true">2</span>
-          <h3>Lift it into place</h3>
-          <p>Drag the <strong>green ball</strong> above the box to move a piece anywhere — up, down, sideways. That is how a head goes on a body and a roof goes on a house.</p>
-        </li>
-        <li class="build-step" style="--c: var(--blue);">
-          <div class="window">
-            <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>🔗 Nine pieces</span></div>
-            <img src="assets/screenshots/thumbs/build_painted.jpg" width="800" height="500" loading="lazy"
-                 alt="A robot built from nine separate sphere and cylinder pieces — a purple body of three overlapping balls, a purple head, two lime-green eye sensors and a black collar — each piece with an orange hammer icon floating over it." />
-          </div>
-          <span class="step-num" aria-hidden="true">3</span>
-          <h3>Join the pieces</h3>
-          <p><strong>Connect to Primitive</strong> lists only the pieces touching this one. Tap to join them, and paint each with <strong>Apply Texture</strong> — a colour, or a picture.</p>
-        </li>
-        <li class="build-step" style="--c: var(--purple);">
-          <div class="window">
-            <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>✨ One model</span></div>
-            <img src="assets/screenshots/thumbs/build_robot.jpg" width="800" height="500" loading="lazy"
-                 alt="The finished robot: a purple body of three overlapping spheres with a black chest panel, and a purple head carrying two lime-rimmed eye sensors with white spoked rings and black lenses." />
-          </div>
-          <span class="step-num" aria-hidden="true">4</span>
-          <h3>Press Render Model</h3>
-          <p>The hammers vanish and the pile of parts becomes <strong>one solid thing</strong> you can resize, program, save and copy.</p>
-          <p class="step-aside">🆕 <strong>Got your own 3D models?</strong> Import a <code>.glb</code> file and it gets the hammer too.</p>
-        </li>
-      </ol>
-
-      <div class="cta-row reveal">
-        <a class="btn btn-primary" href="guide/builder.html">📄 The Model Builder card</a>
-        <a class="btn btn-ghost" href="guide/tutorials.html">🛠️ Build-along projects →</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============================ CODE ============================ -->
-  <section class="band coding" id="code" style="--accent: var(--purple);">
-    <div class="wrap">
-      <div class="band-head reveal">
-        <span class="sticker" style="--c: var(--purple);">🧩 Code</span>
-        <h2>Two ways to write <span class="hl" style="--c: var(--purple);">the same program</span></h2>
-        <p>
-          Click anything in any world and press <strong>Program</strong>. Start with
-          drag-and-drop blocks. When you are ready, pick <strong>Basic Beginner</strong>,
-          and your blocks turn into Python-style code you can read and type. Switch back
-          any time. Nothing is ever lost.
-        </p>
-      </div>
-
-      <div class="lane-grid reveal">
-        <div class="code-lane" style="--c: var(--orange);">
-          <div class="lane-head">
-            <span class="lane-tag" style="background: var(--orange);">Block Code</span>
-            <h3>Snap blocks together</h3>
-          </div>
-          <div class="window">
-            <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>🧩 Program this object</span></div>
-            <img src="assets/screenshots/thumbs/07_program_editor.jpg" width="1200" height="750" loading="lazy"
-                 alt="The drag-and-drop block editor: a palette of orange Control, blue Motion and purple Look blocks on the left, and a program stack on the right." />
-          </div>
-          <p>
-            Blocks in four colours: <strong>Control</strong> (repeat, forever,
-            wait), <strong>Motion</strong> (move, glide, rotate), <strong>Looks</strong>
-            (say, size, colour) and <strong>Math</strong> (numbers you can name). If you
-            have met Scratch, you already know how this works.
-          </p>
-          <!-- The block colours are BlockDefs.js CATEGORIES, exactly: the orange chip
-               here is the orange block a student then drags. Do not retint. -->
-          <div class="code-blocks" aria-hidden="true">
-            <span class="cb ctrl">forever</span>
-            <span class="cb motion d1">move forward <b>10</b> feet</span>
-            <span class="cb motion d1">rotate <b>90</b> degrees</span>
-          </div>
-        </div>
-
-        <div class="code-lane" style="--c: #3fae5a;">
-          <div class="lane-head">
-            <span class="lane-tag" style="background: #3fae5a;">Python-style code</span>
-            <h3>Or type it</h3>
-          </div>
-          <!-- An HTML mock rather than a screenshot: it stays razor sharp at every size.
-               The colouring is the editor's own, produced by src/textcode/highlight.js
-               (command words take their block's colour), and the program compiles. -->
-          <div class="js-mock" aria-hidden="true">
-            <div class="jsm-bar">
-              <span class="jsm-dot" style="background:#e0453c"></span>
-              <span class="jsm-dot" style="background:#f2c14e"></span>
-              <span class="jsm-dot" style="background:#74c043"></span>
-              <span class="jsm-toggle"><span>Blocks</span><span class="on">Basic Beginner</span><span>Basic Pro</span></span>
-            </div>
-            <pre class="jsm-code"><span class="tc-c"># the same program, typed</span>
-<span class="tc-k" style="color:#ffab19">forever</span>
-    <span class="tc-k" style="color:#4c97ff">move</span> <span class="tc-k" style="color:#4c97ff">forward</span> <span class="tc-n">10</span> <span class="tc-k" style="color:#4c97ff">feet</span>
-    <span class="tc-k" style="color:#4c97ff">rotate</span> <span class="tc-n">90</span> <span class="tc-k" style="color:#4c97ff">degrees</span></pre>
-          </div>
-          <p>
-            The exact same program, typed. <strong>Basic Beginner</strong> reads just like
-            the blocks. <strong>Basic Pro</strong> adds the Python habits: text in quotes,
-            <code>=</code> and <code>==</code>. If a line has a problem, a card says what to
-            change, and <strong>Fix it</strong> can change it for you.
-          </p>
-          <p class="code-notes">
-            <strong>▶ Every programmed object gets a green play button</strong> floating
-            above it. Programs save with the world and start themselves the next time
-            you open it.
-          </p>
-        </div>
-      </div>
-
-      <div class="cta-row reveal">
-        <a class="btn btn-primary" href="guide/coding.html">📄 The Coding Blocks card</a>
-        <a class="btn btn-primary btn-violet" href="guide/text-coding.html">📄 The Typing Code card</a>
-        <a class="btn btn-ghost" href="https://edusim3dweb.com/app/?world=38" target="_blank" rel="noopener noreferrer">⚡ Play Python-Style Coding Basics →</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============================ LEARN ============================
-       Tutorials and the Hands-On Guide together, because to a reader they are one
-       thing: "show me how". The seven world guide cards were only reachable from inside
-       the guide before; they are surfaced here because a teacher planning a lesson on
-       the Moon is looking for exactly that card. -->
-  <section class="band learn" id="learn" style="--accent: var(--blue);">
+  </div>
+<section class="band learn" id="learn" style="--accent: var(--blue);">
     <span id="tutorials" class="anchor-alias" aria-hidden="true"></span>
     <div class="wrap">
       <div class="band-head reveal">
@@ -994,51 +885,73 @@
       </p>
     </div>
   </section>
-
-  <!-- ============================ ALSO IN THE BOX ============================ -->
-  <section class="band more" id="more">
+<section class="band book" id="book">
     <div class="wrap">
-      <div class="band-head reveal">
-        <span class="sticker" style="--c: var(--blue);">🧰 Also in the box</span>
-        <h2>More ways to make a world <span class="hl" style="--c: var(--red);">yours</span></h2>
+      <div class="book-feature reveal">
+        <div class="book-art">
+          <a class="book-cover" href="assets/book/The-Official-Edusim-Tutorial-and-Projects-Book-Vol-1.pdf" target="_blank" rel="noopener">
+            <img src="assets/book/cover.jpg" width="720" height="1080"
+                 alt="The book's front cover: the Edusim wordmark in chunky orange letters over a blue sky, the title The Official Edusim Tutorial &amp; Projects Book, a red Vol. 1 badge, and below it a green steam engine and carriage, a train station and a green turtle built from simple shapes on a grassy field." />
+          </a>
+          <span class="book-burst" aria-hidden="true">New!<small>Vol. 1</small></span>
+        </div>
+
+        <div class="book-copy">
+          <span class="sticker" style="--c: var(--red);">📗 New · Now in print</span>
+          <h2>The Official Edusim <span class="hl" style="--c: var(--orange);">Tutorial &amp; Projects Book</span></h2>
+          <p class="book-lede">
+            From your very first steps in the Park to a whole town you have built and
+            programmed yourself — <strong>112 full-colour pages</strong> of step-by-step
+            projects, with a real screenshot beside every step so you can match it on
+            screen.
+          </p>
+          <ul class="book-points">
+            <li style="--c: var(--orange);"><span aria-hidden="true">🚂</span> <span><strong>Build</strong> a steam train, a turtle and a whole train station out of four simple shapes.</span></li>
+            <li style="--c: var(--purple);"><span aria-hidden="true">🧩</span> <span><strong>Code</strong> them with blocks: a train that runs to a timetable, an animal that answers back, street lamps that come on at sunset.</span></li>
+            <li style="--c: var(--green);"><span aria-hidden="true">🦖</span> <span><strong>Explore</strong> Dinosaur Island, find the secret doors, and paint balloons that puff up into 3D.</span></li>
+            <li style="--c: var(--blue);"><span aria-hidden="true">🍎</span> <span>Skills checks, challenges and <strong>notes for teachers</strong> in every part.</span></li>
+          </ul>
+          <ol class="book-parts" aria-label="The four parts of the book">
+            <li style="--c: var(--blue);"><small>Part 1</small>Meet Edusim</li>
+            <li style="--c: var(--green);"><small>Part 2</small>First projects</li>
+            <li style="--c: var(--orange);"><small>Part 3</small>Build it</li>
+            <li style="--c: var(--purple);"><small>Part 4</small>Code it</li>
+          </ol>
+          <div class="book-cta">
+            <a class="btn btn-primary btn-big" href="assets/book/The-Official-Edusim-Tutorial-and-Projects-Book-Vol-1.pdf" target="_blank" rel="noopener">📖 Read the book (PDF, 25&nbsp;MB) ↗</a>
+            <a class="btn btn-ghost" href="#learn">Free tutorials online ↓</a>
+          </div>
+          <p class="book-fine">
+            Paperback · 112 pages · full colour · 15 chapters · ISBN&nbsp;9798160064970<br />
+            Edusim itself stays <strong>free</strong> — the book is a companion for
+            classrooms and kitchen tables, never the price of getting in.
+          </p>
+        </div>
       </div>
-      <div class="toy-grid reveal">
-        <div class="toy" style="--c: var(--red);">
-          <span class="toy-icon" aria-hidden="true">🎨</span>
-          <h3>Draw, and it inflates</h3>
-          <p>Paint a flat shape on the drawing pad and it puffs up into a 3D balloon.</p>
-        </div>
-        <div class="toy" style="--c: var(--orange);">
-          <span class="toy-icon" aria-hidden="true">🖊️</span>
-          <h3>A 3D marker pen</h3>
-          <p>Four blocks put a pen on any object, so it draws a glowing line wherever it goes.</p>
-        </div>
-        <div class="toy" style="--c: var(--sun);">
-          <span class="toy-icon" aria-hidden="true">💡</span>
-          <h3>Light orbs</h3>
-          <p>Drop real lights anywhere — and program their colours.</p>
-        </div>
-        <div class="toy" style="--c: var(--green);">
-          <span class="toy-icon" aria-hidden="true">🖥️</span>
-          <h3>Web panels in-world</h3>
-          <p>Hang a live web page or a YouTube video on any wall.</p>
-        </div>
-        <div class="toy" style="--c: var(--blue);">
-          <span class="toy-icon" aria-hidden="true">🥽</span>
-          <h3>VR view</h3>
-          <p>One menu click splits the screen for a headset or a phone viewer. Esc comes back.</p>
-        </div>
-        <div class="toy" style="--c: var(--purple);">
-          <span class="toy-icon" aria-hidden="true">💾</span>
-          <h3>Save it. Share it.</h3>
-          <p>Your world saves itself as you go. Export it as one small file and hand it to a friend.</p>
+
+      <div class="book-inside reveal">
+        <h3>Take a look inside</h3>
+        <div class="spread-grid">
+          <figure class="spread" style="--c: var(--orange);">
+            <img src="assets/book/spread-build.jpg" width="1152" height="864" loading="lazy"
+                 alt="Pages 50 and 51, Chapter 9, Build a train: a picture of the finished green steam engine and blue carriage, and a parts list of twelve pieces for the engine and six for the carriage, with tips and a note for teachers." />
+            <figcaption><b>Build it</b> Chapter 9: a steam engine from twelve pieces</figcaption>
+          </figure>
+          <figure class="spread" style="--c: var(--purple);">
+            <img src="assets/book/spread-code.jpg" width="1152" height="864" loading="lazy"
+                 alt="Pages 92 and 93, Chapter 13, Make the train go: a block program that puts the marker pen down and repeats four times glide and rotate 90 degrees, and the red square the engine draws on the grass." />
+            <figcaption><b>Code it</b> Chapter 13: the train draws a square</figcaption>
+          </figure>
+          <figure class="spread" style="--c: var(--green);">
+            <img src="assets/book/spread-explore.jpg" width="1152" height="864" loading="lazy"
+                 alt="Pages 28 and 29: a Dinosaur Island scavenger hunt with four pictures to tick off — a Tyrannosaurus rex, a Triceratops, a nest and a fossil dig — and Secret doors, showing the Under the Sea sign behind the Park's nature centre and the coral reef it leads to." />
+            <figcaption><b>Explore it</b> Chapter 4: a dinosaur hunt and a secret door</figcaption>
+          </figure>
         </div>
       </div>
     </div>
   </section>
-
-  <!-- ============================ TEACHERS ============================ -->
-  <section class="band teachers" id="teachers">
+<section class="band teachers" id="teachers">
     <div class="wrap">
       <div class="band-head reveal">
         <span class="sticker" style="--c: var(--green);">🍎 Parents &amp; teachers</span>
@@ -1182,16 +1095,7 @@
       </div>
     </div>
   </section>
-
-  <!-- ============================ RESOURCES ============================
-       EVERY page on this site and every place Edusim lives, in one block, sorted by
-       who is looking. Before this existed the spatial-reasoning guides were reachable
-       only from the footer, the two school briefs and the seven world guide cards were
-       not linked from this page at all, and the HiFi gallery was mentioned once.
-
-       Anything new published under docs/ belongs in one of these six lists. The footer
-       carries a shorter copy of the same map. -->
-  <section class="band resources" id="resources">
+<section class="band resources" id="resources">
     <div class="wrap">
       <div class="band-head reveal">
         <span class="sticker" style="--c: var(--sun);">📚 Resources</span>
@@ -1306,9 +1210,7 @@
       </div>
     </div>
   </section>
-
-  <!-- ============================ FINAL CTA ============================ -->
-  <section class="final-cta" id="play">
+<section class="final-cta" id="play">
     <div class="sky" aria-hidden="true">
       <span class="cloud cloud-1"></span>
       <span class="cloud cloud-2"></span>
@@ -1333,7 +1235,6 @@
       <path fill="#10283f" d="M0 236 C 260 222 520 228 760 240 S 1220 248 1440 232 V260 H0 Z"/>
     </svg>
   </section>
-
 </main>
 
 <footer class="site-footer">
@@ -1350,7 +1251,7 @@
     <div class="foot-top">
       <div class="foot-brand">
         <span class="brand-word">Edusim <small>Web Edition</small></span>
-        <p>A 3D virtual world for curious minds. Free, in your browser, no account needed.</p>
+        <p>A learning tool for curious minds. Free, in your browser, no account needed.</p>
         <a class="btn btn-primary" href="https://edusim3dweb.com/app/" target="_blank" rel="noopener noreferrer">▶ Launch Edusim</a>
       </div>
       <nav class="foot-cols" aria-label="Site map">
@@ -1443,6 +1344,51 @@
     });
   })();
 </script>
+<script>
+  /* Prototype: tabs for chapter 1, and a nav that lights up the chapter on screen. */
+  (function () {
+    var tabs = [].slice.call(document.querySelectorAll('[role="tab"]'));
+    function show(id, focus) {
+      tabs.forEach(function (t) {
+        var on = t.getAttribute('aria-controls') === id;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+        if (on && focus) t.focus();
+      });
+      document.querySelectorAll('#' + id + ' .reveal').forEach(function (el) { el.classList.add('is-in'); });
+    }
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { show(t.getAttribute('aria-controls')); });
+      t.addEventListener('keydown', function (e) {
+        var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (d) show(tabs[(i + d + tabs.length) % tabs.length].getAttribute('aria-controls'), true);
+      });
+    });
+    /* An old link to #build, #code or #more opens its tab. */
+    function fromHash() {
+      var id = location.hash.slice(1);
+      if (['build', 'code', 'more'].indexOf(id) >= 0) { show(id); document.getElementById(id).scrollIntoView(); }
+    }
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
+
+    if (!('IntersectionObserver' in window)) return;
+    var links = {};
+    document.querySelectorAll('.nav-links a[href^="#"]').forEach(function (a) { links[a.getAttribute('href').slice(1)] = a; });
+    var ids = ['edusim', 'build', 'code', 'more', 'stages', 'hifi', 'worlds', 'models', 'learn', 'teachers', 'resources'];
+    var owner = { build: 'edusim', code: 'edusim', more: 'edusim' };
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var key = owner[en.target.id] || en.target.id;
+        Object.keys(links).forEach(function (k) { links[k].classList.toggle('is-here', k === key); });
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    ids.forEach(function (id) { var el = document.getElementById(id); if (el) io.observe(el); });
+  })();
+</script>
+
 
 </body>
 </html>
