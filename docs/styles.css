@@ -2549,6 +2549,120 @@ section[id], .res-group, .anchor-alias { scroll-margin-top: calc(var(--nav-h) + 
   padding: 50px 0 34px;
 }
 
+/* "A project by InventOrium Labs", per Rich: the first thing in the footer, centred and
+   lifted over the hills above it. The colours are the logo's own (bulb blue, teal, orange,
+   green), run round the border as a slow shimmer. The bulb is cut from the full-size logo
+   (MainLandingPage/logo.jpeg) and sits in a white disc because the cut has a white ground. */
+.inventorium {
+  --inv-blue: #1b7cc4;
+  --inv-teal: #12a9b8;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 14px 20px;
+  width: fit-content;
+  max-width: 100%;
+  margin: -86px auto 40px;
+  padding: 14px 22px 14px 14px;
+  border: 3px solid transparent;
+  border-radius: 28px;
+  background:
+    linear-gradient(#fffdf6, #fffdf6) padding-box,
+    linear-gradient(100deg, #f2a541, #f26b3a, #8cc63f, #12a9b8, #1b7cc4, #8a5cf5, #f2a541) border-box;
+  background-size: 100% 100%, 300% 100%;
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.18), 0 18px 40px rgba(6, 20, 36, 0.45);
+  color: var(--ink);
+  text-decoration: none;
+  animation: inv-shimmer 9s linear infinite;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@keyframes inv-shimmer {
+  to { background-position: 0 0, 300% 0; }
+}
+
+.inventorium:hover,
+.inventorium:focus-visible {
+  transform: translateY(-4px) rotate(-0.6deg);
+  box-shadow: 0 14px 0 rgba(0, 0, 0, 0.18), 0 24px 48px rgba(6, 20, 36, 0.5);
+}
+
+.inv-bulb {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px #fff3d6, 0 0 22px 6px rgba(242, 165, 65, 0.55);
+}
+
+.inv-bulb img { width: 46px; height: auto; display: block; transition: transform 0.25s ease; }
+.inventorium:hover .inv-bulb img,
+.inventorium:focus-visible .inv-bulb img { transform: scale(1.1) rotate(-6deg); }
+
+.inv-text { display: grid; gap: 2px; text-align: left; }
+
+.inv-kicker {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b7a8c;
+}
+
+.inv-name {
+  font-family: "Fredoka", sans-serif;
+  font-weight: 700;
+  font-size: 1.7rem;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
+.inv-inv { color: var(--inv-blue); }
+.inv-labs { color: var(--inv-teal); }
+.inv-team { color: #f26b3a; }
+
+.inv-tag { font-size: 0.98rem; font-weight: 700; color: #3c4a5c; }
+
+.inv-go {
+  flex: none;
+  align-self: center;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--inv-blue), var(--inv-teal));
+  color: #fff;
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  box-shadow: 0 3px 0 #0f5a92;
+}
+
+.inventorium:focus-visible { outline: 3px solid #ffd98a; outline-offset: 4px; }
+
+@media (max-width: 640px) {
+  .inventorium {
+    flex-direction: column;
+    text-align: center;
+    padding: 16px 18px 18px;
+    margin-top: -70px;
+  }
+  .inv-text { text-align: center; }
+  .inv-name { font-size: 1.45rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inventorium { animation: none; transition: none; }
+  .inventorium:hover,
+  .inventorium:focus-visible { transform: none; }
+  .inv-bulb img { transition: none; }
+  .inventorium:hover .inv-bulb img,
+  .inventorium:focus-visible .inv-bulb img { transform: none; }
+}
+
 .foot-top { display: grid; gap: 36px; }
 @media (min-width: 900px) { .foot-top { grid-template-columns: 1fr 2.1fr; } }
 

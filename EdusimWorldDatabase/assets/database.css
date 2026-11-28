@@ -308,7 +308,7 @@ a { color: inherit; }
 
 /* The way back to edusim3dweb.com, per Rich: bold and in Edusim red on every sub-site so it is easy to
    find. #c42d4a is the brand red darkened to 5.4:1 on the light bar; the brand #e0455f itself is under 4:1. */
-.nav-links a.nav-home { color: #c42d4a; font-weight: 800; }
+.nav-links a.nav-home { color: #c42d4a; font-weight: 800; font-size: 1.1em; }
 .nav-links a.nav-home:hover,
 .nav-links a.nav-home:focus-visible { color: #9e1f39; }
 

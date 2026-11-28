@@ -88,8 +88,8 @@ const page = `<!DOCTYPE html>
       <a href="index.html">All cards</a>
       <a href="models.html">Model Database</a>
       <a href="teachers.html">For teachers</a>
-      <a class="nav-home" href="../index.html">Main site</a>
       <a href="../index.html#resources">All resources</a>
+      <a class="nav-home" href="../index.html">Main site</a>
       <a class="gbtn" href="${APP}" target="_blank" rel="noopener noreferrer">Open Edusim</a>
     </div>
   </div>

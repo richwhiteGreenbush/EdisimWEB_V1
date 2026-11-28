@@ -349,7 +349,7 @@ destination, in the footer's shorter copy). Every sub-site nav — guide, resear
 spatial-reasoning, privacy — carries an **All resources** link to `index.html#resources`. Its link back
 to the home page ("Main site" or "Home", and "Main site" in both galleries' top bar) carries
 `class="nav-home"`, which every sub-site stylesheet (`doc.css`, `guide.css`, `research.css`, both
-`database.css`) draws bold in #c42d4a, per Rich, so it is easy to find. A new sub-page or page generator
+`database.css`) draws bold in #c42d4a and a little larger than its neighbours, per Rich, so it is easy to find. It is the LAST link in the bar, just before the Open Edusim button. A new sub-page or page generator
 has to carry the class too; the footer copies deliberately do not.
 
 The rest of the page, in order: the hero, `#start` (six "what do you want to do today?"
@@ -392,6 +392,12 @@ days. The snooze is one localStorage date; with storage blocked it never appears
   website-only over putting this in the app. `privacy.html` has a section saying exactly what it keeps.
 - Only on edusim3dweb.com and localhost, since the GitHub Pages mirror has no `feedback.php`.
 - The home page footer's "Share & give feedback" (`data-edusim-feedback`) opens it on purpose.
+
+**The home page footer opens with an InventOrium Labs badge** (2026-11, per Rich): "Edusim is a project by the
+InventOrium Labs Team: Digital tools for the curious mind", linking to `https://inventoriumlabs.com/`. It is the
+first child of `.site-footer .wrap`, lifted over the hills by a negative margin, with the logo's own colours
+shimmering round its border (it stops under reduced motion). The bulb, `docs/assets/inventorium-labs-bulb.jpg`, is
+cut from the full-size logo in `../MainLandingPage/logo.jpeg`; the wordmark is live text, not the image.
 
 **Every book link now opens the book's own PDF** (2026-11, per Rich), not Amazon:
 `docs/assets/book/The-Official-Edusim-Tutorial-and-Projects-Book-Vol-1.pdf`, a copy of the KDP interior
