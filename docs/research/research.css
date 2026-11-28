@@ -100,6 +100,11 @@ a { color: var(--denim); }
 
 .rnav-links a { text-decoration: none; color: var(--ink-soft); padding: 4px 2px; }
 .rnav-links a:hover { color: var(--denim); }
+
+/* The way back to edusim3dweb.com, per Rich: bold and in Edusim red on every sub-site so it is easy to
+   find. #c42d4a is the brand red darkened to 5.4:1 on the light bar; the brand #e0455f itself is under 4:1. */
+.rnav-links a.nav-home { color: #c42d4a; font-weight: 800; }
+.rnav-links a.nav-home:hover { color: #9e1f39; }
 .rnav-links a[aria-current="page"] {
   color: var(--denim);
   border-bottom: 3px solid var(--orange);

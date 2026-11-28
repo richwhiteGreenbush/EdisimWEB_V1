@@ -113,7 +113,7 @@ function ewd_header(array $opts = []): void
       <li><a<?= $active === 'browse' ? ' class="is-active"' : '' ?> href="index.php">Browse worlds</a></li>
       <li><a<?= $active === 'share' ? ' class="is-active"' : '' ?> href="share.php">Share your world</a></li>
       <li><a href="<?= e(EWD_GUIDE_URL) ?>" target="_blank" rel="noopener noreferrer">Hands-On Guide</a></li>
-      <li><a href="<?= e(EWD_SITE_URL) ?>" target="_blank" rel="noopener noreferrer">Main site</a></li>
+      <li><a class="nav-home" href="<?= e(EWD_SITE_URL) ?>" target="_blank" rel="noopener noreferrer">Main site</a></li>
     </ul>
     <?php /* Same button and same label as the marketing site's nav -- one bar, one name
              for the thing it opens. "Edusim" is a span so the narrow-band rule in

@@ -346,7 +346,11 @@ spatial-reasoning guides were reachable only from the footer, and the two school
 the seven world guide cards were not linked from the landing page at all. **Anything new
 published under `docs/` belongs in one of those six lists** (and, if it is a top-level
 destination, in the footer's shorter copy). Every sub-site nav — guide, research, schools,
-spatial-reasoning, privacy — carries an **All resources** link to `index.html#resources`.
+spatial-reasoning, privacy — carries an **All resources** link to `index.html#resources`. Its link back
+to the home page ("Main site" or "Home", and "Main site" in both galleries' top bar) carries
+`class="nav-home"`, which every sub-site stylesheet (`doc.css`, `guide.css`, `research.css`, both
+`database.css`) draws bold in #c42d4a, per Rich, so it is easy to find. A new sub-page or page generator
+has to carry the class too; the footer copies deliberately do not.
 
 The rest of the page, in order: the hero, `#start` (six "what do you want to do today?"
 doors — the page's own table of contents), `#book`, `#worlds`, `#hifi`, `#build`, `#code`, `#learn`

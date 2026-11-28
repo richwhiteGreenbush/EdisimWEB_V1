@@ -135,7 +135,7 @@ const page = `<!DOCTYPE html>
       <a href="index.html">All cards</a>
       <a href="tutorials.html">Tutorials</a>
       <a href="teachers.html">For teachers</a>
-      <a href="../index.html">Main site</a>
+      <a class="nav-home" href="../index.html">Main site</a>
       <a href="../index.html#resources">All resources</a>
       <a class="gbtn" href="${APP}" target="_blank" rel="noopener noreferrer">Open Edusim</a>
     </div>
