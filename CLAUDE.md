@@ -365,8 +365,10 @@ topic chips, and an email field that appears only after "I am 18 or older" is ti
 `data/feedback.sqlite` (gitignored, and excluded from the deploy rsync, which runs with `--delete`) and
 emails it to `EWD_FEEDBACK_TO`, inventoriumlab@gmail.com, from `feedback@edusim3dweb.com` with the
 visitor's address in Reply-To. Teacher tools (`admin.php?view=feedback`) list and delete them, because a
-web server's mail can land in spam. "Not now", the close button and Esc snooze it for 30 days and sending
-for 182, as one localStorage date; with storage blocked it never appears by itself.
+web server's mail can land in spam. It appears about 1.8s after the page is ready (per Rich: within two
+seconds). ONLY the "Not now" button snoozes it for a month, per Rich; the x, Esc and a click outside keep
+it away for the rest of the browser session only (a sessionStorage flag), and sending snoozes it for 182
+days. The snooze is one localStorage date; with storage blocked it never appears by itself.
 
 - **It is loaded by `edusim-analytics.js`, which is on every site page including the generated ones.
   The APP'S `index.html` AND BOTH GALLERIES load that file too**, so the popup refuses to run under

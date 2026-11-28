@@ -14,11 +14,15 @@
  *
  * THINGS THAT ARE LOAD-BEARING:
  *
- * - "NOT NOW" MEANS A MONTH. The snooze is a localStorage date and nothing else:
- *   no id, no cookie, and it never leaves the browser. Sending feedback snoozes it
- *   for six months, since asking again in four weeks would be rude. If storage is
+ * - ONLY THE "NOT NOW" BUTTON MEANS A MONTH, per Rich. The snooze is a localStorage
+ *   date and nothing else: no id, no cookie, and it never leaves the browser.
+ *   Closing it any other way (the x, Esc, a click outside) keeps it away only for
+ *   the rest of that browser session, a sessionStorage flag, so it does not jump
+ *   back on every page; the next visit offers it again. Sending feedback snoozes it
+ *   for six months, since asking again straight away would be rude. If storage is
  *   blocked the popup NEVER appears on its own, because a popup that cannot
  *   remember being dismissed would come back on every page.
+ * - IT APPEARS WITHIN TWO SECONDS OF THE PAGE BEING READY, per Rich (it was twelve).
  * - THE EMAIL FIELD EXISTS ONLY FOR ADULTS. It is hidden and disabled until the
  *   visitor ticks "I am 18 or older", and the server ignores an address sent
  *   without that tick. Students are told to leave it blank.
@@ -42,7 +46,8 @@
   var DAY = 24 * 60 * 60 * 1000;
   var NOT_NOW_DAYS = 30;
   var AFTER_SEND_DAYS = 182;
-  var DELAY_MS = 12000;
+  var DELAY_MS = 1500; // plus loading this file: it shows about 1.8s after the page is ready
+  var SESSION_KEY = 'edusim.feedback.closed';
 
   var host = location.hostname;
   var onSite = host === 'edusim3dweb.com' || host === 'www.edusim3dweb.com' || host === 'localhost' || host === '127.0.0.1';
@@ -66,6 +71,9 @@
   }
   function snoozedUntil() {
     try { return Number(localStorage.getItem(SNOOZE_KEY)) || 0; } catch (err) { return Infinity; }
+  }
+  function closedThisSession() {
+    try { return sessionStorage.getItem(SESSION_KEY) === '1'; } catch (err) { return false; }
   }
   function snooze(days) {
     try { localStorage.setItem(SNOOZE_KEY, String(Date.now() + days * DAY)); } catch (err) { /* nothing to remember with */ }
@@ -180,7 +188,7 @@
     var backdrop = el('div', { 'class': 'efb-backdrop' });
     backdrop.innerHTML =
       '<div class="efb-card" role="dialog" aria-modal="true" aria-labelledby="efb-title" aria-describedby="efb-lede">' +
-        '<button type="button" class="efb-x" aria-label="Not now">×</button>' +
+        '<button type="button" class="efb-x" aria-label="Close">×</button>' +
         '<div class="efb-head">' +
           '<span class="efb-shape s1"></span><span class="efb-shape s2"></span><span class="efb-shape s3"></span>' +
           '<h2 id="efb-title">Help us share and improve Edusim!</h2>' +
@@ -235,10 +243,13 @@
     setTimeout(function () { if (box.parentNode) box.parentNode.removeChild(box); }, 2600);
   }
 
+  // `days` is only ever given by the Not now button (a month) and by sending (six months). Every
+  // close also keeps it away for the rest of this browser session.
   function close(days) {
     if (!open || !root) return;
     open = false;
     if (days) snooze(days);
+    try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (err) { /* nothing to remember with */ }
     document.removeEventListener('keydown', onKey, true);
     root.classList.remove('efb-in');
     var gone = root;
@@ -250,7 +261,7 @@
   // Esc is "not now", and Tab stays inside the dialog while it is open.
   function onKey(e) {
     if (!root) return;
-    if (e.key === 'Escape') { e.preventDefault(); close(NOT_NOW_DAYS); return; }
+    if (e.key === 'Escape') { e.preventDefault(); close(0); return; }
     if (e.key !== 'Tab') return;
     var focusable = Array.prototype.filter.call(
       root.querySelectorAll('button, a[href], input, textarea'),
@@ -272,8 +283,8 @@
     var email = backdrop.querySelector('.efb-email');
     var send = backdrop.querySelector('.efb-send');
 
-    backdrop.addEventListener('mousedown', function (e) { if (e.target === backdrop) close(NOT_NOW_DAYS); });
-    backdrop.querySelector('.efb-x').addEventListener('click', function () { close(NOT_NOW_DAYS); });
+    backdrop.addEventListener('mousedown', function (e) { if (e.target === backdrop) close(0); });
+    backdrop.querySelector('.efb-x').addEventListener('click', function () { close(0); });
     backdrop.querySelector('.efb-later').addEventListener('click', function () { close(NOT_NOW_DAYS); });
 
     Array.prototype.forEach.call(backdrop.querySelectorAll('.efb-sbtn'), function (a) {
@@ -381,7 +392,7 @@
 
   try {
     if (!storageOk()) return;
-    if (snoozedUntil() > Date.now()) return;
+    if (snoozedUntil() > Date.now() || closedThisSession()) return;
     if (/[?&]nofeedback\b/.test(location.search)) return;
     setTimeout(function () {
       // A visitor who has wandered off to another tab gets it when they come back, not unseen.
